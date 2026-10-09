@@ -1,0 +1,333 @@
+@import url('https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300..800;1,7..72,300..800&family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=Noto+Serif:wght@400&display=swap');
+
+/* ==========================================================================
+   POSTILLA — design tokens (single source of truth)
+   v0.3 · accent: giallo evidenziatore · all four books import this file via relative path:
+     <link rel="stylesheet" href="../tokens.css">   (or "tokens.css" if same folder)
+
+   NAMING CONVENTIONS — read before you write a single line of CSS
+   --------------------------------------------------------------------------
+   1. Never hard-code a hex, px font size, radius, shadow or duration in a
+      book. If a value you need is missing, ask the brand lead; do not invent.
+   2. Prefixes (one per concern):
+        --color-*      every color. Role names, never hue names
+                       (--color-accent, not --color-blue).
+        --font-*       font-family stacks, by ROLE (display / text / phonetic).
+        --text-<step>-size / --text-<step>-lh
+                       type scale; steps are t-shirt sizes plus 3 named
+                       roles: reader, def (dictionary body), headword.
+        --type-*       ready-made `font` shorthands for the common roles.
+                       Prefer these: `font: var(--type-reader);`
+        --weight-*     numeric weights by intent (regular/medium/semibold).
+        --leading-*    unitless line-height ratios (reader line spacing).
+        --tracking-*   letter-spacing.
+        --space-<n>    4px grid; <n> = multiples of 4 (space-4 = 16px).
+        --radius-*     pill / card / sheet / field / mark.
+        --border-*     hairline widths.
+        --shadow-*     elevation; only two exist. Dark theme flattens them.
+        --dur-* / --ease-*   motion. Reduced-motion zeroes the durations.
+        --tap-min, --frame-*  layout constants.
+   3. Color role suffixes:
+        -soft    tinted background for that role (chips, highlights)
+        -ink     text/icon color that sits ON the role's solid color
+        -strong  pressed / emphasized variant
+   4. The accent (highlighter yellow) is rare. Per screen: at most ONE yellow
+      element (progress, active-tab bar, one accent button) plus the grifo on
+      the selected word. Primary buttons are INK. Yellow is NEVER text on the
+      light theme: for "accent as text/icon" use --color-accent-text.
+   5. Semantic colors (saved, level, error) never borrow the accent, and the
+      accent never signals state other than "selected/current". Saved words
+      are neutral ink (--color-word-saved*). Focus rings use --color-focus.
+   6. Themes: light on bare :root; dark via prefers-color-scheme (unless the
+      page sets data-theme="light") and via :root[data-theme="dark"].
+      Any element can force a theme for its subtree with data-theme="light"
+      or data-theme="dark" (e.g. a dark phone next to a light one).
+      Never write `@media (prefers-color-scheme)` in a book — use tokens.
+   ========================================================================== */
+
+:root,
+[data-theme="light"] {
+  /* ---------- Color · light (default) -------------------------------------
+     Neutrals carry a faint warm bias (OKLCH hue 95, chroma ≤ 0.009) so they
+     sit in the same family as the highlighter yellow — still neutral,
+     never cream/beige.                                                 */
+  --color-bg:            #FDFDFC;  /* page canvas */
+  --color-surface:       #F6F6F3;  /* cards, translation pane, inputs */
+  --color-surface-2:     #EDECE8;  /* pressed rows, table header, segmented track */
+  --color-ink:           #181713;  /* primary text, primary button fill */
+  --color-ink-muted:     #5C5B55;  /* secondary text, translation pane (6.7:1 on bg) */
+  --color-ink-faint:     #878681;  /* meta ≥ 14px, placeholders, disabled (3.6:1 — never body text) */
+  --color-rule:          #DDDCD8;  /* hairlines, dividers, outlines */
+  --color-rule-strong:   #C8C7C2;  /* table borders, input outline at rest (secondary buttons use --color-ink) */
+
+  /* Accent — "giallo evidenziatore" (highlighter yellow).
+     A FILL and a STROKE only. Never text, never a large area.         */
+  --color-accent:        #F2C200;  /* grifo strokes, progress, active-tab bar (1.65:1 on bg — decorative only) */
+  --color-accent-strong: #D9AD00;  /* hover/pressed of accent fills; wordmark dot on light */
+  --color-accent-ink:    #181713;  /* text/icons ON a yellow fill (= ink, 10.7:1) */
+  --color-accent-soft:   #FFEB99;  /* selected-word bg (the grifo) */
+  --color-accent-text:   #181713;  /* "accent" used as text/icon: ink on light (yellow fails as text) */
+  --color-accent-mark:   #D9AD00;  /* wordmark dot (accent-strong on light so it reads on white) */
+  --color-focus:         #181713;  /* focus ring = ink (yellow fails 3:1 on white) */
+
+  --color-on-ink:        #FDFDFC;  /* text on ink-filled (primary) buttons */
+  --color-scrim:         rgb(24 23 19 / 0.40);
+
+  /* Semantic — word states (reader + dictionary) */
+  --color-word-selected-bg:   var(--color-accent-soft);
+  --color-word-selected-line: #C99A00;                    /* grifo underline 2px */
+  --color-word-saved:         var(--color-ink-faint);     /* dotted underline (neutral ink) */
+  --color-word-saved-soft:    var(--color-surface-2);     /* saved row bg in lists */
+  --color-word-saved-ink:     var(--color-ink);           /* text on saved-soft */
+  --color-word-saved-mark:    var(--color-ink-muted);     /* filled bookmark glyph */
+  --color-word-hover-bg:      var(--color-surface-2);     /* pointer hover / finger down (press preview) */
+
+  /* Semantic — sentence pairing (Leitor com tradução). Neutral, NEVER yellow:
+     the yellow already means "the word you looked up".                    */
+  --color-sentence-bg:        var(--color-rule);          /* paired sentence box (two steps above bg and surface) */
+  --color-sentence-press-bg:  var(--color-surface-2);     /* finger down on a sentence, before release */
+  --color-sentence-ink:       var(--color-ink);           /* text inside the paired sentence (PT rises from muted) */
+  --color-sentence-line:      var(--color-rule-strong);   /* 2px gutter rule: paragraph on the reading line */
+
+  /* Semantic — feedback */
+  --color-error:         #BA2B28;
+  --color-error-soft:    #FFE7E4;
+  --color-success:       #1F6B50;  /* "salvo", "baixado" confirmations only */
+
+  /* Semantic — CEFR level ramp ("salvia"). One hue, light → dark.
+     Chip uses --color-level-<x>-bg + --color-level-<x>-ink.          */
+  --color-level-a1-bg: #DEF7EC;  --color-level-a1-ink: #0E3629;
+  --color-level-a2-bg: #C6EBDC;  --color-level-a2-ink: #0E3629;
+  --color-level-b1-bg: #A5D8C3;  --color-level-b1-ink: #0E3629;
+  --color-level-b2-bg: #7DBBA3;  --color-level-b2-ink: #0B2A20;
+  --color-level-c1-bg: #3C7661;  --color-level-c1-ink: #F2FBF7;
+  --color-level-c2-bg: #214C3D;  --color-level-c2-ink: #F2FBF7;
+
+  /* ---------- Type ------------------------------------------------------- */
+  --font-display:  'Newsreader', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  --font-text:     'Literata', 'Iowan Old Style', 'Charter', 'Bitstream Charter', Georgia, serif;
+  --font-ui:       var(--font-text);  /* UI chrome uses the reading serif (opsz 7–72 holds up at 11px) */
+  --font-phonetic: 'Noto Serif', 'Charis SIL', 'Doulos SIL', 'DejaVu Serif', serif; /* IPA only: Literata/Newsreader lack ɛ ɔ ʎ ɲ ʃ ː */
+
+  /* scale — size / line-height pairs (px for predictable phone mockups) */
+  --text-2xs-size: 11px;  --text-2xs-lh: 14px;   /* uppercase micro-labels, table heads */
+  --text-xs-size:  12px;  --text-xs-lh:  16px;   /* meta, tab labels, captions */
+  --text-sm-size:  14px;  --text-sm-lh:  20px;   /* chips, secondary UI, list subtitles */
+  --text-md-size:  16px;  --text-md-lh:  24px;   /* default UI, buttons, list titles */
+  --text-def-size: 17px;  --text-def-lh: 26px;   /* dictionary definitions & examples */
+  --text-lg-size:  18px;  --text-lg-lh:  26px;   /* translation pane, lead text */
+  --text-reader-size: 20px; --text-reader-lh: 34px; /* Italian reading body (1.7 → 34px tap rows, see components-shared §0) */
+  /* Reader "Aa" sheet: 5 text-size steps (step 2 = default = --text-reader-size)
+     and 3 line-spacing ratios. Line height = size × leading.             */
+  --text-reader-1-size: 18px;
+  --text-reader-2-size: 20px;
+  --text-reader-3-size: 22px;
+  --text-reader-4-size: 24px;
+  --text-reader-5-size: 26px;
+  --leading-reader-compact: 1.5;
+  --leading-reader-default: 1.7;   /* = 34 / 20 */
+  --leading-reader-loose:   2;
+  --text-xl-size:  22px;  --text-xl-lh:  28px;   /* section titles, story card title */
+  --text-2xl-size: 28px;  --text-2xl-lh: 32px;   /* screen titles (display face) */
+  --text-3xl-size: 36px;  --text-3xl-lh: 40px;   /* story title on cover / chapter opener */
+  --text-headword-size: 44px; --text-headword-lh: 48px; /* dictionary headword */
+  --text-display-size: 56px;  --text-display-lh: 56px;  /* onboarding / brand moments */
+
+  --weight-light:    300;  /* display italics only */
+  --weight-regular:  400;
+  --weight-medium:   500;  /* buttons, active tab, list titles */
+  --weight-semibold: 600;  /* small headings, chip text */
+  --weight-bold:     700;  /* rare: inflection-table emphasis */
+
+  --tracking-display: -0.02em;  /* display face ≥ 28px */
+  --tracking-tight:   -0.01em;  /* 18–24px */
+  --tracking-normal:  0;
+  --tracking-caps:    0.08em;   /* UPPERCASE micro-labels — always pair with --text-2xs */
+
+  /* composite shorthands — `font: var(--type-reader);` */
+  --type-display:  var(--weight-medium) var(--text-display-size)/var(--text-display-lh) var(--font-display);
+  --type-headword: var(--weight-medium) var(--text-headword-size)/var(--text-headword-lh) var(--font-display);
+  --type-title-lg: var(--weight-medium) var(--text-3xl-size)/var(--text-3xl-lh) var(--font-display);
+  --type-title:    var(--weight-medium) var(--text-2xl-size)/var(--text-2xl-lh) var(--font-display);
+  --type-heading:  var(--weight-semibold) var(--text-xl-size)/var(--text-xl-lh) var(--font-text);
+  --type-reader:   var(--weight-regular) var(--text-reader-size)/var(--text-reader-lh) var(--font-text);
+  --type-lead:     var(--weight-regular) var(--text-lg-size)/var(--text-lg-lh) var(--font-text);
+  --type-def:      var(--weight-regular) var(--text-def-size)/var(--text-def-lh) var(--font-text);
+  --type-body:     var(--weight-regular) var(--text-md-size)/var(--text-md-lh) var(--font-ui);
+  --type-button:   var(--weight-medium) var(--text-md-size)/var(--text-md-lh) var(--font-ui);
+  --type-small:    var(--weight-regular) var(--text-sm-size)/var(--text-sm-lh) var(--font-ui);
+  --type-meta:     var(--weight-regular) var(--text-xs-size)/var(--text-xs-lh) var(--font-ui);
+  --type-label:    var(--weight-semibold) var(--text-2xs-size)/var(--text-2xs-lh) var(--font-ui); /* + uppercase + --tracking-caps */
+  --type-ipa:      var(--weight-regular) var(--text-def-size)/var(--text-def-lh) var(--font-phonetic);
+
+  --measure-reader: 34em;  /* max line length on tablets; phones are narrower anyway */
+
+  /* ---------- Space (4px grid) ------------------------------------------- */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;   /* screen side gutter */
+  --space-5: 20px;
+  --space-6: 24px;   /* gap between groups */
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;  /* between screen sections */
+  --space-16: 64px;
+  --space-20: 80px;
+  --gutter: var(--space-5); /* phone screen side padding (20px) */
+
+  /* ---------- Shape ------------------------------------------------------ */
+  --radius-pill:  999px;  /* buttons, chips, search field, segmented control */
+  --radius-card:  20px;   /* story cards, dictionary panels */
+  --radius-sheet: 28px;   /* top corners of sheets/dialogs; split-pane handle area */
+  --radius-field: 14px;   /* multi-line inputs, table wrapper */
+  --radius-mark:  4px;    /* word highlight boxes */
+
+  --border-hairline: 1px;
+  --border-strong:   1.5px; /* secondary button outline, focus inner, icon stroke */
+  --border-mark:     2px;   /* grifo + saved underline, progress line, active-tab bar, paragraph marker */
+  --border-focus:    2px;   /* focus ring width (offset 2px outside, or inset on bars) */
+  --icon-stroke:     1.5px;
+  --icon-size:       24px;
+  --icon-size-sm:    20px;
+
+  /* ---------- Elevation (two levels only) -------------------------------- */
+  --shadow-1: 0 1px 2px rgb(24 23 19 / 0.05), 0 2px 10px rgb(24 23 19 / 0.06); /* floating bar, sticky app bar */
+  --shadow-2: 0 10px 32px rgb(24 23 19 / 0.14);                                  /* menus, dialogs */
+
+  /* ---------- Motion ----------------------------------------------------- */
+  --dur-instant: 80ms;   /* press feedback */
+  --dur-fast:    150ms;  /* hover, highlight, chip toggle */
+  --dur-base:    240ms;  /* page push, tab change */
+  --dur-slow:    380ms;  /* translation split reveal */
+  --ease-standard:   cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasized: cubic-bezier(0.3, 0, 0, 1);
+  --ease-exit:       cubic-bezier(0.3, 0, 1, 1);
+
+  /* ---------- Layout constants ------------------------------------------ */
+  --tap-min:        44px;
+  --frame-width:    390px;
+  --frame-height:   844px;
+  --frame-radius:   48px;
+  --appbar-height:  56px;
+  --tabbar-height:  64px;  /* + safe area 34px in mockups */
+  --safe-top:       47px;  /* status bar area in mockups */
+  --safe-bottom:    34px;  /* home indicator area */
+
+  color-scheme: light;
+}
+
+/* ---------- Dark · follows the OS unless the page forces light ----------- */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-bg:            #100F0D;
+    --color-surface:       #191816;
+    --color-surface-2:     #22221E;
+    --color-ink:           #ECEBE7;
+    --color-ink-muted:     #ACABA5;
+    --color-ink-faint:     #7C7A75;
+    --color-rule:          #31302C;
+    --color-rule-strong:   #44423E;
+
+    --color-accent:        #F2C94C;
+    --color-accent-strong: #F7DA80;
+    --color-accent-ink:    #100F0D;
+    --color-accent-soft:   #3D3210;
+    --color-accent-text:   #F2C94C;
+    --color-accent-mark:   #F2C94C;
+    --color-focus:         #F2C94C;
+
+    --color-on-ink:        #100F0D;
+    --color-scrim:         rgb(0 0 0 / 0.55);
+
+    --color-word-selected-bg:   var(--color-accent-soft);
+    --color-word-selected-line: #F2C94C;
+    --color-word-saved:         var(--color-ink-faint);
+    --color-word-saved-soft:    var(--color-surface-2);
+    --color-word-saved-ink:     var(--color-ink);
+    --color-word-saved-mark:    var(--color-ink-muted);
+    --color-word-hover-bg:      var(--color-surface-2);
+    --color-sentence-bg:        var(--color-rule);
+    --color-sentence-press-bg:  var(--color-surface-2);
+    --color-sentence-ink:       var(--color-ink);
+    --color-sentence-line:      var(--color-rule-strong);
+
+    --color-error:         #F47C70;
+    --color-error-soft:    #421C18;
+    --color-success:       #7FCBA9;
+
+    --color-level-a1-bg: #172B24;  --color-level-a1-ink: #D6EFE4;
+    --color-level-a2-bg: #1C3D31;  --color-level-a2-ink: #D6EFE4;
+    --color-level-b1-bg: #285847;  --color-level-b1-ink: #D6EFE4;
+    --color-level-b2-bg: #548E78;  --color-level-b2-ink: #071A13;
+    --color-level-c1-bg: #82BDA5;  --color-level-c1-ink: #071A13;
+    --color-level-c2-bg: #B5DFCE;  --color-level-c2-ink: #071A13;
+
+    --shadow-1: 0 0 0 1px rgb(255 255 255 / 0.04);
+    --shadow-2: 0 0 0 1px rgb(255 255 255 / 0.06), 0 12px 32px rgb(0 0 0 / 0.5);
+
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"],
+[data-theme="dark"] {
+  --color-bg:            #100F0D;
+  --color-surface:       #191816;
+  --color-surface-2:     #22221E;
+  --color-ink:           #ECEBE7;
+  --color-ink-muted:     #ACABA5;
+  --color-ink-faint:     #7C7A75;
+  --color-rule:          #31302C;
+  --color-rule-strong:   #44423E;
+
+  --color-accent:        #F2C94C;
+  --color-accent-strong: #F7DA80;
+  --color-accent-ink:    #100F0D;
+  --color-accent-soft:   #3D3210;
+  --color-accent-text:   #F2C94C;
+  --color-accent-mark:   #F2C94C;
+  --color-focus:         #F2C94C;
+
+  --color-on-ink:        #100F0D;
+  --color-scrim:         rgb(0 0 0 / 0.55);
+
+  --color-word-selected-bg:   var(--color-accent-soft);
+  --color-word-selected-line: #F2C94C;
+  --color-word-saved:         var(--color-ink-faint);
+  --color-word-saved-soft:    var(--color-surface-2);
+  --color-word-saved-ink:     var(--color-ink);
+  --color-word-saved-mark:    var(--color-ink-muted);
+  --color-word-hover-bg:      var(--color-surface-2);
+  --color-sentence-bg:        var(--color-rule);
+  --color-sentence-press-bg:  var(--color-surface-2);
+  --color-sentence-ink:       var(--color-ink);
+  --color-sentence-line:      var(--color-rule-strong);
+
+  --color-error:         #F47C70;
+  --color-error-soft:    #421C18;
+  --color-success:       #7FCBA9;
+
+  --color-level-a1-bg: #172B24;  --color-level-a1-ink: #D6EFE4;
+  --color-level-a2-bg: #1C3D31;  --color-level-a2-ink: #D6EFE4;
+  --color-level-b1-bg: #285847;  --color-level-b1-ink: #D6EFE4;
+  --color-level-b2-bg: #548E78;  --color-level-b2-ink: #071A13;
+  --color-level-c1-bg: #82BDA5;  --color-level-c1-ink: #071A13;
+  --color-level-c2-bg: #B5DFCE;  --color-level-c2-ink: #071A13;
+
+  --shadow-1: 0 0 0 1px rgb(255 255 255 / 0.04);
+  --shadow-2: 0 0 0 1px rgb(255 255 255 / 0.06), 0 12px 32px rgb(0 0 0 / 0.5);
+
+  color-scheme: dark;
+}
+
+/* ---------- Reduced motion: keep state changes, drop the travel ---------- */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-instant: 0ms;
+    --dur-fast:    0ms;
+    --dur-base:    0ms;
+    --dur-slow:    0ms;
+  }
+}

@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Postilla Biblioteca</title>
+<meta name="description" content="Livro da Biblioteca da Postilla: seleção de história, componentes, estados, telas e o componente de níveis de imersão.">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="book.css">
+<style>
+/* ===== book-biblioteca.html — book-specific rules (prefix lib-) =====
+   Shared pieces come from book.css: ui-search, ui-progress, ui-hero, ui-sechead,
+   ui-empty, ui-row, book-feature/legend/pin, book-table, book-dd, book-callout. */
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+
+/* ---- book layout helpers ---- */
+.lib-steps { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--space-4); max-width: 44em; font: var(--type-def); counter-reset: st; }
+.lib-steps li { display: grid; grid-template-columns: var(--space-8) 1fr; gap: var(--space-2); counter-increment: st; }
+.lib-steps li::before { content: counter(st); font: var(--weight-medium) var(--text-md-size)/var(--text-def-lh) var(--font-display); color: var(--color-ink-muted); font-variant-numeric: tabular-nums; }
+.lib-steps strong { font-weight: var(--weight-semibold); }
+.lib-t-it { font-family: var(--font-display); font-size: var(--text-md-size); }
+.lib-nowrap { white-space: nowrap; }
+.lib-pin-top[data-pin]::after { top: var(--space-5); transform: none; }   /* anatomy pin on the hero card */
+
+/* ---- phone content: Biblioteca ---- */
+.lib-pad { padding: 0 var(--gutter); }
+.lib-searchbar { padding: 0 var(--gutter) var(--space-1); }
+
+/* filter chips row */
+.lib-filters { display: flex; align-items: center; gap: var(--space-2); overflow-x: auto; padding: var(--space-3) var(--gutter); scrollbar-width: none; }
+.lib-filters::-webkit-scrollbar { display: none; }
+.lib-filters__group { display: flex; gap: var(--space-2); flex: none; }
+.lib-filters__rule { flex: none; width: var(--border-hairline); height: var(--space-5); background: var(--color-rule-strong); }
+
+/* story card (list row) */
+.lib-list { margin: 0; padding: 0 var(--gutter); list-style: none; }
+.lib-card {
+  position: relative; display: grid; gap: var(--space-1); margin-inline: calc(-1 * var(--space-3));
+  padding: var(--space-4) var(--space-3); border-radius: var(--radius-card);
+  color: var(--color-ink); text-decoration: none;
+  transition: background-color var(--dur-fast) var(--ease-standard);
+}
+.lib-list li + li .lib-card::before { content: ""; position: absolute; top: 0; left: var(--space-3); right: var(--space-3); height: var(--border-hairline); background: var(--color-rule); }
+.lib-card:hover, .lib-card.is-hover { background: var(--color-surface); }
+.lib-card:active, .lib-card.is-active { background: var(--color-surface-2); }
+.lib-card__title { font: var(--weight-medium) var(--text-xl-size)/var(--text-xl-lh) var(--font-display); letter-spacing: var(--tracking-tight); }
+.lib-card__sub { font: var(--type-small); color: var(--color-ink-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lib-card__meta { display: flex; align-items: center; gap: var(--space-2); margin-top: var(--space-1); font: var(--type-meta); color: var(--color-ink-muted); }
+.lib-card__status { margin-inline-start: auto; display: inline-flex; align-items: center; gap: var(--space-1); font-variant-numeric: tabular-nums; }
+.lib-card__status--pct { color: var(--color-ink); }
+.lib-card__status svg, .lib-card__status [data-lucide] { width: var(--icon-size-sm); height: var(--icon-size-sm); }
+.lib-card__progress { margin-top: var(--space-2); }
+
+/* ---- phone content: Imersão ---- */
+.lib-imm { padding: var(--space-2) var(--gutter) 0; }
+.lib-imm__presets { display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-2); margin-top: var(--space-3); }
+.lib-imm__desc { margin: var(--space-3) 0 var(--space-4); min-height: var(--text-sm-lh); font: var(--type-small); color: var(--color-ink-muted); }
+.lib-imm__rows { margin-top: var(--space-1); }
+.lib-imm__row { display: grid; gap: var(--space-2); justify-items: start; padding-block: var(--space-2) var(--space-3); border-bottom: var(--border-hairline) solid var(--color-rule); }
+.lib-imm__name { margin: 0; font: var(--type-button); }
+.lib-imm__hint { font: var(--type-small); color: var(--color-ink-muted); }
+.lib-tabdemo { width: 100%; }
+
+/* ---- do / don't samples ---- */
+.lib-row { display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-2); }
+/* deliberately wrong samples for the "não faça" column (built from tokens) */
+.lib-bad-chip { display: inline-flex; align-items: center; min-height: var(--space-8); padding: 0 var(--space-3); border-radius: var(--radius-pill); font: var(--type-small); font-weight: var(--weight-bold); color: var(--color-ink); }
+.lib-bad-stat { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+.lib-bad-stat span { padding: var(--space-1) var(--space-3); border-radius: var(--radius-field); background: var(--color-accent); color: var(--color-accent-ink); font: var(--type-small); font-weight: var(--weight-bold); text-transform: uppercase; letter-spacing: var(--tracking-caps); }
+.lib-bad-badge { justify-self: start; padding: 0 var(--space-2); border-radius: var(--radius-mark); background: var(--color-error); color: var(--color-on-ink); font: var(--type-label); letter-spacing: var(--tracking-caps); }
+.lib-bad-tr { font: var(--type-small); color: var(--color-ink-muted); font-style: italic; }
+</style>
+</head>
+<body class="book">
+<a class="book-skip" href="#conteudo">Pular para o conteúdo</a>
+
+<header class="book-header">
+  <div class="book-wrap">
+    <div class="book-topline">
+      <a class="book-brand" href="identity.html">Postilla<span class="book-brand__dot" aria-hidden="true">.</span></a>
+      <button class="ui-btn ui-btn--ghost ui-btn--sm" type="button" data-theme-toggle>Tema: automático</button>
+    </div>
+    <p class="book-series">Livro 2 de 5 · Biblioteca</p>
+    <h1 class="book-title">Biblioteca</h1>
+    <p class="book-lede">Onde a pessoa escolhe o que ler: uma história para continuar, um catálogo curto filtrado por nível e gênero, e uma busca. Sem placar e sem pressa. O progresso é uma linha fina.</p>
+    <nav class="book-toc" aria-label="Seções">
+      <a href="#estrutura">Estrutura</a><a href="#estados">Estados</a><a href="#telas">Telas</a><a href="#especificacao">Especificação</a><a href="#conteudo-copia">Conteúdo</a><a href="#imersao">Imersão</a><a href="#faca">Faça e não faça</a>
+    </nav>
+  </div>
+</header>
+
+<main id="conteudo">
+
+<!-- 01 ESTRUTURA -->
+<section class="book-section" id="estrutura" aria-labelledby="estrutura-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">01 · Estrutura</p>
+      <h2 class="book-h2" id="estrutura-h">Anatomia da tela</h2>
+      <p class="book-note">A Biblioteca é a raiz da primeira aba. De cima para baixo: app bar grande, título, busca, filtros, o card Continuar lendo e a lista. A barra de abas fica sempre embaixo. Toda a tela é tinta sobre papel; o único amarelo é o traço da aba ativa.</p>
+    </header>
+
+    <div class="book-feature">
+      <figure class="phone" aria-label="Biblioteca com as partes numeradas">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body lib-app book-pinned" data-anat></div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Biblioteca</strong> · anatomia</figcaption>
+      </figure>
+
+      <ol class="book-legend">
+        <li><span class="book-pin" aria-hidden="true">1</span><span><strong>App bar grande</strong>56px, sem ações. O título compacto “Biblioteca” aparece nela ao rolar, com o filete <code>.is-scrolled</code>.</span></li>
+        <li><span class="book-pin" aria-hidden="true">2</span><span><strong>Título grande</strong><code>.ui-largetitle</code>, Newsreader 28/32. Some ao rolar.</span></li>
+        <li><span class="book-pin" aria-hidden="true">3</span><span><strong>Campo de busca</strong>Pílula de 44px em <code>--color-surface</code>. Busca em título, subtítulo e gênero.</span></li>
+        <li><span class="book-pin" aria-hidden="true">4</span><span><strong>Filtros</strong>Uma fileira com rolagem lateral: níveis A1–B2, um filete, gêneros. Todos são <code>.ui-chip</code>.</span></li>
+        <li><span class="book-pin" aria-hidden="true">5</span><span><strong>Continuar lendo</strong>Um único card, com a história aberta por último. Some quando há filtro ou busca.</span></li>
+        <li><span class="book-pin" aria-hidden="true">6</span><span><strong>Cabeçalho de seção</strong>Micro-rótulo em caixa alta e a contagem. Pode levar uma ação fantasma à direita.</span></li>
+        <li><span class="book-pin" aria-hidden="true">7</span><span><strong>Card de história</strong>Título e subtítulo em italiano, nível, gênero, duração e estado. Linhas separadas por filete, sem sombra.</span></li>
+        <li><span class="book-pin" aria-hidden="true">8</span><span><strong>Barra de abas</strong>Biblioteca ativa: rótulo em tinta, peso 600 e o traço amarelo de 2px. É o amarelo da tela.</span></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- 02 ESTADOS -->
+<section class="book-section" id="estados" aria-labelledby="estados-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">02 · Estados</p>
+      <h2 class="book-h2" id="estados-h">Componentes da Biblioteca</h2>
+      <p class="book-note">Cada componente com seus estados lado a lado, na ordem padrão, hover, pressionado, foco e selecionado. Quase tudo vem de <code>book.css</code>: chips, botões, abas, busca (<code>.ui-search</code>), card Continuar lendo (<code>.ui-hero</code>), cabeçalho de seção (<code>.ui-sechead</code>), estado vazio (<code>.ui-empty</code>) e linha de progresso (<code>.ui-progress</code>). Só o card de história e a fileira de filtros são <code>lib-</code>.</p>
+    </header>
+
+    <h3 class="book-h3" style="margin-top:0">Continuar lendo</h3>
+    <div class="book-states book-states--wide">
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-hero></div></div><figcaption class="book-state__label"><strong>Padrão</strong> · em <code>--color-surface</code></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-hero="press"></div></div><figcaption class="book-state__label"><strong>Pressionado</strong> · <code>--color-surface-2</code> (também hover com ponteiro)</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-hero="focus"></div></div><figcaption class="book-state__label"><strong>Foco</strong> · anel de 2px em <code>--color-focus</code></figcaption></figure>
+    </div>
+    <div class="book-callout" role="note">
+      <p class="ui-label">Decisão · onde fica o amarelo</p>
+      <p>O único amarelo da Biblioteca é o traço de 2px sob a aba ativa. Ele vem de <code>book.css</code> em toda raiz de aba e não sai. Por isso o progresso, que no Leitor é amarelo, aqui é <strong>tinta</strong>: linha de 2px em <code>--color-ink</code> sobre <code>--color-rule</code>, com a porcentagem ao lado. Não há palavra grifada nesta tela, então o orçamento fecha em um elemento.</p>
+    </div>
+
+    <h3 class="book-h3">Card de história · variantes</h3>
+    <div class="book-states book-states--wide">
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-card="0"></div></div><figcaption class="book-state__label"><strong>Em andamento</strong> · linha de progresso e porcentagem</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-card="1"></div></div><figcaption class="book-state__label"><strong>Nova</strong> · sem selo; é o estado normal</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-card="6"></div></div><figcaption class="book-state__label"><strong>Concluída</strong> · ícone check e “Lida” em tinta suave</figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Card de história · estados</h3>
+    <div class="book-states book-states--wide">
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-card="3"></div></div><figcaption class="book-state__label"><strong>Padrão</strong> · sem fundo</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-card="3" data-state="hover"></div></div><figcaption class="book-state__label"><strong>Hover</strong> · só com ponteiro (tablet), <code>--color-surface</code></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-card="3" data-state="press"></div></div><figcaption class="book-state__label"><strong>Pressionado</strong> · <code>--color-surface-2</code>, sem escala</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-card="3" data-state="focus"></div></div><figcaption class="book-state__label"><strong>Foco</strong> · anel no card inteiro</figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Chips de nível</h3>
+    <p class="book-note" style="margin-bottom:var(--space-4)">No filtro, o nível é um chip neutro como os outros. A escala sálvia de <code>.ui-level</code> fica só na etiqueta do card, para que dois sistemas de cor não disputem a mesma fileira.</p>
+    <div class="book-states">
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-chip" type="button" tabindex="-1" aria-pressed="false">A2</button></div><figcaption class="book-state__label"><strong>Padrão</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-chip is-hover" type="button" tabindex="-1" aria-pressed="false">A2</button></div><figcaption class="book-state__label"><strong>Hover</strong> · ponteiro</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-chip is-focus" type="button" tabindex="-1" aria-pressed="false">A2</button></div><figcaption class="book-state__label"><strong>Foco</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-chip" type="button" tabindex="-1" aria-pressed="true">A2</button></div><figcaption class="book-state__label"><strong>Selecionado</strong> · tinta cheia</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><span class="ui-level" data-level="a2">A2</span></div><figcaption class="book-state__label"><strong>Etiqueta no card</strong> · <code>.ui-level</code>, não é filtro</figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Chips de gênero</h3>
+    <div class="book-states">
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-chip" type="button" tabindex="-1" aria-pressed="false">Mistério</button></div><figcaption class="book-state__label"><strong>Padrão</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-chip is-hover" type="button" tabindex="-1" aria-pressed="false">Mistério</button></div><figcaption class="book-state__label"><strong>Hover</strong> · ponteiro</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-chip is-focus" type="button" tabindex="-1" aria-pressed="false">Mistério</button></div><figcaption class="book-state__label"><strong>Foco</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-chip" type="button" tabindex="-1" aria-pressed="true">Mistério</button></div><figcaption class="book-state__label"><strong>Selecionado</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="lib-filters" style="padding:var(--space-2) 0;max-width:100%"><div class="lib-filters__group"><button class="ui-chip" type="button" tabindex="-1" aria-pressed="false">B1</button></div><span class="lib-filters__rule" aria-hidden="true"></span><div class="lib-filters__group"><button class="ui-chip" type="button" tabindex="-1" aria-pressed="true">Viagem</button></div></div></div><figcaption class="book-state__label"><strong>Fileira</strong> · nível | gênero, filete de 1px</figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Campo de busca</h3>
+    <div class="book-states">
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill"><div class="ui-search"><i data-lucide="search" aria-hidden="true"></i><input type="search" tabindex="-1" aria-label="Buscar histórias (exemplo em repouso)" placeholder="Buscar histórias"></div></div></div><figcaption class="book-state__label"><strong>Repouso</strong> · placeholder em <code>--color-ink-faint</code></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill"><div class="ui-search is-focus"><i data-lucide="search" aria-hidden="true"></i><input type="search" tabindex="-1" aria-label="Buscar histórias (exemplo em foco)" placeholder="Buscar histórias"></div></div></div><figcaption class="book-state__label"><strong>Foco</strong> · anel na pílula inteira</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill"><div class="ui-search"><i data-lucide="search" aria-hidden="true"></i><input type="search" tabindex="-1" aria-label="Buscar histórias (exemplo preenchido)" value="nonna" lang="it"><button type="button" tabindex="-1" class="ui-iconbtn ui-search__clear" aria-label="Limpar busca"><i data-lucide="x" aria-hidden="true"></i></button></div></div></div><figcaption class="book-state__label"><strong>Preenchido</strong> · surge o botão limpar</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill"><div class="ui-search"><i data-lucide="search" aria-hidden="true"></i><input type="search" tabindex="-1" aria-label="Buscar histórias (exemplo limpando)" value="nonna" lang="it"><button type="button" tabindex="-1" class="ui-iconbtn ui-search__clear is-active" aria-label="Limpar busca"><i data-lucide="x" aria-hidden="true"></i></button></div></div></div><figcaption class="book-state__label"><strong>Limpar pressionado</strong> · esvazia e mantém o foco</figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Cabeçalho de seção</h3>
+    <div class="book-states book-states--wide">
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-sechead="Todas as histórias|6"></div></div><figcaption class="book-state__label"><strong>Lista</strong> · rótulo e contagem</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-sechead="Concluídas|1"></div></div><figcaption class="book-state__label"><strong>Concluídas</strong> · sempre no fim</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-sechead="Resultados|2|filters"></div></div><figcaption class="book-state__label"><strong>Com filtro</strong> · ação fantasma “Limpar filtros”</figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Estado vazio</h3>
+    <div class="book-states book-states--wide">
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-empty="Venezia"></div></div><figcaption class="book-state__label"><strong>Busca sem resultado</strong> · repete o termo e oferece a saída</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-empty=""></div></div><figcaption class="book-state__label"><strong>Filtros sem resultado</strong> · ex.: B2 + Viagem</figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Barra de abas · Biblioteca ativa</h3>
+    <div class="book-states book-states--wide">
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="lib-tabdemo" data-tabs="0"></div></div><figcaption class="book-state__label"><strong>Padrão</strong> · tinta, peso 600, traço amarelo</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="lib-tabdemo" data-tabs="0" data-tabfocus="1"></div></div><figcaption class="book-state__label"><strong>Foco</strong> · em Dicionário, com teclado</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg" data-theme="dark"><div class="lib-tabdemo" data-tabs="0"></div></div><figcaption class="book-state__label"><strong>Escuro</strong> · o traço continua sendo o único amarelo</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- 03 TELAS -->
+<section class="book-section" id="telas" aria-labelledby="telas-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">03 · Telas</p>
+      <h2 class="book-h2" id="telas-h">A Biblioteca em uso</h2>
+      <p class="book-note">Todas as telas são interativas: toque nos chips, digite na busca, limpe. Os mockups usam a interface em português (predefinição Iniciante de Imersão). Títulos e subtítulos ficam sempre em italiano.</p>
+    </header>
+
+    <div class="book-screens">
+      <figure class="phone" aria-label="Biblioteca, estado padrão, interativo">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body lib-app"></div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Biblioteca</strong> · padrão (interativo)</figcaption>
+      </figure>
+
+      <figure class="phone" aria-label="Biblioteca, tema escuro">
+        <div class="phone__device"><div class="phone__screen" data-theme="dark">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body lib-app"></div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Biblioteca</strong> · padrão, tema escuro</figcaption>
+      </figure>
+
+      <figure class="phone" aria-label="Biblioteca filtrada por nível A2">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body lib-app" data-levels="a2"></div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Biblioteca</strong> · filtrada por A2</figcaption>
+      </figure>
+
+      <figure class="phone" aria-label="Biblioteca filtrada por gênero Viagem">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body lib-app" data-genres="Viagem"></div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Biblioteca</strong> · filtrada por Viagem</figcaption>
+      </figure>
+
+      <figure class="phone" aria-label="Biblioteca, busca com resultados">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body lib-app" data-q="nonna" data-focus></div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Biblioteca</strong> · busca “nonna”, com resultados (teclado omitido)</figcaption>
+      </figure>
+
+      <figure class="phone" aria-label="Biblioteca, busca sem resultado">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body lib-app" data-q="Venezia"></div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Biblioteca</strong> · busca “Venezia”, vazia</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- 04 ESPECIFICAÇÃO -->
+<section class="book-section" id="especificacao" aria-labelledby="espec-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">04 · Especificação</p>
+      <h2 class="book-h2" id="espec-h">Comportamento e medidas</h2>
+      <p class="book-note">O que acontece quando a pessoa toca, em que ordem as histórias aparecem e como o progresso é mostrado.</p>
+    </header>
+
+    <ol class="lib-steps">
+      <li><span><strong>Tocar num card empilha o Leitor.</strong> Tela cheia, sem barra de abas, com “Voltar” para a Biblioteca. Em andamento abre no último parágrafo lido; nova e concluída abrem no início. O card Continuar lendo faz o mesmo que o card da lista.</span></li>
+      <li><span><strong>Sem pressão longa.</strong> Nada de prévia (peek), menu de contexto ou deslizar para apagar. Um toque, uma ação.</span></li>
+      <li><span><strong>Voltar preserva o lugar.</strong> Ao sair do Leitor, a Biblioteca volta com a mesma rolagem, busca e filtros. Tocar de novo na aba Biblioteca rola ao topo.</span></li>
+      <li><span><strong>Ordem fixa.</strong> Continuar lendo (só a história aberta por último) → Todas as histórias, do nível A1 ao B2 e, no mesmo nível, da mais curta à mais longa → Concluídas, no fim. Não há ordenação manual nesta versão.</span></li>
+      <li><span><strong>Com filtro ou busca, uma lista só.</strong> O card Continuar lendo sai e a história em andamento entra na lista com sua linha de progresso. A ordem continua: em andamento, novas, concluídas. Sem filtro, a história do card principal não se repete na lista.</span></li>
+      <li><span><strong>Filtros.</strong> Dentro do mesmo grupo vale “ou” (A1 ou A2); entre grupos vale “e” (A2 e Mistério). Nenhum chip ativo mostra tudo. “Limpar filtros” aparece no cabeçalho da lista.</span></li>
+      <li><span><strong>Busca.</strong> Procura em título, subtítulo e gênero, sem diferenciar acento ou maiúscula: “nonna” encontra o subtítulo de <span lang="it">Il treno per Bologna</span>. O resultado muda a cada letra, sem botão de enviar. Busca e filtros se somam.</span></li>
+      <li><span><strong>Progresso sem jogo.</strong> Linha de 2px em tinta e a porcentagem em texto. Concluída ganha um check e “Lida”, em tinta suave. Sem sequência de dias, XP, troféus, metas, medalhas ou confete.</span></li>
+    </ol>
+
+    <dl class="book-spec">
+      <dt>Margem da tela</dt><dd><code>--gutter</code> (20px). Cards da lista estendem o fundo de pressão 12px para fora, alinhando o texto à margem.</dd>
+      <dt>Título grande</dt><dd><code>.ui-largetitle</code> · <code>--type-title</code></dd>
+      <dt>Busca</dt><dd>Pílula de 44px (<code>--tap-min</code>), fundo <code>--color-surface</code>, ícone 20px (<code>--icon-size-sm</code>), texto <code>--type-body</code>. O anel de foco sai do campo e vai para a pílula inteira.</dd>
+      <dt>Filtros</dt><dd><code>.ui-chip</code> com <code>aria-pressed</code>, em grupos com <code>role="group"</code> e rótulo (Nível, Gênero). Filete de 1px × 20px em <code>--color-rule-strong</code> entre os grupos. Rolagem lateral sem barra visível.</dd>
+      <dt>Continuar lendo</dt><dd>Fundo <code>--color-surface</code>, <code>--radius-card</code>, respiro <code>--space-5</code>. Rótulo <code>.ui-label</code>, título <code>--type-title</code>, subtítulo <code>--type-small</code> em <code>--color-ink-muted</code>.</dd>
+      <dt>Card de história</dt><dd>Título Newsreader 500, <code>--text-xl</code> (22/28). Subtítulo em uma linha com reticências. Meta em <code>--type-meta</code>: <code>.ui-level</code> · gênero · duração · estado. Filete <code>--color-rule</code> entre cards.</dd>
+      <dt>Progresso</dt><dd><code>.ui-progress</code>: 2px, trilho <code>--color-rule</code>, preenchimento <code>--color-ink</code>, número tabular. Fora do Leitor o progresso é sempre tinta; a variante amarela (<code>--accent</code>) é só do Leitor. Decorativo para leitor de tela; o texto “38%” carrega a informação.</dd>
+      <dt>Amarelo</dt><dd>Só o traço da aba ativa (<code>.ui-tab[aria-current="page"]</code>).</dd>
+      <dt>Sombra</dt><dd>Nenhuma. Ao rolar, a app bar ganha só o filete (<code>.is-scrolled</code>).</dd>
+      <dt>Movimento</dt><dd>Fundo de pressão em <code>--dur-fast</code>; push do Leitor em <code>--dur-base</code>. Com movimento reduzido, os tokens zeram a duração e a mudança de estado continua.</dd>
+    </dl>
+  </div>
+</section>
+
+<!-- 05 CONTEÚDO -->
+<section class="book-section" id="conteudo-copia" aria-labelledby="copia-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">05 · Conteúdo e cópia</p>
+      <h2 class="book-h2" id="copia-h">Catálogo e textos da tela</h2>
+      <p class="book-note">O catálogo é o de <code>content.md</code>, sem acréscimos. Gêneros e textos da interface em português; títulos e subtítulos em italiano.</p>
+    </header>
+
+    <div class="book-table-wrap" role="region" aria-label="Catálogo" tabindex="0">
+      <table class="book-table">
+        <thead><tr><th scope="col">Título</th><th scope="col">Nível</th><th scope="col">Gênero</th><th scope="col">Duração</th><th scope="col">Estado</th></tr></thead>
+        <tbody data-catalog></tbody>
+      </table>
+    </div>
+
+    <h3 class="book-h3">Textos</h3>
+    <table class="book-table book-table--stack">
+      <thead><tr><th scope="col">Lugar</th><th scope="col">Texto</th></tr></thead>
+      <tbody>
+        <tr><td>Busca</td><td>Buscar histórias (placeholder) · Limpar busca (rótulo do botão x)</td></tr>
+        <tr><td>Card principal</td><td>Continuar lendo</td></tr>
+        <tr><td>Seções</td><td>Todas as histórias · Concluídas · Resultados</td></tr>
+        <tr><td>Grupos de filtro</td><td>Nível · Gênero (só para leitor de tela)</td></tr>
+        <tr><td>Progresso</td><td>38% · leitor de tela: “38% lido”</td></tr>
+        <tr><td>Concluída</td><td>Lida</td></tr>
+        <tr><td>Ação de lista</td><td>Limpar filtros</td></tr>
+        <tr><td>Vazio, busca</td><td>Nenhuma história encontrada · Nada com “Venezia”. Tente outra palavra. · Limpar busca</td></tr>
+        <tr><td>Vazio, filtros</td><td>Nenhuma história encontrada · Nada com esses filtros. Tire um chip ou limpe todos. · Limpar filtros</td></tr>
+        <tr><td>Contagem</td><td>1 história · 6 histórias (anunciado ao filtrar)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 06 IMERSÃO -->
+<section class="book-section" id="imersao" aria-labelledby="imersao-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">06 · Componente · Imersão</p>
+      <h2 class="book-h2" id="imersao-h">Níveis de imersão</h2>
+      <p class="book-note">A pessoa escolhe, por área, se a interface fala português ou italiano. Fica em Ajustes › Imersão. Aqui ele é documentado como componente; a tela final é do livro Ajustes. Os mockups deste e dos outros livros usam a interface em português.</p>
+    </header>
+
+    <div class="book-screens">
+      <figure class="phone" aria-label="Imersão, predefinição Intermediário, interativo">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body lib-immapp" data-preset="int"></div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Ajustes › Imersão</strong> · Intermediário (interativo; a barra de abas é a prévia)</figcaption>
+      </figure>
+      <figure class="phone" aria-label="Imersão, predefinição Imersão total, tema escuro">
+        <div class="phone__device"><div class="phone__screen" data-theme="dark">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body lib-immapp" data-preset="tot"></div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Ajustes › Imersão</strong> · Imersão total, tema escuro</figcaption>
+      </figure>
+    </div>
+
+    <h3 class="book-h3">Estados</h3>
+    <div class="book-states book-states--wide">
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-setrow></div></div><figcaption class="book-state__label"><strong>Entrada em Ajustes</strong> · mostra a predefinição atual</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-area="nav|pt"></div></div><figcaption class="book-state__label"><strong>Área · padrão</strong> · Português</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-area="dic|it|focus"></div></div><figcaption class="book-state__label"><strong>Área · foco</strong> · teclado em Italiano</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-area="dic|it"></div></div><figcaption class="book-state__label"><strong>Área · selecionado</strong> · Italiano</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-presets="int"></div></div><figcaption class="book-state__label"><strong>Predefinição</strong> · Intermediário selecionado</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-presets="custom"></div></div><figcaption class="book-state__label"><strong>Personalizado</strong> · nenhuma predefinição bate; nenhum chip fica ativo</figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Prévia · Navegação em italiano</h3>
+    <div class="book-states book-states--wide">
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="lib-tabdemo" data-tabs="2"></div></div><figcaption class="book-state__label"><strong>Navegação = Português</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="lib-tabdemo" data-tabs="2" data-tabit></div></div><figcaption class="book-state__label"><strong>Navegação = Italiano</strong> · Dizionario, Impostazioni</figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Áreas e predefinições</h3>
+    <table class="book-table book-table--stack">
+      <thead><tr><th scope="col">Área</th><th scope="col">Português</th><th scope="col">Italiano</th><th scope="col">Onde aparece</th></tr></thead>
+      <tbody>
+        <tr><td>Navegação</td><td data-l="PT">Biblioteca · Dicionário · Ajustes</td><td data-l="IT" lang="it">Biblioteca · Dizionario · Impostazioni</td><td data-l="Onde">barra de abas, menus</td></tr>
+        <tr><td>Rótulos e botões</td><td data-l="PT">Mostrar tradução · Continuar lendo</td><td data-l="IT" lang="it">Mostra traduzione · Continua a leggere</td><td data-l="Onde">botões, avisos, títulos de tela</td></tr>
+        <tr><td>Dicionário</td><td data-l="PT">Janela pequena, sobretudo de um veículo.</td><td data-l="IT" lang="it">Piccola finestra, in particolare quella di un veicolo.</td><td data-l="Onde">definições do verbete</td></tr>
+        <tr><td>Glosas e tradução</td><td data-l="PT">janela (de trem, carro, avião)</td><td data-l="IT" lang="it">piccola finestra (di treno, auto, aereo)</td><td data-l="Onde">glosa curta atrás de “Mostrar tradução”</td></tr>
+      </tbody>
+    </table>
+    <dl class="book-spec">
+      <dt>Iniciante</dt><dd>Tudo em português. É o padrão de quem instala o app.</dd>
+      <dt>Intermediário</dt><dd>Navegação, rótulos e glosas em português; dicionário em italiano.</dd>
+      <dt>Imersão total</dt><dd>As quatro áreas em italiano.</dd>
+      <dt>Personalizado</dt><dd>Qualquer outra combinação. Mexer numa área desmarca a predefinição; tocar numa predefinição reescreve as quatro áreas.</dd>
+      <dt>Controle</dt><dd><code>.ui-segmented</code> com <code>role="group"</code> e o nome da área como rótulo; cada botão usa <code>aria-pressed</code>. Predefinições são <code>.ui-chip</code>. A frase de resumo é <code>aria-live="polite"</code>.</dd>
+      <dt>Efeito</dt><dd>Imediato, sem botão de salvar. A barra de abas da própria tela muda na hora, então ela serve de prévia.</dd>
+      <dt>Em aberto</dt><dd>O que a tradução dividida do Leitor faz com Glosas = Italiano fica para o livro do Leitor.</dd>
+    </dl>
+  </div>
+</section>
+
+<!-- 07 FAÇA / NÃO FAÇA -->
+<section class="book-section" id="faca" aria-labelledby="faca-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">07 · Faça e não faça</p>
+      <h2 class="book-h2" id="faca-h">Os limites desta tela</h2>
+    </header>
+    <div class="book-dd">
+      <figure>
+        <div class="book-dd__stage"><div data-hero="mini"></div><div class="lib-tabdemo" data-tabs="0"></div></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--do"><i data-lucide="check" aria-hidden="true"></i>Faça</span><br>Progresso em tinta. O amarelo da tela já é o traço da aba ativa.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage"><div data-hero="mini-yellow"></div><div class="lib-tabdemo" data-tabs="0"></div></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--dont"><i data-lucide="x" aria-hidden="true"></i>Não faça</span><br>Não pinte o progresso de amarelo ao lado da barra de abas. São dois amarelos na mesma tela.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage"><div data-card-mini="0"></div></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--do"><i data-lucide="check" aria-hidden="true"></i>Faça</span><br>Mostre o progresso como uma linha e um número.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage"><div class="lib-bad-stat"><span>5 dias seguidos</span><span>+120 XP</span><span>Nível 3</span></div><p style="margin:0;font:var(--type-heading)" lang="it">Il treno per Bologna</p></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--dont"><i data-lucide="x" aria-hidden="true"></i>Não faça</span><br>Não ponha sequência, XP ou troféus na Biblioteca. Quem lê não está competindo.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage"><div class="lib-row"><button class="ui-chip" type="button" tabindex="-1" aria-pressed="true">A1</button><button class="ui-chip" type="button" tabindex="-1" aria-pressed="false">A2</button><button class="ui-chip" type="button" tabindex="-1" aria-pressed="false">Mistério</button><button class="ui-chip" type="button" tabindex="-1" aria-pressed="false">Viagem</button></div></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--do"><i data-lucide="check" aria-hidden="true"></i>Faça</span><br>Chips neutros; o selecionado fica em tinta.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage"><div class="lib-row"><span class="lib-bad-chip" style="background:var(--color-level-a1-bg)">A1</span><span class="lib-bad-chip" style="background:var(--color-level-b2-bg)">A2</span><span class="lib-bad-chip" style="background:var(--color-error-soft)">Mistério</span><span class="lib-bad-chip" style="background:var(--color-accent-soft)">Viagem</span></div></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--dont"><i data-lucide="x" aria-hidden="true"></i>Não faça</span><br>Não dê uma cor a cada nível ou gênero no filtro. A cor do nível mora só na etiqueta do card.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage"><div data-card-mini="1"></div></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--do"><i data-lucide="check" aria-hidden="true"></i>Faça</span><br>Título e subtítulo em italiano, metadados em português. História nova não leva selo.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage"><span class="lib-bad-badge">Novo</span><p style="margin:0;font:var(--type-heading)" lang="it">Un caffè al banco</p><p class="lib-bad-tr" style="margin:0">Um café no balcão</p></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--dont"><i data-lucide="x" aria-hidden="true"></i>Não faça</span><br>Não traduza o título no card nem marque “Novo” em quase todo o catálogo.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="book-footer"><div class="book-wrap">Postilla · sistema v0.2 · Biblioteca · tokens em <code>tokens.css</code> · componentes em <code>book.css</code></div></footer>
+
+<script>
+(() => {
+  /* ---------- data: catalogue from content.md ---------- */
+  const STORIES = [
+    { t: 'Il treno per Bologna', lv: 'a2', g: 'Viagem', min: 4, st: 'reading', p: 38, sub: 'Marta va a trovare la nonna dopo due anni.' },
+    { t: 'Un caffè al banco', lv: 'a1', g: 'Cotidiano', min: 3, st: 'new', sub: 'Come si ordina un caffè in un bar italiano.' },
+    { t: 'La nonna e il basilico', lv: 'a1', g: 'Família', min: 3, st: 'new', sub: 'Un vaso sul balcone e una ricetta di famiglia.' },
+    { t: 'La chiave sotto il vaso', lv: 'a2', g: 'Mistério', min: 6, st: 'new', sub: 'Una porta chiusa, un vicino curioso.' },
+    { t: 'Il mercato di Ballarò', lv: 'b1', g: 'Viagem', min: 7, st: 'new', sub: 'Colori, voci e odori di Palermo.' },
+    { t: 'Pinocchio, capitolo primo (adattato)', lv: 'b1', g: 'Clássicos', min: 9, st: 'new', sub: 'Mastro Ciliegia trova un pezzo di legno che parla.' },
+    { t: 'Lettera da Trieste', lv: 'b1', g: 'Cartas', min: 8, st: 'done', sub: 'Una lettera al fratello, tra vento e caffè.' },
+    { t: 'L’ultimo autobus', lv: 'b2', g: 'Conto', min: 10, st: 'new', sub: 'Mezzanotte, una fermata vuota, un autista che aspetta.' },
+  ];
+  const LEVELS = ['a1', 'a2', 'b1', 'b2'];
+  const GENRES = ['Viagem', 'Cotidiano', 'Família', 'Mistério', 'Clássicos', 'Cartas', 'Conto'];
+  const STATE_LABEL = { reading: '38% lido (em andamento)', new: 'nova', done: 'concluída' };
+  const ORDER = { reading: 0, new: 1, done: 2 };
+  const TABS_PT = ['Biblioteca', 'Dicionário', 'Ajustes'];
+  const TABS_IT = ['Biblioteca', 'Dizionario', 'Impostazioni'];
+  const TAB_ICONS = ['library-big', 'book-a', 'settings-2'];
+
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const fold = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  const icons = () => { if (window.lucide) lucide.createIcons({ attrs: { 'stroke-width': 1.5, width: 24, height: 24 } }); };
+  const sortStories = a => a.slice().sort((x, y) => ORDER[x.st] - ORDER[y.st] || x.lv.localeCompare(y.lv) || x.min - y.min);
+  const pinAttr = (o, n) => (o && o.anat && n ? ` data-pin="${n}"` : '');
+  const tabAttr = o => (o && o.inert ? ' tabindex="-1"' : '');
+  const FORCE = { hover: ' is-hover', press: ' is-active', focus: ' is-focus' };   /* frozen states for the state grids */
+
+  /* ---------- component templates ---------- */
+  function cardHTML(s, o = {}) {
+    const status = s.st === 'reading'
+      ? `<span class="lib-card__status lib-card__status--pct"><span aria-hidden="true">${s.p}%</span><span class="visually-hidden">${s.p}% lido</span></span>`
+      : s.st === 'done' ? `<span class="lib-card__status"><i data-lucide="check" aria-hidden="true"></i>Lida</span>` : '';
+    const prog = s.st === 'reading' ? `<span class="ui-progress lib-card__progress" aria-hidden="true"><i style="--p:${s.p}%"></i></span>` : '';
+    const force = FORCE[o.force] || '';
+    return `<a class="lib-card${force}" href="#leitor"${tabAttr(o)}${pinAttr(o, o.pin)}>` +
+      `<span class="lib-card__title" lang="it">${esc(s.t)}</span>` +
+      `<span class="lib-card__sub" lang="it">${esc(s.sub)}</span>` +
+      `<span class="lib-card__meta"><span class="ui-level" data-level="${s.lv}">${s.lv.toUpperCase()}</span><span>${s.g} · ${s.min} min</span>${status}</span>` +
+      prog + `</a>`;
+  }
+  function heroHTML(s, o = {}) {
+    const force = (FORCE[o.force] || '') + (o.mini ? ' ui-hero--compact' : '') + (o.anat ? ' lib-pin-top' : '');
+    const fill = o.yellow ? 'background:var(--color-accent);' : '';   /* "não faça" sample only */
+    return `<a class="ui-hero${force}" href="#leitor"${tabAttr(o)}${pinAttr(o, 5)}>` +
+      `<span class="ui-label">Continuar lendo</span>` +
+      `<span class="ui-hero__title" lang="it">${esc(s.t)}</span>` +
+      (o.mini ? '' : `<span class="ui-hero__sub" lang="it">${esc(s.sub)}</span>`) +
+      `<span class="ui-hero__meta"><span class="ui-level" data-level="${s.lv}">${s.lv.toUpperCase()}</span><span>${s.g} · ${s.min} min</span><span class="ui-hero__pct"><span aria-hidden="true">${s.p}%</span><span class="visually-hidden">${s.p}% lido</span></span></span>` +
+      `<span class="ui-progress" aria-hidden="true"><i style="--p:${s.p}%;${fill}"></i></span></a>`;
+  }
+  function secheadHTML(title, n, action, o = {}) {
+    const btn = action === 'filters' ? `<button class="ui-btn ui-btn--ghost ui-btn--sm ui-sechead__action" type="button" data-act="clear-filters"${tabAttr(o)}>Limpar filtros</button>` : '';
+    return `<div class="ui-sechead"${pinAttr(o, o.pin)}><p class="ui-sechead__title"><span class="ui-label">${title}</span><span class="ui-sechead__count">${n}</span></p>${btn}</div>`;
+  }
+  function emptyHTML(q, o = {}) {
+    const text = q ? `Nada com “<span lang="it">${esc(q)}</span>”. Tente outra palavra.` : 'Nada com esses filtros. Tire um chip ou limpe todos.';
+    const btn = q ? `<button class="ui-btn ui-btn--secondary ui-btn--sm ui-empty__action" type="button" data-act="clear-q"${tabAttr(o)}>Limpar busca</button>`
+                  : `<button class="ui-btn ui-btn--secondary ui-btn--sm ui-empty__action" type="button" data-act="clear-filters"${tabAttr(o)}>Limpar filtros</button>`;
+    return `<div class="ui-empty"><span class="ui-empty__icon" aria-hidden="true"><i data-lucide="search"></i></span><p class="ui-empty__title">Nenhuma história encontrada</p><p class="ui-empty__text">${text}</p>${btn}</div>`;
+  }
+  function tabbarHTML(active, it, o = {}) {
+    const labels = it ? TABS_IT : TABS_PT;
+    const tag = o.nav ? 'nav' : 'div';
+    return `<${tag} class="ui-tabbar"${o.nav ? ' aria-label="Principal"' : ''}${pinAttr(o, o.pin)}>` + labels.map((l, i) =>
+      `<a class="ui-tab${o.focus === i ? ' is-focus' : ''}" href="#telas"${i === active ? ' aria-current="page"' : ''}${tabAttr(o)}><i data-lucide="${TAB_ICONS[i]}" aria-hidden="true"></i><span data-tab="${i}"${it ? ' lang="it"' : ''}>${l}</span></a>`).join('') + `</${tag}>`;
+  }
+
+  /* ---------- static state samples ---------- */
+  const reading = STORIES[0];
+  document.querySelectorAll('[data-hero]').forEach(el => {
+    const v = el.dataset.hero;
+    el.innerHTML = heroHTML(reading, { inert: true, force: v, mini: v.startsWith('mini'), yellow: v === 'mini-yellow' });
+  });
+  document.querySelectorAll('[data-card]').forEach(el => { el.innerHTML = cardHTML(STORIES[+el.dataset.card], { inert: true, force: el.dataset.state }); });
+  document.querySelectorAll('[data-card-mini]').forEach(el => { el.innerHTML = cardHTML(STORIES[+el.dataset.cardMini], { inert: true }); });
+  document.querySelectorAll('[data-sechead]').forEach(el => { const [t, n, a] = el.dataset.sechead.split('|'); el.innerHTML = secheadHTML(t, n, a, { inert: true }); });
+  document.querySelectorAll('[data-empty]').forEach(el => { el.innerHTML = emptyHTML(el.dataset.empty, { inert: true }); });
+  document.querySelectorAll('[data-tabs]').forEach(el => {
+    el.innerHTML = tabbarHTML(+el.dataset.tabs, el.hasAttribute('data-tabit'), { inert: true, focus: el.dataset.tabfocus ? +el.dataset.tabfocus : -1 });
+  });
+  const cat = document.querySelector('[data-catalog]');
+  if (cat) cat.innerHTML = STORIES.map(s => `<tr><td class="lib-t-it" lang="it">${esc(s.t)}</td><td class="lib-nowrap"><span class="ui-level" data-level="${s.lv}">${s.lv.toUpperCase()}</span></td><td class="lib-nowrap">${s.g}</td><td class="lib-nowrap">${s.min} min</td><td class="lib-nowrap">${STATE_LABEL[s.st]}</td></tr>`).join('');
+
+  /* ---------- Biblioteca phones (all interactive) ---------- */
+  function wrapPin(o, n, html) { return o.anat ? `<div data-pin="${n}">${html}</div>` : html; }
+
+  function mountLibrary(body) {
+    const st = {
+      levels: new Set((body.dataset.levels || '').split(',').filter(Boolean)),
+      genres: new Set((body.dataset.genres || '').split(',').filter(Boolean)),
+      q: body.dataset.q || '',
+    };
+    const o = { anat: body.hasAttribute('data-anat') };
+    const chip = (key, val, label) => `<button class="ui-chip" type="button" data-f="${key}" data-v="${val}" aria-pressed="${st[key].has(val)}">${label}</button>`;
+    body.innerHTML =
+      wrapPin(o, 1, `<div class="ui-appbar ui-appbar--large"><p class="ui-appbar__title">Biblioteca</p><div class="ui-appbar__actions"></div></div>`) +
+      `<div class="phone__scroll">` +
+        wrapPin(o, 2, `<h4 class="ui-largetitle">Biblioteca</h4>`) +
+        `<div class="lib-searchbar"${pinAttr(o, 3)}><div class="ui-search${body.hasAttribute('data-focus') ? ' is-focus' : ''}"><i data-lucide="search" aria-hidden="true"></i>` +
+          `<input type="search" aria-label="Buscar histórias" placeholder="Buscar histórias" value="${esc(st.q)}" autocomplete="off">` +
+          `<button type="button" class="ui-iconbtn ui-search__clear" aria-label="Limpar busca"${st.q ? '' : ' hidden'}><i data-lucide="x" aria-hidden="true"></i></button></div></div>` +
+        `<div class="lib-filters"${pinAttr(o, 4)}>` +
+          `<div class="lib-filters__group" role="group" aria-label="Nível">${LEVELS.map(l => chip('levels', l, l.toUpperCase())).join('')}</div>` +
+          `<span class="lib-filters__rule" aria-hidden="true"></span>` +
+          `<div class="lib-filters__group" role="group" aria-label="Gênero">${GENRES.map(g => chip('genres', g, g)).join('')}</div>` +
+        `</div>` +
+        `<p class="visually-hidden" aria-live="polite" data-status></p>` +
+        `<div data-results></div>` +
+      `</div>` +
+      tabbarHTML(0, false, { nav: true, anat: o.anat, pin: 8 });
+
+    const results = body.querySelector('[data-results]');
+    const status = body.querySelector('[data-status]');
+    const input = body.querySelector('input');
+    const clear = body.querySelector('.ui-search__clear');
+    const field = body.querySelector('.ui-search');
+
+    function render(announce) {
+      const q = fold(st.q.trim());
+      const filtered = st.levels.size || st.genres.size;
+      const list = sortStories(STORIES.filter(s =>
+        (!st.levels.size || st.levels.has(s.lv)) &&
+        (!st.genres.size || st.genres.has(s.g)) &&
+        (!q || fold(`${s.t} ${s.sub} ${s.g}`).includes(q))));
+      let html;
+      if (!filtered && !q) {
+        const hero = list.find(s => s.st === 'reading');
+        const rest = list.filter(s => s !== hero);
+        const fresh = rest.filter(s => s.st !== 'done'), done = rest.filter(s => s.st === 'done');
+        html = (hero ? `<div class="lib-pad">${heroHTML(hero, o)}</div>` : '') +
+          secheadHTML('Todas as histórias', fresh.length, '', { anat: o.anat, pin: 6 }) +
+          `<ul class="lib-list">${fresh.map((s, i) => `<li>${cardHTML(s, { anat: o.anat, pin: i === 0 ? 7 : 0 })}</li>`).join('')}</ul>` +
+          (done.length ? secheadHTML('Concluídas', done.length) + `<ul class="lib-list">${done.map(s => `<li>${cardHTML(s)}</li>`).join('')}</ul>` : '');
+      } else if (!list.length) {
+        html = emptyHTML(st.q.trim());
+      } else {
+        html = secheadHTML('Resultados', list.length, filtered ? 'filters' : '') +
+          `<ul class="lib-list">${list.map(s => `<li>${cardHTML(s)}</li>`).join('')}</ul>`;
+      }
+      results.innerHTML = html;
+      clear.hidden = !st.q;
+      if (announce) status.textContent = list.length === 1 ? '1 história' : `${list.length} histórias`;
+      icons();
+    }
+    function clearFilters() {
+      st.levels.clear(); st.genres.clear();
+      body.querySelectorAll('[data-f]').forEach(b => b.setAttribute('aria-pressed', 'false'));
+    }
+
+    body.addEventListener('click', e => {
+      const c = e.target.closest('[data-f]');
+      if (c) {
+        const set = st[c.dataset.f], v = c.dataset.v;
+        set.has(v) ? set.delete(v) : set.add(v);
+        c.setAttribute('aria-pressed', String(set.has(v)));
+        render(true); return;
+      }
+      if (e.target.closest('.ui-search__clear') || e.target.closest('[data-act="clear-q"]')) {
+        st.q = ''; input.value = ''; render(true); input.focus(); return;
+      }
+      if (e.target.closest('[data-act="clear-filters"]')) { clearFilters(); render(true); return; }
+      if (e.target.closest('.ui-search') && e.target !== input) input.focus();
+    });
+    input.addEventListener('input', () => { st.q = input.value; render(true); });
+    input.addEventListener('focus', () => field.classList.remove('is-focus'));
+    render(false);
+  }
+  document.querySelectorAll('.lib-app').forEach(mountLibrary);
+
+  /* ---------- Imersão (component) ---------- */
+  const AREAS = [['nav', 'Navegação', 'abas e menus'], ['lab', 'Rótulos e botões', ''], ['dic', 'Dicionário', 'definições'], ['glo', 'Glosas e tradução', '']];
+  const PRESETS = [
+    ['ini', 'Iniciante', { nav: 'pt', lab: 'pt', dic: 'pt', glo: 'pt' }, 'Tudo em português. Só a história fica em italiano.'],
+    ['int', 'Intermediário', { nav: 'pt', lab: 'pt', dic: 'it', glo: 'pt' }, 'Navegação em português, dicionário em italiano.'],
+    ['tot', 'Imersão total', { nav: 'it', lab: 'it', dic: 'it', glo: 'it' }, 'Tudo em italiano, inclusive abas e menus.'],
+  ];
+  const matchPreset = v => PRESETS.find(p => AREAS.every(([k]) => p[2][k] === v[k]));
+  const describe = v => { const p = matchPreset(v); if (p) return p[3]; const n = AREAS.filter(([k]) => v[k] === 'it').length; return `Personalizado · ${n} de 4 áreas em italiano.`; };
+
+  function areaHTML([k, name, hint], val, o = {}) {
+    const b = (v, label) => `<button type="button" data-area="${k}" data-v="${v}" aria-pressed="${val === v}"${o.focus && val === v ? ' class="is-focus"' : ''}${tabAttr(o)}>${label}</button>`;
+    return `<div class="lib-imm__row"><p class="lib-imm__name">${name}${hint ? ` <span class="lib-imm__hint">· ${hint}</span>` : ''}</p>` +
+      `<div class="ui-segmented" role="group" aria-label="${name}">${b('pt', 'Português')}${b('it', 'Italiano')}</div></div>`;
+  }
+  function presetsHTML(v, o = {}) {
+    const p = matchPreset(v);
+    return `<div class="lib-imm__presets" role="group" aria-label="Predefinições">` +
+      PRESETS.map(([id, label]) => `<button class="ui-chip" type="button" data-preset="${id}" aria-pressed="${!!p && p[0] === id}"${tabAttr(o)}>${label}</button>`).join('') +
+      `</div><p class="lib-imm__desc" aria-live="polite" data-desc>${describe(v)}</p>`;
+  }
+
+  document.querySelectorAll('[data-area]').forEach(el => {
+    if (el.tagName === 'BUTTON') return;
+    const [k, val, f] = el.dataset.area.split('|');
+    el.innerHTML = areaHTML(AREAS.find(a => a[0] === k), val, { inert: true, focus: f === 'focus' });
+  });
+  document.querySelectorAll('[data-presets]').forEach(el => {
+    const id = el.dataset.presets;
+    const v = id === 'custom' ? { nav: 'it', lab: 'pt', dic: 'it', glo: 'pt' } : PRESETS.find(p => p[0] === id)[2];
+    el.innerHTML = presetsHTML(v, { inert: true });
+  });
+  document.querySelectorAll('[data-setrow]').forEach(el => {
+    el.innerHTML = `<div class="ui-row ui-row--compact"><a class="ui-row__main" href="#imersao" tabindex="-1"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-row__title">Imersão</span><span class="ui-row__value">Intermediário</span></a></div>`;
+  });
+
+  function mountImmersion(body) {
+    const v = { ...PRESETS.find(p => p[0] === (body.dataset.preset || 'ini'))[2] };
+    body.innerHTML =
+      `<div class="ui-appbar"><button class="ui-iconbtn" type="button" aria-label="Voltar a Ajustes"><i data-lucide="chevron-left" aria-hidden="true"></i></button><p class="ui-appbar__title">Imersão</p><div class="ui-appbar__actions"></div></div>` +
+      `<div class="phone__scroll lib-imm">` +
+        `<p class="ui-label">Predefinições</p><div data-presetbox>${presetsHTML(v)}</div>` +
+        `<p class="ui-label">Por área</p><div class="lib-imm__rows">${AREAS.map(a => areaHTML(a, v[a[0]])).join('')}</div>` +
+      `</div>` +
+      tabbarHTML(2, v.nav === 'it', { nav: true });
+
+    function sync() {
+      body.querySelectorAll('.lib-imm__rows [data-area]').forEach(b => b.setAttribute('aria-pressed', String(v[b.dataset.area] === b.dataset.v)));
+      const p = matchPreset(v);
+      body.querySelectorAll('[data-preset]').forEach(c => c.setAttribute('aria-pressed', String(!!p && p[0] === c.dataset.preset)));
+      body.querySelector('[data-desc]').textContent = describe(v);
+      const labels = v.nav === 'it' ? TABS_IT : TABS_PT;
+      body.querySelectorAll('[data-tab]').forEach(s => {
+        s.textContent = labels[+s.dataset.tab];
+        if (v.nav === 'it') s.setAttribute('lang', 'it'); else s.removeAttribute('lang');
+      });
+    }
+    body.addEventListener('click', e => {
+      const a = e.target.closest('.lib-imm__rows [data-area]');
+      if (a) { v[a.dataset.area] = a.dataset.v; sync(); return; }
+      const p = e.target.closest('[data-preset]');
+      if (p) { Object.assign(v, PRESETS.find(x => x[0] === p.dataset.preset)[2]); sync(); }
+    });
+  }
+  document.querySelectorAll('.lib-immapp').forEach(mountImmersion);
+
+  /* mock links never navigate */
+  document.addEventListener('click', e => {
+    const a = e.target.closest('.phone a, .book-state a, .book-dd a');
+    if (a) e.preventDefault();
+  });
+
+  /* theme toggle: auto → light → dark (shared, copy verbatim) */
+  const btn = document.querySelector('[data-theme-toggle]');
+  if (btn) {
+    const order = ['auto', 'light', 'dark'], label = { auto: 'automático', light: 'claro', dark: 'escuro' };
+    let i = 0;
+    btn.addEventListener('click', () => {
+      i = (i + 1) % 3; const t = order[i];
+      if (t === 'auto') document.documentElement.removeAttribute('data-theme');
+      else document.documentElement.setAttribute('data-theme', t);
+      btn.textContent = 'Tema: ' + label[t];
+    });
+  }
+})();
+</script>
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<script>
+  if (window.lucide) lucide.createIcons({ attrs: { 'stroke-width': 1.5, width: 24, height: 24 } });
+</script>
+</body>
+</html>

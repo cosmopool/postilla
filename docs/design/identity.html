@@ -1,0 +1,804 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Postilla Identidade</title>
+<meta name="description" content="Identidade visual da Postilla: pesquisa, nome, cor, tipografia, componentes e voz.">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="book.css">
+<!-- comparison specimens only (subset to the sample sentence) -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4&family=Fraunces&family=Instrument+Serif&family=Spectral&family=Lora&family=Gelasio&display=swap&text=%20.%3FAMPacdeghilprt%C3%A0%C3%A8%C3%A9%C3%AC%C3%B2%C3%B9">
+<style>
+/* ===== identity.html — page-specific (prefix id-) ===== */
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+.id-list { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--space-4); font: var(--type-def); }
+.id-list li { display: grid; grid-template-columns: 28px 1fr; gap: var(--space-2); }
+.id-list .n { font: var(--weight-medium) var(--text-md-size)/var(--text-def-lh) var(--font-display); color: var(--color-ink-muted); font-variant-numeric: tabular-nums; }
+.id-list strong { font-weight: var(--weight-semibold); }
+.id-src { font: var(--type-meta); color: var(--color-ink-muted); margin-top: var(--space-6); }
+.id-src a { color: inherit; text-underline-offset: 0.2em; }
+
+/* wordmark sizes (base .wordmark lives in book.css) */
+.id-hero-mark { font-size: clamp(64px, 18vw, 128px); margin: var(--space-4) 0 var(--space-8); }
+.id-names { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); }
+.id-name { padding: var(--space-6); border: var(--border-hairline) solid var(--color-rule); border-radius: var(--radius-card); display: grid; gap: var(--space-2); align-content: start; }
+.id-name.is-chosen { border: var(--border-strong) solid var(--color-ink); }
+.id-name__word { font: var(--weight-medium) 36px/1.1 var(--font-display); letter-spacing: var(--tracking-display); }
+.id-name__say { font: var(--type-small); color: var(--color-ink-muted); }
+.id-name p { margin: 0; font: var(--type-small); }
+.id-marks { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); margin-top: var(--space-8); }
+.id-markbox { display: grid; place-items: center; min-height: 180px; padding: var(--space-6); border-radius: var(--radius-card); background: var(--color-bg); border: var(--border-hairline) solid var(--color-rule); }
+.id-markbox .wordmark { font-size: 56px; }
+.id-appicon { width: 96px; height: 96px; border-radius: 22px; background: var(--color-ink); display: grid; place-items: center; }
+.id-appicon .wordmark { color: var(--color-on-ink); font-size: 84px; transform: translateY(-4px); }
+.id-appicon .wordmark__i::after { width: 0.15em; height: 0.15em; }
+.id-markrow { display: flex; align-items: center; gap: var(--space-6); flex-wrap: wrap; justify-content: center; }
+.id-markrow > .wordmark { font-size: 24px; }
+
+/* color */
+.id-themes { display: grid; gap: var(--space-6); grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); }
+.id-theme { padding: var(--space-6) var(--space-4); border-radius: var(--radius-card); background: var(--color-bg); color: var(--color-ink); border: var(--border-hairline) solid var(--color-rule); }
+.id-themehead { margin-bottom: var(--space-4); }
+.id-swatches { display: grid; gap: var(--space-3); }
+.id-sw { display: grid; grid-template-columns: 44px 1fr auto; gap: var(--space-3); align-items: center; }
+.id-sw__chip { width: 44px; height: 44px; border-radius: 12px; box-shadow: inset 0 0 0 1px var(--color-rule); }
+.id-sw__name { font: var(--type-small); font-weight: var(--weight-semibold); }
+.id-sw__use { font: var(--type-meta); color: var(--color-ink-muted); }
+.id-sw__hex { font: var(--type-meta); font-variant-numeric: tabular-nums; color: var(--color-ink-muted); text-align: right; }
+.id-sw-head { font: var(--type-label); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--color-ink-muted); margin: var(--space-6) 0 var(--space-1); }
+.id-ratio { font-variant-numeric: tabular-nums; }   /* = .book-table, numeric columns right-aligned */
+.id-ratio td:nth-child(2), .id-ratio td:nth-child(3), .id-ratio th:nth-child(2), .id-ratio th:nth-child(3) { text-align: right; white-space: nowrap; padding-right: var(--space-3); }
+.id-ratio .pair { display: inline-flex; align-items: center; gap: 6px; }
+.id-ratio .dot { width: 14px; height: 14px; border-radius: 50%; box-shadow: inset 0 0 0 1px var(--color-rule); flex: none; }
+.id-budget { display: grid; grid-template-columns: repeat(20, 1fr); gap: 3px; margin-top: var(--space-4); }
+.id-budget span { aspect-ratio: 1; border-radius: 3px; background: var(--color-surface-2); }
+.id-budget span.ink { background: var(--color-ink); }
+.id-budget span.acc { background: var(--color-accent); box-shadow: inset 0 0 0 1px var(--color-accent-strong); }
+.id-budget span.bg { background: var(--color-bg); box-shadow: inset 0 0 0 1px var(--color-rule); }
+
+/* type */
+.id-fontcards { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); }
+.id-font { padding: var(--space-5) var(--space-5) var(--space-4); border: var(--border-hairline) solid var(--color-rule); border-radius: var(--radius-card); display: grid; gap: var(--space-2); align-content: start; }
+.id-font.is-chosen { border: var(--border-strong) solid var(--color-ink); }
+.id-font__sample { font-size: 22px; line-height: 1.3; min-height: 2.6em; }
+.id-font__meta { font: var(--type-meta); color: var(--color-ink-muted); font-variant-numeric: tabular-nums; }
+.id-font__verdict { font: var(--type-small); margin: 0; }
+.id-font__head { display: flex; justify-content: space-between; gap: var(--space-2); align-items: baseline; }
+.id-font__head strong { font: var(--weight-semibold) var(--text-md-size)/1.3 var(--font-ui); }
+.id-pair { display: grid; gap: var(--space-8); grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); }
+.id-glyphs { font: var(--weight-regular) 34px/1.25 var(--font-display); letter-spacing: 0.02em; overflow-wrap: anywhere; margin: 0; }
+.id-glyphs.text { font-family: var(--font-text); font-size: 28px; }
+.id-reader { font: var(--type-reader); max-width: var(--measure-reader); }
+.id-reader p { margin: 0 0 var(--space-4); }
+.id-reader-tr { font: var(--type-lead); color: var(--color-ink-muted); max-width: 36em; }
+.id-reader-tr p { margin: 0 0 var(--space-3); }
+.id-split { border: var(--border-hairline) solid var(--color-rule); border-radius: var(--radius-card); overflow: hidden; }
+.id-split > div { padding: var(--space-6) var(--space-5); }
+.id-split > div + div { border-top: var(--border-hairline) solid var(--color-rule); background: var(--color-surface); }
+.id-scale { display: grid; gap: 0; }
+.id-scale > div { display: grid; grid-template-columns: 112px 1fr; gap: var(--space-4); align-items: baseline; padding: var(--space-4) 0; border-bottom: var(--border-hairline) solid var(--color-rule); }
+.id-scale code { color: var(--color-ink-muted); font-size: 12px; }
+.id-scale .meta { display: block; font: var(--type-meta); color: var(--color-ink-muted); }
+.id-scale .s { overflow-wrap: anywhere; min-width: 0; }
+@media (max-width: 480px) { .id-scale > div { grid-template-columns: 1fr; gap: var(--space-1); } }
+
+/* space / radius / elevation */
+.id-spaces { display: grid; gap: var(--space-2); }
+.id-space { display: grid; grid-template-columns: 88px 1fr; align-items: center; gap: var(--space-3); font: var(--type-meta); color: var(--color-ink-muted); font-variant-numeric: tabular-nums; }
+.id-space i { display: block; height: 12px; background: var(--color-ink); border-radius: 2px; }
+.id-radii { display: flex; flex-wrap: wrap; gap: var(--space-4); }
+.id-radius { display: grid; gap: var(--space-2); justify-items: start; font: var(--type-meta); color: var(--color-ink-muted); }
+.id-radius i { display: block; width: 96px; height: 64px; background: var(--color-surface-2); border: var(--border-strong) solid var(--color-ink); }
+.id-elev { display: grid; gap: var(--space-6); grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); }
+.id-elev > div { min-height: 96px; padding: var(--space-4); border-radius: var(--radius-card); background: var(--color-bg); font: var(--type-meta); color: var(--color-ink-muted); display: grid; align-content: end; }
+.id-elev .e0 { background: var(--color-surface); }
+.id-elev .e1 { box-shadow: var(--shadow-1); }
+.id-elev .e2 { box-shadow: var(--shadow-2); }
+
+/* icons */
+.id-icons { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: var(--space-2); }
+.id-icon { display: grid; justify-items: center; gap: var(--space-2); padding: var(--space-4) var(--space-1); border-radius: var(--radius-field); background: var(--color-surface); font: var(--type-meta); color: var(--color-ink-muted); text-align: center; overflow-wrap: anywhere; }
+.id-icon [data-lucide], .id-icon svg { color: var(--color-ink); }
+.id-icon--saved svg { color: var(--color-word-saved-mark); fill: currentColor; }
+
+/* specimens: dictionary entry + reader phones (all pieces from book.css) */
+.id-entry { display: grid; gap: var(--space-5); align-content: start; min-width: 0; }
+.id-head { display: grid; gap: var(--space-1); justify-items: start; }
+.id-rtext { margin: 0 0 var(--space-4); font: var(--type-reader); }
+.id-rtext--flat { margin: 0; }
+.id-rpad { padding: var(--space-2) var(--gutter) 0; }
+.id-rkicker { margin-bottom: var(--space-2); display: flex; gap: var(--space-2); align-items: center; }
+.id-rtitle { margin: 0 0 var(--space-5); font: var(--type-title); letter-spacing: var(--tracking-display); }
+.id-pane { flex: 1 1 50%; min-height: 0; overflow: hidden; padding: var(--space-2) var(--gutter) 0; }
+.id-pane--pt { background: var(--color-surface); padding-top: var(--space-3); }
+.id-pane--pt .id-rtext { font: var(--type-lead); color: var(--color-ink-muted); }
+.id-dicpad { padding: var(--space-2) var(--gutter) var(--space-6); }
+.id-gap-lg { margin-bottom: var(--space-8); }
+
+/* voice table (= .book-table) */
+.id-no { color: var(--color-ink-muted); text-decoration: line-through; text-decoration-color: var(--color-error); text-decoration-thickness: var(--border-strong); }
+
+/* the "don't" mini renders deliberately break the system (off-palette on purpose) */
+.id-bad-btn { display: inline-flex; justify-content: center; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 14px; font: 700 15px/1 var(--font-ui); text-transform: uppercase; letter-spacing: 0.04em; color: #fff; box-shadow: 0 4px 0 rgb(0 0 0 / 0.25); }
+.id-bad-row { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+.id-bad-card { padding: 12px; border-radius: 16px; box-shadow: 0 6px 18px rgb(0 0 0 / 0.18); background: var(--color-bg); font: var(--type-small); }
+.id-interlinear { font: var(--type-def); }
+.id-interlinear span { display: block; }
+.id-interlinear .tr { color: var(--color-ink-muted); font-size: var(--text-sm-size); margin-bottom: var(--space-2); }
+</style>
+</head>
+<body class="book">
+<a class="book-skip" href="#conteudo">Pular para o conteúdo</a>
+
+<header class="book-header">
+  <div class="book-wrap">
+    <div class="book-topline">
+      <a class="book-brand" href="identity.html">Postilla<span class="book-brand__dot" aria-hidden="true">.</span></a>
+      <button class="ui-btn ui-btn--ghost ui-btn--sm book-theme" type="button" data-theme-toggle>Tema: automático</button>
+    </div>
+    <p class="book-series">Livro 1 de 5 · Identidade</p>
+    <h1 class="visually-hidden">Postilla — Identidade</h1>
+    <div class="wordmark id-hero-mark" aria-hidden="true">Post<span class="wordmark__i">ı</span>lla</div>
+    <p class="book-lede">Histórias graduadas em italiano para quem fala português. Leitura sóbria, tradução só quando você pede e um dicionário que trata a palavra com o cuidado de um livro.</p>
+    <nav class="book-toc" aria-label="Seções">
+      <a href="#pesquisa">Pesquisa</a><a href="#nome">Nome</a><a href="#cor">Cor</a><a href="#tipografia">Tipografia</a><a href="#escala">Escala</a><a href="#espaco">Espaço e forma</a><a href="#icones">Ícones</a><a href="#botoes">Botões</a><a href="#componentes">Componentes</a><a href="#voz">Voz e tom</a><a href="#faca">Faça e não faça</a>
+    </nav>
+  </div>
+</header>
+
+<main id="conteudo">
+
+<!-- 01 PESQUISA -->
+<section class="book-section" id="pesquisa" aria-labelledby="pesquisa-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">01 · Pesquisa</p>
+      <h2 class="book-h2" id="pesquisa-h">O minimalismo do Bumble, com serifa</h2>
+      <p class="book-note">O pedido foi claro: sair do visual Duolingo que a Beelinguapp imita e chegar a algo sóbrio e confiante. Estudamos o que faz o Bumble parecer simples sem parecer vazio, e o que faz um app de leitura ser confortável por uma hora seguida.</p>
+    </header>
+
+    <div class="book-cols">
+      <div class="book-card">
+        <h3>O que levamos do Bumble</h3>
+        <ol class="id-list">
+          <li><span class="n">1</span><span><strong>Uma cor-assinatura, usada pouco.</strong> No Bumble o amarelo ocupa fundos e molduras grandes; texto, bordas e botões cheios são em tinta quase preta (#202020). Aqui o amarelo vira marca-texto: grifa a palavra selecionada e aparece em no máximo um outro elemento por tela, sempre como fundo ou traço, nunca como texto.</span></li>
+          <li><span class="n">2</span><span><strong>Neutros fazem o trabalho.</strong> Canvas branco, tinta escura e cinzas para hierarquia. Nada de cor para separar categorias.</span></li>
+          <li><span class="n">3</span><span><strong>Tipo grande, poucos pesos.</strong> Uma família para a interface, pesos de 400 a 600, corpo generoso (o Bumble usa 17px; nosso texto de leitura usa 20px).</span></li>
+          <li><span class="n">4</span><span><strong>Forma redonda e coerente.</strong> Pílulas para controles e etiquetas, cards com 20px, nunca canto reto.</span></li>
+          <li><span class="n">5</span><span><strong>Superfícies planas.</strong> Uma única sombra leve para o que flutua. Hover muda a cor, não levanta o botão.</span></li>
+          <li><span class="n">6</span><span><strong>Lição do rebrand de 2024.</strong> O Bumble trocou para um wordmark com maiúscula e peso maior, mais forte que o símbolo, e montou uma família de 13 amarelos, criticada por deixar incerto qual é o principal. Ficamos com o wordmark como protagonista e com um único amarelo de papéis nomeados: acento, forte, suave. Pegamos o gesto do amarelo, não o tom nem a logo.</span></li>
+        </ol>
+      </div>
+      <div class="book-card">
+        <h3>O que rejeitamos</h3>
+        <ol class="id-list">
+          <li><span class="n">1</span><span><strong>Mascotes e ilustração cartunesca.</strong> O adulto que lê uma história não precisa de torcida.</span></li>
+          <li><span class="n">2</span><span><strong>Multicolor saturado e sombras 3D</strong> nos botões, o “clique de brinquedo” do Duolingo.</span></li>
+          <li><span class="n">3</span><span><strong>Gamificação na interface:</strong> sequências, XP, troféus, confete. O progresso aparece como uma linha fina, não como prêmio.</span></li>
+          <li><span class="n">4</span><span><strong>Tradução sempre visível</strong>, a maior queixa sobre a Beelinguapp. Aqui ela fica oculta e abre sob demanda numa tela dividida.</span></li>
+          <li><span class="n">5</span><span><strong>Dicionário raso.</strong> O nosso é uma página inteira e monolíngue, no espírito do dicionário Livio (Wiktionary): classe, gênero, IPA, acepções numeradas, exemplos, flexão, etimologia, sinônimos.</span></li>
+          <li><span class="n">6</span><span><strong>Clichês de IA:</strong> creme + serifa + terracota, preto com verde-ácido, degradê roxo-azul, emoji como marcador, sombra em todo bloco.</span></li>
+        </ol>
+      </div>
+      <div class="book-card">
+        <h3>Referências de leitura</h3>
+        <ol class="id-list">
+          <li><span class="n">1</span><span><strong>Readwise Reader.</strong> Corpo padrão de 20px e entrelinha 1,4, ajustáveis pelo menu “Aa”. Adotamos os 20px e subimos a entrelinha para 1,7: em um leitor de toque, cada linha também é uma fileira de alvos.</span></li>
+          <li><span class="n">2</span><span><strong>Google Play Books.</strong> Usa Literata como face padrão, desenhada para tela e não adaptada do impresso. É a nossa face de leitura.</span></li>
+          <li><span class="n">3</span><span><strong>Wiktionary e Livio.</strong> Estrutura fixa e previsível: cabeçalho, pronúncia, classe, acepções, exemplos, tabelas. Copiamos a ordem e não a aparência: hierarquia por tipo, não por caixas.</span></li>
+        </ol>
+      </div>
+    </div>
+    <p class="id-src">Fontes: <a href="https://styles.refero.design/style/f32595cf-478e-4ccd-8722-0daffa693d76">Refero, estilo do Bumble</a> (tokens de terceiros, não oficiais) · <a href="https://designcompass.org/en/2024/05-1tp-3tea/01/bumble-rebrand/">Design Compass, rebrand 2024</a> · <a href="https://logos-world.net/bumble-unveils-new-logo-and-brand-identity/">Logos-World</a> · <a href="https://docs.readwise.io/reader/docs/faqs/appearance">Readwise, aparência</a> · <a href="https://thesaurus.altervista.org/dictionary-help-phone">Livio, ajuda do dicionário</a>.</p>
+  </div>
+</section>
+
+<!-- 02 NOME -->
+<section class="book-section" id="nome" aria-labelledby="nome-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">02 · Nome</p>
+      <h2 class="book-h2" id="nome-h">Postilla</h2>
+      <p class="book-note">Postilla é a nota escrita na margem de um texto. É exatamente o que o app faz: a tradução e o dicionário ficam ao lado da história, à espera. Para um brasileiro o nome soa como “apostila”, ou seja, estudo, e para um italiano é uma palavra culta e real.</p>
+    </header>
+
+    <p class="id-src" style="margin-top:0">Nomes considerados: <span lang="it">Sottovoce</span> (“em voz baixa”, longo demais) e <span lang="it">Chiosa</span> (“glosa”, lido como “xiosa” no Brasil). Nenhum dos três aparece como app de idiomas numa busca rápida.</p>
+
+    <h3 class="book-h3">Wordmark</h3>
+    <div class="book-prose">
+      <p>Newsreader Medium em tamanho óptico de display, espaçamento −2,5%, tudo em caixa baixa exceto o P. O pingo do <span lang="it">i</span> é o único elemento de cor: um ponto de marca-texto amarelo. No tema claro ele usa <code>--color-accent-mark</code> (#D9AD00), um tom mais denso para não sumir no branco. Nada de símbolo separado: como no rebrand do Bumble, o nome é a marca.</p>
+    </div>
+    <div class="id-marks">
+      <div class="id-markbox" data-theme="light"><span class="wordmark" role="img" aria-label="Postilla, wordmark no tema claro">Post<span class="wordmark__i">ı</span>lla</span></div>
+      <div class="id-markbox" data-theme="dark"><span class="wordmark" role="img" aria-label="Postilla, wordmark no tema escuro">Post<span class="wordmark__i">ı</span>lla</span></div>
+      <div class="id-markbox">
+        <div class="id-markrow">
+          <div class="id-appicon" role="img" aria-label="Ícone do app: i sem pingo com ponto amarelo"><span class="wordmark" aria-hidden="true"><span class="wordmark__i">ı</span></span></div>
+          <span class="wordmark" role="img" aria-label="Postilla em 24px">Post<span class="wordmark__i">ı</span>lla</span>
+        </div>
+      </div>
+    </div>
+    <dl class="book-spec">
+      <dt>Montagem</dt><dd><code>Post&lt;span class="wordmark__i"&gt;ı&lt;/span&gt;lla</code>, com U+0131 (i sem pingo) e o ponto desenhado em CSS</dd>
+      <dt>Tamanho mínimo</dt><dd>20px. Abaixo disso, escreva “Postilla” em texto normal</dd>
+      <dt>Área de respiro</dt><dd>a altura do P em volta de tudo</dd>
+      <dt>Ícone</dt><dd>ı + ponto amarelo sobre tinta, raio de 22% (a máscara do sistema prevalece)</dd>
+    </dl>
+  </div>
+</section>
+
+<!-- 03 COR -->
+<section class="book-section" id="cor" aria-labelledby="cor-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">03 · Cor</p>
+      <h2 class="book-h2" id="cor-h">Tinta, papel e um grifo</h2>
+      <p class="book-note">O acento se chama <em lang="it">giallo evidenziatore</em>, o amarelo do marca-texto. É o gesto de quem estuda: grifar a palavra que não conhece. A seleção vira um grifo de verdade. O amarelo só funciona como fundo e traço. No tema claro ele nunca é texto: para isso existe <code>--color-accent-text</code>, que é tinta no claro e amarelo no escuro. Os neutros puxam de leve para o quente (matiz OKLCH 95, croma até 0,009), sem virar creme.</p>
+    </header>
+
+    <div class="id-themes">
+      <div class="id-theme" data-theme="light">
+        <p class="ui-label id-themehead">Tema claro</p>
+        <div class="id-swatches" data-swatches="light"></div>
+      </div>
+      <div class="id-theme" data-theme="dark">
+        <p class="ui-label id-themehead">Tema escuro</p>
+        <div class="id-swatches" data-swatches="dark"></div>
+      </div>
+    </div>
+
+    <h3 class="book-h3">Orçamento de cor por tela</h3>
+    <div class="book-prose"><p>Uma tela típica tem cerca de 90% de papel, 9% de tinta e 1% de amarelo: o grifo e mais um elemento. Se o amarelo passar disso, algo deveria ser tinta.</p></div>
+    <div class="id-budget" aria-hidden="true" data-budget></div>
+
+    <h3 class="book-h3">Contraste dos pares principais</h3>
+    <table class="book-table id-ratio">
+      <thead><tr><th scope="col">Par</th><th scope="col">Claro</th><th scope="col">Escuro</th><th scope="col">Uso</th></tr></thead>
+      <tbody>
+        <tr><td><span class="pair"><span class="dot" style="background:var(--color-ink)"></span>ink / bg</span></td><td>17,6</td><td>16,1</td><td>texto de leitura</td></tr>
+        <tr><td><span class="pair"><span class="dot" style="background:var(--color-ink-muted)"></span>ink-muted / bg</span></td><td>6,7</td><td>8,3</td><td>tradução, secundário</td></tr>
+        <tr><td><span class="pair"><span class="dot" style="background:var(--color-ink-muted)"></span>ink-muted / surface</span></td><td>6,3</td><td>7,7</td><td>painel da tradução</td></tr>
+        <tr><td><span class="pair"><span class="dot" style="background:var(--color-ink-faint)"></span>ink-faint / bg</span></td><td>3,6</td><td>4,5</td><td>placeholder, desativado, sublinhado de salva</td></tr>
+        <tr><td><span class="pair"><span class="dot" style="background:var(--color-accent-text)"></span>accent-text / bg</span></td><td>17,6</td><td>12,1</td><td>acento como texto ou ícone</td></tr>
+        <tr><td><span class="pair"><span class="dot" style="background:var(--color-focus)"></span>focus / bg</span></td><td>17,6</td><td>12,1</td><td>anel de foco (tinta no claro)</td></tr>
+        <tr><td><span class="pair"><span class="dot" style="background:var(--color-accent)"></span>accent / bg</span></td><td>1,7</td><td>12,1</td><td>só traço e fundo no claro, nunca texto</td></tr>
+        <tr><td><span class="pair"><span class="dot" style="background:var(--color-accent-mark)"></span>accent-mark / bg</span></td><td>2,1</td><td>12,1</td><td>pingo do wordmark (decorativo)</td></tr>
+        <tr><td><span class="pair"><span class="dot" style="background:var(--color-accent-ink)"></span>accent-ink / accent</span></td><td>10,7</td><td>12,1</td><td>texto sobre o amarelo</td></tr>
+        <tr><td><span class="pair"><span class="dot" style="background:var(--color-on-ink)"></span>on-ink / ink</span></td><td>17,6</td><td>16,1</td><td>botão primário</td></tr>
+        <tr><td><span class="pair"><span class="dot" style="background:var(--color-accent-soft)"></span>ink / accent-soft</span></td><td>15,0</td><td>10,6</td><td>palavra grifada</td></tr>
+        <tr><td><span class="pair"><span class="dot" style="background:var(--color-word-saved-mark)"></span>saved-mark / bg</span></td><td>6,7</td><td>8,3</td><td>marcador cheio de salva</td></tr>
+        <tr><td><span class="pair"><span class="dot" style="background:var(--color-error)"></span>error / bg</span></td><td>6,0</td><td>7,3</td><td>mensagens de erro</td></tr>
+        <tr><td><span class="pair"><span class="dot" style="background:var(--color-level-c1-bg)"></span>nível, pior caso</span></td><td>5,0</td><td>4,7</td><td>etiquetas A1–C2</td></tr>
+      </tbody>
+    </table>
+
+    <h3 class="book-h3">Semânticas: separadas do acento</h3>
+    <div class="book-states">
+      <figure class="book-state"><div class="book-state__stage on-bg"><p class="id-rtext id-rtext--flat" lang="it"><span class="ui-word is-saved">gabbiani</span></p></div><figcaption class="book-state__label"><strong>Salva</strong> · tinta neutra, pontilhado</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><p class="id-rtext id-rtext--flat" lang="it"><span class="ui-word is-selected">finestra</span></p></div><figcaption class="book-state__label"><strong>Selecionada</strong> · o grifo amarelo</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><p style="margin:0;color:var(--color-error);font:var(--type-small)">Não foi possível carregar a história.</p></div><figcaption class="book-state__label"><strong>Erro</strong> · texto (e ícone, se houver), sem caixa vermelha</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center"><span class="ui-level" data-level="a1">A1</span><span class="ui-level" data-level="a2">A2</span><span class="ui-level" data-level="b1">B1</span><span class="ui-level" data-level="b2">B2</span><span class="ui-level" data-level="c1">C1</span><span class="ui-level" data-level="c2">C2</span></div></div><figcaption class="book-state__label"><strong>Níveis QECR</strong> · uma escala de sálvia, do claro ao escuro</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- 04 TIPOGRAFIA -->
+<section class="book-section" id="tipografia" aria-labelledby="tipo-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">04 · Tipografia</p>
+      <h2 class="book-h2" id="tipo-h">Newsreader para chamar, Literata para ler</h2>
+      <p class="book-note">Comparamos oito serifas do Google Fonts em quatro critérios: altura-x (legibilidade a 11–20px), eixo de tamanho óptico, peso variável e cobertura de diacríticos e IPA. Todas cobrem à è é ì ò ù ã õ ç. Nenhuma das serifas de leitura tem os símbolos do IPA (ɛ ɔ ʎ ɲ ʃ ː), daí a terceira face.</p>
+    </header>
+
+    <div class="id-fontcards">
+      <div class="id-font is-chosen">
+        <div class="id-font__head"><strong>Literata</strong><span class="ui-label">Leitura + UI</span></div>
+        <div class="id-font__sample" lang="it" style="font-family:'Literata'">Perché Marta è già lì? Però più tardi.</div>
+        <div class="id-font__meta">altura-x 0,51 · opsz 7–72 · peso 200–900 · itálico</div>
+        <p class="id-font__verdict">Feita para o Play Books. Altura-x alta e ritmo aberto a 20px, e o eixo óptico desce a 7, então etiquetas de 11px continuam firmes.</p>
+      </div>
+      <div class="id-font is-chosen">
+        <div class="id-font__head"><strong>Newsreader</strong><span class="ui-label">Display</span></div>
+        <div class="id-font__sample" lang="it" style="font-family:'Newsreader';font-size:26px;font-weight:500">Perché Marta è già lì? Però più tardi.</div>
+        <div class="id-font__meta">altura-x 0,43 · opsz 6–72 · peso 200–800 · itálico</div>
+        <p class="id-font__verdict">Contraste editorial no opsz 72. Dá aos títulos e verbetes a voz “grande e confiante” do Bumble sem gritar.</p>
+      </div>
+      <div class="id-font">
+        <div class="id-font__head"><strong>Source Serif 4</strong><span class="book-muted">reserva</span></div>
+        <div class="id-font__sample" lang="it" style="font-family:'Source Serif 4'">Perché Marta è già lì? Però più tardi.</div>
+        <div class="id-font__meta">altura-x 0,48 · opsz 8–60 · peso 200–900</div>
+        <p class="id-font__verdict">Ótimo carro-chefe neutro, mas o tamanho óptico para em 60 e o tom é técnico demais para histórias.</p>
+      </div>
+      <div class="id-font">
+        <div class="id-font__head"><strong>Fraunces</strong><span class="book-muted">descartada</span></div>
+        <div class="id-font__sample" lang="it" style="font-family:'Fraunces'">Perché Marta è già lì? Però più tardi.</div>
+        <div class="id-font__meta">altura-x 0,48 · opsz 9–144 · peso 100–900 · SOFT/WONK</div>
+        <p class="id-font__verdict">Personalidade “wonky” virou assinatura de landing page de 2023–25. Brincalhona demais para o tom sóbrio.</p>
+      </div>
+      <div class="id-font">
+        <div class="id-font__head"><strong>Instrument Serif</strong><span class="book-muted">descartada</span></div>
+        <div class="id-font__sample" lang="it" style="font-family:'Instrument Serif';font-size:26px">Perché Marta è già lì? Però più tardi.</div>
+        <div class="id-font__meta">altura-x 0,51 · sem opsz · só 400 + itálico</div>
+        <p class="id-font__verdict">Linda em display, mas só tem um peso e está condensada demais para UI. Também está desgastada pela moda.</p>
+      </div>
+      <div class="id-font">
+        <div class="id-font__head"><strong>Spectral</strong><span class="book-muted">descartada</span></div>
+        <div class="id-font__sample" lang="it" style="font-family:'Spectral'">Perché Marta è già lì? Però più tardi.</div>
+        <div class="id-font__meta">altura-x 0,45 · estática · peso 200–800</div>
+        <p class="id-font__verdict">Elegante para tela, porém clara e de altura-x baixa. Some no modo escuro a 14px.</p>
+      </div>
+      <div class="id-font">
+        <div class="id-font__head"><strong>Lora</strong><span class="book-muted">descartada</span></div>
+        <div class="id-font__sample" lang="it" style="font-family:'Lora'">Perché Marta è già lì? Però più tardi.</div>
+        <div class="id-font__meta">altura-x 0,50 · sem opsz · peso 400–700</div>
+        <p class="id-font__verdict">Legível, mas caligráfica e onipresente. Soa como template.</p>
+      </div>
+      <div class="id-font">
+        <div class="id-font__head"><strong>Gelasio</strong><span class="book-muted">descartada</span></div>
+        <div class="id-font__sample" lang="it" style="font-family:'Gelasio'">Perché Marta è già lì? Però più tardi.</div>
+        <div class="id-font__meta">altura-x 0,48 · sem opsz · peso 400–700</div>
+        <p class="id-font__verdict">Clone métrico da Georgia. Correta, sem voz própria.</p>
+      </div>
+    </div>
+    <dl class="book-spec">
+      <dt>Fonética</dt><dd><span class="ipa" style="white-space:nowrap">/fiˈnɛstra/</span> · <span class="ipa" style="white-space:nowrap">/aˈpriːre/</span> · <span class="ipa" style="white-space:nowrap">/ˈʎɛvito/</span> em <strong>Noto Serif</strong>, só para IPA. Cobre o bloco IPA inteiro e tem proporções próximas às da Literata.</dd>
+      <dt>Etiquetas mínimas</dt><dd>Literata em 11px, caixa alta, +8% de espaçamento. O Google Fonts remove versaletes, então não usamos <code>small-caps</code>.</dd>
+      <dt>Sem sans</dt><dd>Nenhuma sans na interface. O opsz 7 da Literata cobre os tamanhos pequenos, e a serifa é a marca.</dd>
+    </dl>
+
+    <h3 class="book-h3">Diacríticos</h3>
+    <div class="id-pair">
+      <p class="id-glyphs" lang="it">à è é ì ò ù<br>À È É Ì Ò Ù</p>
+      <p class="id-glyphs text" lang="pt-BR">ã õ ç â ê ô á í ú<br>Ã Õ Ç Â Ê Ô</p>
+    </div>
+
+    <h3 class="book-h3">Leitor: italiano A2 e tradução dividida</h3>
+    <div class="id-split">
+      <div>
+        <p class="ui-label" style="margin-bottom:var(--space-2)">Capitolo 1 · A2</p>
+        <h4 lang="it" style="margin:0 0 var(--space-4);font:var(--type-title);letter-spacing:var(--tracking-display)">La finestra sul porto</h4>
+        <div class="id-reader" lang="it">
+          <p>Ogni mattina, alle sette, Marta apre la <span class="ui-word is-selected">finestra</span> della cucina. Da lì vede il porto della città: le barche bianche, i <span class="ui-word is-saved">gabbiani</span>, il mare ancora grigio. Prepara il caffè nella vecchia moka di sua nonna e aspetta. Quando il caffè è pronto, tutta la casa profuma.</p>
+          <p>Oggi, però, è un giorno diverso. Sul tavolo c’è una lettera. Non è una bolletta e non è pubblicità: è scritta a mano, con un inchiostro blu un po’ <span class="ui-word is-saved">sbiadito</span>. Marta legge il nome sulla busta e si siede. Perché conosce quella calligrafia: è di suo padre, partito per il Brasile più di trent’anni fa.</p>
+        </div>
+      </div>
+      <div>
+        <p class="ui-label" style="margin-bottom:var(--space-3)">Tradução · português</p>
+        <div class="id-reader-tr">
+          <p>Toda manhã, às sete, Marta abre a janela da cozinha. Dali ela vê o porto da cidade: os barcos brancos, as gaivotas, o mar ainda cinzento. Prepara o café na velha moka da avó e espera. Quando o café fica pronto, a casa inteira fica perfumada.</p>
+          <p>Hoje, porém, é um dia diferente. Sobre a mesa há uma carta. Não é uma conta nem propaganda: está escrita à mão, com uma tinta azul um pouco desbotada. Marta lê o nome no envelope e se senta. Porque conhece aquela letra: é do pai dela, que partiu para o Brasil há mais de trinta anos.</p>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="book-h3">Dicionário: verbete completo</h3>
+    <div class="id-pair">
+      <article class="id-entry" lang="it" aria-label="Verbete finestra">
+        <header class="id-head">
+          <h4 class="ui-headword">finestra</h4>
+          <p class="ui-pron"><span class="ipa">/fiˈnɛstra/</span><span>fi·nè·stra</span></p>
+          <p class="ui-pos"><em>sostantivo femminile</em> · plurale <b>finestre</b></p>
+        </header>
+        <ol class="ui-senses">
+          <li class="ui-sense"><p class="ui-sense__def">Apertura nel muro di un edificio, chiusa da vetri, che lascia entrare luce e aria.</p><ul class="ui-examples"><li class="ui-example">Marta apre la <span class="ui-word is-selected">finestra</span> della cucina.</li></ul></li>
+          <li class="ui-sense"><p class="ui-sense__def"><abbr class="ui-reg" title="informatica">inform.</abbr> Area rettangolare dello schermo in cui un programma mostra il suo contenuto.</p><ul class="ui-examples"><li class="ui-example">Chiudi la finestra del browser.</li></ul></li>
+          <li class="ui-sense"><p class="ui-sense__def"><abbr class="ui-reg" title="figurato">fig.</abbr> Breve periodo di tempo utile per fare qualcosa.</p><ul class="ui-examples"><li class="ui-example">Abbiamo una finestra di due giorni.</li></ul></li>
+        </ol>
+        <section class="ui-block" lang="pt-BR"><p class="ui-label">Expressões</p><p lang="it"><b style="font-weight:600">buttare i soldi dalla finestra</b> <span class="book-muted">— sprecare denaro</span></p></section>
+        <section class="ui-block" lang="pt-BR"><p class="ui-label">Sinônimos</p><p lang="it">apertura, vetrata, luce</p></section>
+        <section class="ui-block" lang="pt-BR"><p class="ui-label">Etimologia</p><p lang="it">Dal latino <i>fenestra</i>, di probabile origine etrusca.</p></section>
+      </article>
+      <div class="id-entry" lang="it">
+        <header class="id-head">
+          <h4 class="ui-headword">aprire</h4>
+          <p class="ui-pron"><span class="ipa">/aˈpriːre/</span><span>a·prì·re</span></p>
+          <p class="ui-pos"><em>verbo transitivo</em> · participio irregolare <b>aperto</b></p>
+        </header>
+        <section class="ui-block ui-block--first" lang="pt-BR">
+          <p class="ui-label">Conjugação · indicativo</p>
+          <div class="ui-table-wrap">
+          <table class="ui-table" lang="it">
+            <thead><tr><th scope="col"><span class="visually-hidden">Pessoa</span></th><th scope="col">Presente</th><th scope="col">Passato prossimo</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">io</th><td>apro</td><td>ho <b>aperto</b></td></tr>
+              <tr><th scope="row">tu</th><td>apri</td><td>hai <b>aperto</b></td></tr>
+              <tr><th scope="row">lui, lei</th><td>apre</td><td>ha <b>aperto</b></td></tr>
+              <tr><th scope="row">noi</th><td>apriamo</td><td>abbiamo <b>aperto</b></td></tr>
+              <tr><th scope="row">voi</th><td>aprite</td><td>avete <b>aperto</b></td></tr>
+              <tr><th scope="row">loro</th><td>aprono</td><td>hanno <b>aperto</b></td></tr>
+            </tbody>
+          </table>
+          </div>
+        </section>
+        <section class="ui-block" lang="pt-BR"><p class="ui-label">Rótulos da interface em PT</p><p>Biblioteca · Dicionário · Configurações · Começar a ler · Mostrar tradução · Lições salvas · Níveis de imersão</p></section>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 05 ESCALA -->
+<section class="book-section" id="escala" aria-labelledby="escala-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">05 · Escala</p>
+      <h2 class="book-h2" id="escala-h">Escala tipográfica</h2>
+      <p class="book-note">Tamanhos em px com entrelinhas em múltiplos de 2 sobre a grade de 4px. Três degraus têm nome de papel: <code>reader</code>, <code>def</code> e <code>headword</code>. Use os atalhos <code>--type-*</code> sempre que existirem.</p>
+    </header>
+    <div class="id-scale" data-scale></div>
+  </div>
+</section>
+
+<!-- 06 ESPAÇO -->
+<section class="book-section" id="espaco" aria-labelledby="espaco-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">06 · Espaço e forma</p>
+      <h2 class="book-h2" id="espaco-h">Respiro, raio e elevação</h2>
+      <p class="book-note">Grade de 4px. Margem lateral da tela do app: 20px (<code>--gutter</code>). Entre grupos, 24px; entre seções, 48px. Na dúvida, mais espaço e menos caixas.</p>
+    </header>
+    <div class="book-cols">
+      <div>
+        <p class="ui-label" style="margin-bottom:var(--space-3)">Espaço</p>
+        <div class="id-spaces" data-spaces></div>
+      </div>
+      <div>
+        <p class="ui-label" style="margin-bottom:var(--space-3)">Raio</p>
+        <div class="id-radii">
+          <div class="id-radius"><i style="border-radius:var(--radius-pill);height:44px"></i>pill · 999px<br>botões, chips, busca</div>
+          <div class="id-radius"><i style="border-radius:var(--radius-card)"></i>card · 20px<br>cards de história</div>
+          <div class="id-radius"><i style="border-radius:var(--radius-sheet) var(--radius-sheet) 0 0"></i>sheet · 28px<br>diálogos (topo)</div>
+          <div class="id-radius"><i style="border-radius:var(--radius-field)"></i>field · 14px<br>tabelas, campos</div>
+          <div class="id-radius"><i style="border-radius:var(--radius-mark);width:64px;height:28px"></i>mark · 4px<br>destaque de palavra</div>
+        </div>
+        <p class="ui-label" style="margin:var(--space-8) 0 var(--space-3)">Elevação · só duas</p>
+        <div class="id-elev">
+          <div class="e0">plano · surface<br>cards, painéis</div>
+          <div class="e1">shadow-1<br>barra fixa, dock</div>
+          <div class="e2">shadow-2<br>menu, diálogo</div>
+        </div>
+        <p class="id-src">Linhas: 1px em <code>--color-rule</code>. Contornos de controle e traço de ícone: 1,5px. No tema escuro, as sombras viram um filete de 1px.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 07 ÍCONES -->
+<section class="book-section" id="icones" aria-labelledby="icones-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">07 · Iconografia</p>
+      <h2 class="book-h2" id="icones-h">Linha de 1,5px, nada preenchido</h2>
+      <p class="book-note">Lucide <code>0.460.0</code> via unpkg, com <code>stroke-width: 1.5</code>, 24px, terminais e cantos redondos e cor <code>currentColor</code>. Ícone acompanha texto sempre que couber. Exceções: voltar, fechar e ações do app bar, que levam <code>aria-label</code>. O estado ativo de uma aba nunca é ícone preenchido: use o rótulo em tinta, peso 600, e o traço amarelo de 2px. A única exceção é o marcador de palavra salva, preenchido em <code>--color-word-saved-mark</code>.</p>
+    </header>
+    <div class="id-icons">
+      <div class="id-icon"><i data-lucide="library-big" aria-hidden="true"></i>Biblioteca</div>
+      <div class="id-icon"><i data-lucide="book-a" aria-hidden="true"></i>Dicionário</div>
+      <div class="id-icon"><i data-lucide="settings-2" aria-hidden="true"></i>Ajustes</div>
+      <div class="id-icon"><i data-lucide="chevron-left" aria-hidden="true"></i>Voltar</div>
+      <div class="id-icon"><i data-lucide="search" aria-hidden="true"></i>Buscar</div>
+      <div class="id-icon"><i data-lucide="rows-2" aria-hidden="true"></i>Tradução dividida</div>
+      <div class="id-icon"><i data-lucide="bookmark" aria-hidden="true"></i>Salvar</div>
+      <div class="id-icon id-icon--saved"><i data-lucide="bookmark" aria-hidden="true"></i>Salva</div>
+      <div class="id-icon"><i data-lucide="volume-2" aria-hidden="true"></i>Ouvir</div>
+      <div class="id-icon"><i data-lucide="a-large-small" aria-hidden="true"></i>Tamanho</div>
+      <div class="id-icon"><i data-lucide="languages" aria-hidden="true"></i>Imersão</div>
+      <div class="id-icon"><i data-lucide="ellipsis" aria-hidden="true"></i>Mais</div>
+    </div>
+  </div>
+</section>
+
+<!-- 08 BOTÕES -->
+<section class="book-section" id="botoes" aria-labelledby="botoes-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">08 · Botões</p>
+      <h2 class="book-h2" id="botoes-h">Pílulas, em tinta</h2>
+      <p class="book-note">O primário é tinta cheia, como no Bumble. O botão de acento (amarelo com texto em tinta) existe, mas só um por fluxo e nunca ao lado de outro amarelo. A altura é 48px (o pequeno tem 36px visíveis e alvo de 44px). Na pressão o botão encolhe para 98%; não há sombra nem levantamento.</p>
+    </header>
+    <div data-buttons></div>
+  </div>
+</section>
+
+<!-- 09 COMPONENTES -->
+<section class="book-section" id="componentes" aria-labelledby="comp-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">09 · Componentes compartilhados</p>
+      <h2 class="book-h2" id="comp-h">O que os quatro livros reutilizam</h2>
+      <p class="book-note">App bar, barra de abas, chips, estados de palavra e de frase, controle segmentado, doca com progresso, divisor da tradução, peças do verbete e a moldura de telefone. Todos vêm de <code>book.css</code>, documentado em <code>components-shared.md</code>. Abaixo, três telas montadas só com eles.</p>
+    </header>
+
+    <h3 class="book-h3" style="margin-top:0">Chips e controle de imersão</h3>
+    <div class="book-states">
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-chip" type="button" aria-pressed="false">Mistério</button></div><figcaption class="book-state__label"><strong>Gênero</strong> · padrão</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-chip" type="button" aria-pressed="true">Mistério</button></div><figcaption class="book-state__label"><strong>Gênero</strong> · selecionado</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><span class="ui-level" data-level="a2">A2</span></div><figcaption class="book-state__label"><strong>Nível</strong> · etiqueta, não é filtro</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div style="display:grid;gap:8px;justify-items:center"><span class="ui-label">Dicionário</span><div class="ui-segmented" role="group" aria-label="Idioma do dicionário"><button type="button" aria-pressed="false">Português</button><button type="button" aria-pressed="true">Italiano</button></div></div></div><figcaption class="book-state__label"><strong>Imersão</strong> · por área</figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Estados da palavra</h3>
+    <div class="book-states" lang="it">
+      <figure class="book-state"><div class="book-state__stage on-bg"><p class="id-rtext id-rtext--flat">la <span class="ui-word">lettera</span></p></div><figcaption class="book-state__label" lang="pt-BR"><strong>Padrão</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><p class="id-rtext id-rtext--flat">la <span class="ui-word is-hover">lettera</span></p></div><figcaption class="book-state__label" lang="pt-BR"><strong>Hover</strong> · ponteiro, ou dedo pousado antes de soltar</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><p class="id-rtext id-rtext--flat">la <span class="ui-word is-saved">lettera</span></p></div><figcaption class="book-state__label" lang="pt-BR"><strong>Salva</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><p class="id-rtext id-rtext--flat">la <span class="ui-word is-selected">lettera</span></p></div><figcaption class="book-state__label" lang="pt-BR"><strong>Selecionada</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><p class="id-rtext id-rtext--flat"><span class="ui-expression is-selected"><span class="ui-word">a</span> <span class="ui-word">un</span> <span class="ui-word">certo</span> <span class="ui-word">punto</span></span></p></div><figcaption class="book-state__label" lang="pt-BR"><strong>Expressão selecionada</strong> · pressão longa e arraste</figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Telas</h3>
+    <div class="book-screens">
+
+      <!-- Reader, translation hidden -->
+      <figure class="phone" aria-label="Leitor com tradução oculta">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body">
+            <div class="ui-appbar">
+              <button class="ui-iconbtn" type="button" aria-label="Voltar à biblioteca"><i data-lucide="chevron-left" aria-hidden="true"></i></button>
+              <p class="ui-appbar__title" lang="it">La finestra sul porto</p>
+              <div class="ui-appbar__actions"><button class="ui-iconbtn" type="button" aria-label="Tamanho do texto"><i data-lucide="a-large-small" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Mais opções"><i data-lucide="ellipsis" aria-hidden="true"></i></button></div>
+            </div>
+            <div class="phone__scroll id-rpad" lang="it">
+              <div class="id-rkicker"><span class="ui-label">Capitolo 1</span><span class="ui-level" data-level="a2">A2</span></div>
+              <h4 class="id-rtitle">La finestra sul porto</h4>
+              <p class="id-rtext">Ogni mattina, alle sette, Marta apre la <span class="ui-word is-selected">finestra</span> della cucina. Da lì vede il porto della città: le barche bianche, i <span class="ui-word is-saved">gabbiani</span>, il mare ancora grigio.</p>
+              <p class="id-rtext">Prepara il caffè nella vecchia moka di sua nonna e aspetta. Quando il caffè è pronto, tutta la casa profuma.</p>
+              <p class="id-rtext">Oggi, però, è un giorno diverso.</p>
+            </div>
+            <div class="ui-dock">
+              <div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:18%"></i></div>
+              <div class="ui-dock__row"><span>Página 1 de 6</span><button class="ui-btn ui-btn--secondary ui-btn--sm" type="button"><i data-lucide="rows-2" aria-hidden="true"></i>Mostrar tradução</button></div>
+            </div>
+          </div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Leitor</strong> · tradução oculta (padrão)</figcaption>
+      </figure>
+
+      <!-- Reader, split, dark -->
+      <figure class="phone" aria-label="Leitor com tradução aberta, tema escuro">
+        <div class="phone__device"><div class="phone__screen" data-theme="dark">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body">
+            <div class="ui-appbar">
+              <button class="ui-iconbtn" type="button" aria-label="Voltar à biblioteca"><i data-lucide="chevron-left" aria-hidden="true"></i></button>
+              <p class="ui-appbar__title" lang="it">La finestra sul porto</p>
+              <div class="ui-appbar__actions"><button class="ui-iconbtn" type="button" aria-label="Tamanho do texto"><i data-lucide="a-large-small" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Mais opções"><i data-lucide="ellipsis" aria-hidden="true"></i></button></div>
+            </div>
+            <div class="id-pane" lang="it">
+              <p class="id-rtext">Oggi, però, è un giorno diverso. <span class="ui-sentence is-selected">Sul tavolo c’è una <span class="ui-word is-selected">lettera</span>.</span> Non è una bolletta e non è pubblicità: è scritta a mano, con un inchiostro blu un po’ <span class="ui-word is-saved">sbiadito</span>.</p>
+            </div>
+            <div class="ui-divider" aria-hidden="true"><span class="ui-label">Português</span><span class="ui-divider__handle"><span class="ui-grip"></span></span><span class="ui-divider__ratio">50 / 50</span></div>
+            <div class="id-pane id-pane--pt">
+              <p class="id-rtext">Hoje, porém, é um dia diferente. <span class="ui-sentence is-selected">Sobre a mesa há uma carta.</span> Não é uma conta nem propaganda: está escrita à mão, com uma tinta azul um pouco desbotada.</p>
+            </div>
+            <div class="ui-dock">
+              <div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:33%"></i></div>
+              <div class="ui-dock__row"><span>Página 2 de 6</span><button class="ui-btn ui-btn--secondary ui-btn--sm" type="button"><i data-lucide="rows-2" aria-hidden="true"></i>Ocultar tradução</button></div>
+            </div>
+          </div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Leitor</strong> · tradução dividida, frase pareada (cinza) e palavra grifada, tema escuro</figcaption>
+      </figure>
+
+      <!-- Dictionary -->
+      <figure class="phone" aria-label="Dicionário, verbete finestra">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body">
+            <div class="ui-appbar">
+              <button class="ui-iconbtn" type="button" aria-label="Voltar aos resultados"><i data-lucide="chevron-left" aria-hidden="true"></i></button>
+              <p class="ui-appbar__title">Dicionário</p>
+              <div class="ui-appbar__actions"><button class="ui-iconbtn" type="button" aria-label="Ouvir pronúncia"><i data-lucide="volume-2" aria-hidden="true"></i></button><button class="ui-iconbtn ui-iconbtn--bookmark" type="button" aria-label="Palavra salva" aria-pressed="true"><i data-lucide="bookmark" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Mais opções"><i data-lucide="ellipsis" aria-hidden="true"></i></button></div>
+            </div>
+            <div class="phone__scroll id-dicpad">
+              <article class="id-entry" lang="it">
+                <header class="id-head">
+                  <h4 class="ui-headword">finestra</h4>
+                  <p class="ui-pron"><span class="ipa">/fiˈnɛstra/</span><span>fi·nè·stra</span></p>
+                  <p class="ui-pos"><em>sostantivo femminile</em> · plurale <b>finestre</b></p>
+                </header>
+                <ol class="ui-senses">
+                  <li class="ui-sense"><p class="ui-sense__def">Apertura nel muro di un edificio, chiusa da vetri, che lascia entrare luce e aria.</p><ul class="ui-examples"><li class="ui-example">Marta apre la finestra della cucina.</li></ul></li>
+                  <li class="ui-sense"><p class="ui-sense__def"><abbr class="ui-reg" title="informatica">inform.</abbr> Area rettangolare dello schermo in cui un programma mostra il suo contenuto.</p></li>
+                </ol>
+                <section class="ui-block" lang="pt-BR"><p class="ui-label">Sinônimos</p><p lang="it">apertura, vetrata, luce</p></section>
+              </article>
+            </div>
+            <nav class="ui-tabbar" aria-label="Principal">
+              <a class="ui-tab" href="#componentes"><i data-lucide="library-big" aria-hidden="true"></i>Biblioteca</a>
+              <a class="ui-tab" href="#componentes" aria-current="page"><i data-lucide="book-a" aria-hidden="true"></i>Dicionário</a>
+              <a class="ui-tab" href="#componentes"><i data-lucide="settings-2" aria-hidden="true"></i>Ajustes</a>
+            </nav>
+          </div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Dicionário</strong> · verbete aberto pela aba</figcaption>
+      </figure>
+
+    </div>
+  </div>
+</section>
+
+<!-- 10 VOZ -->
+<section class="book-section" id="voz" aria-labelledby="voz-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">10 · Voz e tom</p>
+      <h2 class="book-h2" id="voz-h">Fala como um bom professor</h2>
+      <p class="book-note">Calma, precisa e adulta. Trate a pessoa por “você” implícito, use frases curtas e verbos no imperativo gentil. Sem ponto de exclamação, sem emoji, sem gíria de torcida. O italiano é o protagonista e o português é o guia discreto.</p>
+    </header>
+    <div class="book-cols id-gap-lg">
+      <ol class="id-list">
+        <li><span class="n">1</span><span><strong>Calma.</strong> Nada de urgência nem culpa. A pessoa lê no ritmo dela.</span></li>
+        <li><span class="n">2</span><span><strong>Precisa.</strong> Diga o que acontece, não o que sentir: “Palavra salva”, e não “Arrasou”.</span></li>
+      </ol>
+      <ol class="id-list" start="3">
+        <li><span class="n">3</span><span><strong>Breve.</strong> Rótulos de 1 a 3 palavras, com sentença em caixa baixa: “Mostrar tradução”.</span></li>
+        <li><span class="n">4</span><span><strong>Respeitosa com o erro.</strong> Explique e ofereça a saída: “Tente de novo”.</span></li>
+      </ol>
+    </div>
+    <table class="book-table book-table--keyed book-table--stack">
+      <thead><tr><th scope="col">Situação</th><th scope="col">Assim</th><th scope="col">Não assim</th></tr></thead>
+      <tbody>
+        <tr><td>Abrir tradução</td><td>Mostrar tradução</td><td class="id-no">Ver em português!</td></tr>
+        <tr><td>Primeira leitura</td><td>Toque numa palavra para abrir o dicionário.</td><td class="id-no">Dica de ouro: toca nas palavras que você não sabe!</td></tr>
+        <tr><td>Palavra salva</td><td>Salva em Dicionário › Salvas</td><td class="id-no">Uhuul! +10 XP</td></tr>
+        <tr><td>Fim do capítulo</td><td>Fim do capítulo 1. Continuar no capítulo 2?</td><td class="id-no">Você arrasou! Sequência de 5 dias!</td></tr>
+        <tr><td>Lista vazia</td><td>Nenhuma palavra salva ainda. Toque numa palavra da história e use o marcador do verbete.</td><td class="id-no">Ops! Nada por aqui…</td></tr>
+        <tr><td>Erro de rede</td><td>Não foi possível carregar a história. Verifique a conexão e tente de novo.</td><td class="id-no">Erro 503. Algo deu errado!!</td></tr>
+        <tr><td>Imersão</td><td>Idioma do dicionário: Português · Italiano</td><td class="id-no">Modo hardcore: tudo em italiano</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 11 FAÇA / NÃO FAÇA -->
+<section class="book-section" id="faca" aria-labelledby="faca-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">11 · Faça e não faça</p>
+      <h2 class="book-h2" id="faca-h">Os limites do sistema</h2>
+    </header>
+    <div class="book-dd">
+      <figure>
+        <div class="book-dd__stage"><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="ui-btn ui-btn--primary" type="button">Começar a ler</button><button class="ui-btn ui-btn--ghost" type="button">Detalhes</button></div></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--do"><i data-lucide="check" aria-hidden="true"></i>Faça</span><br>Use tinta para o primário e texto simples para o secundário.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage"><div class="id-bad-row"><span class="id-bad-btn" style="background:#2FA84F">Começar</span><span class="id-bad-btn" style="background:#E8583A">Detalhes</span><span class="id-bad-btn" style="background:#7B5CF0">Salvar</span></div></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--dont"><i data-lucide="x" aria-hidden="true"></i>Não faça</span><br>Não use uma cor por botão, caixa alta e sombra 3D. É o visual Duolingo.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage" lang="it"><p class="id-rtext id-rtext--flat">Marta apre la <span class="ui-word is-selected">finestra</span> della cucina.</p><div><button class="ui-btn ui-btn--secondary ui-btn--sm" type="button" lang="pt-BR"><i data-lucide="rows-2" aria-hidden="true"></i>Mostrar tradução</button></div></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--do"><i data-lucide="check" aria-hidden="true"></i>Faça</span><br>Mantenha a tradução oculta e deixe um único botão claro para abri-la.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage id-interlinear"><span lang="it">Marta apre la finestra della cucina.</span><span class="tr">Marta abre a janela da cozinha.</span><span lang="it">Da lì vede il porto della città.</span><span class="tr">Dali ela vê o porto da cidade.</span></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--dont"><i data-lucide="x" aria-hidden="true"></i>Não faça</span><br>Não intercale a tradução com o texto. O olho vai direto ao português.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage"><div style="display:grid;gap:4px"><span class="ui-label">Mistério · 12 min</span><span style="font:var(--type-heading)" lang="it">La finestra sul porto</span><span class="book-muted" style="font:var(--type-small)">Uma carta chega trinta anos atrasada.</span></div></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--do"><i data-lucide="check" aria-hidden="true"></i>Faça</span><br>Crie hierarquia com tamanho, peso e espaço.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage"><div class="id-bad-card">★ <b>Mistério</b></div><div class="id-bad-card">📖 <b>La finestra sul porto</b></div><div class="id-bad-card">🔥 12 min</div></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--dont"><i data-lucide="x" aria-hidden="true"></i>Não faça</span><br>Não ponha cada dado num card com sombra nem use emoji como marcador.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage" lang="it"><div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:40%"></i></div><p class="id-rtext id-rtext--flat">Il <span class="ui-word is-saved">binario</span> è quasi vuoto. Marta si siede vicino al <span class="ui-word is-selected">finestrino</span>.</p></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--do"><i data-lucide="check" aria-hidden="true"></i>Faça</span><br>No Leitor, use o amarelo como grifo na palavra selecionada e em no máximo mais um traço fino, o progresso.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage"><p style="margin:0;font:var(--type-heading);color:var(--color-accent)">Continue de onde parou</p><p style="margin:0;font:var(--type-small)"><a href="#faca" style="color:var(--color-accent)" tabindex="-1">Ver todas as histórias</a></p></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--dont"><i data-lucide="x" aria-hidden="true"></i>Não faça</span><br>Não use amarelo como texto, link ou ícone sobre fundo claro. Use <code>--color-accent-text</code>.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage"><div class="ui-hero ui-hero--compact"><span class="ui-label">Continuar lendo</span><span class="ui-hero__title" lang="it">La finestra sul porto</span><span class="ui-hero__meta"><span>Capítulo 2 de 6</span><span class="ui-hero__pct">30%</span></span><span class="ui-progress" aria-hidden="true"><i style="--p:30%"></i></span></div><nav class="ui-tabbar" aria-label="Exemplo de barra de abas"><a class="ui-tab" href="#faca" tabindex="-1" aria-current="page"><i data-lucide="library-big" aria-hidden="true"></i>Biblioteca</a><a class="ui-tab" href="#faca" tabindex="-1"><i data-lucide="book-a" aria-hidden="true"></i>Dicionário</a><a class="ui-tab" href="#faca" tabindex="-1"><i data-lucide="settings-2" aria-hidden="true"></i>Ajustes</a></nav></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--do"><i data-lucide="check" aria-hidden="true"></i>Faça</span><br>Deixe o amarelo pequeno e preciso. Na Biblioteca ele é o traço da aba ativa, então o progresso do card fica em tinta. Quem dá o tom da tela é a tinta.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage" style="background:var(--color-accent);border-color:var(--color-accent-strong)"><span style="font:var(--type-title);color:var(--color-accent-ink)">Biblioteca</span><span style="font:var(--type-small);color:var(--color-accent-ink)">Histórias para hoje</span></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--dont"><i data-lucide="x" aria-hidden="true"></i>Não faça</span><br>Não pinte telas, cabeçalhos ou cards de amarelo. Isso é a marca do Bumble, não a nossa.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="book-footer"><div class="book-wrap">Postilla · sistema v0.2 · tokens em <code>tokens.css</code> · componentes em <code>book.css</code>, documentados em <code>components-shared.md</code></div></footer>
+
+<script>
+/* swatches, scale, spacing, buttons: generated from data to keep the page short */
+(() => {
+  const sw = [
+    ['Fundo', 'bg', '#FDFDFC', '#100F0D', 'canvas da tela'],
+    ['Superfície', 'surface', '#F6F6F3', '#191816', 'cards, painel da tradução'],
+    ['Superfície 2', 'surface-2', '#EDECE8', '#22221E', 'pressionado, trilho'],
+    ['Linha', 'rule', '#DDDCD8', '#31302C', 'filetes 1px'],
+    ['Tinta', 'ink', '#181713', '#ECEBE7', 'texto, botão primário'],
+    ['Tinta suave', 'ink-muted', '#5C5B55', '#ACABA5', 'secundário, tradução'],
+    ['Tinta fraca', 'ink-faint', '#878681', '#7C7A75', 'placeholder, desativado'],
+    ['Giallo evidenziatore', 'accent', '#F2C200', '#F2C94C', 'grifo, progresso, aba ativa'],
+    ['Acento forte', 'accent-strong', '#D9AD00', '#F7DA80', 'hover, pingo do wordmark'],
+    ['Grifo', 'accent-soft', '#FFEB99', '#3D3210', 'fundo da palavra selecionada'],
+    ['Acento como texto', 'accent-text', '#181713', '#F2C94C', 'texto/ícone de destaque'],
+    ['Salva', 'word-saved', '#878681', '#7C7A75', 'pontilhado (= ink-faint)'],
+    ['Marcador salvo', 'word-saved-mark', '#5C5B55', '#ACABA5', 'marcador cheio (= ink-muted)'],
+    ['Erro', 'error', '#BA2B28', '#F47C70', 'mensagens de erro'],
+  ];
+  document.querySelectorAll('[data-swatches]').forEach(box => {
+    const dark = box.dataset.swatches === 'dark';
+    box.innerHTML = sw.map(([name, tok, l, d, use], i) =>
+      (i === 0 ? '<p class="id-sw-head">Neutros</p>' : i === 7 ? '<p class="id-sw-head">Acento</p>' : i === 11 ? '<p class="id-sw-head">Semânticas</p>' : '') +
+      `<div class="id-sw"><span class="id-sw__chip" style="background:var(--color-${tok})"></span>` +
+      `<span><span class="id-sw__name">${name}</span><br><span class="id-sw__use"><code>--color-${tok}</code> · ${use}</span></span>` +
+      `<span class="id-sw__hex">${dark ? d : l}</span></div>`).join('');
+  });
+
+  const b = document.querySelector('[data-budget]');
+  if (b) b.innerHTML = Array.from({ length: 100 }, (_, i) => `<span class="${i < 90 ? 'bg' : i < 99 ? 'ink' : 'acc'}"></span>`).join('');
+
+  const scale = [
+    ['display', 'Postilla', 'display', 'Newsreader 500 · 56/56 · −2%'],
+    ['headword', 'finestra', 'headword', 'Newsreader 500 · 44/48 · −2%'],
+    ['3xl', 'La finestra sul porto', 'title-lg', 'Newsreader 500 · 36/40'],
+    ['2xl', 'Biblioteca', 'title', 'Newsreader 500 · 28/32'],
+    ['xl', 'Continue de onde parou', 'heading', 'Literata 600 · 22/28'],
+    ['reader', 'Ogni mattina, alle sette, Marta apre la finestra.', 'reader', 'Literata 400 · 20/34 · leitura'],
+    ['lg', 'Toda manhã, às sete, Marta abre a janela.', 'lead', 'Literata 400 · 18/26 · tradução'],
+    ['def', 'Apertura nel muro di un edificio, chiusa da vetri.', 'def', 'Literata 400 · 17/26 · definições'],
+    ['md', 'Mostrar tradução', 'button', 'Literata 500 · 16/24 · UI, botões'],
+    ['sm', 'Mistério · 12 min de leitura', 'small', 'Literata 400 · 14/20 · chips, listas'],
+    ['xs', 'Página 2 de 6', 'meta', 'Literata 400 · 12/16 · meta, abas'],
+    ['2xs', 'Configurações de imersão', 'label', 'Literata 600 · 11/14 · caixa alta +8%'],
+  ];
+  const sc = document.querySelector('[data-scale]');
+  if (sc) sc.innerHTML = scale.map(([k, txt, type, meta]) => {
+    const lang = /Ogni|finestra|Apertura|La fin/.test(txt) ? ' lang="it"' : '';
+    const extra = type === 'label' ? 'text-transform:uppercase;letter-spacing:var(--tracking-caps);' : (['display','headword','title-lg','title'].includes(type) ? 'letter-spacing:var(--tracking-display);' : '');
+    return `<div><div><code>--text-${k}</code><span class="meta">${meta}</span></div><div class="s"${lang} style="font:var(--type-${type});${extra}">${txt}</div></div>`;
+  }).join('');
+
+  const sp = document.querySelector('[data-spaces]');
+  if (sp) sp.innerHTML = [1,2,3,4,5,6,8,10,12,16,20].map(n => `<div class="id-space"><span>--space-${n} · ${n*4}</span><i style="width:${n*4}px"></i></div>`).join('');
+
+  const kinds = [['primary', 'Primário', 'Começar a ler'], ['secondary', 'Secundário', 'Mostrar tradução'], ['ghost', 'Fantasma', 'Agora não'], ['accent', 'Acento · 1 por fluxo', 'Continuar']];
+  const states = [['', 'padrão'], ['is-hover', 'hover'], ['is-active', 'pressionado'], ['is-focus', 'foco'], ['disabled', 'desativado']];
+  const bt = document.querySelector('[data-buttons]');
+  if (bt) {
+    bt.innerHTML = kinds.map(([k, name, label]) =>
+      `<h3 class="book-h3 id-statehead">${name}</h3><div class="book-states">` +
+      states.map(([cls, s]) => `<figure class="book-state"><div class="book-state__stage on-bg"><button type="button" tabindex="-1" class="ui-btn ui-btn--${k} ${cls === 'disabled' ? '' : cls}"${cls === 'disabled' ? ' disabled' : ''}>${label}</button></div><figcaption class="book-state__label"><strong>${s[0].toUpperCase() + s.slice(1)}</strong></figcaption></figure>`).join('') +
+      `</div>`).join('') +
+      `<h3 class="book-h3 id-statehead">Botão de ícone</h3><div class="book-states">` +
+      [['', 'padrão'], ['is-hover', 'hover'], ['is-active', 'pressionado'], ['is-focus', 'foco'], ['pressed', 'salva (aria-pressed)'], ['disabled', 'desativado']].map(([cls, s]) =>
+        `<figure class="book-state"><div class="book-state__stage on-bg"><button type="button" tabindex="-1" aria-label="Salvar palavra" class="ui-iconbtn ui-iconbtn--bookmark ${['pressed','disabled'].includes(cls) ? '' : cls}"${cls === 'pressed' ? ' aria-pressed="true"' : ''}${cls === 'disabled' ? ' disabled' : ''}><i data-lucide="bookmark" aria-hidden="true"></i></button></div><figcaption class="book-state__label"><strong>${s[0].toUpperCase() + s.slice(1)}</strong></figcaption></figure>`).join('') +
+      `</div>`;
+  }
+
+  /* theme toggle: auto → light → dark (shared, copy verbatim) */
+  const btn = document.querySelector('[data-theme-toggle]');
+  if (btn) {
+    const order = ['auto', 'light', 'dark'], label = { auto: 'automático', light: 'claro', dark: 'escuro' };
+    let i = 0;
+    btn.addEventListener('click', () => {
+      i = (i + 1) % 3; const t = order[i];
+      if (t === 'auto') document.documentElement.removeAttribute('data-theme');
+      else document.documentElement.setAttribute('data-theme', t);
+      btn.textContent = 'Tema: ' + label[t];
+    });
+  }
+})();
+</script>
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<script>
+  if (window.lucide) lucide.createIcons({ attrs: { 'stroke-width': 1.5, width: 24, height: 24 } });
+</script>
+</body>
+</html>

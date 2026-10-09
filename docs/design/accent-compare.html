@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Postilla Cor de Acento</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+/* Layout: three accent columns, each with a light and a dark phone, then what the color evokes. */
+.acc-blue  { --color-accent:#0E4EC8; --color-accent-strong:#0039AB; --color-accent-ink:#FFFFFF; --color-accent-soft:#DFECFF; --color-focus:#0E4EC8; }
+.acc-green { --color-accent:#1C5C45; --color-accent-strong:#124432; --color-accent-ink:#FFFFFF; --color-accent-soft:#DAEEE5; --color-focus:#1C5C45; }
+.acc-ox    { --color-accent:#7C1D2C; --color-accent-strong:#5E1320; --color-accent-ink:#FFFFFF; --color-accent-soft:#F6E0E3; --color-focus:#7C1D2C; }
+.acc-blue[data-theme="dark"]  { --color-accent:#73A3FC; --color-accent-strong:#97BEFF; --color-accent-ink:#0E1115; --color-accent-soft:#1A2D51; --color-focus:#73A3FC; }
+.acc-green[data-theme="dark"] { --color-accent:#6CC29C; --color-accent-strong:#93D6B8; --color-accent-ink:#0E1115; --color-accent-soft:#15342A; --color-focus:#6CC29C; }
+.acc-ox[data-theme="dark"]    { --color-accent:#E8909A; --color-accent-strong:#F2B0B7; --color-accent-ink:#0E1115; --color-accent-soft:#3E1A20; --color-focus:#E8909A; }
+.acc-petrol { --color-accent:#0B5A64; --color-accent-strong:#07434B; --color-accent-ink:#FFFFFF; --color-accent-soft:#D8EDEF; --color-focus:#0B5A64; }
+.acc-plum   { --color-accent:#5C2A62; --color-accent-strong:#451E4A; --color-accent-ink:#FFFFFF; --color-accent-soft:#F0E2F1; --color-focus:#5C2A62; }
+.acc-yellow { --color-accent:#F2C200; --color-accent-strong:#D9AD00; --color-accent-ink:#141821; --color-accent-soft:#FFEB99; --color-focus:#141821; --acc-text:#141821; --acc-line:#C99A00; }
+.acc-petrol[data-theme="dark"] { --color-accent:#5CBEC9; --color-accent-strong:#86D3DB; --color-accent-ink:#0E1115; --color-accent-soft:#11343A; --color-focus:#5CBEC9; }
+.acc-plum[data-theme="dark"]   { --color-accent:#CC9ED3; --color-accent-strong:#DDBCE2; --color-accent-ink:#0E1115; --color-accent-soft:#33203A; --color-focus:#CC9ED3; }
+.acc-yellow[data-theme="dark"] { --color-accent:#F2C94C; --color-accent-strong:#F7DA80; --color-accent-ink:#0E1115; --color-accent-soft:#3D3210; --color-focus:#F2C94C; --acc-text:#F2C94C; --acc-line:#F2C94C; }
+.acc-blue, .acc-green, .acc-ox, .acc-petrol, .acc-plum, .acc-yellow { --color-word-selected-bg: var(--color-accent-soft); --color-word-selected-line: var(--acc-line, var(--color-accent)); }
+.acc-yellow .saved { text-decoration-color: var(--color-ink-muted); }
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--color-bg); color: var(--color-ink); font: var(--type-body); }
+.wrap { max-width: 1240px; margin: 0 auto; padding-inline: var(--space-4); padding-block: var(--space-12) var(--space-20); display: grid; gap: var(--space-12); }
+header { display: grid; gap: var(--space-3); max-width: 44rem; }
+.eyebrow { font: var(--type-label); text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--color-ink-faint); margin: 0; }
+h1 { font: var(--type-title-lg); letter-spacing: var(--tracking-display); margin: 0; text-wrap: balance; }
+header p { font: var(--type-lead); color: var(--color-ink-muted); margin: 0; }
+
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: var(--space-10) var(--space-8); }
+.col { display: grid; gap: var(--space-5); align-content: start; min-width: 0; }
+.col h2 { font: var(--type-title); letter-spacing: var(--tracking-display); margin: 0; display: flex; align-items: baseline; gap: var(--space-3); flex-wrap: wrap; }
+.col h2 small { font: var(--type-meta); color: var(--color-ink-faint); font-variant-numeric: tabular-nums; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+
+/* mini phone */
+.phone { background: var(--color-bg); color: var(--color-ink); border: var(--border-hairline) solid var(--color-rule); border-radius: 28px; overflow: hidden; display: grid; grid-template-rows: auto 1fr auto; min-height: 400px; min-width: 0; }
+.bar { display: flex; align-items: center; justify-content: space-between; padding: var(--space-3) var(--space-3) var(--space-2); }
+.mark { font: var(--weight-medium) 17px/1 var(--font-display); letter-spacing: var(--tracking-tight); }
+.mark i { font-style: normal; color: var(--color-accent); }
+.prog { height: 2px; background: var(--color-rule); margin-inline: var(--space-3); border-radius: 2px; }
+.prog span { display: block; width: 38%; height: 100%; background: var(--color-accent); border-radius: 2px; }
+.text { padding: var(--space-3); font: var(--weight-regular) 14px/24px var(--font-text); }
+.text h3 { font: var(--weight-medium) 19px/22px var(--font-display); margin: 0 0 var(--space-2); letter-spacing: var(--tracking-tight); }
+.sel { background: var(--color-word-selected-bg); box-shadow: inset 0 -2px 0 var(--color-word-selected-line); border-radius: var(--radius-mark); padding-inline: 2px; }
+.saved { text-decoration: underline dotted var(--color-word-saved); text-decoration-thickness: 2px; text-underline-offset: 4px; }
+.foot { padding: var(--space-3); display: grid; gap: var(--space-2); }
+.btn { font: var(--weight-medium) 13px/1 var(--font-ui); border-radius: var(--radius-pill); padding: 11px 14px; text-align: center; background: var(--color-ink); color: var(--color-on-ink); }
+.tabs { display: flex; justify-content: space-around; padding-top: var(--space-2); border-top: var(--border-hairline) solid var(--color-rule); font: var(--weight-regular) 10px/1 var(--font-ui); color: var(--color-ink-faint); }
+.tabs .on { color: var(--acc-text, var(--color-accent)); font-weight: var(--weight-semibold); }
+.chip { display: inline-block; font: var(--weight-semibold) 10px/1 var(--font-ui); padding: 4px 8px; border-radius: var(--radius-pill); background: var(--color-level-a2-bg); color: var(--color-level-a2-ink); margin-bottom: var(--space-2); }
+
+.evoke { display: grid; gap: var(--space-3); }
+.evoke p { margin: 0; font: var(--type-def); color: var(--color-ink-muted); max-width: 40rem; }
+.evoke p strong { color: var(--color-ink); font-weight: var(--weight-semibold); }
+.evoke ul { margin: 0; padding-left: 1.1em; font: var(--type-small); color: var(--color-ink-muted); display: grid; gap: var(--space-1); }
+.label { font: var(--type-label); text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--color-ink-faint); }
+
+@media (max-width: 420px) { .pair { grid-template-columns: 1fr; } .cols { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Postilla · decisão de cor</p>
+    <h1>Seis candidatas para a cor de acento</h1>
+    <p>A mesma tela do leitor, no tema claro e no escuro. A cor aparece só em quatro lugares: o ponto do logotipo, a barra de progresso, a palavra selecionada e a aba ativa. O botão principal continua em tinta escura nas três. O sublinhado pontilhado em ocre marca uma palavra já salva. As três primeiras são a rodada inicial. As três últimas são alternativas novas.</p>
+  </header>
+
+  <div class="cols">
+    <!-- BLUE -->
+    <section class="col">
+      <h2>Azul tinta <small>#0E4EC8 · #73A3FC</small></h2>
+      <div class="pair">
+        <div class="phone acc-blue" data-theme="light"></div>
+        <div class="phone acc-blue" data-theme="dark"></div>
+      </div>
+      <div class="evoke">
+        <span class="label">O que passa</span>
+        <p><strong>Caneta esferográfica na margem do livro.</strong> É a cor de quem estuda e anota, o que combina com o nome Postilla. Transmite clareza, confiança e calma. É a cor mais “digital” das três, a que mais parece produto de tecnologia.</p>
+        <ul>
+          <li>A seleção da palavra lembra a seleção de texto do sistema, então é entendida sem explicação.</li>
+          <li>Risco: muitos apps usam azul (Kindle, Readwise, Linguee). É a opção com menos personalidade.</li>
+          <li>Funciona bem com o verde dos níveis e o ocre das palavras salvas.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- GREEN -->
+    <section class="col">
+      <h2>Verde garrafa <small>#1C5C45 · #6CC29C</small></h2>
+      <div class="pair">
+        <div class="phone acc-green" data-theme="light"></div>
+        <div class="phone acc-green" data-theme="dark"></div>
+      </div>
+      <div class="evoke">
+        <span class="label">O que passa</span>
+        <p><strong>Capa de livro de tecido, biblioteca, a lâmpada verde da mesa de leitura.</strong> Lembra também as edições clássicas italianas e as portas e persianas pintadas de verde das cidades da Itália. É literário e tranquilo, e parece feito para durar. Das três, é a que mais combina com ler devagar.</p>
+        <ul>
+          <li>É a mais distintiva: quase nenhum app de idioma usa esse tom.</li>
+          <li>Risco: o verde dos níveis A1–C2 vai disputar com o acento. Os níveis teriam que virar uma escala neutra (cinza azulado) ou ocre.</li>
+          <li>No escuro, vira um verde-menta mais leve, que mantém o contraste.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- OXBLOOD -->
+    <section class="col">
+      <h2>Bordô <small>#7C1D2C · #E8909A</small></h2>
+      <div class="pair">
+        <div class="phone acc-ox" data-theme="light"></div>
+        <div class="phone acc-ox" data-theme="dark"></div>
+      </div>
+      <div class="evoke">
+        <span class="label">O que passa</span>
+        <p><strong>Vinho, couro, a fita marcadora dos livros encadernados, a caneta vermelha do professor.</strong> É o mais quente e o mais editorial dos três, e o mais “italiano” no imaginário. Passa sofisticação e um pouco de luxo, tom de revista ou de editora.</p>
+        <ul>
+          <li>Tem personalidade forte e chama mais atenção que as outras duas.</li>
+          <li>Risco: tons de vermelho lembram erro e correção. A cor de erro teria que ir para laranja queimado, e a palavra selecionada pode parecer uma palavra errada.</li>
+          <li>No escuro fica rosado, o que muda o caráter da marca entre os temas.</li>
+        </ul>
+      </div>
+    </section>
+    <!-- PETROL -->
+    <section class="col">
+      <h2>Azul-petróleo <small>#0B5A64 · #5CBEC9</small></h2>
+      <div class="pair">
+        <div class="phone acc-petrol" data-theme="light"></div>
+        <div class="phone acc-petrol" data-theme="dark"></div>
+      </div>
+      <div class="evoke">
+        <span class="label">O que passa</span>
+        <p><strong>Mar profundo, o Adriático no fim da tarde, tinta de caneta-tinteiro antiga.</strong> Fica entre o azul e o verde e tem a calma dos dois, sem parecer app de banco nem app de saúde. É sério e adulto, com um toque de viagem.</p>
+        <ul>
+          <li>A seleção da palavra continua clara, quase tão óbvia quanto no azul.</li>
+          <li>É mais incomum que o azul e não disputa com o verde-sálvia dos níveis, desde que eles fiquem mais claros.</li>
+          <li>Risco: em telas ruins pode parecer cinza-azulado e perder força.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- PLUM -->
+    <section class="col">
+      <h2>Berinjela <small>#5C2A62 · #CC9ED3</small></h2>
+      <div class="pair">
+        <div class="phone acc-plum" data-theme="light"></div>
+        <div class="phone acc-plum" data-theme="dark"></div>
+      </div>
+      <div class="evoke">
+        <span class="label">O que passa</span>
+        <p><strong>Melanzana, figo maduro, a capa roxa escura dos dicionários antigos.</strong> É íntimo e um pouco noturno, combina com ler antes de dormir. Passa refinamento sem o peso do bordô e sem nenhuma associação com erro.</p>
+        <ul>
+          <li>Quase nenhum app de estudo usa roxo tão escuro. É fácil de reconhecer.</li>
+          <li>Risco: perto do roxo dos gradientes genéricos de tecnologia. Precisa ficar sempre fosco e escuro, nunca em degradê.</li>
+          <li>No escuro vira lilás, que é suave mas menos firme.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- YELLOW -->
+    <section class="col">
+      <h2>Amarelo marca-texto <small>#F2C200 · #F2C94C</small></h2>
+      <div class="pair">
+        <div class="phone acc-yellow" data-theme="light"></div>
+        <div class="phone acc-yellow" data-theme="dark"></div>
+      </div>
+      <div class="evoke">
+        <span class="label">O que passa</span>
+        <p><strong>Caneta marca-texto sobre a página.</strong> É a homenagem mais direta ao Bumble, mas pelo gesto de estudar: grifar a palavra que você não sabe. Passa energia e otimismo, e a seleção vira literalmente um grifo.</p>
+        <ul>
+          <li>Amarelo não tem contraste para texto no claro. A aba ativa e os textos de destaque ficam em tinta escura, e o amarelo aparece só como fundo e traço.</li>
+          <li>O ocre das palavras salvas teria que mudar, porque fica parecido demais com o amarelo.</li>
+          <li>Risco: é a mais próxima do Bumble. Pode parecer cópia se aparecer demais.</li>
+        </ul>
+      </div>
+    </section>
+  </div>
+</div>
+
+<template id="screen">
+  <div class="bar"><span class="mark">Postilla<i>.</i></span><span style="font:var(--type-meta);color:var(--color-ink-faint)">Aa</span></div>
+  <div>
+    <div class="prog"><span></span></div>
+    <div class="text">
+      <span class="chip">A2</span>
+      <h3>Il treno per Bologna</h3>
+      Marta arriva in stazione alle sette. Il <span class="saved">binario</span> è quasi vuoto e l’aria sa di caffè. Compra un biglietto e si siede vicino al <span class="sel">finestrino</span>. Fuori, la città si sveglia piano.
+    </div>
+  </div>
+  <div class="foot">
+    <div class="btn">Mostrar tradução</div>
+    <div class="tabs"><span class="on">Biblioteca</span><span>Dicionário</span><span>Ajustes</span></div>
+  </div>
+</template>
+<script>
+  const t = document.getElementById('screen');
+  document.querySelectorAll('.phone').forEach(p => p.appendChild(t.content.cloneNode(true)));
+</script>
+</body>
+</html>

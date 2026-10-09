@@ -1,0 +1,1162 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Postilla Leitor Tradução</title>
+<meta name="description" content="Leitor com tradução em tela dividida: italiano em cima, português embaixo, rolagem sincronizada por parágrafo e frase pareada.">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="book.css">
+<style>
+/* ===== book-leitor-traducao.html — page-specific (prefix tr-) =====
+   Shared pieces come from book.css: ui-sentence, ui-divider + ui-grip, ui-dock +
+   ui-progress--accent, ui-stack, ui-scroll, ui-expression, entry pieces,
+   book-feature/legend/pin, book-card, book-table, book-code, book-dd. */
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+
+/* ---- book helpers ------------------------------------------------------- */
+.tr-kbd { display: inline-block; min-width: 1.6em; padding: 0 var(--space-1); border: var(--border-hairline) solid var(--color-rule-strong); border-radius: var(--radius-mark); font: var(--type-meta); text-align: center; background: var(--color-bg); }
+
+/* anatomy pin positions inside the phone (pins are .book-pin) */
+.tr-at { position: absolute; z-index: 3; top: var(--space-1); right: var(--space-2); }
+.tr-at--lead { top: 50%; right: auto; left: calc(var(--gutter) + var(--tap-min)); transform: translateY(-50%); }
+.tr-at--low { top: auto; bottom: var(--space-2); }
+.tr-at--gutter { top: auto; bottom: 0; right: auto; left: calc(var(--gutter) * -1); }
+.tr-pin-end { justify-self: end; }
+
+/* live prototype aside */
+.tr-aside { width: 100%; display: grid; gap: var(--space-5); align-content: start; }
+.tr-steps { margin: 0; padding-left: var(--space-5); display: grid; gap: var(--space-2); font: var(--type-small); }
+.tr-readout { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: var(--space-2) var(--space-4); padding: var(--space-5); background: var(--color-surface); border-radius: var(--radius-card); font: var(--type-small); }
+.tr-readout dt { color: var(--color-ink-muted); }
+.tr-readout dd { margin: 0; font-variant-numeric: tabular-nums; min-width: 0; }
+
+/* mini compositions for the state grid */
+.tr-mini { width: 100%; border-radius: var(--radius-field); overflow: hidden; border: var(--border-hairline) solid var(--color-rule); background: var(--color-bg); }
+.tr-mini--pad { padding: var(--space-3) var(--space-3) var(--space-3) var(--space-5); }
+.tr-mini--pt { background: var(--color-surface); }
+.tr-mini--labels { display: grid; }
+.tr-mini--labels > div { padding: var(--space-3) var(--space-4); }
+.tr-mini--labels > div + div { background: var(--color-surface); border-top: var(--border-hairline) solid var(--color-rule); }
+.tr-flat { margin: 0; }
+
+/* ==========================================================================
+   SPLIT READER (inside .phone__screen)
+   ========================================================================== */
+.tr-appwrap { position: relative; flex: none; }
+
+.tr-split {
+  --tr-it: 50; --tr-pt: 50;
+  --tr-dur: var(--dur-base); --tr-ease: var(--ease-standard);
+  flex: 1; min-height: 0; display: flex; flex-direction: column;
+}
+.tr-split--reveal { --tr-dur: var(--dur-slow); --tr-ease: var(--ease-emphasized); }
+.tr-split--hide   { --tr-dur: var(--dur-base); --tr-ease: var(--ease-exit); }
+.tr-top, .tr-bottom {
+  position: relative; min-height: 0; display: flex; flex-direction: column;
+  transition: flex-grow var(--tr-dur) var(--tr-ease);
+}
+.tr-top    { flex: var(--tr-it) 1 0; }
+.tr-bottom { flex: var(--tr-pt) 1 0; overflow: hidden; background: var(--color-surface); }
+.tr-split--dragging .tr-top, .tr-split--dragging .tr-bottom { transition: none; }
+
+/* pane head: "Italiano" + paragraph in focus. Exists only while split. */
+.tr-panehead {
+  position: relative; flex: none; display: flex; align-items: center; justify-content: space-between; gap: var(--space-2);
+  min-height: var(--space-8); max-height: var(--space-8); padding-inline: var(--gutter); overflow: hidden;
+  transition: min-height var(--tr-dur) var(--tr-ease), max-height var(--tr-dur) var(--tr-ease), opacity var(--tr-dur) var(--tr-ease);
+}
+.tr-split--collapsed .tr-panehead { min-height: 0; max-height: 0; opacity: 0; }
+.tr-labelgroup { display: inline-flex; align-items: center; gap: var(--space-2); min-width: 0; }
+.tr-meta { font: var(--type-meta); color: var(--color-ink-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* reading areas (live ones are also scroll panes; static mockups are scrolled by script) */
+.tr-scroll { position: relative; flex: 1; min-height: 0; padding: var(--space-2) var(--gutter) 0; overscroll-behavior: contain; }
+.tr-scroll--static { overflow: hidden; }
+.tr-scroll--pt { padding-top: var(--space-3); }
+.tr-spacer { height: 0; }
+
+/* story head (Italian half only) */
+.tr-storyhead { padding: var(--space-1) 0 var(--space-5); }
+.tr-kicker { display: flex; gap: var(--space-2); align-items: center; margin-bottom: var(--space-2); }
+.tr-title { margin: 0; font: var(--type-title); letter-spacing: var(--tracking-display); }
+
+/* paragraphs: Italian = reader; Portuguese = lead, muted (never competes) */
+.tr-p { position: relative; margin: 0 0 var(--space-4); font: var(--type-reader); color: var(--color-ink); }
+.tr-p--pt { font: var(--type-lead); color: var(--color-ink-muted); }
+.tr-p::before {                                 /* paragraph-in-focus marker: 2px neutral rule in the gutter */
+  content: ""; position: absolute; top: var(--space-1); bottom: var(--space-1); left: calc(var(--space-3) * -1);
+  width: var(--border-mark); border-radius: var(--radius-pill); background: transparent;
+  transition: background-color var(--dur-fast) var(--ease-standard);
+}
+.tr-p--focus::before { background: var(--color-sentence-line); }
+.tr-words { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+
+/* pushed dictionary page body (live prototype) */
+.tr-page__body { padding: var(--space-2) var(--gutter) var(--space-6); display: grid; gap: var(--space-3); align-content: start; }
+.tr-protonote { margin: var(--space-2) 0 0; font: var(--type-meta); color: var(--color-ink-muted); }
+
+/* ==========================================================================
+   DO / DON'T minis (stage = .book-dd__stage + .tr-dd__split)
+   ========================================================================== */
+.tr-dd__split { height: calc(var(--space-12) * 4 + var(--space-6)); display: flex; flex-direction: column; gap: 0; padding: 0; }
+.tr-dd__split--row { flex-direction: row; }
+.tr-dd__half { flex: 1 1 0; min-height: 0; min-width: 0; overflow: hidden; padding: var(--space-3) var(--space-4); }
+.tr-dd__half--pt { background: var(--color-surface); border-top: var(--border-hairline) solid var(--color-rule); }
+.tr-dd__split--row .tr-dd__half--pt { border-top: 0; border-left: var(--border-hairline) solid var(--color-rule); }
+.tr-dd__label { margin-bottom: var(--space-1); }
+.tr-dd__it { margin: 0; font: var(--type-def); }
+.tr-dd__pt { margin: 0; font: var(--type-small); color: var(--color-ink-muted); }
+.tr-dd__same { margin: 0; font: var(--type-def); color: var(--color-ink); }
+.tr-dd__bad-s { background: var(--color-accent-soft); border-radius: var(--radius-mark); -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.tr-dd__bar { display: flex; justify-content: center; align-items: center; min-height: var(--space-6); background: var(--color-surface); border-top: var(--border-hairline) solid var(--color-rule); }
+.tr-grip--bad { background: var(--color-accent); }
+.tr-dd__mark { position: relative; padding-left: var(--space-3); }
+.tr-dd__mark::before { content: ""; position: absolute; left: 0; top: var(--space-1); bottom: var(--space-1); width: var(--border-mark); border-radius: var(--radius-pill); background: var(--color-sentence-line); }
+.tr-dd__mark--bad::before { background: var(--color-accent); }
+</style>
+</head>
+<body class="book">
+<a class="book-skip" href="#conteudo">Pular para o conteúdo</a>
+
+<header class="book-header">
+  <div class="book-wrap">
+    <div class="book-topline">
+      <a class="book-brand" href="identity.html">Postilla<span class="book-brand__dot" aria-hidden="true">.</span></a>
+      <button class="ui-btn ui-btn--ghost ui-btn--sm" type="button" data-theme-toggle>Tema: automático</button>
+    </div>
+    <p class="book-series">Leitor · tela dividida</p>
+    <h1 class="book-title">Leitor com tradução</h1>
+    <p class="book-lede">Quando a pessoa toca em “Mostrar tradução”, a tela se divide: italiano em cima, português embaixo. As duas metades rolam juntas, parágrafo por parágrafo, e cada frase em italiano aponta para a sua frase em português. O português ajuda e nunca disputa a atenção.</p>
+    <nav class="book-toc" aria-label="Seções">
+      <a href="#estrutura">Estrutura</a><a href="#estados">Estados</a><a href="#telas">Telas</a><a href="#prototipo">Protótipo</a><a href="#especificacao">Especificação</a><a href="#sincronia">Sincronia</a><a href="#conteudo-copia">Cópia</a><a href="#acessibilidade">Acessibilidade</a><a href="#faca">Faça e não faça</a>
+    </nav>
+  </div>
+</header>
+
+<main id="conteudo">
+
+<!-- 01 ESTRUTURA -->
+<section class="book-section" id="estrutura" aria-labelledby="estrutura-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">01 · Estrutura</p>
+      <h2 class="book-h2" id="estrutura-h">Duas metades, uma linha de leitura</h2>
+      <p class="book-note">A divisão é horizontal porque o celular é estreito. Duas colunas lado a lado dariam linhas de 3 ou 4 palavras. O italiano fica sempre em cima e nunca ocupa menos da metade da área de leitura.</p>
+    </header>
+
+    <div class="book-feature">
+      <figure class="phone" aria-label="Anatomia do leitor com tradução aberta">
+        <div class="phone__device" inert><div class="phone__screen" data-tr-screen data-tr='{"split":50,"para":3,"active":[3,2],"pins":true}'></div></div>
+        <figcaption class="phone__caption"><strong>Anatomia</strong> · 50/50, ¶3 frase 2 ativa</figcaption>
+      </figure>
+      <ol class="book-legend">
+        <li><span class="book-pin" aria-hidden="true">1</span><span><strong>App bar compacta</strong>Voltar à biblioteca, título da história em italiano, tamanho do texto e mais opções. Com a tradução aberta ela fica com o filete inferior (<code>.is-scrolled</code>), porque o texto passa por baixo.</span></li>
+        <li><span class="book-pin" aria-hidden="true">2</span><span><strong>Cabeçalho da metade de cima</strong><code>.ui-label</code> “Italiano” à esquerda e o parágrafo em foco à direita (“¶ 3 de 5”). Só existe com a tela dividida; entra junto com a revelação.</span></li>
+        <li><span class="book-pin" aria-hidden="true">3</span><span><strong>Metade de cima · italiano</strong>Fundo <code>--color-bg</code>, <code>--type-reader</code> 20/34 em tinta. É o mesmo texto do leitor sem tradução: nada muda de tamanho ao abrir.</span></li>
+        <li><span class="book-pin" aria-hidden="true">4</span><span><strong>Marcador do parágrafo em foco</strong>Filete de 2px em <code>--color-sentence-line</code> na margem esquerda, nas duas metades ao mesmo tempo. Indica qual parágrafo está na linha de leitura.</span></li>
+        <li><span class="book-pin" aria-hidden="true">5</span><span><strong>Divisor e alça</strong>Faixa de 44pt em <code>--color-surface</code> com filete superior. A alça central (pílula de 40×4) é o <code>role="separator"</code> focável; a faixa inteira aceita arrasto.</span></li>
+        <li><span class="book-pin" aria-hidden="true">6</span><span><strong>Rótulo “Português”</strong><code>.ui-label</code> no início do divisor. Funciona como título da metade de baixo e dá nome à região para leitores de tela.</span></li>
+        <li><span class="book-pin" aria-hidden="true">7</span><span><strong>Metade de baixo · português</strong>Fundo <code>--color-surface</code>, <code>--type-lead</code> 18/26 em <code>--color-ink-muted</code>. Menor, mais claro e num plano de fundo diferente: fica claramente em segundo plano.</span></li>
+        <li><span class="book-pin" aria-hidden="true">8</span><span><strong>Dock</strong>Progresso de 2px em amarelo (o único amarelo além do grifo) e o botão “Ocultar tradução”, no mesmo lugar onde estava “Mostrar tradução”.</span></li>
+      </ol>
+    </div>
+
+    <dl class="book-spec">
+      <dt>Área dividida</dt><dd>tudo entre a app bar e o dock; o divisor conta na parte de baixo</dd>
+      <dt>Proporções</dt><dd>50/50 (padrão na primeira vez) · 65/35 · fechada (só italiano). Nunca menos de 50% para o italiano</dd>
+      <dt>Memória</dt><dd>a última proporção aberta (50 ou 65) é lembrada por aparelho e volta no próximo “Mostrar tradução”</dd>
+      <dt>Amarelo</dt><dd>grifo da palavra selecionada + a linha de progresso. Divisor, marcador e frase são neutros</dd>
+    </dl>
+  </div>
+</section>
+
+<!-- 02 ESTADOS -->
+<section class="book-section" id="estados" aria-labelledby="estados-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">02 · Estados</p>
+      <h2 class="book-h2" id="estados-h">Componentes da tela dividida</h2>
+      <p class="book-note">Cinco peças novas, todas em tinta e cinza. O amarelo continua reservado para a palavra grifada. Ordem dos estados: padrão, hover, pressionado, foco, selecionado.</p>
+    </header>
+
+    <h3 class="book-h3" style="margin-top:0">Alça do divisor</h3>
+    <div class="book-states">
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="tr-mini" aria-hidden="true"><div class="ui-divider"><span></span><span class="ui-divider__handle"><span class="ui-grip"></span></span><span class="ui-divider__ratio">50 / 50</span></div></div></div><figcaption class="book-state__label"><strong>Padrão</strong> · alça em <code>--color-ink-faint</code> (3,4:1 sobre surface)</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="tr-mini" aria-hidden="true"><div class="ui-divider is-hover"><span></span><span class="ui-divider__handle"><span class="ui-grip"></span></span><span class="ui-divider__ratio">50 / 50</span></div></div></div><figcaption class="book-state__label"><strong>Hover</strong> · ponteiro: alça em ink-muted, cursor <code>row-resize</code></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="tr-mini" aria-hidden="true"><div class="ui-divider is-active"><span></span><span class="ui-divider__handle"><span class="ui-grip"></span></span><span class="ui-divider__ratio">62 / 38</span></div></div></div><figcaption class="book-state__label"><strong>Pressionado</strong> · arrastando: faixa surface-2, alça tinta 48px, leitura da proporção</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="tr-mini" aria-hidden="true"><div class="ui-divider"><span></span><span class="ui-divider__handle is-focus"><span class="ui-grip"></span></span><span class="ui-divider__ratio">65 / 35</span></div></div></div><figcaption class="book-state__label"><strong>Foco</strong> · anel interno; <span class="tr-kbd">↑</span> <span class="tr-kbd">↓</span> trocam o encaixe, <span class="tr-kbd">Enter</span> fecha</figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Marcador do parágrafo em foco</h3>
+    <div class="book-states">
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="tr-mini tr-mini--pad"><p class="tr-flat tr-p" lang="it">Accanto a lei c’è un uomo anziano che legge il giornale.</p></div></div><figcaption class="book-state__label"><strong>Padrão</strong> · fora da linha de leitura, sem marca</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="tr-mini tr-mini--pad"><p class="tr-flat tr-p tr-p--focus" lang="it">Accanto a lei c’è un uomo anziano che legge il giornale.</p></div></div><figcaption class="book-state__label"><strong>Selecionado · italiano</strong> · filete 2px <code>--color-rule-strong</code></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="tr-mini tr-mini--pad tr-mini--pt"><p class="tr-flat tr-p tr-p--pt tr-p--focus">Ao lado dela há um senhor idoso lendo o jornal.</p></div></div><figcaption class="book-state__label"><strong>Selecionado · português</strong> · o mesmo filete, ao mesmo tempo</figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Frase pareada · lado italiano</h3>
+    <div class="book-states">
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="tr-mini tr-mini--pad"><p class="tr-flat tr-p" lang="it"><span class="ui-sentence">A un certo punto la guarda e chiede: «Va anche lei a Bologna?»</span></p></div></div><figcaption class="book-state__label"><strong>Padrão</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="tr-mini tr-mini--pad"><p class="tr-flat tr-p" lang="it"><span class="ui-sentence is-active">A un certo punto la guarda e chiede: «Va anche lei a Bologna?»</span></p></div></div><figcaption class="book-state__label"><strong>Pressionado</strong> · dedo fora de palavra: prévia em surface-2</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="tr-mini tr-mini--pad"><p class="tr-flat tr-p" lang="it"><span class="ui-sentence is-selected">A un certo punto la guarda e chiede: «Va anche lei a Bologna?»</span></p></div></div><figcaption class="book-state__label"><strong>Selecionado</strong> · caixa em <code>--color-sentence-bg</code>, texto em tinta</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="tr-mini tr-mini--pad"><p class="tr-flat tr-p" lang="it"><span class="ui-sentence is-selected">A un certo punto la <span class="ui-word is-selected">guarda</span> e chiede: «Va anche lei a Bologna?»</span></p></div></div><figcaption class="book-state__label"><strong>Selecionado + grifo</strong> · de volta do dicionário: a palavra mantém o amarelo</figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Frase pareada · lado português</h3>
+    <div class="book-states">
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="tr-mini tr-mini--pad tr-mini--pt"><p class="tr-flat tr-p tr-p--pt"><span class="ui-sentence">Em certo momento, ele olha para ela e pergunta: “A senhora também vai para Bolonha?”</span></p></div></div><figcaption class="book-state__label"><strong>Padrão</strong> · ink-muted sobre surface (6,3:1)</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="tr-mini tr-mini--pad tr-mini--pt"><p class="tr-flat tr-p tr-p--pt"><span class="ui-sentence is-active">Em certo momento, ele olha para ela e pergunta: “A senhora também vai para Bolonha?”</span></p></div></div><figcaption class="book-state__label"><strong>Pressionado</strong> · toque direto no português</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="tr-mini tr-mini--pad tr-mini--pt"><p class="tr-flat tr-p tr-p--pt"><span class="ui-sentence is-selected">Em certo momento, ele olha para ela e pergunta: “A senhora também vai para Bolonha?”</span></p></div></div><figcaption class="book-state__label"><strong>Selecionado</strong> · caixa em <code>--color-sentence-bg</code> e o texto sobe para tinta (<code>--color-sentence-ink</code>)</figcaption></figure>
+    </div>
+    <div class="book-prose" style="margin-top:var(--space-6)">
+      <p><strong>Por que cinza e não amarelo.</strong> O amarelo já significa “esta é a palavra que você consultou”. Se a frase também fosse amarela, a pessoa não saberia qual dos dois amarelos é a palavra, e a tela teria duas grandes áreas amarelas, o que quebra o orçamento de cor. A frase usa a mesma regra nas duas metades: uma caixa dois degraus mais escura que o fundo da metade (<code>bg → surface → surface-2</code> em cima, <code>surface → surface-2 → rule</code> embaixo, ou seja <code>--color-rule</code> nas duas). Na pressão ela mostra um degrau só (<code>--color-surface-2</code>), espelhando o par hover/grifo da palavra. Como <code>--color-rule</code> é mais escuro que o hover da palavra, uma palavra sob o ponteiro continua visível dentro da frase ativa.</p>
+    </div>
+
+    <h3 class="book-h3">Botão de tradução</h3>
+    <div class="book-states">
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-btn ui-btn--secondary ui-btn--sm" type="button" tabindex="-1"><i data-lucide="rows-2" aria-hidden="true"></i>Mostrar tradução</button></div><figcaption class="book-state__label"><strong>Padrão</strong> · tradução oculta</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-btn ui-btn--secondary ui-btn--sm is-hover" type="button" tabindex="-1"><i data-lucide="rows-2" aria-hidden="true"></i>Mostrar tradução</button></div><figcaption class="book-state__label"><strong>Hover</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-btn ui-btn--secondary ui-btn--sm is-active" type="button" tabindex="-1"><i data-lucide="rows-2" aria-hidden="true"></i>Mostrar tradução</button></div><figcaption class="book-state__label"><strong>Pressionado</strong> · dispara a revelação</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-btn ui-btn--secondary ui-btn--sm is-focus" type="button" tabindex="-1"><i data-lucide="rows-2" aria-hidden="true"></i>Mostrar tradução</button></div><figcaption class="book-state__label"><strong>Foco</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-btn ui-btn--secondary ui-btn--sm" type="button" tabindex="-1"><i data-lucide="rows-2" aria-hidden="true"></i>Ocultar tradução</button></div><figcaption class="book-state__label"><strong>Aberta</strong> · o rótulo vira “Ocultar tradução” e carrega o estado sozinho: sem <code>aria-pressed</code>, sem preenchimento</figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Rótulos das metades</h3>
+    <div class="book-states">
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="tr-mini tr-mini--labels"><div><p class="ui-label">Italiano</p></div><div><p class="ui-label">Português</p></div></div></div><figcaption class="book-state__label"><strong>Padrão</strong> · <code>.ui-label</code>, 11px, caixa alta, ink-muted. Não mudam de estado</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- 03 TELAS -->
+<section class="book-section" id="telas" aria-labelledby="telas-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">03 · Telas</p>
+      <h2 class="book-h2" id="telas-h">A tela dividida em uso</h2>
+      <p class="book-note">Primeiro um protótipo que funciona de verdade, depois os estados fixos. Todo o texto é de “Il treno per Bologna” (A2).</p>
+    </header>
+
+    <h3 class="book-h3" id="prototipo" style="margin-top:0">Protótipo ao vivo</h3>
+    <div class="book-feature">
+      <figure class="phone" aria-label="Protótipo interativo do leitor com tradução">
+        <div class="phone__device"><div class="phone__screen" data-tr-screen data-tr-live data-tr='{"split":50,"para":1,"live":true}'></div></div>
+        <figcaption class="phone__caption"><strong>Protótipo</strong> · role, toque, arraste</figcaption>
+      </figure>
+      <div class="tr-aside">
+        <ol class="tr-steps">
+          <li>Role qualquer metade. A outra acompanha e o mesmo parágrafo fica alinhado na linha de leitura, com o filete nas duas.</li>
+          <li>Toque fora de uma palavra em italiano (espaço, pontuação, entrelinha, fim de linha) ou em qualquer ponto do português: a frase e o seu par ficam marcados. Toque de novo para desmarcar.</li>
+          <li>Toque numa palavra italiana: o dicionário entra como página. Em “Voltar à história”, a palavra fica grifada e a frase dela, marcada.</li>
+          <li>Mantenha o dedo (ou o botão do mouse) numa palavra por meio segundo e arraste para selecionar uma expressão, por exemplo <span lang="it">«A un certo punto»</span> no ¶3. Ao soltar, ela abre no dicionário. Salvar é só no marcador do verbete.</li>
+          <li>Arraste o divisor: ele encaixa em 50/50 ou 65/35. Leve até perto do dock para fechar. Com o teclado: foco na alça, <span class="tr-kbd">↑</span> <span class="tr-kbd">↓</span>, <span class="tr-kbd">Enter</span>.</li>
+        </ol>
+        <dl class="tr-readout" aria-label="Estado do protótipo">
+          <dt>Metade líder</dt><dd data-out="leader">italiano</dd>
+          <dt>Parágrafo em foco</dt><dd data-out="para">¶ 1</dd>
+          <dt>Proporção</dt><dd data-out="ratio">50 / 50</dd>
+          <dt>Frase ativa</dt><dd data-out="sentence">nenhuma</dd>
+        </dl>
+        <button class="ui-btn ui-btn--ghost ui-btn--sm" type="button" data-tr-reset style="justify-self:start">Recomeçar o protótipo</button>
+      </div>
+    </div>
+
+    <h3 class="book-h3">Proporções</h3>
+    <div class="book-screens">
+      <figure class="phone" aria-label="Tradução aberta em 50/50, parágrafo 2 em foco">
+        <div class="phone__device" inert><div class="phone__screen" data-tr-screen data-tr='{"split":50,"para":2}'></div></div>
+        <figcaption class="phone__caption"><strong>Leitor</strong> · 50/50, padrão da primeira abertura</figcaption>
+      </figure>
+      <figure class="phone" aria-label="Tradução aberta em 65/35, parágrafo 4 em foco">
+        <div class="phone__device" inert><div class="phone__screen" data-tr-screen data-tr='{"split":65,"para":4}'></div></div>
+        <figcaption class="phone__caption"><strong>Leitor</strong> · 65/35, mais italiano</figcaption>
+      </figure>
+    </div>
+
+    <h3 class="book-h3">Frase ativa e tema escuro</h3>
+    <div class="book-screens">
+      <figure class="phone" aria-label="Frase 2 do parágrafo 3 ativa nas duas metades, tema claro">
+        <div class="phone__device" inert><div class="phone__screen" data-tr-screen data-tr='{"split":50,"para":3,"active":[3,2]}'></div></div>
+        <figcaption class="phone__caption"><strong>Leitor</strong> · ¶3 frase 2 ativa</figcaption>
+      </figure>
+      <figure class="phone" aria-label="Frase 2 do parágrafo 3 ativa nas duas metades, tema escuro">
+        <div class="phone__device" inert><div class="phone__screen" data-theme="dark" data-tr-screen data-tr='{"split":50,"para":3,"active":[3,2]}'></div></div>
+        <figcaption class="phone__caption"><strong>Leitor</strong> · ¶3 frase 2 ativa, tema escuro</figcaption>
+      </figure>
+      <figure class="phone" aria-label="Palavra finestrino grifada na metade de cima, frase dela ativa">
+        <div class="phone__device" inert><div class="phone__screen" data-tr-screen data-tr='{"split":50,"para":1,"active":[1,3],"selected":[1,3,"finestrino"]}'></div></div>
+        <figcaption class="phone__caption"><strong>Leitor</strong> · “finestrino” grifada, de volta do dicionário</figcaption>
+      </figure>
+    </div>
+
+    <h3 class="book-h3">Revelação da tradução</h3>
+    <div class="book-prose"><p>Ao tocar em “Mostrar tradução”, a metade de baixo cresce a partir do dock até a proporção lembrada em <code>--dur-slow</code> (380 ms) com <code>--ease-emphasized</code>. O italiano não se move: a área de cima só perde altura por baixo, então o parágrafo que a pessoa lia continua na mesma linha. O português já chega alinhado ao parágrafo em foco. Para fechar, o caminho inverso em <code>--dur-base</code> (240 ms) com <code>--ease-exit</code>.</p></div>
+    <div class="book-screens">
+      <figure class="phone" aria-label="Antes: só italiano, botão Mostrar tradução pressionado">
+        <div class="phone__device" inert><div class="phone__screen" data-tr-screen data-tr='{"split":100,"para":3,"toggle":"is-active"}'></div></div>
+        <figcaption class="phone__caption"><strong>0 ms</strong> · toque em “Mostrar tradução”</figcaption>
+      </figure>
+      <figure class="phone" aria-label="Meio da transição: metade de baixo em cerca de 87 por cento">
+        <div class="phone__device" inert><div class="phone__screen" data-tr-screen data-tr='{"split":50,"ptGrow":43.5,"para":3}'></div></div>
+        <figcaption class="phone__caption"><strong>190 ms</strong> · metade da duração, ≈ 87% do caminho</figcaption>
+      </figure>
+      <figure class="phone" aria-label="Depois: tela dividida em 50/50">
+        <div class="phone__device" inert><div class="phone__screen" data-tr-screen data-tr='{"split":50,"para":3}'></div></div>
+        <figcaption class="phone__caption"><strong>380 ms</strong> · 50/50, ¶3 alinhado nas duas metades</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- 04 ESPECIFICAÇÃO -->
+<section class="book-section" id="especificacao" aria-labelledby="espec-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">04 · Especificação</p>
+      <h2 class="book-h2" id="espec-h">Toque, divisor, sincronia e movimento</h2>
+      <p class="book-note">A regra de toque cabe numa frase: <strong>na palavra, dicionário; fora da palavra, frase.</strong> O português não tem palavras tocáveis, então qualquer toque nele é frase.</p>
+    </header>
+
+    <h3 class="book-h3" style="margin-top:0">Palavra ou frase</h3>
+    <table class="book-table book-table--keyed book-table--stack">
+      <thead><tr><th scope="col">Onde</th><th scope="col">Gesto</th><th scope="col">Resultado</th></tr></thead>
+      <tbody>
+        <tr><td>Italiano</td><td>Toque curto dentro da caixa de uma palavra</td><td>Abre o dicionário como página empurrada (“Voltar à história”), igual ao leitor sem tradução. A palavra recebe o grifo. Ao voltar, a frase dela fica ativa nas duas metades.</td></tr>
+        <tr><td>Italiano</td><td>Toque curto fora de palavra: espaço, pontuação, aspas, entrelinha ou o resto da última linha</td><td>Marca a frase mais próxima do ponto tocado, dentro do mesmo parágrafo, e o par em português. Toque na margem entre parágrafos não faz nada.</td></tr>
+        <tr><td>Italiano</td><td>Pressão longa numa palavra (500 ms), e arrastar</td><td>Seleciona uma expressão, como no leitor sem tradução: grifo com alças, que cresce palavra a palavra dentro da frase (<span lang="it">a un certo punto</span>). Ao soltar, a expressão abre no dicionário como página inteira. Não marca frase e não salva: salvar é só pelo marcador do verbete.</td></tr>
+        <tr><td>Português</td><td>Toque em qualquer ponto de uma frase</td><td>Marca a frase e o par em italiano (o sentido inverso existe). O português nunca abre dicionário.</td></tr>
+        <tr><td>Qualquer metade</td><td>Toque na frase já ativa</td><td>Desmarca a frase e tira o grifo da palavra.</td></tr>
+        <tr><td>Qualquer metade</td><td>Arrastar ou lançar</td><td>Rola. Quem rola vira a metade líder e a outra acompanha.</td></tr>
+      </tbody>
+    </table>
+    <div class="book-cols" style="margin-top:var(--space-8)">
+      <div class="book-card">
+        <h4>Por que esta regra</h4>
+        <p>A palavra é o alvo mais frequente e o mais preciso; ela não pode perder para nada. A pressão longa já significa “selecionar expressão” no leitor, e o toque duplo atrasaria todo toque de palavra em 250 ms. Sobra o espaço entre as palavras, que no italiano a 20/34 é pequeno (cerca de 8pt de entrelinha), por isso a frase tem um alvo grande e sem ambiguidade: o português inteiro.</p>
+        <p>O teste de toque usa a caixa da palavra sem folga extra. Se o ponto cair dentro dela, é palavra. Fora dela, é frase.</p>
+      </div>
+      <div class="book-card">
+        <h4>O que acontece com a seleção</h4>
+        <p>Uma frase ativa por vez. Marcar outra frase troca as duas metades de uma vez e tira o grifo de qualquer palavra fora dela.</p>
+        <p>Se o par estiver fora da vista (por exemplo, a frase 4 de um parágrafo português longo), a outra metade rola o mínimo para mostrá-lo, sem virar líder. A próxima rolagem realinha os parágrafos.</p>
+        <p>A frase ativa some ao ocultar a tradução e não volta ao reabrir.</p>
+      </div>
+    </div>
+
+    <h3 class="book-h3">Divisor</h3>
+    <dl class="book-spec">
+      <dt>Encaixes</dt><dd>50/50 e 65/35 (italiano/português). Ao soltar, vai para o encaixe mais próximo em <code>--dur-base</code> com <code>--ease-standard</code></dd>
+      <dt>Fechar</dt><dd>soltar com o italiano acima de 82% fecha a tradução (mesmo efeito de “Ocultar tradução”). A memória continua com o último encaixe aberto</dd>
+      <dt>Limite de cima</dt><dd>abaixo de 50% o divisor resiste (anda 30% do dedo) e volta para 50/50 ao soltar. O português nunca fica maior que o italiano</dd>
+      <dt>Durante o arrasto</dt><dd>sem transição: a divisão segue o dedo no mesmo quadro. A faixa fica em surface-2 e mostra a proporção atual em <code>--type-meta</code></dd>
+      <dt>Alvo</dt><dd>a faixa inteira de 44pt aceita arrasto; o foco do teclado fica na alça central</dd>
+      <dt>Memória</dt><dd>chave local por aparelho, por exemplo <code>postilla.traducao.proporcao</code> = 50 ou 65</dd>
+      <dt>Rotação e fonte</dt><dd>a proporção é percentual; mudar o tamanho do texto ou girar o aparelho recalcula as âncoras e realinha a partir da metade líder</dd>
+    </dl>
+
+    <h3 class="book-h3">Movimento</h3>
+    <table class="book-table book-table--keyed book-table--stack">
+      <thead><tr><th scope="col">Evento</th><th scope="col">Duração e curva</th><th scope="col">O que se move</th></tr></thead>
+      <tbody>
+        <tr><td>Mostrar tradução</td><td><code>--dur-slow</code> 380 ms · <code>--ease-emphasized</code></td><td>Metade de baixo cresce do dock até a proporção lembrada; cabeçalho “Italiano” abre junto. O texto italiano fica parado.</td></tr>
+        <tr><td>Ocultar tradução</td><td><code>--dur-base</code> 240 ms · <code>--ease-exit</code></td><td>Caminho inverso. O foco que estava no português vai para o botão.</td></tr>
+        <tr><td>Soltar o divisor</td><td><code>--dur-base</code> · <code>--ease-standard</code></td><td>Divisão até o encaixe.</td></tr>
+        <tr><td>Arrastar</td><td>nenhuma</td><td>Divisão segue o dedo.</td></tr>
+        <tr><td>Frase, parágrafo em foco</td><td><code>--dur-fast</code> 150 ms</td><td>Só cor de fundo e de texto.</td></tr>
+        <tr><td>Dicionário</td><td><code>--dur-base</code> · <code>--ease-standard</code></td><td>Página entra pela direita e cobre a tela inteira.</td></tr>
+        <tr><td>Metade seguidora</td><td>nenhuma</td><td>Rola no mesmo quadro que a líder; animar aqui criaria atraso e eco.</td></tr>
+        <tr><td>Movimento reduzido</td><td>tokens em 0 ms</td><td>Tudo vira corte seco. A sincronia continua, porque é guiada pelo dedo.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 05 SINCRONIA -->
+<section class="book-section" id="sincronia" aria-labelledby="sinc-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">05 · Sincronia</p>
+      <h2 class="book-h2" id="sinc-h">Rolagem amarrada por parágrafo</h2>
+      <p class="book-note">As duas metades não rolam pela mesma porcentagem: o português ocupa outra altura e os parágrafos se desencontrariam. Elas se amarram nas bordas dos parágrafos e interpolam dentro de cada um.</p>
+    </header>
+
+    <div class="book-prose">
+      <ol>
+        <li><strong>Âncoras.</strong> Cada metade conhece o início de cada parágrafo (¶1 a ¶5) e o fim do último. O trecho antes do ¶1 é o cabeçalho; no português ele tem altura quase zero, então o português espera no topo enquanto o título italiano passa.</li>
+        <li><strong>Linha de leitura.</strong> Uma linha fixa a <code>--space-6</code> (24pt) do topo de cada metade. O parágrafo que cruza essa linha é o parágrafo em foco: ganha o filete nas duas metades e aparece no cabeçalho (“¶ 3 de 5”).</li>
+        <li><strong>Quem lidera.</strong> A última metade que recebeu dedo, roda do mouse ou tecla. A outra é seguidora e só obedece. Ao abrir a tela, o italiano lidera.</li>
+        <li><strong>Posição.</strong> Na líder, calcula-se em qual parágrafo está a linha de leitura e a fração já percorrida dele (0 a 1). Na seguidora, a mesma fração do mesmo parágrafo vai para a linha de leitura.</li>
+        <li><strong>Português mais longo.</strong> Se o ¶3 em português for mais alto que o italiano, a seguidora anda mais depressa dentro dele e mais devagar onde ele é mais curto. As bordas entre parágrafos sempre se encontram na linha de leitura; nunca há dois parágrafos diferentes em foco.</li>
+        <li><strong>Sem eco.</strong> Duas travas: a rolagem da seguidora é ignorada enquanto ela não for líder, e cada escrita nossa guarda o valor esperado; um evento de rolagem com esse valor é eco e é descartado. Tudo roda no máximo uma vez por quadro.</li>
+        <li><strong>Fim da história.</strong> Cada metade ganha um espaço final para que o último parágrafo alcance a linha de leitura. Se a seguidora bater no limite antes, ela para ali e a líder continua.</li>
+        <li><strong>Mudanças de layout.</strong> Arrastar o divisor, mudar o tamanho do texto ou girar o aparelho recalcula as âncoras e realinha a seguidora a partir da posição atual da líder.</li>
+      </ol>
+    </div>
+
+<pre class="book-code"><code><span class="book-code__c">// âncoras de uma metade (medidas dentro da área rolável)</span>
+ancoras(m) = { inicios: [topo(¶1), …, topo(¶5)], fim: base(¶5) }
+LINHA = 24                               <span class="book-code__c">// --space-6</span>
+
+trecho(m, k) = k == 0 ? [0, inicios[0])            <span class="book-code__c">// cabeçalho</span>
+             : [inicios[k-1], inicios[k] ou fim)   <span class="book-code__c">// ¶k</span>
+
+localizar(m, y):                         <span class="book-code__c">// y = scrollTop + LINHA</span>
+  k = trecho que contém y                <span class="book-code__c">// 0 … 5, ou 6 depois do fim</span>
+  f = (y − início(k)) / altura(k)        <span class="book-code__c">// 0 … 1</span>
+  devolve (k, f)
+
+posicionar(m, k, f):
+  devolve início(k) + f × altura(k)
+
+aoTocar(m):                              <span class="book-code__c">// pointerdown, touchstart, wheel, keydown</span>
+  lider = m
+  esperado[m] = nada
+
+aoRolar(m):
+  se m ≠ lider: ignora                   <span class="book-code__c">// trava 1: só a líder manda</span>
+  se |m.scrollTop − esperado[m]| ≤ 1: ignora   <span class="book-code__c">// trava 2: eco da nossa escrita</span>
+  agenda no próximo quadro:
+    s = a outra metade
+    (k, f) = localizar(m, m.scrollTop + LINHA)
+    alvo = posicionar(s, k, f) − LINHA
+    s.scrollTop = limitar(alvo, 0, s.scrollHeight − s.clientHeight)
+    esperado[s] = s.scrollTop
+    marcarParagrafo(max(k, 1))           <span class="book-code__c">// filete nas duas + "¶ k de 5"</span>
+
+aoMudarLayout():                         <span class="book-code__c">// divisor, fonte, rotação</span>
+  recalcular ancoras e espaço final
+  aoRolar(lider) sem as travas</code></pre>
+  </div>
+</section>
+
+<!-- 06 CONTEÚDO E CÓPIA -->
+<section class="book-section" id="conteudo-copia" aria-labelledby="copia-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">06 · Conteúdo e cópia</p>
+      <h2 class="book-h2" id="copia-h">Textos da tela dividida</h2>
+      <p class="book-note">Verbos no infinitivo nos botões, frases curtas nos anúncios, sem exclamação.</p>
+    </header>
+    <table class="book-table book-table--keyed book-table--stack">
+      <thead><tr><th scope="col">Lugar</th><th scope="col">Texto</th><th scope="col">Observação</th></tr></thead>
+      <tbody>
+        <tr><td>Botão, tradução oculta</td><td>Mostrar tradução</td><td>Ícone <code>rows-2</code>, <code>.ui-btn--secondary.ui-btn--sm</code></td></tr>
+        <tr><td>Botão, tradução aberta</td><td>Ocultar tradução</td><td>Mesmo lugar e mesmo contorno. O rótulo é o estado: sem <code>aria-pressed</code></td></tr>
+        <tr><td>Rótulos das metades</td><td>Italiano · Português</td><td><code>.ui-label</code>; nomeiam as regiões</td></tr>
+        <tr><td>Cabeçalho italiano</td><td>¶ 3 de 5</td><td>Parágrafo em foco; leitor de tela ouve “Parágrafo 3 de 5”</td></tr>
+        <tr><td>Divisor (nome)</td><td>Dividir italiano e português</td><td>Valor: “Italiano 65%, português 35%”</td></tr>
+        <tr><td>Ao abrir</td><td>Tradução aberta. Italiano em cima, português embaixo.</td><td>Anúncio educado (<code>aria-live="polite"</code>)</td></tr>
+        <tr><td>Ao fechar</td><td>Tradução oculta.</td><td>Anúncio educado</td></tr>
+        <tr><td>Ao marcar frase</td><td>Parágrafo 3, frase 2. Em certo momento, ele olha para ela e pergunta: “A senhora também vai para Bolonha?”</td><td>Lê o par na outra língua</td></tr>
+        <tr><td>Dica de primeiro uso</td><td>Toque numa palavra para abrir o dicionário. Toque entre as palavras ou no português para ver a frase.</td><td>Uma vez, na primeira abertura, acima do divisor</td></tr>
+        <tr><td>Voltar do dicionário</td><td>Voltar à história</td><td>Nome acessível do botão de voltar</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 07 ACESSIBILIDADE -->
+<section class="book-section" id="acessibilidade" aria-labelledby="a11y-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">07 · Acessibilidade</p>
+      <h2 class="book-h2" id="a11y-h">Ordem, anúncio e teclado</h2>
+      <p class="book-note">A ordem do código é a ordem visual. O leitor de tela entende a divisão como duas regiões com nome e um separador ajustável entre elas.</p>
+    </header>
+
+    <div class="book-cols">
+      <div class="book-card">
+        <h4>Ordem do leitor de tela</h4>
+        <ol class="tr-steps">
+          <li>App bar: “Voltar à biblioteca”, título, “Tamanho do texto”, “Mais opções”.</li>
+          <li>Região “Italiano” (<code>role="region"</code>, nomeada pelo rótulo), com o título da história e os parágrafos.</li>
+          <li>Separador “Dividir italiano e português”, ajustável.</li>
+          <li>Região “Português”.</li>
+          <li>Dock: botão “Ocultar tradução” (a linha de progresso é decorativa).</li>
+        </ol>
+      </div>
+      <div class="book-card">
+        <h4>Como a divisão é anunciada</h4>
+        <p><code>role="separator"</code>, focável, com <code>aria-valuemin="50"</code>, <code>aria-valuemax="100"</code>, <code>aria-valuenow</code> = parte do italiano e <code>aria-valuetext</code> “Italiano 65%, português 35%”. <code>aria-controls</code> aponta para a região italiana.</p>
+        <p>No iOS a alça é um elemento ajustável (deslizar para cima e para baixo troca o encaixe); no Android, a mesma semântica de controle deslizante.</p>
+        <p>Abrir, fechar e marcar frase geram anúncios educados (ver Cópia). A frase marcada é lida na outra língua, o que dá ao leitor de tela o mesmo pareamento que o olho recebe.</p>
+      </div>
+    </div>
+
+    <h3 class="book-h3">Teclado</h3>
+    <table class="book-table book-table--keyed book-table--stack">
+      <thead><tr><th scope="col">Foco em</th><th scope="col">Tecla</th><th scope="col">Ação</th></tr></thead>
+      <tbody>
+        <tr><td>Alça</td><td><span class="tr-kbd">↓</span> / <span class="tr-kbd">↑</span></td><td>Próximo encaixe para baixo (50 → 65) ou para cima (65 → 50)</td></tr>
+        <tr><td>Alça</td><td><span class="tr-kbd">Home</span> / <span class="tr-kbd">End</span></td><td>50/50 / 65/35</td></tr>
+        <tr><td>Alça</td><td><span class="tr-kbd">Enter</span></td><td>Fecha a tradução e leva o foco para “Mostrar tradução” (padrão de separador de janela do WAI-ARIA)</td></tr>
+        <tr><td>Metade</td><td><span class="tr-kbd">↑</span> <span class="tr-kbd">↓</span> <span class="tr-kbd">PgUp</span> <span class="tr-kbd">PgDn</span></td><td>Rola essa metade; ela vira líder</td></tr>
+        <tr><td>Metade</td><td><span class="tr-kbd">←</span> / <span class="tr-kbd">→</span></td><td>Frase anterior / seguinte, com o par marcado</td></tr>
+        <tr><td>Metade italiana</td><td><span class="tr-kbd">Tab</span></td><td>Entra nas palavras da frase ativa (só elas ficam na ordem de tabulação); <span class="tr-kbd">Enter</span> abre o dicionário</td></tr>
+        <tr><td>Dicionário</td><td><span class="tr-kbd">Esc</span></td><td>Voltar à história; o foco volta para a palavra</td></tr>
+      </tbody>
+    </table>
+
+    <dl class="book-spec">
+      <dt>Contraste</dt><dd>português ink-muted sobre surface 6,3:1 (escuro 7,7:1) · frase ativa tinta sobre rule 13:1 (escuro 11:1) · alça ink-faint sobre surface 3,4:1 (escuro 4,1:1)</dd>
+      <dt>Alvos</dt><dd>divisor 44pt de altura · linhas do italiano 34pt · botões com área de 44pt</dd>
+      <dt>Idioma</dt><dd><code>lang="it"</code> na metade de cima, <code>lang="pt-BR"</code> na de baixo, para a voz trocar de idioma</dd>
+      <dt>Cor</dt><dd>frase ativa e parágrafo em foco não dependem só de cor: o estado também é anunciado e o filete é uma forma</dd>
+      <dt>Movimento</dt><dd>com movimento reduzido, revelação, encaixe e página do dicionário viram cortes secos</dd>
+    </dl>
+  </div>
+</section>
+
+<!-- 08 FAÇA / NÃO FAÇA -->
+<section class="book-section" id="faca" aria-labelledby="faca-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">08 · Faça e não faça</p>
+      <h2 class="book-h2" id="faca-h">Os limites da tela dividida</h2>
+    </header>
+    <div class="book-dd">
+      <figure>
+        <div class="book-dd__stage tr-dd__split" aria-hidden="true">
+          <div class="tr-dd__half"><p class="ui-label tr-dd__label">Italiano</p><p class="tr-dd__it" lang="it">Il treno parte in orario. Fuori, la città si sveglia piano.</p></div>
+          <div class="tr-dd__half tr-dd__half--pt"><p class="ui-label tr-dd__label">Português</p><p class="tr-dd__pt">O trem sai no horário. Lá fora, a cidade acorda devagar.</p></div>
+        </div>
+        <figcaption><span class="book-dd__tag book-dd__tag--do"><i data-lucide="check" aria-hidden="true"></i>Faça</span><br>Deixe o português menor, em ink-muted e sobre surface. Ele é a nota na margem.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage tr-dd__split" aria-hidden="true">
+          <div class="tr-dd__half"><p class="tr-dd__same" lang="it">Il treno parte in orario. Fuori, la città si sveglia piano.</p></div>
+          <div class="tr-dd__half" style="border-top:var(--border-hairline) solid var(--color-rule)"><p class="tr-dd__same">O trem sai no horário. Lá fora, a cidade acorda devagar.</p></div>
+        </div>
+        <figcaption><span class="book-dd__tag book-dd__tag--dont"><i data-lucide="x" aria-hidden="true"></i>Não faça</span><br>Não dê ao português o mesmo tamanho, cor e fundo do italiano. O olho vai direto para a língua materna.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage tr-dd__split" aria-hidden="true">
+          <div class="tr-dd__half"><p class="tr-dd__it" lang="it"><span class="ui-sentence is-selected">A un certo punto la <span class="ui-word is-selected">guarda</span> e chiede: «Va anche lei a Bologna?»</span></p></div>
+          <div class="tr-dd__half tr-dd__half--pt"><p class="tr-dd__pt"><span class="ui-sentence is-selected">Em certo momento, ele olha para ela e pergunta: “A senhora também vai para Bolonha?”</span></p></div>
+        </div>
+        <figcaption><span class="book-dd__tag book-dd__tag--do"><i data-lucide="check" aria-hidden="true"></i>Faça</span><br>Marque a frase com a caixa neutra nas duas metades. O amarelo fica só na palavra.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage tr-dd__split" aria-hidden="true">
+          <div class="tr-dd__half"><p class="tr-dd__it" lang="it"><span class="tr-dd__bad-s">A un certo punto la <span class="ui-word is-selected">guarda</span> e chiede: «Va anche lei a Bologna?»</span></p></div>
+          <div class="tr-dd__half tr-dd__half--pt"><p class="tr-dd__pt"><span class="tr-dd__bad-s">Em certo momento, ele olha para ela e pergunta: “A senhora também vai para Bolonha?”</span></p></div>
+        </div>
+        <figcaption><span class="book-dd__tag book-dd__tag--dont"><i data-lucide="x" aria-hidden="true"></i>Não faça</span><br>Não pinte a frase de amarelo. O grifo da palavra some e a tela passa do orçamento de cor.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage tr-dd__split" aria-hidden="true">
+          <div class="tr-dd__half"><p class="ui-label tr-dd__label">¶3</p><p class="tr-dd__it tr-dd__mark" lang="it">Accanto a lei c’è un uomo anziano che legge il giornale.</p></div>
+          <div class="tr-dd__half tr-dd__half--pt"><p class="ui-label tr-dd__label">¶3</p><p class="tr-dd__pt tr-dd__mark">Ao lado dela há um senhor idoso lendo o jornal.</p></div>
+        </div>
+        <figcaption><span class="book-dd__tag book-dd__tag--do"><i data-lucide="check" aria-hidden="true"></i>Faça</span><br>Amarre a rolagem nas bordas dos parágrafos: o mesmo parágrafo na mesma linha.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage tr-dd__split" aria-hidden="true">
+          <div class="tr-dd__half"><p class="ui-label tr-dd__label">¶3</p><p class="tr-dd__it" lang="it">Accanto a lei c’è un uomo anziano che legge il giornale.</p></div>
+          <div class="tr-dd__half tr-dd__half--pt"><p class="ui-label tr-dd__label">¶2</p><p class="tr-dd__pt">…uma senhora com o cachorro, as portas de aço das lojas subindo.</p></div>
+        </div>
+        <figcaption><span class="book-dd__tag book-dd__tag--dont"><i data-lucide="x" aria-hidden="true"></i>Não faça</span><br>Não sincronize pela porcentagem total da rolagem. As alturas diferem e os parágrafos se desencontram.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage tr-dd__split" aria-hidden="true">
+          <div class="tr-dd__half" style="flex-grow:65"><p class="tr-dd__it" lang="it">Le colline sono verdi e il cielo è chiaro. Per la prima volta da molto tempo, non ha fretta.</p></div>
+          <div class="tr-dd__bar"><span class="ui-grip"></span></div>
+          <div class="tr-dd__half tr-dd__half--pt" style="flex-grow:35;border-top:0"><p class="tr-dd__pt">As colinas estão verdes e o céu está claro.</p></div>
+        </div>
+        <figcaption><span class="book-dd__tag book-dd__tag--do"><i data-lucide="check" aria-hidden="true"></i>Faça</span><br>Ofereça só 50/50 e 65/35. O italiano tem sempre pelo menos metade da tela.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage tr-dd__split" aria-hidden="true">
+          <div class="tr-dd__half" style="flex-grow:25"><p class="tr-dd__it" lang="it">Le colline sono verdi…</p></div>
+          <div class="tr-dd__bar"><span class="ui-grip tr-grip--bad"></span></div>
+          <div class="tr-dd__half tr-dd__half--pt" style="flex-grow:75;border-top:0"><p class="tr-dd__pt tr-dd__mark tr-dd__mark--bad">As colinas estão verdes e o céu está claro. Pela primeira vez em muito tempo, ela não tem pressa.</p></div>
+        </div>
+        <figcaption><span class="book-dd__tag book-dd__tag--dont"><i data-lucide="x" aria-hidden="true"></i>Não faça</span><br>Não deixe o português maior que o italiano nem pinte alça e marcador de amarelo.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage tr-dd__split" aria-hidden="true">
+          <div class="tr-dd__half"><p class="ui-label tr-dd__label">Italiano</p><p class="tr-dd__it" lang="it">Marta ride. Guarda di nuovo fuori dal finestrino.</p></div>
+          <div class="tr-dd__half tr-dd__half--pt"><p class="ui-label tr-dd__label">Português</p><p class="tr-dd__pt">Marta ri. Olha de novo pela janela.</p></div>
+        </div>
+        <figcaption><span class="book-dd__tag book-dd__tag--do"><i data-lucide="check" aria-hidden="true"></i>Faça</span><br>Divida na horizontal, italiano em cima: linhas inteiras nas duas línguas.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage tr-dd__split tr-dd__split--row" aria-hidden="true">
+          <div class="tr-dd__half"><p class="tr-dd__it" lang="it">Marta ride. Guarda di nuovo fuori dal finestrino.</p></div>
+          <div class="tr-dd__half tr-dd__half--pt"><p class="tr-dd__pt">Marta ri. Olha de novo pela janela.</p></div>
+        </div>
+        <figcaption><span class="book-dd__tag book-dd__tag--dont"><i data-lucide="x" aria-hidden="true"></i>Não faça</span><br>Não use colunas lado a lado no celular. As linhas ficam com três palavras e o olho pula de lado.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="book-footer"><div class="book-wrap">Postilla · sistema v0.2 · leitor com tradução · tokens em <code>tokens.css</code> · componentes em <code>book.css</code></div></footer>
+
+<script>
+(() => {
+  /* ---------------------------------------------------------------------
+     Story (content.md) — paragraphs and sentences aligned 1:1
+     --------------------------------------------------------------------- */
+  const STORY = [
+    { it: ['Marta arriva in stazione alle sette.', 'Il binario è quasi vuoto e l’aria sa di caffè.', 'Compra un biglietto alla macchinetta e si siede vicino al finestrino.'],
+      pt: ['Marta chega à estação às sete.', 'A plataforma está quase vazia e o ar cheira a café.', 'Ela compra uma passagem na máquina e se senta perto da janela.'] },
+    { it: ['Il treno parte in orario.', 'Fuori, la città si sveglia piano: un ragazzo in bicicletta, una signora con il cane, le serrande dei negozi che si alzano.'],
+      pt: ['O trem sai no horário.', 'Lá fora, a cidade acorda devagar: um rapaz de bicicleta, uma senhora com o cachorro, as portas de aço das lojas subindo.'] },
+    { it: ['Accanto a lei c’è un uomo anziano che legge il giornale.', 'A un certo punto la guarda e chiede: «Va anche lei a Bologna?»', 'Marta sorride e risponde di sì.', 'Va a trovare sua nonna, che non vede da due anni.'],
+      pt: ['Ao lado dela há um senhor idoso lendo o jornal.', 'Em certo momento, ele olha para ela e pergunta: “A senhora também vai para Bolonha?”', 'Marta sorri e responde que sim.', 'Vai visitar a avó, que não vê há dois anos.'] },
+    { it: ['L’uomo piega il giornale.', '«Allora deve assaggiare i tortellini di via Pescherie Vecchie», dice.', '«Ma non lo dica a sua nonna.', 'Le nonne vogliono sempre cucinare loro.»'],
+      pt: ['O homem dobra o jornal.', '“Então a senhora precisa provar os tortellini da via Pescherie Vecchie”, diz.', '“Mas não conte para a sua avó.', 'As avós sempre querem cozinhar elas mesmas.”'] },
+    { it: ['Marta ride.', 'Guarda di nuovo fuori dal finestrino.', 'Le colline sono verdi e il cielo è chiaro.', 'Per la prima volta da molto tempo, non ha fretta.'],
+      pt: ['Marta ri.', 'Olha de novo pela janela.', 'As colinas estão verdes e o céu está claro.', 'Pela primeira vez em muito tempo, ela não tem pressa.'] },
+  ];
+  const N = STORY.length;
+  const SAVED = new Set(['binario', 'biglietto', 'serrande']);
+  const DICT = {
+    finestrino: { hw: 'finestrino', pos: 'sostantivo maschile · plurale: finestrini', ipa: '/fi.neˈstri.no/',
+      sense: 'Piccola finestra, in particolare quella di un veicolo (treno, automobile, aereo).', ex: 'Si siede vicino al finestrino.' },
+    siede: { hw: 'sedersi', pos: 'verbo intransitivo pronominale · ausiliare: essere', ipa: '/seˈder.si/',
+      sense: 'Mettersi a sedere, appoggiando il corpo su una sedia o un’altra superficie.', ex: 'Si siede vicino al finestrino.' },
+    'a un certo punto': { hw: 'a un certo punto', pos: 'locuzione avverbiale', ipa: '/a un ˈtʃɛr.to ˈpun.to/',
+      sense: 'In un momento non precisato; a un tratto.', ex: 'A un certo punto la guarda e chiede: «Va anche lei a Bologna?»' },
+  };
+  const WORD_RE = /\p{L}+['’]?/gu;
+  const SNAPS = [50, 65], COLLAPSE_AT = 82, STORE_KEY = 'postilla.traducao.proporcao';
+  const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const rootVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const px = n => parseFloat(rootVar(n)) || 0;
+  const ms = n => { const v = rootVar(n); return v.endsWith('ms') ? parseFloat(v) : parseFloat(v) * 1000 || 0; };
+  let uid = 0;
+
+  /* ---------------------------------------------------------------------
+     Markup builders
+     --------------------------------------------------------------------- */
+  function itSentence(text, p, s, o) {
+    let html = '', last = 0;
+    for (const m of text.matchAll(WORD_RE)) {
+      html += esc(text.slice(last, m.index));
+      const tok = m[0], key = tok.toLowerCase().replace(/['’]$/, '');
+      const cls = ['ui-word'];
+      if (SAVED.has(key)) cls.push('is-saved');
+      if (o.selected && o.selected[0] === p && o.selected[1] === s && o.selected[2] === key) cls.push('is-selected');
+      const attrs = o.live ? ` role="button" tabindex="-1" data-key="${key}"` : '';
+      html += `<span class="${cls.join(' ')}"${attrs}>${esc(tok)}</span>`;
+      last = m.index + tok.length;
+    }
+    return html + esc(text.slice(last));
+  }
+  function paras(lang, o) {
+    const act = o.active || [];
+    return STORY.map((para, i) => {
+      const p = i + 1;
+      const body = para[lang].map((t, j) => {
+        const s = j + 1, on = act[0] === p && act[1] === s ? ' is-selected' : '';
+        return `<span class="ui-sentence${on}" data-p="${p}" data-s="${s}">${lang === 'it' ? itSentence(t, p, s, o) : esc(t)}</span>`;
+      }).join(' ');
+      const pin = o.pins && lang === 'it' && p === o.para ? '<span class="book-pin tr-at tr-at--gutter" aria-hidden="true">4</span>' : '';
+      return `<p class="tr-p${lang === 'pt' ? ' tr-p--pt' : ' tr-words'}" data-p="${p}">${body}${pin}</p>`;
+    }).join('');
+  }
+  function buildScreen(o) {
+    const id = 'trs' + (++uid);
+    const split = o.split || 50, collapsed = split >= 100;
+    const itGrow = collapsed ? 100 : split;
+    const ptGrow = o.ptGrow != null ? o.ptGrow : (collapsed ? 0 : 100 - split);
+    const pin = (n, mod = '') => o.pins ? `<span class="book-pin tr-at${mod}" aria-hidden="true">${n}</span>` : '';
+    const live = !!o.live;
+    const icon = n => `<i data-lucide="${n}" aria-hidden="true"></i>`;
+    const region = (labelId) => live ? ` role="region" aria-labelledby="${labelId}"` : '';
+    const pct = Math.round(((o.para || 1) - 1) / N * 100);
+    return `
+      <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+      <div class="phone__body"><div class="ui-stack" data-tr-stack>
+        <div class="ui-stack__layer" data-tr-reader>
+          <div class="tr-appwrap">${pin(1, ' tr-at--lead')}
+            <div class="ui-appbar is-scrolled">
+              <button class="ui-iconbtn" type="button" aria-label="Voltar à biblioteca">${icon('chevron-left')}</button>
+              <p class="ui-appbar__title" lang="it">Il treno per Bologna</p>
+              <div class="ui-appbar__actions"><button class="ui-iconbtn" type="button" aria-label="Tamanho do texto">${icon('a-large-small')}</button><button class="ui-iconbtn" type="button" aria-label="Mais opções">${icon('ellipsis')}</button></div>
+            </div>
+          </div>
+          <div class="tr-split${collapsed ? ' tr-split--collapsed' : ''}" style="--tr-it:${itGrow};--tr-pt:${ptGrow}">
+            <div class="tr-top" id="${id}-top"${region(id + '-itl')}>
+              <div class="tr-panehead"><span class="tr-labelgroup"><p class="ui-label" id="${id}-itl">Italiano</p>${o.pins ? '<span class="book-pin" aria-hidden="true">2</span>' : ''}</span><span class="tr-meta" data-tr-pos aria-label="Parágrafo ${o.para || 1} de ${N}">¶ ${o.para || 1} de ${N}</span></div>
+              <div class="tr-scroll${live ? ' ui-scroll' : ' tr-scroll--static'}" data-pane="it" lang="it"${live ? ` tabindex="0" aria-labelledby="${id}-itl"` : ''}>
+                <div class="tr-storyhead"><div class="tr-kicker"><span class="ui-label" lang="pt-BR">Viagem</span><span class="ui-level" data-level="a2">A2</span></div><p class="tr-title">Il treno per Bologna</p></div>
+                ${paras('it', o)}
+                <div class="tr-spacer" aria-hidden="true"></div>
+              </div>
+              ${pin(3, ' tr-at--low')}
+            </div>
+            <div class="tr-bottom"${region(id + '-ptl')}>
+              <div class="ui-divider">
+                <span class="tr-labelgroup"><p class="ui-label" id="${id}-ptl">Português</p>${o.pins ? '<span class="book-pin" aria-hidden="true">6</span>' : ''}</span>
+                <span class="ui-divider__handle"${live ? ` role="separator" tabindex="0" aria-label="Dividir italiano e português" aria-orientation="horizontal" aria-valuemin="50" aria-valuemax="100" aria-valuenow="${split}" aria-valuetext="Italiano ${split}%, português ${100 - split}%" aria-controls="${id}-top"` : ''}><span class="ui-grip"></span></span>
+                ${o.pins ? '<span class="book-pin tr-pin-end" aria-hidden="true">5</span>' : `<span class="ui-divider__ratio" aria-hidden="true">${split} / ${100 - split}</span>`}
+              </div>
+              <div class="tr-scroll tr-scroll--pt${live ? ' ui-scroll' : ' tr-scroll--static'}" data-pane="pt" lang="pt-BR"${live ? ` tabindex="0" aria-labelledby="${id}-ptl"` : ''}>
+                ${paras('pt', o)}
+                <div class="tr-spacer" aria-hidden="true"></div>
+              </div>
+              ${pin(7, ' tr-at--low')}
+            </div>
+          </div>
+          <div class="ui-dock">
+            <div class="ui-progress ui-progress--accent" aria-hidden="true"><i data-tr-progress style="--p:${pct}%"></i></div>
+            <div class="ui-dock__row"><span data-tr-pct>${pct}% lido</span>${o.pins ? '<span class="book-pin" aria-hidden="true">8</span>' : ''}<button class="ui-btn ui-btn--secondary ui-btn--sm${o.toggle ? ' ' + o.toggle : ''}" type="button" data-tr-toggle>${icon('rows-2')}<span data-tr-toggle-label>${collapsed ? 'Mostrar tradução' : 'Ocultar tradução'}</span></button></div>
+          </div>
+        </div>
+        ${live ? `
+        <section class="ui-stack__layer ui-stack__layer--top" aria-labelledby="${id}-hw" data-tr-page inert>
+          <div class="ui-appbar">
+            <button class="ui-iconbtn" type="button" aria-label="Voltar à história" data-tr-back>${icon('chevron-left')}</button>
+            <p class="ui-appbar__title">Dicionário</p>
+            <div class="ui-appbar__actions"><button class="ui-iconbtn ui-iconbtn--bookmark" type="button" aria-label="Salvar palavra" aria-pressed="false" data-tr-bookmark>${icon('bookmark')}</button></div>
+          </div>
+          <div class="ui-scroll tr-page__body" lang="it">
+            <h4 class="ui-headword" id="${id}-hw" data-tr-hw>finestrino</h4>
+            <p class="ui-pron" data-tr-pron><span class="ipa" data-tr-ipa></span></p>
+            <p class="ui-pos"><em data-tr-hwpos></em></p>
+            <ol class="ui-senses" data-tr-senses><li class="ui-sense"><p class="ui-sense__def" data-tr-sense></p><ul class="ui-examples"><li class="ui-example" data-tr-ex></li></ul></li></ol>
+            <p class="tr-protonote" lang="pt-BR" data-tr-note hidden>Neste protótipo só “finestrino” e “si siede” têm verbete. A página completa do dicionário está no livro Dicionário.</p>
+          </div>
+        </section>
+        <p class="visually-hidden" aria-live="polite" data-tr-live-region></p>` : ''}
+      </div></div>
+      <div class="phone__home" aria-hidden="true"></div>`;
+  }
+
+  /* ---------------------------------------------------------------------
+     Sync engine (shared by static mockups and the live prototype)
+     --------------------------------------------------------------------- */
+  function anchors(pane) {
+    const ps = [...pane.querySelectorAll('.tr-p')];
+    const tops = ps.map(p => p.offsetTop);
+    const last = ps[ps.length - 1];
+    return { tops, end: last.offsetTop + last.offsetHeight };
+  }
+  function bounds(a, k) {
+    if (k === 0) return [0, a.tops[0]];
+    return [a.tops[k - 1], k < a.tops.length ? a.tops[k] : a.end];
+  }
+  function locate(a, y) {
+    if (y < a.tops[0]) return { k: 0, f: y / Math.max(1, a.tops[0]) };
+    for (let k = 1; k <= a.tops.length; k++) {
+      const [s, e] = bounds(a, k);
+      if (y < e) return { k, f: (y - s) / Math.max(1, e - s) };
+    }
+    return { k: a.tops.length + 1, f: y - a.end };            // past the end: px
+  }
+  function position(a, loc) {
+    if (loc.k > a.tops.length) return a.end + loc.f;
+    const [s, e] = bounds(a, loc.k);
+    return s + loc.f * (e - s);
+  }
+  function layoutSpacers(screen) {
+    const A = px('--space-6');
+    screen.querySelectorAll('[data-pane]').forEach(pane => {
+      const sp = pane.querySelector('.tr-spacer'), ps = pane.querySelectorAll('.tr-p'), last = ps[ps.length - 1];
+      sp.style.height = Math.max(0, pane.clientHeight - A - last.offsetHeight - px('--space-4')) + 'px';
+    });
+  }
+  /* moves `follow` so the paragraph at the reading line of `lead` sits on its reading line */
+  function syncFrom(lead, follow) {
+    const A = px('--space-6');
+    const loc = locate(anchors(lead), lead.scrollTop + A);
+    if (follow.clientHeight > 0) {
+      const max = follow.scrollHeight - follow.clientHeight;
+      follow.scrollTop = Math.max(0, Math.min(max, position(anchors(follow), loc) - A));
+    }
+    return Math.min(N, Math.max(1, loc.k));
+  }
+  function markFocus(screen, k) {
+    screen.querySelectorAll('.tr-p').forEach(p => p.classList.toggle('tr-p--focus', +p.dataset.p === k));
+    const pos = screen.querySelector('[data-tr-pos]');
+    if (pos) { pos.textContent = `¶ ${k} de ${N}`; pos.setAttribute('aria-label', `Parágrafo ${k} de ${N}`); }
+    const it = screen.querySelector('[data-pane="it"]');
+    const loc = locate(anchors(it), it.scrollTop + px('--space-6'));   // progress = paragraphs read, not pixels
+    const done = loc.k === 0 ? 0 : loc.k > N ? N : (loc.k - 1) + loc.f;
+    const pct = Math.max(0, Math.min(100, Math.round(done / N * 100)));
+    const bar = screen.querySelector('[data-tr-progress]'), lbl = screen.querySelector('[data-tr-pct]');
+    if (bar) bar.style.setProperty('--p', pct + '%');
+    if (lbl) lbl.textContent = pct + '% lido';
+  }
+
+  /* static mockups: put paragraph `para` on the Italian reading line, then sync */
+  function alignStatic(screen, o) {
+    const it = screen.querySelector('[data-pane="it"]'), pt = screen.querySelector('[data-pane="pt"]');
+    layoutSpacers(screen);
+    const p = it.querySelector(`.tr-p[data-p="${o.para || 1}"]`);
+    it.scrollTop = (o.para || 1) <= 1 ? 0 : p.offsetTop - px('--space-6');
+    if (o.selected) {                                   // bring the grifo's sentence to the reading line
+      const sEl = it.querySelector(`.ui-sentence[data-p="${o.selected[0]}"][data-s="${o.selected[1]}"]`);
+      it.scrollTop = 0;
+      it.scrollTop = sEl.getClientRects()[0].top - it.getBoundingClientRect().top - px('--space-6');
+    }
+    const k = syncFrom(it, pt);
+    markFocus(screen, k);
+  }
+
+  /* ---------------------------------------------------------------------
+     Live prototype
+     --------------------------------------------------------------------- */
+  function initLive(screen) {
+    const $ = s => screen.querySelector(s);
+    const panes = { it: $('[data-pane="it"]'), pt: $('[data-pane="pt"]') };
+    const split = $('.tr-split'), divider = $('.ui-divider'), handle = $('.ui-divider__handle'), ratioEl = $('.ui-divider__ratio');
+    const stack = $('[data-tr-stack]');
+    const toggle = $('[data-tr-toggle]'), toggleLabel = $('[data-tr-toggle-label]');
+    const reader = $('[data-tr-reader]'), page = $('[data-tr-page]'), liveRegion = $('[data-tr-live-region]');
+    const out = k => document.querySelector(`[data-out="${k}"]`);
+    const store = {
+      get() { try { const v = +localStorage.getItem(STORE_KEY); return SNAPS.includes(v) ? v : 50; } catch (e) { return 50; } },
+      set(v) { try { localStorage.setItem(STORE_KEY, String(v)); } catch (e) { /* storage unavailable */ } },
+    };
+    const st = { leader: 'it', expected: { it: null, pt: null }, raf: 0, ratio: store.get(), collapsed: false,
+                 active: null, word: null, drag: null, press: null, suppressUntil: 0, focusK: 1 };
+
+    const say = t => { liveRegion.textContent = ''; setTimeout(() => { liveRegion.textContent = t; }, 30); };
+    const other = n => n === 'it' ? 'pt' : 'it';
+    const nameOf = { it: 'italiano', pt: 'português' };
+
+    function report() {
+      out('leader').textContent = nameOf[st.leader];
+      out('para').textContent = '¶ ' + st.focusK;
+      out('ratio').textContent = st.collapsed ? 'fechada (só italiano)' : `${st.ratio} / ${100 - st.ratio}`;
+      out('sentence').textContent = st.active ? `¶${st.active[0]} frase ${st.active[1]}` : 'nenhuma';
+    }
+
+    /* --- sync --- */
+    function follow(from) {
+      const to = other(from);
+      let k;
+      if (st.collapsed) {
+        const loc = locate(anchors(panes.it), panes.it.scrollTop + px('--space-6'));
+        k = Math.min(N, Math.max(1, loc.k));
+      } else {
+        k = syncFrom(panes[from], panes[to]);
+        st.expected[to] = panes[to].scrollTop;
+      }
+      st.focusK = k; markFocus(screen, k); report();
+    }
+    for (const name of ['it', 'pt']) {
+      const el = panes[name];
+      const lead = () => { st.leader = name; st.expected[name] = null; report(); };
+      ['pointerdown', 'wheel', 'touchstart', 'keydown'].forEach(ev => el.addEventListener(ev, lead, { passive: true }));
+      el.addEventListener('scroll', () => {
+        if (st.expected[name] != null && Math.abs(el.scrollTop - st.expected[name]) <= 1) return;  // echo of our own write
+        if (st.leader !== name) return;                                                          // only the leader drives
+        if (!st.raf) st.raf = requestAnimationFrame(() => { st.raf = 0; follow(st.leader); });
+      }, { passive: true });
+    }
+    const ro = new ResizeObserver(() => { layoutSpacers(screen); follow(st.leader === 'pt' && !st.collapsed ? 'pt' : 'it'); });
+    ro.observe(panes.it); ro.observe(panes.pt);
+
+    /* --- sentences --- */
+    const sentencesAt = (p, s) => screen.querySelectorAll(`.ui-sentence[data-p="${p}"][data-s="${s}"]`);
+    /* st.word = a selected .ui-word, or a .ui-expression wrapping several (long-press + drag) */
+    const isExpr = el => !!el && el.classList.contains('ui-expression');
+    function unwrap(el) { el.replaceWith(...el.childNodes); }
+    function clearWord() {
+      if (!st.word) return;
+      if (isExpr(st.word)) unwrap(st.word); else st.word.classList.remove('is-selected');
+      st.word = null;
+    }
+    function wrapRange(a, b) {                       /* words a..b of the same sentence → one .ui-expression */
+      const ws = [...a.closest('.ui-sentence').querySelectorAll('.ui-word')];
+      let i = ws.indexOf(a), j = ws.indexOf(b); if (i > j) [i, j] = [j, i];
+      const ex = document.createElement('span'); ex.className = 'ui-expression is-selected';
+      ws[i].before(ex);
+      for (let n = ws[i]; n; ) { const next = n.nextSibling; ex.append(n); if (n === ws[j]) break; n = next; }
+      return ex;
+    }
+    function setWordTabStops() {
+      panes.it.querySelectorAll('.ui-word').forEach(w => w.tabIndex = -1);
+      if (st.active) sentencesAt(...st.active)[0].querySelectorAll('.ui-word').forEach(w => w.tabIndex = 0);
+    }
+    function ensureVisible(pane, el) {
+      if (!pane.clientHeight) return;
+      const pr = pane.getBoundingClientRect(), er = el.getBoundingClientRect(), A = px('--space-6');
+      let d = 0;
+      if (er.top < pr.top + px('--space-2')) d = er.top - pr.top - A;
+      else if (er.bottom > pr.bottom - px('--space-2')) d = Math.min(er.top - pr.top - A, er.bottom - pr.bottom + px('--space-6'));
+      if (d) { pane.scrollTop += d; st.expected[pane.dataset.pane] = pane.scrollTop; }
+    }
+    function activate(p, s, from, opts = {}) {
+      screen.querySelectorAll('.ui-sentence.is-selected').forEach(x => x.classList.remove('is-selected'));
+      if (st.word && !(+st.word.closest('.ui-sentence').dataset.p === p && +st.word.closest('.ui-sentence').dataset.s === s)) clearWord();
+      if (p == null) { st.active = null; setWordTabStops(); report(); return; }
+      st.active = [p, s];
+      const els = sentencesAt(p, s);
+      els.forEach(x => x.classList.add('is-selected'));
+      const pair = from === 'it' ? els[1] : els[0];
+      ensureVisible(panes[other(from)], pair);
+      setWordTabStops(); report();
+      if (opts.announce !== false) say(`Parágrafo ${p}, frase ${s}. ${pair.textContent}`);
+    }
+    function toggleSentence(p, s, from) {
+      if (st.active && st.active[0] === p && st.active[1] === s) { activate(null, null, from); clearWord(); }
+      else activate(p, s, from);
+    }
+    function nearestSentence(pane, e) {
+      const direct = e.target.closest && e.target.closest('.ui-sentence');
+      if (direct && pane.contains(direct)) return direct;
+      const para = e.target.closest && e.target.closest('.tr-p');
+      if (!para) return null;                                   // margin between paragraphs: no-op
+      let best = null, bd = Infinity;
+      para.querySelectorAll('.ui-sentence').forEach(s => {
+        for (const r of s.getClientRects()) {
+          const dx = Math.max(r.left - e.clientX, 0, e.clientX - r.right), dy = Math.max(r.top - e.clientY, 0, e.clientY - r.bottom);
+          const d = Math.hypot(dx, dy); if (d < bd) { bd = d; best = s; }
+        }
+      });
+      return best;
+    }
+
+    /* --- pointer: word (tap = dictionary, long-press = expression) vs sentence --- */
+    for (const name of ['it', 'pt']) {
+      const pane = panes[name];
+      pane.addEventListener('pointerdown', e => {
+        if (e.button !== 0) return;
+        const word = name === 'it' && e.target.closest('.ui-word');
+        st.press = { x: e.clientX, y: e.clientY, word, timer: 0, sentence: null, expr: null, id: e.pointerId };
+        if (word) {
+          word.classList.add('is-active');
+          st.press.timer = setTimeout(() => {                    /* long-press: start an expression on this word */
+            if (!st.press) return;
+            word.classList.remove('is-active');
+            clearWord();
+            st.press.expr = wrapRange(word, word);
+            try { pane.setPointerCapture(st.press.id); } catch (err) { /* pointer already gone */ }
+          }, 500);
+        } else {
+          const s = nearestSentence(pane, e);
+          if (s && !s.classList.contains('is-selected')) { s.classList.add('is-active'); st.press.sentence = s; }
+        }
+      });
+      const endPress = () => {
+        if (!st.press) return;
+        clearTimeout(st.press.timer);
+        if (st.press.word) st.press.word.classList.remove('is-active');
+        if (st.press.sentence) st.press.sentence.classList.remove('is-active');
+        st.press = null;
+      };
+      pane.addEventListener('pointermove', e => {
+        if (!st.press) return;
+        if (st.press.expr) {                                     /* drag extends the expression inside its sentence */
+          const hit = document.elementFromPoint(e.clientX, e.clientY);
+          const w = hit && hit.closest && hit.closest('.ui-word');
+          const anchor = st.press.word;
+          if (w && w.closest('.ui-sentence') === anchor.closest('.ui-sentence') || (w && w.parentElement === st.press.expr)) {
+            unwrap(st.press.expr); st.press.expr = wrapRange(anchor, w);
+          }
+          return;
+        }
+        if (Math.hypot(e.clientX - st.press.x, e.clientY - st.press.y) > 8) endPress();
+      });
+      pane.addEventListener('pointerup', () => {
+        if (st.press && st.press.expr) {
+          const ex = st.press.expr; st.suppressUntil = performance.now() + 400; endPress();
+          openDict(ex); return;
+        }
+        endPress();
+      });
+      ['pointercancel', 'pointerleave'].forEach(ev => pane.addEventListener(ev, () => {
+        if (st.press && st.press.expr) { if (ev === 'pointercancel') unwrap(st.press.expr); else return; }
+        endPress();
+      }));
+      pane.addEventListener('scroll', () => { if (st.press && !st.press.expr) endPress(); }, { passive: true });
+      pane.addEventListener('contextmenu', e => { if (e.target.closest('.ui-word')) e.preventDefault(); });
+      pane.addEventListener('click', e => {
+        if (performance.now() < (st.suppressUntil || 0)) return;
+        const word = name === 'it' && e.target.closest('.ui-word');
+        if (word) { openDict(word); return; }
+        const s = nearestSentence(pane, e);
+        if (s) toggleSentence(+s.dataset.p, +s.dataset.s, name);
+      });
+      pane.addEventListener('keydown', e => {
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+          e.preventDefault();
+          const all = [...pane.querySelectorAll('.ui-sentence')];
+          let i = st.active ? all.findIndex(x => +x.dataset.p === st.active[0] && +x.dataset.s === st.active[1]) : -1;
+          i = Math.max(0, Math.min(all.length - 1, i + (e.key === 'ArrowRight' ? 1 : -1)));
+          activate(+all[i].dataset.p, +all[i].dataset.s, name);
+          ensureVisible(pane, all[i]);
+        } else if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('ui-word')) {
+          e.preventDefault(); openDict(e.target);
+        }
+      });
+    }
+
+    /* --- pushed dictionary page --- */
+    function openDict(word) {                                    /* word = .ui-word or .ui-expression */
+      if (st.word && st.word !== word) clearWord();
+      if (!isExpr(word)) word.classList.add('is-selected');
+      st.word = word;
+      const key = isExpr(word) ? word.textContent.replace(/\s+/g, ' ').trim().toLowerCase() : word.dataset.key;
+      const d = DICT[key];
+      $('[data-tr-hw]').textContent = d ? d.hw : key;
+      $('[data-tr-hwpos]').textContent = d ? d.pos : '';
+      $('[data-tr-ipa]').textContent = d ? d.ipa : '';
+      $('[data-tr-sense]').textContent = d ? d.sense : '';
+      $('[data-tr-ex]').textContent = d ? d.ex : '';
+      ['[data-tr-hwpos]', '[data-tr-pron]', '[data-tr-senses]'].forEach(s => $(s).hidden = !d);
+      $('[data-tr-note]').hidden = !!d;
+      $('[data-tr-bookmark]').setAttribute('aria-pressed', String(!isExpr(word) && word.classList.contains('is-saved')));
+      reader.inert = true; page.inert = false; stack.dataset.state = 'pushed';
+      $('[data-tr-back]').focus({ preventScroll: true });
+    }
+    function closeDict() {
+      stack.dataset.state = ''; page.inert = true; reader.inert = false;
+      const w = st.word; if (!w) return;
+      const s = w.closest('.ui-sentence');
+      if (!st.collapsed) activate(+s.dataset.p, +s.dataset.s, 'it', { announce: false });
+      st.word = w;                                               /* activate() keeps a word inside the sentence */
+      if (!isExpr(w)) w.classList.add('is-selected');
+      const f = isExpr(w) ? w.querySelector('.ui-word') : w;
+      f.tabIndex = 0; f.focus({ preventScroll: true });
+    }
+    $('[data-tr-back]').addEventListener('click', closeDict);
+    page.addEventListener('keydown', e => { if (e.key === 'Escape') closeDict(); });
+    $('[data-tr-bookmark]').addEventListener('click', e => {
+      const b = e.currentTarget, on = b.getAttribute('aria-pressed') !== 'true';
+      b.setAttribute('aria-pressed', String(on));
+      if (st.word && !isExpr(st.word)) st.word.classList.toggle('is-saved', on);
+    });
+
+    /* --- ratio, reveal, hide --- */
+    function setGrow(it) {
+      split.style.setProperty('--tr-it', it);
+      split.style.setProperty('--tr-pt', 100 - it);
+      const r = Math.round(it);
+      ratioEl.textContent = `${r} / ${100 - r}`;
+    }
+    function setRatio(r) {
+      st.ratio = r; setGrow(r); store.set(r);
+      handle.setAttribute('aria-valuenow', r);
+      handle.setAttribute('aria-valuetext', `Italiano ${r}%, português ${100 - r}%`);
+      report();
+    }
+    function withClass(cls, dur) {
+      split.classList.remove('tr-split--reveal', 'tr-split--hide');
+      split.classList.add(cls);
+      clearTimeout(withClass.t); withClass.t = setTimeout(() => split.classList.remove(cls), dur + 60);
+    }
+    function reveal() {
+      st.collapsed = false;
+      withClass('tr-split--reveal', ms('--dur-slow'));
+      split.classList.remove('tr-split--collapsed');
+      setRatio(st.ratio);
+      toggleLabel.textContent = 'Ocultar tradução';                 /* the label is the state: no aria-pressed */
+      st.leader = 'it'; follow('it');
+      say('Tradução aberta. Italiano em cima, português embaixo.');
+    }
+    function hide() {
+      const hadFocus = split.querySelector('.tr-bottom').contains(document.activeElement);
+      st.collapsed = true;
+      withClass('tr-split--hide', ms('--dur-base'));
+      split.classList.add('tr-split--collapsed');
+      setGrow(100);
+      activate(null, null, 'it');
+      clearWord();
+      toggleLabel.textContent = 'Mostrar tradução';
+      st.leader = 'it'; report();
+      if (hadFocus) toggle.focus();
+      say('Tradução oculta.');
+    }
+    toggle.addEventListener('click', () => st.collapsed ? reveal() : hide());
+
+    /* --- drag the divider --- */
+    divider.addEventListener('pointerdown', e => {
+      if (e.button !== 0) return;
+      e.preventDefault();
+      divider.setPointerCapture(e.pointerId);
+      st.drag = { id: e.pointerId, offset: e.clientY - divider.getBoundingClientRect().top, value: st.ratio, moved: false, y: e.clientY };
+      split.classList.add('tr-split--dragging'); divider.classList.add('is-active');
+    });
+    divider.addEventListener('pointermove', e => {
+      if (!st.drag || e.pointerId !== st.drag.id) return;
+      if (Math.abs(e.clientY - st.drag.y) > 3) st.drag.moved = true;
+      const r = split.getBoundingClientRect();
+      let v = (e.clientY - st.drag.offset - r.top) / r.height * 100;
+      if (v < 50) v = 50 - (50 - v) * 0.3;                       // resistance above 50/50
+      v = Math.min(v, 96);
+      st.drag.value = v; setGrow(v);
+    });
+    const endDrag = e => {
+      if (!st.drag || e.pointerId !== st.drag.id) return;
+      const v = st.drag.value, moved = st.drag.moved;
+      st.drag = null;
+      split.classList.remove('tr-split--dragging'); divider.classList.remove('is-active');
+      if (!moved) { setGrow(st.ratio); return; }
+      if (v > COLLAPSE_AT) { hide(); return; }
+      const snap = SNAPS.reduce((a, b) => Math.abs(b - v) < Math.abs(a - v) ? b : a);
+      setRatio(snap);
+    };
+    divider.addEventListener('pointerup', endDrag);
+    divider.addEventListener('pointercancel', endDrag);
+
+    /* --- keyboard on the handle (WAI-ARIA window splitter) --- */
+    handle.addEventListener('keydown', e => {
+      const i = SNAPS.indexOf(st.ratio);
+      if (e.key === 'ArrowDown') { e.preventDefault(); setRatio(SNAPS[Math.min(SNAPS.length - 1, i + 1)]); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); setRatio(SNAPS[Math.max(0, i - 1)]); }
+      else if (e.key === 'Home') { e.preventDefault(); setRatio(SNAPS[0]); }
+      else if (e.key === 'End') { e.preventDefault(); setRatio(SNAPS[SNAPS.length - 1]); }
+      else if (e.key === 'Enter') { e.preventDefault(); hide(); toggle.focus(); }
+    });
+
+    /* --- reset --- */
+    const reset = document.querySelector('[data-tr-reset]');
+    if (reset) reset.addEventListener('click', () => {
+      if (st.collapsed) reveal();
+      activate(null, null, 'it');
+      clearWord();
+      setRatio(50); st.leader = 'it'; panes.it.scrollTop = 0; follow('it');
+    });
+
+    setRatio(st.ratio);
+    layoutSpacers(screen); follow('it');
+    screen._tr = { st, panes, follow, activate, setRatio, hide, reveal };   // exposed for automated checks
+  }
+
+  /* ---------------------------------------------------------------------
+     Boot
+     --------------------------------------------------------------------- */
+  const screens = [...document.querySelectorAll('[data-tr-screen]')].map(el => {
+    const o = JSON.parse(el.dataset.tr);
+    el.innerHTML = buildScreen(o);
+    return { el, o };
+  });
+  const alignAll = () => screens.forEach(({ el, o }) => { if (!o.live) alignStatic(el, o); });
+  const ready = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
+  alignAll();
+  screens.forEach(({ el, o }) => { if (o.live) initLive(el); });
+  ready.then(() => { alignAll(); });
+  let rt = 0;
+  window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(alignAll, 120); });
+
+  /* theme toggle: auto → light → dark (shared, copy verbatim) */
+  const btn = document.querySelector('[data-theme-toggle]');
+  if (btn) {
+    const order = ['auto', 'light', 'dark'], label = { auto: 'automático', light: 'claro', dark: 'escuro' };
+    let i = 0;
+    btn.addEventListener('click', () => {
+      i = (i + 1) % 3; const t = order[i];
+      if (t === 'auto') document.documentElement.removeAttribute('data-theme');
+      else document.documentElement.setAttribute('data-theme', t);
+      btn.textContent = 'Tema: ' + label[t];
+    });
+  }
+})();
+</script>
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<script>
+  if (window.lucide) lucide.createIcons({ attrs: { 'stroke-width': 1.5, width: 24, height: 24 } });
+</script>
+</body>
+</html>

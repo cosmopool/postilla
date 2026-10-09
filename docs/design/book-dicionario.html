@@ -1,0 +1,937 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Postilla Dicionário</title>
+<meta name="description" content="Livro do Dicionário da Postilla: anatomia do verbete, estados, telas, navegação em pilha e cópia.">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="book.css">
+<style>
+/* ===== book-dicionario.html — book-specific (prefix dic-) =====
+   Shared pieces come from book.css: entry pieces (ui-headword, ui-pron, ui-pos,
+   ui-block, ui-senses/ui-sense/ui-examples, ui-reg, ui-wordlink, ui-table),
+   ui-search, ui-list/ui-row, ui-empty, ui-sechead, ui-toast, ui-scroll,
+   book-feature/legend/pin, book-card, book-table, book-dd. */
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+
+/* ---------- entry page inside a phone ---------- */
+.dic-page { padding: var(--space-2) var(--gutter) var(--space-12); }
+.dic-entry { display: grid; gap: var(--space-6); min-width: 0; }
+.dic-head { display: grid; gap: var(--space-2); justify-items: start; }
+.dic-syl { font: var(--type-small); color: var(--color-ink-muted); }
+.dic-syl i { font-style: normal; color: var(--color-rule-strong); margin-inline: var(--space-1); }
+
+/* gloss reveal (PT hidden by default) */
+.dic-gloss {
+  display: inline-flex; align-items: center; gap: var(--space-2); max-width: 100%;
+  min-height: var(--tap-min); padding: var(--space-1) var(--space-4) var(--space-1) var(--space-2);
+  border: var(--border-strong) dashed var(--color-rule-strong); border-radius: var(--radius-pill);
+  background: transparent; color: var(--color-ink-muted); font: var(--type-body); text-align: start; cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-standard), border-color var(--dur-fast) var(--ease-standard);
+}
+.dic-gloss:hover, .dic-gloss.is-hover { background: var(--color-surface); }
+.dic-gloss:active, .dic-gloss.is-active { background: var(--color-surface-2); }
+.dic-gloss__tag {
+  flex: none; display: inline-grid; place-items: center; min-width: var(--space-8); height: var(--space-6);
+  padding: 0 var(--space-2); border-radius: var(--radius-pill); background: var(--color-surface-2); color: var(--color-ink);
+  font: var(--type-label); letter-spacing: var(--tracking-caps);
+}
+.dic-gloss[aria-pressed="true"] { border-style: solid; border-color: var(--color-rule); background: var(--color-surface); color: var(--color-ink); }
+.dic-gloss[aria-pressed="true"] .dic-gloss__tag { background: var(--color-bg); }
+.dic-gloss__text { min-width: 0; }
+.dic-sub { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-2); font: var(--type-meta); color: var(--color-ink-muted); }
+
+/* "Nella storia" context card */
+.dic-ctx { display: grid; gap: var(--space-2); padding: var(--space-4); border-radius: var(--radius-card); background: var(--color-surface); color: var(--color-ink); text-decoration: none; transition: background-color var(--dur-fast) var(--ease-standard); }
+.dic-ctx:hover, .dic-ctx.is-hover { background: color-mix(in oklab, var(--color-surface) 50%, var(--color-surface-2)); }
+.dic-ctx:active, .dic-ctx.is-active { background: var(--color-surface-2); }
+.dic-ctx__quote { margin: 0; font: var(--type-def); }
+.dic-ctx__form { font: var(--type-meta); color: var(--color-ink-muted); font-style: italic; }
+.dic-ctx__src { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); font: var(--type-meta); color: var(--color-ink-muted); }
+.dic-ctx__src [data-lucide], .dic-ctx__src svg { width: var(--icon-size-sm); height: var(--icon-size-sm); }
+
+/* conjugation specifics (table = .ui-table) */
+.dic-cl { color: var(--color-ink-muted); }
+.dic-alt { display: block; font: var(--type-meta); color: var(--color-ink-muted); }
+.dic-tr-story > * { background: var(--color-surface); }
+.dic-storytag { display: block; font: var(--type-meta); font-style: italic; color: var(--color-ink-muted); }
+.dic-nonfinite { font: var(--type-small); color: var(--color-ink-muted); }
+.dic-nonfinite b { font-weight: var(--weight-semibold); color: var(--color-ink); }
+.dic-tenses { display: flex; gap: var(--space-2); overflow-x: auto; padding-block: var(--space-2); scrollbar-width: none; }
+.dic-tenses::-webkit-scrollbar { display: none; }
+.dic-page .dic-tenses { margin-inline: calc(-1 * var(--gutter)); padding-inline: var(--gutter); }
+
+/* related words: a wrapping row of .ui-wordlink */
+.dic-rels { display: flex; flex-wrap: wrap; align-items: center; column-gap: var(--space-5); margin: 0; padding: 0; list-style: none; }
+.dic-rels li { display: inline-flex; align-items: baseline; gap: var(--space-2); }
+.dic-note { font: var(--type-small); color: var(--color-ink-muted); }
+.dic-source { margin: 0; font: var(--type-meta); color: var(--color-ink-muted); }
+
+/* search screen + tab root */
+.dic-searchbar { display: flex; align-items: center; gap: var(--space-1); padding: var(--space-2) var(--space-3) var(--space-3) var(--gutter); }
+.dic-searchbar > :first-child { flex: 1; }
+.dic-rootbar { display: grid; gap: var(--space-4); padding: 0 var(--gutter) var(--space-3); }
+.dic-listmeta { margin: var(--space-4) var(--gutter) var(--space-2); font: var(--type-meta); color: var(--color-ink-muted); }
+.dic-typed { color: var(--color-ink-muted); font-weight: var(--weight-regular); }
+.dic-offline { display: grid; gap: var(--space-3); padding: var(--space-4); border-radius: var(--radius-card); background: var(--color-surface); font: var(--type-small); }
+.dic-offline__head { display: flex; align-items: center; gap: var(--space-2); font: var(--type-button); }
+.dic-offline__head [data-lucide], .dic-offline__head svg { color: var(--color-ink-muted); }
+.dic-offline p { margin: 0; color: var(--color-ink-muted); }
+.dic-hint { margin: var(--space-4) var(--gutter) 0; font: var(--type-small); color: var(--color-ink-muted); }
+.dic-hint + .dic-hint { margin-top: var(--space-2); }
+kbd.dic-k { display: inline-grid; place-items: center; min-width: var(--space-6); padding: 0 var(--space-1); border-radius: var(--radius-mark); background: var(--color-surface-2); color: var(--color-ink); font: var(--weight-semibold) var(--text-sm-size)/var(--text-sm-lh) var(--font-ui); }
+
+/* on-screen keyboard (search mockup only, decorative) */
+.dic-kb { flex: none; display: grid; gap: var(--space-2); padding: var(--space-2) var(--space-1) var(--space-1); background: var(--color-surface-2); }
+.dic-kb__row { display: flex; justify-content: center; gap: var(--space-1); }
+.dic-kb__row span { flex: 1 1 0; max-width: var(--space-8); height: var(--space-10); display: grid; place-items: center; border-radius: var(--radius-mark); background: var(--color-bg); color: var(--color-ink); font: var(--type-body); }
+.dic-kb__row span.w { max-width: none; flex-grow: 5; font: var(--type-small); }
+.dic-kb__row span.m { max-width: none; flex-grow: 1.4; font: var(--type-small); background: color-mix(in oklab, var(--color-surface-2) 60%, var(--color-rule-strong)); }
+
+/* ---------- book: research, anatomy, states ---------- */
+.dic-after { margin-bottom: var(--space-12); }
+.dic-specimen { padding: var(--space-8) var(--space-5) var(--space-8) var(--space-12); border: var(--border-hairline) solid var(--color-rule); border-radius: var(--radius-card); background: var(--color-bg); min-width: 0; }
+.dic-part { position: relative; }
+.dic-at { position: absolute; left: calc(-1 * var(--space-10)); top: 0; }        /* anatomy pin in the specimen gutter */
+.dic-at--hw { top: var(--space-3); }
+.dic-at--block { top: var(--space-4); }
+.dic-at--first { top: calc(-1 * var(--space-1)); }
+.dic-at--ex { left: calc(-1 * (var(--space-10) + var(--space-6) + var(--space-2) + var(--space-3) + var(--border-strong))); }
+.dic-labels { display: flex; flex-wrap: wrap; gap: var(--space-2); justify-content: center; }
+
+/* navigation flow */
+.dic-flow { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); counter-reset: dic-f; }
+.dic-step { counter-increment: dic-f; display: grid; gap: var(--space-3); align-content: start; padding: var(--space-5); border-radius: var(--radius-card); background: var(--color-surface); font: var(--type-small); }
+.dic-step::before { content: counter(dic-f, decimal-leading-zero); font: var(--type-label); letter-spacing: var(--tracking-caps); color: var(--color-ink-muted); }
+.dic-step p { margin: 0; }
+.dic-stack { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1); margin: 0; padding: 0; list-style: none; }
+.dic-stack li { display: inline-flex; align-items: center; gap: var(--space-1); }
+.dic-stack li + li::before { content: "›"; color: var(--color-ink-faint); }
+.dic-stack span { display: inline-flex; align-items: center; min-height: var(--space-6); padding: 0 var(--space-2); border-radius: var(--radius-pill); border: var(--border-hairline) solid var(--color-rule-strong); background: var(--color-bg); font: var(--type-meta); }
+.dic-stack span[aria-current] { background: var(--color-ink); border-color: var(--color-ink); color: var(--color-on-ink); }
+.dic-order { margin: 0; padding-left: var(--space-6); display: grid; gap: var(--space-2); font: var(--type-def); max-width: 40em; }
+.dic-order span { color: var(--color-ink-muted); font: var(--type-small); }
+
+/* doc tables (= .book-table) */
+.dic-no { color: var(--color-ink-muted); }
+.dic-yes { color: var(--color-ink); }
+.dic-tally { margin-top: var(--space-4); font: var(--type-small); color: var(--color-ink-muted); }
+.dic-src { font: var(--type-meta); color: var(--color-ink-muted); margin-top: var(--space-8); }
+.dic-src a { color: inherit; text-underline-offset: 0.2em; }
+
+/* do / don't samples */
+.dic-mini-hw { margin: 0; font: var(--weight-medium) var(--text-2xl-size)/var(--text-2xl-lh) var(--font-display); letter-spacing: var(--tracking-display); }
+.dic-bad-tr { font: var(--weight-bold) var(--text-xl-size)/var(--text-xl-lh) var(--font-text); text-transform: uppercase; }
+.dic-bad-yellow { background: var(--color-accent-soft); border-radius: var(--radius-mark); padding: 0 var(--space-1); }
+.dic-bad-label { font: var(--type-label); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--color-accent-strong); }
+.dic-bad-tags { display: flex; flex-wrap: wrap; gap: var(--space-1); }
+.dic-bad-tags span { padding: var(--space-1) var(--space-2); border-radius: var(--radius-mark); font: var(--weight-bold) var(--text-xs-size)/var(--text-xs-lh) var(--font-ui); text-transform: uppercase; }
+.dic-bad-grid { font: var(--type-meta); border-collapse: collapse; white-space: nowrap; }
+.dic-bad-grid td, .dic-bad-grid th { border: var(--border-hairline) solid var(--color-rule-strong); padding: var(--space-1); }
+.dic-mini { position: relative; height: calc(var(--space-12) * 3 + var(--space-3)); border-radius: var(--radius-card); border: var(--border-hairline) solid var(--color-rule); background: var(--color-bg); overflow: hidden; padding: var(--space-4); display: grid; align-content: start; gap: var(--space-2); }
+.dic-mini__line { height: var(--space-2); border-radius: var(--radius-pill); background: var(--color-surface-2); }
+.dic-mini__scrim { position: absolute; inset: 0; background: var(--color-scrim); }
+.dic-mini__sheet { position: absolute; left: 0; right: 0; bottom: 0; height: 56%; padding: var(--space-4); border-radius: var(--radius-sheet) var(--radius-sheet) 0 0; background: var(--color-bg); display: grid; align-content: start; gap: var(--space-1); }
+.dic-mini__sheet b { font: var(--type-heading); }
+.dic-mini__sheet span { font: var(--type-small); color: var(--color-ink-muted); }
+</style>
+</head>
+<body class="book">
+<a class="book-skip" href="#conteudo">Pular para o conteúdo</a>
+
+<header class="book-header">
+  <div class="book-wrap">
+    <div class="book-topline">
+      <a class="book-brand" href="identity.html">Postilla<span class="book-brand__dot" aria-hidden="true">.</span></a>
+      <button class="ui-btn ui-btn--ghost ui-btn--sm" type="button" data-theme-toggle>Tema: automático</button>
+    </div>
+    <p class="book-series">Livro 4 de 5 · Dicionário</p>
+    <h1 class="book-title">Dicionário</h1>
+    <p class="book-lede">Uma página inteira para cada palavra: definição em italiano, exemplos, flexão, etimologia e palavras vizinhas. A tradução fica guardada atrás de um toque, como no Leitor.</p>
+    <nav class="book-toc" aria-label="Seções">
+      <a href="#estrutura">Estrutura</a><a href="#estados">Estados</a><a href="#telas">Telas</a><a href="#finestrino">Verbete interativo</a><a href="#navegacao">Navegação</a><a href="#copia">Conteúdo e cópia</a>
+    </nav>
+  </div>
+</header>
+
+<main id="conteudo">
+
+<!-- ================================================================ 01 ESTRUTURA -->
+<section class="book-section" id="estrutura" aria-labelledby="estrutura-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">01 · Estrutura</p>
+      <h2 class="book-h2" id="estrutura-h">A riqueza do Livio, a calma de um livro</h2>
+      <p class="book-note">O dicionário Livio monta cada verbete a partir do Wikizionario e mostra tudo: classes, acepções, exemplos, conjugador, sinônimos, histórico e favoritos. A Beelinguapp mostra só a tradução. Ficamos com a profundidade do primeiro e resolvemos a densidade com tipografia, não com caixas nem cores.</p>
+    </header>
+
+    <div class="book-cols dic-after">
+      <div class="book-card">
+        <h3>O que levamos do Livio</h3>
+        <ul>
+          <li>Verbete monolíngue, com todas as seções do Wikizionario.</li>
+          <li>Palavras do verbete são links: tocar abre outro verbete.</li>
+          <li>Histórico e favoritos como listas próprias (aqui, <em>Histórico | Salvas</em>).</li>
+          <li>Conjugador completo para verbos e leitura em voz alta.</li>
+          <li>Busca com curingas: <code>?</code> para uma letra, <code>*</code> para várias.</li>
+        </ul>
+      </div>
+      <div class="book-card">
+        <h3>O que deixamos</h3>
+        <ul>
+          <li>Barras e ícones que aparecem ao tocar no centro da tela.</li>
+          <li>Swipe lateral entre verbetes do histórico: no iOS ele briga com o gesto de voltar.</li>
+          <li>Seções vazias ou opcionais ligadas por padrão. Se não há dado, a seção não existe.</li>
+          <li>Tradução visível. Aqui ela é uma pílula “PT” fechada.</li>
+        </ul>
+      </div>
+      <div class="book-card">
+        <h3>Ordem do Wikizionario</h3>
+        <p>Seguimos a ordem de seções do Wikizionario italiano, com uma única inserção nossa: o trecho da história.</p>
+        <ul>
+          <li>Sillabazione, pronuncia, classe</li>
+          <li>Significati, com exemplos</li>
+          <li><strong>Nella storia</strong> (Postilla)</li>
+          <li>Flessione ou coniugazione</li>
+          <li>Etimologia</li>
+          <li>Sinonimi, contrari, termini correlati</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 class="book-h3" style="margin-top:0">Anatomia do verbete</h3>
+    <div class="book-feature">
+      <div class="dic-specimen" data-render="anatomy"></div>
+      <ol class="book-legend">
+        <li><span class="book-pin" aria-hidden="true">A</span><div><strong>Lema</strong><p>Newsreader 44/48, <code>--type-headword</code>. Sempre a forma de dicionário: tocar em “si siede” na história abre <span lang="it">sedersi</span>.</p></div></li>
+        <li><span class="book-pin" aria-hidden="true">B</span><div><strong>Pronúncia</strong><p>IPA em <code>.ipa</code> (Noto Serif) e sillabazione com a tônica acentuada, separada por filetes. O áudio (<code>volume-2</code>) fica no app bar, ao alcance durante toda a rolagem.</p></div></li>
+        <li><span class="book-pin" aria-hidden="true">C</span><div><strong>Classe, gênero, plural</strong><p>Classe em itálico, em tinta suave. O plural (ou o auxiliar, nos verbos) vem em tinta e semibold, porque é o que o aluno procura.</p></div></li>
+        <li><span class="book-pin" aria-hidden="true">D</span><div><strong>Glosa em português</strong><p>Oculta por padrão. Uma pílula tracejada com a etiqueta “PT”. Um toque revela, outro esconde. Não fica aberta de um verbete para o outro.</p></div></li>
+        <li><span class="book-pin" aria-hidden="true">E</span><div><strong>Acepções numeradas</strong><p>A numeração é informação: o sentido mais comum vem primeiro. Número em Newsreader, definição em <code>--type-def</code> 17/26.</p></div></li>
+        <li><span class="book-pin" aria-hidden="true">F</span><div><strong>Rótulo de registro ou área</strong><p><span lang="it">estens., fig., colloq., letter., tecn.</span> Pílula de filete, itálico 12px, com <code>&lt;abbr title&gt;</code> para a forma completa.</p></div></li>
+        <li><span class="book-pin" aria-hidden="true">G</span><div><strong>Exemplos</strong><p>Itálico em tinta suave, com filete de 1,5px à esquerda. Até três por acepção.</p></div></li>
+        <li><span class="book-pin" aria-hidden="true">H</span><div><strong>Nella storia</strong><p>A frase da história onde a palavra apareceu, com o grifo. É o único amarelo da tela. Tocar no cartão volta ao trecho.</p></div></li>
+        <li><span class="book-pin" aria-hidden="true">I</span><div><strong>Flexão</strong><p>Tabela compacta: singular e plural nos nomes; nos verbos, conjugação por tempo, com seletor.</p></div></li>
+        <li><span class="book-pin" aria-hidden="true">J</span><div><strong>Etimologia</strong><p>Prosa curta. A palavra-base em italiano vira link; o étimo latino fica em itálico.</p></div></li>
+        <li><span class="book-pin" aria-hidden="true">K</span><div><strong>Sinonimi · Contrari</strong><p>Palavras tocáveis que empilham outro verbete. Notas de uso entre parênteses, em tinta suave.</p></div></li>
+        <li><span class="book-pin" aria-hidden="true">L</span><div><strong>Parole correlate</strong><p>Mesma regra. Palavras salvas ganham o pontilhado neutro, como no Leitor.</p></div></li>
+        <li><span class="book-pin" aria-hidden="true">M</span><div><strong>Fonte</strong><p>Atribuição do Wikizionario (CC BY-SA), obrigatória quando o conteúdo vem de lá.</p></div></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ 02 ESTADOS -->
+<section class="book-section" id="estados" aria-labelledby="estados-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">02 · Estados</p>
+      <h2 class="book-h2" id="estados-h">Componentes do verbete</h2>
+      <p class="book-note">Tudo aqui é composto com tokens e com os componentes de <code>book.css</code>. Acepção, rótulo, tabela, link de palavra, linha de lista, busca, estado vazio e aviso agora são de <code>book.css</code> (<code>.ui-senses</code>, <code>.ui-reg</code>, <code>.ui-table</code>, <code>.ui-wordlink</code>, <code>.ui-row</code>, <code>.ui-search</code>, <code>.ui-empty</code>, <code>.ui-toast</code>); só a glosa e o cartão “Nella storia” ficam neste livro, com o prefixo <code>dic-</code>. Ordem dos estados: padrão, hover, pressionado, foco, selecionado.</p>
+    </header>
+
+    <h3 class="book-h3" style="margin-top:0">Bloco do lema</h3>
+    <div class="book-states">
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" lang="it" data-render="head-noun"></div></div><figcaption class="book-state__label"><strong>Substantivo</strong> · gênero e plural</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" lang="it" data-render="head-verb"></div></div><figcaption class="book-state__label"><strong>Verbo</strong> · sem sillabazione no dado, a linha só mostra o IPA</figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Glosa em português</h3>
+    <div class="book-states">
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="dic-gloss" type="button" tabindex="-1" aria-pressed="false"><span class="dic-gloss__tag" aria-hidden="true">PT</span><span class="dic-gloss__text">Mostrar tradução</span></button></div><figcaption class="book-state__label"><strong>Padrão</strong> · oculta</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="dic-gloss is-hover" type="button" tabindex="-1" aria-pressed="false"><span class="dic-gloss__tag" aria-hidden="true">PT</span><span class="dic-gloss__text">Mostrar tradução</span></button></div><figcaption class="book-state__label"><strong>Hover</strong> · fundo surface</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="dic-gloss is-active" type="button" tabindex="-1" aria-pressed="false"><span class="dic-gloss__tag" aria-hidden="true">PT</span><span class="dic-gloss__text">Mostrar tradução</span></button></div><figcaption class="book-state__label"><strong>Pressionado</strong> · surface-2</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="dic-gloss is-focus" type="button" tabindex="-1" aria-pressed="false"><span class="dic-gloss__tag" aria-hidden="true">PT</span><span class="dic-gloss__text">Mostrar tradução</span></button></div><figcaption class="book-state__label"><strong>Foco</strong> · anel de <code>--color-focus</code></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="dic-gloss" type="button" tabindex="-1" aria-pressed="true"><span class="dic-gloss__tag" aria-hidden="true">PT</span><span class="dic-gloss__text">janela (de trem, carro, avião)</span></button></div><figcaption class="book-state__label"><strong>Selecionado</strong> · revelada, filete sólido</figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Acepção, exemplo e rótulo</h3>
+    <div class="book-states" lang="it">
+      <figure class="book-state"><div class="book-state__stage on-bg"><ol class="ui-senses book-state__fill" role="list" style="font:var(--type-def)"><li class="ui-sense"><p class="ui-sense__def">Piccola finestra, in particolare quella di un veicolo (treno, automobile, aereo).</p><ul class="ui-examples" role="list"><li class="ui-example">Si siede vicino al finestrino.</li><li class="ui-example">Abbassare il finestrino.</li></ul></li></ol></div><figcaption class="book-state__label" lang="pt-BR"><strong>Acepção</strong> · número, definição, exemplos</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><ol class="ui-senses book-state__fill" role="list" start="2" style="font:var(--type-def);counter-reset:dic-s 1"><li class="ui-sense"><p class="ui-sense__def"><abbr class="ui-reg" title="per estensione">estens.</abbr> Apertura trasparente in una busta, che lascia vedere l’indirizzo.</p><ul class="ui-examples" role="list"><li class="ui-example">Una busta con il finestrino.</li></ul></li></ol></div><figcaption class="book-state__label" lang="pt-BR"><strong>Com rótulo</strong> · registro antes da definição</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="dic-labels"><abbr class="ui-reg" title="per estensione">estens.</abbr><abbr class="ui-reg" title="figurato">fig.</abbr><abbr class="ui-reg" title="colloquiale">colloq.</abbr><abbr class="ui-reg" title="letterario">letter.</abbr><abbr class="ui-reg" title="tecnico">tecn.</abbr></div></div><figcaption class="book-state__label" lang="pt-BR"><strong>Rótulos</strong> · estáticos, sem cor; o título dá a forma longa</figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Cartão “Nella storia”</h3>
+    <div class="book-states" lang="it">
+      <figure class="book-state"><div class="book-state__stage on-bg"><a class="dic-ctx book-state__fill" href="#navegacao" tabindex="-1"><p class="dic-ctx__quote">«…e si siede vicino al <span class="ui-word is-selected">finestrino</span>.»</p><span class="dic-ctx__src" lang="pt-BR"><span><span lang="it">Il treno per Bologna</span> · ¶1</span><i data-lucide="chevron-right" aria-hidden="true"></i></span></a></div><figcaption class="book-state__label" lang="pt-BR"><strong>Padrão</strong> · o grifo é o amarelo da tela</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><a class="dic-ctx book-state__fill is-active" href="#navegacao" tabindex="-1"><p class="dic-ctx__quote">«…e si siede vicino al <span class="ui-word is-selected">finestrino</span>.»</p><span class="dic-ctx__src" lang="pt-BR"><span><span lang="it">Il treno per Bologna</span> · ¶1</span><i data-lucide="chevron-right" aria-hidden="true"></i></span></a></div><figcaption class="book-state__label" lang="pt-BR"><strong>Pressionado</strong> · surface-2</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><a class="dic-ctx book-state__fill is-focus" href="#navegacao" tabindex="-1"><p class="dic-ctx__quote">«…e si siede vicino al <span class="ui-word is-selected">finestrino</span>.»</p><span class="dic-ctx__src" lang="pt-BR"><span><span lang="it">Il treno per Bologna</span> · ¶1</span><i data-lucide="chevron-right" aria-hidden="true"></i></span></a></div><figcaption class="book-state__label" lang="pt-BR"><strong>Foco</strong></figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Tabela de conjugação e seletor de tempo</h3>
+    <div class="book-states">
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-chip" type="button" tabindex="-1" aria-pressed="false" lang="it">Imperfetto</button></div><figcaption class="book-state__label"><strong>Padrão</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-chip is-hover" type="button" tabindex="-1" aria-pressed="false" lang="it">Imperfetto</button></div><figcaption class="book-state__label"><strong>Hover</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-chip is-focus" type="button" tabindex="-1" aria-pressed="false" lang="it">Imperfetto</button></div><figcaption class="book-state__label"><strong>Foco</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-chip" type="button" tabindex="-1" aria-pressed="true" lang="it">Presente</button></div><figcaption class="book-state__label"><strong>Selecionado</strong> · tinta, nunca amarelo</figcaption></figure>
+      <figure class="book-state book-state--span"><div class="book-state__stage on-bg"><div class="book-state__fill" style="max-width:400px;justify-self:center" data-render="conj-static"></div></div><figcaption class="book-state__label"><strong>Tabela</strong> · <span lang="it">persona | forma</span>, um tempo por vez; pronome reflexivo em tinta suave, forma alternativa abaixo, a linha da história em surface</figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Palavra relacionada</h3>
+    <div class="book-states" lang="it">
+      <figure class="book-state"><div class="book-state__stage on-bg"><a class="ui-wordlink" href="#navegacao" tabindex="-1"><span>finestra</span></a></div><figcaption class="book-state__label" lang="pt-BR"><strong>Padrão</strong> · filete de 1px</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><a class="ui-wordlink is-hover" href="#navegacao" tabindex="-1"><span>finestra</span></a></div><figcaption class="book-state__label" lang="pt-BR"><strong>Hover</strong> · caixa <code>--color-word-hover-bg</code></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><a class="ui-wordlink is-active" href="#navegacao" tabindex="-1"><span>finestra</span></a></div><figcaption class="book-state__label" lang="pt-BR"><strong>Pressionado</strong> · filete em tinta, 1,5px</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><a class="ui-wordlink is-focus" href="#navegacao" tabindex="-1"><span>finestra</span></a></div><figcaption class="book-state__label" lang="pt-BR"><strong>Foco</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><a class="ui-wordlink is-saved" href="#navegacao" tabindex="-1"><span>finestra</span></a></div><figcaption class="book-state__label" lang="pt-BR"><strong>Salva</strong> · pontilhado neutro, igual ao Leitor</figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Marcador (salvar palavra)</h3>
+    <div class="book-states">
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-iconbtn ui-iconbtn--bookmark" type="button" tabindex="-1" aria-label="Salvar palavra" aria-pressed="false"><i data-lucide="bookmark" aria-hidden="true"></i></button></div><figcaption class="book-state__label"><strong>Padrão</strong> · não salva</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-iconbtn ui-iconbtn--bookmark is-hover" type="button" tabindex="-1" aria-label="Salvar palavra" aria-pressed="false"><i data-lucide="bookmark" aria-hidden="true"></i></button></div><figcaption class="book-state__label"><strong>Hover</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-iconbtn ui-iconbtn--bookmark is-active" type="button" tabindex="-1" aria-label="Salvar palavra" aria-pressed="false"><i data-lucide="bookmark" aria-hidden="true"></i></button></div><figcaption class="book-state__label"><strong>Pressionado</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-iconbtn ui-iconbtn--bookmark is-focus" type="button" tabindex="-1" aria-label="Salvar palavra" aria-pressed="false"><i data-lucide="bookmark" aria-hidden="true"></i></button></div><figcaption class="book-state__label"><strong>Foco</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-iconbtn ui-iconbtn--bookmark" type="button" tabindex="-1" aria-label="Salvar palavra" aria-pressed="true"><i data-lucide="bookmark" aria-hidden="true"></i></button></div><figcaption class="book-state__label"><strong>Salva</strong> · glifo cheio em <code>--color-word-saved-mark</code></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><p class="ui-toast ui-toast--static">Salva em Dicionário › Salvas</p></div><figcaption class="book-state__label"><strong>Aviso</strong> · 2,6 s, <code>role="status"</code></figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Linha de histórico e de salvas</h3>
+    <div class="book-states">
+      <figure class="book-state"><div class="book-state__stage on-bg"><ul class="ui-list book-state__fill" style="padding:0" data-render="row"></ul></div><figcaption class="book-state__label"><strong>Padrão</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><ul class="ui-list book-state__fill" style="padding:0" data-render="row" data-state="active"></ul></div><figcaption class="book-state__label"><strong>Pressionado</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><ul class="ui-list book-state__fill" style="padding:0" data-render="row" data-state="focus"></ul></div><figcaption class="book-state__label"><strong>Foco</strong> · anel na área do link</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><ul class="ui-list book-state__fill" style="padding:0" data-render="row" data-state="saved"></ul></div><figcaption class="book-state__label"><strong>Salva</strong> · fundo <code>--color-word-saved-soft</code> no Histórico</figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Campo de busca</h3>
+    <div class="book-states">
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="ui-search book-state__fill"><i data-lucide="search" aria-hidden="true"></i><input type="search" readonly tabindex="-1" placeholder="Buscar em italiano" aria-label="Buscar em italiano"></div></div><figcaption class="book-state__label"><strong>Padrão</strong> · placeholder em ink-faint</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="ui-search book-state__fill is-focus"><i data-lucide="search" aria-hidden="true"></i><span class="ui-search__value" lang="it">fines<span class="ui-search__caret" aria-hidden="true"></span></span><button class="ui-iconbtn ui-search__clear" type="button" tabindex="-1" aria-label="Limpar busca"><i data-lucide="x" aria-hidden="true"></i></button></div></div><figcaption class="book-state__label"><strong>Foco</strong> · digitando, anel na pílula inteira</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="ui-search book-state__fill"><i data-lucide="search" aria-hidden="true"></i><span class="ui-search__value" lang="it">finestrino</span><button class="ui-iconbtn ui-search__clear" type="button" tabindex="-1" aria-label="Limpar busca"><i data-lucide="x" aria-hidden="true"></i></button></div></div><figcaption class="book-state__label"><strong>Preenchido</strong> · com limpar</figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Vazio, não encontrada, sem conexão</h3>
+    <div class="book-states">
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="ui-empty ui-empty--compact"><span class="ui-empty__icon"><i data-lucide="search-x" aria-hidden="true"></i></span><p class="ui-empty__title">Nenhum verbete para “finestrinno”</p><p class="ui-empty__text">Confira a grafia. Plurais e formas conjugadas também funcionam.</p></div></div><figcaption class="book-state__label"><strong>Não encontrada</strong> · com sugestão abaixo</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="ui-empty ui-empty--compact"><span class="ui-empty__icon"><i data-lucide="wifi-off" aria-hidden="true"></i></span><p class="ui-empty__title">Sem conexão</p><p class="ui-empty__text">Histórico e Salvas funcionam offline. O resto abre quando a conexão voltar.</p></div></div><figcaption class="book-state__label"><strong>Sem conexão</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="ui-empty ui-empty--compact"><span class="ui-empty__icon"><i data-lucide="bookmark" aria-hidden="true"></i></span><p class="ui-empty__title">Nenhuma palavra salva ainda</p><p class="ui-empty__text">Toque numa palavra da história e use o marcador do verbete.</p></div></div><figcaption class="book-state__label"><strong>Salvas vazia</strong></figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ 03 TELAS -->
+<section class="book-section" id="telas" aria-labelledby="telas-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">03 · Telas</p>
+      <h2 class="book-h2" id="telas-h">Do toque na história ao verbete</h2>
+      <p class="book-note">Aberto do Leitor, o verbete é uma página empilhada, sem barra de abas, com voltar, áudio, marcador e mais opções. Aberto pela aba, ele mora dentro do Dicionário. Os dois primeiros telefones e o de <span lang="it">sedersi</span> funcionam: revele a glosa, salve a palavra, troque o tempo verbal, role.</p>
+    </header>
+
+    <div class="book-screens">
+
+      <figure class="phone" id="finestrino" aria-label="Verbete finestrino aberto do Leitor, tradução oculta">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body" data-screen="entry-hidden"></div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Verbete</strong> · aberto do Leitor, glosa oculta (interativo)</figcaption>
+      </figure>
+
+      <figure class="phone" aria-label="Verbete finestrino, tema escuro">
+        <div class="phone__device"><div class="phone__screen" data-theme="dark">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body" data-screen="entry-dark"></div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Verbete</strong> · tema escuro, gêmeo do anterior</figcaption>
+      </figure>
+
+      <figure class="phone" aria-label="Verbete finestrino com a glosa revelada e a palavra salva">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body" data-screen="entry-open"></div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Verbete</strong> · glosa revelada, palavra salva</figcaption>
+      </figure>
+
+      <figure class="phone" aria-label="Verbete finestrino rolado até a etimologia e as palavras correlatas">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body" data-screen="entry-scrolled"></div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Verbete</strong> · rolado: o lema sobe para o app bar</figcaption>
+      </figure>
+
+      <figure class="phone" id="sedersi" aria-label="Verbete sedersi com a conjugação">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body" data-screen="verb"></div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Verbo</strong> · <span lang="it">sedersi</span>, conjugação por tempo (interativo)</figcaption>
+      </figure>
+
+      <figure class="phone" aria-label="Aba Dicionário com histórico e palavras salvas">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body" data-screen="root"></div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Aba Dicionário</strong> · Histórico | Salvas (interativo)</figcaption>
+      </figure>
+
+      <figure class="phone" id="tela-busca" aria-label="Busca com sugestões">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body" data-screen="search"></div>
+          <div class="phone__home" aria-hidden="true" style="background:var(--color-surface-2)"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Busca</strong> · sugestões enquanto digita</figcaption>
+      </figure>
+
+      <figure class="phone" aria-label="Busca sem resultado">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body" data-screen="notfound"></div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Busca</strong> · palavra não encontrada</figcaption>
+      </figure>
+
+      <figure class="phone" aria-label="Verbete sem conexão">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body" data-screen="offline"></div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Verbete</strong> · sem conexão, o que já é local continua</figcaption>
+      </figure>
+
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ 04 ESPECIFICAÇÃO -->
+<section class="book-section" id="navegacao" aria-labelledby="navegacao-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">04 · Especificação</p>
+      <h2 class="book-h2" id="navegacao-h">Uma pilha de verbetes, sempre com volta</h2>
+      <p class="book-note">O dicionário é uma página inteira, nunca um modal ou uma folha. Cada toque numa palavra relacionada empilha um verbete novo. Voltar desempilha um por vez, e o último passo devolve a história exatamente onde estava.</p>
+    </header>
+
+    <ol class="dic-flow">
+      <li class="dic-step">
+        <ul class="dic-stack" aria-label="Pilha"><li><span aria-current="true">Leitor ¶1</span></li></ul>
+        <p>Toque em <span lang="it">finestrino</span>. O Leitor grava história, parágrafo e deslocamento da rolagem, e a palavra recebe o grifo.</p>
+      </li>
+      <li class="dic-step">
+        <ul class="dic-stack" aria-label="Pilha"><li><span>Leitor</span></li><li><span aria-current="true" lang="it">finestrino</span></li></ul>
+        <p>Push da direita, <code>--dur-base</code> com <code>--ease-standard</code>. Voltar tem o rótulo “Voltar à história”. Sem barra de abas.</p>
+      </li>
+      <li class="dic-step">
+        <ul class="dic-stack" aria-label="Pilha"><li><span>Leitor</span></li><li><span lang="it">finestrino</span></li><li><span aria-current="true" lang="it">finestra</span></li></ul>
+        <p>Toque em <span lang="it">finestra</span> (Parole correlate ou Etimologia). Outro push. O voltar passa a dizer “Voltar a <span lang="it">finestrino</span>”, e cada verbete guarda a própria rolagem.</p>
+      </li>
+      <li class="dic-step">
+        <ul class="dic-stack" aria-label="Pilha"><li><span>Leitor</span></li><li><span aria-current="true" lang="it">finestrino</span></li></ul>
+        <p>Chevron, gesto de borda ou botão voltar do sistema: desempilha um. O verbete reaparece no ponto em que foi deixado.</p>
+      </li>
+      <li class="dic-step">
+        <ul class="dic-stack" aria-label="Pilha"><li><span aria-current="true">Leitor ¶1</span></li></ul>
+        <p>De volta à história, na mesma posição. O grifo continua em <span lang="it">finestrino</span> até o próximo toque; se a palavra foi salva, o pontilhado aparece quando o grifo sai.</p>
+      </li>
+    </ol>
+
+    <h3 class="book-h3">Atalhos e regras</h3>
+    <dl class="book-spec">
+      <dt>Voltar direto</dt><dd>Com dois ou mais verbetes na pilha, “Mais opções” mostra “Voltar à história”, que desempilha tudo de uma vez. O cartão “Nella storia” faz o mesmo e posiciona o parágrafo no topo.</dd>
+      <dt>Rótulo do voltar</dt><dd>Nome da tela anterior no <code>aria-label</code>: “Voltar à história”, “Voltar a finestrino”, “Voltar ao Dicionário”. O app bar não mostra texto, só o chevron.</dd>
+      <dt>Título</dt><dd>Vazio no topo. Quando o lema sai da tela, ele sobe para o app bar e a barra ganha <code>.is-scrolled</code>.</dd>
+      <dt>App bar</dt><dd>Voltar + <code>volume-2</code>, marcador e <code>ellipsis</code>: três ações à direita, o máximo do app bar compacto (<code>components-shared.md</code>). O áudio fica ao alcance durante toda a rolagem.</dd>
+      <dt>Pela aba</dt><dd>Busca ou toque numa linha empilha o verbete dentro da aba Dicionário. A barra de abas fica, e o traço amarelo da aba passa a ser o único amarelo: o cartão “Nella storia” perde o grifo e a ocorrência ganha só o sublinhado em tinta. Tocar de novo na aba ativa volta à raiz.</dd>
+      <dt id="expressao">Expressão</dt><dd>Pressão longa numa palavra da história, arrastando, seleciona uma expressão (<span lang="it">a un certo punto</span>). Ela abre como qualquer verbete, em página inteira empilhada: a expressão inteira é o lema (pode quebrar em duas linhas), a classe é a da locução (<span lang="it"><em>locuzione avverbiale</em></span>), sem sillabazione nem flexão, e “Nella storia” grifa a expressão toda. Expressão sem verbete próprio cai no verbete da palavra-chave, com a expressão destacada em Significati. O marcador salva a expressão como uma entrada só em Salvas; nenhum gesto na história salva.</dd>
+      <dt>Pilha</dt><dd>Até 20 verbetes. Acima disso, o mais antigo sai; o Leitor nunca sai.</dd>
+      <dt>Movimento</dt><dd>Push e pop com <code>--dur-base</code>. Com movimento reduzido, a troca é instantânea, sem deslocamento.</dd>
+      <dt>Glosa</dt><dd>Sempre fechada ao abrir um verbete, inclusive ao voltar. Reabrir é um toque.</dd>
+      <dt>Marcador</dt><dd>O único jeito de salvar uma palavra ou expressão. Salvar mostra “Salva em Dicionário › Salvas”. A palavra ganha o pontilhado no Leitor e nas listas de relacionadas. Funciona offline e sincroniza depois.</dd>
+    </dl>
+
+    <h3 class="book-h3">Ordem fixa das seções</h3>
+    <ol class="dic-order">
+      <li><span lang="it">Lemma, pronuncia, classe</span> <span>· sempre</span></li>
+      <li>Glosa PT <span>· oculta</span></li>
+      <li lang="it">Significati</li>
+      <li lang="it">Nella storia <span lang="pt-BR">· só se a palavra veio de uma história</span></li>
+      <li lang="it">Flessione / Coniugazione</li>
+      <li lang="it">Etimologia</li>
+      <li lang="it">Sinonimi · Contrari · Parole correlate</li>
+      <li lang="it">Fonte</li>
+    </ol>
+    <p class="dic-tally">Seção sem dado não aparece: <span lang="it">finestrino</span> não tem Contrari, <span lang="it">sedersi</span> não tem Sinonimi nem sillabazione no conteúdo. A ordem nunca muda, então o olho aprende onde está cada coisa.</p>
+
+    <h3 class="book-h3">Medidas</h3>
+    <dl class="book-spec">
+      <dt>Lema</dt><dd><code>--type-headword</code>, <code>--tracking-display</code></dd>
+      <dt>IPA</dt><dd><code>.ipa</code> = <code>--type-ipa</code> (Noto Serif 17/26)</dd>
+      <dt>Definição</dt><dd><code>--type-def</code> 17/26; exemplos no mesmo corpo, em itálico e <code>--color-ink-muted</code></dd>
+      <dt>Rótulos de seção</dt><dd><code>.ui-label</code>, filete de 1px acima, 20px de respiro</dd>
+      <dt>Entre seções</dt><dd><code>--space-6</code>; margem lateral <code>--gutter</code></dd>
+      <dt>Tabelas</dt><dd><code>--radius-field</code>, cabeçalho em <code>--color-surface-2</code>, rolagem horizontal própria se faltar largura</dd>
+      <dt>Alvos</dt><dd>Links de palavra, linhas e pílulas com no mínimo 44px de altura</dd>
+    </dl>
+  </div>
+</section>
+
+<!-- ================================================================ 05 CONTEÚDO E CÓPIA -->
+<section class="book-section" id="copia" aria-labelledby="copia-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">05 · Conteúdo e cópia</p>
+      <h2 class="book-h2" id="copia-h">Italiano no verbete, português na moldura</h2>
+      <p class="book-note">O conteúdo do verbete é monolíngue. Os rótulos das seções seguem o idioma do dicionário escolhido em Ajustes › Imersão (padrão: italiano). Botões, avisos e o app bar ficam sempre em português.</p>
+    </header>
+
+    <div class="book-cols">
+      <div class="book-table-wrap">
+        <table class="book-table">
+          <caption class="visually-hidden">Rótulos das seções nos dois idiomas</caption>
+          <thead><tr><th scope="col">Italiano (padrão)</th><th scope="col">Português</th></tr></thead>
+          <tbody>
+            <tr><td lang="it">Significati</td><td>Significados</td></tr>
+            <tr><td lang="it">Nella storia</td><td>Na história</td></tr>
+            <tr><td lang="it">Flessione · Coniugazione</td><td>Flexão · Conjugação</td></tr>
+            <tr><td lang="it">Etimologia</td><td>Etimologia</td></tr>
+            <tr><td lang="it">Sinonimi · Contrari</td><td>Sinônimos · Antônimos</td></tr>
+            <tr><td lang="it">Parole correlate</td><td>Palavras relacionadas</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="book-table-wrap">
+        <table class="book-table">
+          <caption class="visually-hidden">Textos da interface</caption>
+          <thead><tr><th scope="col">Situação</th><th scope="col">Texto</th></tr></thead>
+          <tbody>
+            <tr><td>Glosa oculta</td><td>PT · Mostrar tradução</td></tr>
+            <tr><td>Voltar</td><td>Voltar à história</td></tr>
+            <tr><td>Salvar</td><td>Salva em Dicionário › Salvas</td></tr>
+            <tr><td>Remover</td><td>Removida das Salvas</td></tr>
+            <tr><td>Busca</td><td>Buscar em italiano</td></tr>
+            <tr><td>Sem resultado</td><td>Nenhum verbete para “finestrinno”</td></tr>
+            <tr><td>Offline</td><td>Sem conexão. Histórico e Salvas funcionam offline.</td></tr>
+            <tr><td>Salvas vazia</td><td>Nenhuma palavra salva ainda.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <h3 class="book-h3">Beelinguapp × Postilla: profundidade do dicionário</h3>
+    <div class="book-table-wrap">
+      <table class="book-table">
+        <caption class="visually-hidden">Campos cobertos pelo dicionário de cada app</caption>
+        <thead><tr><th scope="col">Campo</th><th scope="col">Beelinguapp</th><th scope="col">Postilla</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Formato</th><td class="dic-no">Pop-up sobre o texto</td><td class="dic-yes">Página inteira empilhada</td></tr>
+          <tr><th scope="row">Tradução em português</th><td class="dic-no">É o conteúdo principal</td><td class="dic-yes">Oculta, um toque em “PT”</td></tr>
+          <tr><th scope="row">Áudio</th><td class="dic-yes">Sim</td><td class="dic-yes">Sim, no app bar</td></tr>
+          <tr><th scope="row">Definição em italiano</th><td class="dic-no">Não</td><td class="dic-yes">Sim, monolíngue</td></tr>
+          <tr><th scope="row">Acepções numeradas</th><td class="dic-no">Não</td><td class="dic-yes">Sim, com rótulos de registro</td></tr>
+          <tr><th scope="row">Exemplos de uso</th><td class="dic-no">Não</td><td class="dic-yes">Sim</td></tr>
+          <tr><th scope="row">Classe, gênero, plural</th><td class="dic-no">Não</td><td class="dic-yes">Sim</td></tr>
+          <tr><th scope="row">IPA e sillabazione</th><td class="dic-no">Não</td><td class="dic-yes">Sim</td></tr>
+          <tr><th scope="row">Frase da história</th><td class="dic-no">Só o texto em volta</td><td class="dic-yes">Cartão “Nella storia” com a forma usada</td></tr>
+          <tr><th scope="row">Flexão e conjugação</th><td class="dic-no">Não</td><td class="dic-yes">Tabela por tempo</td></tr>
+          <tr><th scope="row">Etimologia</th><td class="dic-no">Não</td><td class="dic-yes">Sim</td></tr>
+          <tr><th scope="row">Sinônimos, contrários, correlatas</th><td class="dic-no">Não</td><td class="dic-yes">Sim, tocáveis</td></tr>
+          <tr><th scope="row">Salvar palavra</th><td class="dic-yes">Glossário e flashcards</td><td class="dic-yes">Dicionário › Salvas</td></tr>
+          <tr><th scope="row">Histórico de consultas</th><td class="dic-no">Não documentado</td><td class="dic-yes">Sim</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="dic-tally">3 de 14 campos na Beelinguapp, 14 de 14 na Postilla. Levantamento feito a partir do FAQ público da Beelinguapp (pressão longa mostra tradução e áudio; a palavra pode ir para o glossário). O que o FAQ não cita consta como ausente.</p>
+
+    <h3 class="book-h3">Faça e não faça</h3>
+    <div class="book-dd">
+      <figure>
+        <div class="book-dd__stage" lang="it"><p class="dic-mini-hw">finestrino</p><div><button class="dic-gloss" type="button" tabindex="-1" aria-pressed="false" lang="pt-BR"><span class="dic-gloss__tag" aria-hidden="true">PT</span><span class="dic-gloss__text">Mostrar tradução</span></button></div></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--do"><i data-lucide="check" aria-hidden="true"></i>Faça</span><br>Deixe a tradução atrás de um toque. O italiano vem primeiro.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage"><p class="dic-mini-hw" lang="it">finestrino</p><p class="dic-bad-tr" style="margin:0">= janela</p></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--dont"><i data-lucide="x" aria-hidden="true"></i>Não faça</span><br>Não ponha a tradução em destaque ao lado do lema. Vira um glossário bilíngue.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage" lang="it"><span class="ui-label">Nella storia</span><p style="margin:0;font:var(--type-def)">«…e si siede vicino al <span class="ui-word is-selected">finestrino</span>.»</p><span class="ui-label">Sinonimi</span><p style="margin:0;font:var(--type-def)">oblò</p></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--do"><i data-lucide="check" aria-hidden="true"></i>Faça</span><br>Gaste o amarelo uma vez: no grifo da palavra dentro da história.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage" lang="it"><p class="dic-mini-hw"><span class="dic-bad-yellow">finestrino</span></p><span class="dic-bad-label">Sinonimi</span><p style="margin:0;font:var(--type-def)">oblò</p></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--dont"><i data-lucide="x" aria-hidden="true"></i>Não faça</span><br>Não grife o lema nem pinte rótulos de amarelo. No claro, amarelo não é texto.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage"><div class="dic-mini"><span class="dic-mini__line" style="width:90%"></span><span class="dic-mini__line" style="width:70%"></span><span class="dic-mini__line" style="width:84%"></span><span class="dic-mini__line" style="width:60%"></span><span class="dic-mini__line" style="width:78%"></span></div></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--do"><i data-lucide="check" aria-hidden="true"></i>Faça</span><br>Abra o verbete numa página inteira. Há espaço para tudo, e voltar devolve a história.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage"><div class="dic-mini"><span class="dic-mini__line" style="width:90%"></span><span class="dic-mini__line" style="width:70%"></span><span class="dic-mini__line" style="width:84%"></span><span class="dic-mini__scrim"></span><div class="dic-mini__sheet"><b lang="it">finestrino</b><span>janela · Ver mais</span></div></div></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--dont"><i data-lucide="x" aria-hidden="true"></i>Não faça</span><br>Não use folha ou modal. Ela corta o verbete e esconde a frase que motivou a consulta.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage" lang="it"><p style="margin:0;font:var(--type-def)"><abbr class="ui-reg" title="per estensione">estens.</abbr> Apertura trasparente in una busta.</p></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--do"><i data-lucide="check" aria-hidden="true"></i>Faça</span><br>Use rótulos de registro discretos, sem cor. A abreviação basta.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage" lang="it"><div class="dic-bad-tags"><span style="background:var(--color-level-b2-bg);color:var(--color-level-b2-ink)">Estensione</span><span style="background:var(--color-error-soft);color:var(--color-error)">Figurato</span><span style="background:var(--color-accent);color:var(--color-accent-ink)">Colloquiale</span></div><p style="margin:0;font:var(--type-def)">Contrari: —</p></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--dont"><i data-lucide="x" aria-hidden="true"></i>Não faça</span><br>Não colora rótulos nem mostre seções vazias com traço. Sem dado, sem seção.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage" data-render="conj-mini"></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--do"><i data-lucide="check" aria-hidden="true"></i>Faça</span><br>Mostre um tempo por vez numa tabela de duas colunas. O seletor troca o tempo.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage" lang="it"><div class="book-table-wrap" tabindex="0" aria-label="Exemplo de tabela larga demais"><table class="dic-bad-grid"><tr><th></th><th>Pres.</th><th>Pass. pr.</th><th>Imperf.</th><th>Fut.</th></tr><tr><th>io</th><td>mi siedo</td><td>mi sono seduto/a</td><td>mi sedevo</td><td>mi siederò</td></tr><tr><th>tu</th><td>ti siedi</td><td>ti sei seduto/a</td><td>ti sedevi</td><td>ti siederai</td></tr></table></div></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--dont"><i data-lucide="x" aria-hidden="true"></i>Não faça</span><br>Não espreme todos os tempos numa grade. No telefone ela vira rolagem lateral e abreviação.</figcaption>
+      </figure>
+    </div>
+
+    <p class="dic-src">Fontes: <a href="https://thesaurus.altervista.org/dictionary-help-phone">Livio, ajuda do dicionário</a> · <a href="https://it.wiktionary.org/wiki/finestrino">Wikizionario, “finestrino”</a> · <a href="https://beelinguapp.com/faq">Beelinguapp, FAQ</a>. Conteúdo dos verbetes: <code>content.md</code>.</p>
+  </div>
+</section>
+
+</main>
+
+<footer class="book-footer"><div class="book-wrap">Postilla · sistema v0.2 · Dicionário · tokens em <code>tokens.css</code>, componentes em <code>book.css</code>, específicos com o prefixo <code>dic-</code></div></footer>
+
+<script>
+(() => {
+  const ic = (n) => `<i data-lucide="${n}" aria-hidden="true"></i>`;
+
+  /* ---------- data (content.md only) ---------- */
+  const CONJ = {
+    presente:  { label: 'Presente', rows: [['io','mi siedo','mi seggo'],['tu','ti siedi'],['lui/lei','si siede'],['noi','ci sediamo'],['voi','vi sedete'],['loro','si siedono','si seggono']], story: 2 },
+    passato:   { label: 'Passato prossimo', rows: [['io','mi sono seduto/a'],['tu','ti sei seduto/a'],['lui/lei','si è seduto/a'],['noi','ci siamo seduti/e'],['voi','vi siete seduti/e'],['loro','si sono seduti/e']] },
+    imperfetto:{ label: 'Imperfetto', rows: [['io','mi sedevo'],['tu','ti sedevi'],['lui/lei','si sedeva'],['noi','ci sedevamo'],['voi','vi sedevate'],['loro','si sedevano']] },
+    futuro:    { label: 'Futuro', rows: [['io','mi siederò'],['tu','ti siederai'],['lui/lei','si siederà'],['noi','ci siederemo'],['voi','vi siederete'],['loro','si siederanno']] },
+  };
+  const form = (f) => { const i = f.indexOf(' '); return `<span class="dic-cl">${f.slice(0, i)}</span>${f.slice(i)}`; };
+  const conjBody = (key) => CONJ[key].rows.map(([p, f, alt], i) => {
+    const story = CONJ[key].story === i;
+    return `<tr${story ? ' class="dic-tr-story"' : ''}><th scope="row">${p}</th><td>${form(f)}${alt ? `<span class="dic-alt">anche ${alt}</span>` : ''}${story ? `<span class="dic-storytag">nella storia</span>` : ''}</td></tr>`;
+  }).join('');
+  const conjTable = (key, uid) => `<div class="ui-table-wrap"><table class="ui-table" lang="it"><caption class="visually-hidden" data-conj-cap>Indicativo ${CONJ[key].label.toLowerCase()} di sedersi</caption><thead><tr><th scope="col">persona</th><th scope="col">forma</th></tr></thead><tbody data-conj-body${uid ? ` id="${uid}-conj"` : ''}>${conjBody(key)}</tbody></table></div>`;
+
+  /* ---------- pieces ---------- */
+  const pinF = (on) => on ? (l, cls = '') => `<span class="book-pin dic-at${cls}" aria-hidden="true">${l}</span>` : () => '';
+  const gloss = (pt, open) => `<button class="dic-gloss" type="button" lang="pt-BR" aria-pressed="${open}" data-gloss="${pt}"><span class="dic-gloss__tag" aria-hidden="true">PT</span><span class="dic-gloss__text">${open ? `<span class="visually-hidden">Tradução: </span>${pt}` : 'Mostrar tradução'}</span></button>`;
+  const rel = (w, saved) => `<a class="ui-wordlink${saved ? ' is-saved' : ''}" href="#navegacao" data-msg="“${w}” abre por cima deste verbete. Voltar retorna aqui."><span>${w}</span></a>`;
+  const source = `<p class="dic-source" lang="pt-BR">Fonte: <span lang="it">Wikizionario</span> · CC BY-SA</p>`;
+  const ctx = (quote, extra = '') => `<a class="dic-ctx" href="#navegacao" data-msg="Volta à história, com o ¶1 no topo da tela.">
+      <p class="dic-ctx__quote">${quote}</p>${extra}
+      <span class="dic-ctx__src" lang="pt-BR"><span><span lang="it">Il treno per Bologna</span> · ¶1</span>${ic('chevron-right')}</span></a>`;
+
+  const headNoun = (P = pinF(false), uid = '') => `
+    <header class="dic-head">
+      <div class="dic-part">${P('A', ' dic-at--hw')}<h3 class="ui-headword"${uid ? ` id="${uid}-hw"` : ''}>finestrino</h3></div>
+      <div class="dic-part ui-pron">${P('B')}<span class="ipa">/fi.neˈstri.no/</span><span class="dic-syl"><span class="visually-hidden">sillabazione: </span>fi<i aria-hidden="true">|</i>ne<i aria-hidden="true">|</i>strì<i aria-hidden="true">|</i>no</span></div>
+      <p class="dic-part ui-pos">${P('C')}<em>sostantivo maschile</em> · plurale <b>finestrini</b></p>
+    </header>`;
+  const headVerb = (uid = '') => `
+    <header class="dic-head">
+      <h3 class="ui-headword"${uid ? ` id="${uid}-hw"` : ''}>sedersi</h3>
+      <div class="ui-pron"><span class="ipa">/seˈder.si/</span></div>
+      <p class="ui-pos"><em>verbo intransitivo pronominale</em> · ausiliare <b>essere</b></p>
+    </header>`;
+
+  function finestrino(o) {
+    const P = pinF(o.pins);
+    return `<article class="dic-entry" lang="it" aria-labelledby="${o.uid}-hw">
+      ${headNoun(P, o.uid)}
+      <div class="dic-part">${P('D')}${gloss('janela (de trem, carro, avião)', !!o.gloss)}</div>
+      <section class="ui-block ui-block--first dic-part">${P('E', ' dic-at--first')}
+        <h4 class="ui-label">Significati</h4>
+        <ol class="ui-senses" role="list">
+          <li class="ui-sense"><p class="ui-sense__def">Piccola finestra, in particolare quella di un veicolo (treno, automobile, aereo).</p>
+            <ul class="ui-examples" role="list"><li class="ui-example dic-part">${P('G', ' dic-at--ex')}Si siede vicino al finestrino.</li><li class="ui-example">Abbassare il finestrino.</li></ul></li>
+          <li class="ui-sense">${P('F')}<p class="ui-sense__def"><abbr class="ui-reg" title="per estensione">estens.</abbr> Apertura trasparente in una busta, che lascia vedere l’indirizzo.</p>
+            <ul class="ui-examples" role="list"><li class="ui-example">Una busta con il finestrino.</li></ul></li>
+        </ol>
+      </section>
+      <section class="ui-block dic-part" data-anchor="storia">${P('H', ' dic-at--block')}
+        <h4 class="ui-label">Nella storia</h4>
+        ${ctx('«…e si siede vicino al <span class="ui-word is-selected">finestrino</span>.»')}
+      </section>
+      <section class="ui-block dic-part" data-anchor="flessione">${P('I', ' dic-at--block')}
+        <h4 class="ui-label">Flessione</h4>
+        <div class="ui-table-wrap"><table class="ui-table"><thead><tr><th scope="col">singolare</th><th scope="col">plurale</th></tr></thead><tbody><tr><td>finestrino</td><td>finestrini</td></tr></tbody></table></div>
+      </section>
+      <section class="ui-block dic-part">${P('J', ' dic-at--block')}
+        <h4 class="ui-label">Etimologia</h4>
+        <p>Diminutivo di <a class="ui-wordlink ui-wordlink--inline" href="#navegacao" data-msg="“finestra” abre por cima deste verbete. Voltar retorna aqui."><span>finestra</span></a>, dal latino <i lang="la">fenestra</i>.</p>
+      </section>
+      <section class="ui-block dic-part">${P('K', ' dic-at--block')}
+        <h4 class="ui-label">Sinonimi</h4>
+        <ul class="dic-rels" role="list"><li>${rel('oblò')}<span class="dic-note">(di nave o aereo)</span></li></ul>
+      </section>
+      <section class="ui-block dic-part">${P('L', ' dic-at--block')}
+        <h4 class="ui-label">Parole correlate</h4>
+        <ul class="dic-rels" role="list"><li>${rel('finestra')}</li><li>${rel('finestrella')}</li><li>${rel('finestrone')}</li><li>${rel('davanzale')}</li></ul>
+      </section>
+      <div class="dic-part">${P('M')}${source}</div>
+    </article>`;
+  }
+
+  function sedersi(o) {
+    return `<article class="dic-entry" lang="it" aria-labelledby="${o.uid}-hw">
+      ${headVerb(o.uid)}
+      <div>${gloss('sentar-se', false)}</div>
+      <section class="ui-block ui-block--first">
+        <h4 class="ui-label">Significati</h4>
+        <ol class="ui-senses" role="list"><li class="ui-sense"><p class="ui-sense__def">Mettersi a sedere, appoggiando il corpo su una sedia o un’altra superficie.</p><ul class="ui-examples" role="list"><li class="ui-example">Si siede vicino al finestrino.</li></ul></li></ol>
+      </section>
+      <section class="ui-block" data-anchor="storia">
+        <h4 class="ui-label">Nella storia</h4>
+        ${ctx('«…e <span class="ui-word is-selected">si siede</span> vicino al finestrino.»', '<span class="dic-ctx__form">si siede · indicativo presente, lui/lei</span>')}
+      </section>
+      <section class="ui-block" data-anchor="coniugazione">
+        <h4 class="ui-label">Coniugazione</h4>
+        <p class="dic-sub"><span>Indicativo</span></p>
+        <div class="dic-tenses" role="group" aria-label="Tempo verbal" lang="pt-BR">
+          ${Object.entries(CONJ).map(([k, t], i) => `<button class="ui-chip" type="button" lang="it" aria-pressed="${i === 0}" data-tense="${k}" aria-controls="${o.uid}-conj">${t.label}</button>`).join('')}
+        </div>
+        ${conjTable('presente', o.uid)}
+        <p class="dic-nonfinite">participio passato <b>seduto</b> · gerundio <b>sedendosi</b></p>
+      </section>
+      <section class="ui-block">
+        <h4 class="ui-label">Etimologia</h4>
+        <p>Dal latino <i lang="la">sedēre</i>.</p>
+      </section>
+      <section class="ui-block">
+        <h4 class="ui-label">Contrari</h4>
+        <ul class="dic-rels" role="list"><li>${rel('alzarsi')}</li></ul>
+      </section>
+      ${source}
+    </article>`;
+  }
+
+  const appbarEntry = (o) => `
+    <div class="ui-appbar${o.scrolled ? ' is-scrolled' : ''}" data-appbar>
+      <button class="ui-iconbtn" type="button" aria-label="Voltar à história" data-msg="Volta ao Leitor, no mesmo ponto da leitura.">${ic('chevron-left')}</button>
+      <p class="ui-appbar__title" lang="it" data-title>${o.scrolled ? o.word : ''}</p>
+      <div class="ui-appbar__actions">
+        <button class="ui-iconbtn" type="button" aria-label="Ouvir pronúncia"${o.offline ? ' disabled' : ` data-msg="Lê “${o.word}” em voz alta."`}>${ic('volume-2')}</button>
+        <button class="ui-iconbtn ui-iconbtn--bookmark" type="button" aria-label="Salvar palavra" aria-pressed="${!!o.saved}" data-bookmark>${ic('bookmark')}</button>
+        <button class="ui-iconbtn" type="button" aria-label="Mais opções" data-msg="Mais opções: copiar, compartilhar, voltar à história, fonte.">${ic('ellipsis')}</button>
+      </div>
+    </div>`;
+  const live = (inner, start) => `<div class="phone__scroll"><div class="ui-scroll" data-live${start ? ` data-start="${start}"` : ''} tabindex="0" role="region" aria-label="Conteúdo do verbete"><div class="dic-page">${inner}</div></div></div>`;
+  const toastEl = `<p class="ui-toast" role="status" lang="pt-BR"></p>`;
+  const tabbar = `<nav class="ui-tabbar" aria-label="Principal">
+      <a class="ui-tab" href="#telas">${ic('library-big')}Biblioteca</a>
+      <a class="ui-tab" href="#telas" aria-current="page">${ic('book-a')}Dicionário</a>
+      <a class="ui-tab" href="#telas">${ic('settings-2')}Ajustes</a></nav>`;
+
+  const row = (w, meta, saved, opts = {}) => `<li class="ui-row${saved ? ' ui-row--saved' : ''}${opts.state === 'active' ? ' is-active' : ''}${opts.compact ? ' ui-row--compact' : ''}">
+      <a class="ui-row__main${opts.state === 'focus' ? ' is-focus' : ''}" href="${opts.href || '#telas'}"${opts.static ? ' tabindex="-1"' : ''}${opts.msg ? ` data-msg="${opts.msg}"` : ''}>${opts.icon ? ic(opts.icon) : ''}<span class="ui-row__text"><span class="ui-row__title" lang="it">${opts.typed ? `<span class="dic-typed">${opts.typed}</span>${w.slice(opts.typed.length)}` : w}</span>${meta ? `<span class="ui-row__meta">${meta}</span>` : ''}</span></a>
+      ${opts.noMark ? '' : `<button class="ui-iconbtn ui-iconbtn--bookmark" type="button" aria-label="Salvar ${w}" aria-pressed="${!!saved}"${opts.static ? ' tabindex="-1"' : ' data-bookmark'}>${ic('bookmark')}</button>`}
+    </li>`;
+  const it = (s) => `<span lang="it">${s}</span>`;
+  const story = it('Il treno per Bologna');
+
+  const keyboard = () => `<div class="dic-kb" aria-hidden="true">${['qwertyuiop', 'asdfghjkl', 'zxcvbnm'].map((r, i) =>
+      `<div class="dic-kb__row">${i === 2 ? '<span class="m">⇧</span>' : ''}${[...r].map(k => `<span>${k}</span>`).join('')}${i === 2 ? '<span class="m">⌫</span>' : ''}</div>`).join('')}
+      <div class="dic-kb__row"><span class="m">123</span><span class="w">spazio</span><span class="m">cerca</span></div></div>`;
+
+  /* ---------- screens ---------- */
+  const screens = {
+    'entry-hidden': () => appbarEntry({ word: 'finestrino' }) + live(finestrino({ uid: 'fa' })) + toastEl,
+    'entry-dark':   () => appbarEntry({ word: 'finestrino' }) + live(finestrino({ uid: 'fd' })) + toastEl,
+    'entry-open':   () => appbarEntry({ word: 'finestrino', saved: true }) + live(finestrino({ uid: 'fo', gloss: true })) + toastEl,
+    'entry-scrolled': () => appbarEntry({ word: 'finestrino', scrolled: true }) + live(finestrino({ uid: 'fs' }), 'flessione') + toastEl,
+    'verb': () => appbarEntry({ word: 'sedersi', scrolled: true }) + live(sedersi({ uid: 'sv' }), 'storia') + toastEl,
+    'root': () => `
+      <div class="ui-appbar ui-appbar--large"><p class="ui-appbar__title">Dicionário</p><div class="ui-appbar__actions"><button class="ui-iconbtn" type="button" aria-label="Mais opções" data-msg="Mais opções: ordenar, limpar histórico.">${ic('ellipsis')}</button></div></div>
+      <div class="phone__scroll">
+        <h3 class="ui-largetitle">Dicionário</h3>
+        <div class="dic-rootbar">
+          <a class="ui-search ui-search--link" href="#tela-busca">${ic('search')}<span>Buscar em italiano</span></a>
+          <div style="display:grid"><div class="ui-segmented" role="group" aria-label="Lista"><button type="button" aria-pressed="true" data-seg="historico">Histórico</button><button type="button" aria-pressed="false" data-seg="salvas">Salvas</button></div></div>
+        </div>
+        <div data-list="historico">
+          <div class="ui-sechead"><p class="ui-sechead__title"><span class="ui-label">Hoje</span></p></div>
+          <ul class="ui-list" role="list">
+            ${row('finestrino', `sostantivo maschile · ${story}`, false, { href: '#finestrino' })}
+            ${row('sedersi', `verbo · ${story}`, false, { href: '#sedersi' })}
+          </ul>
+          <div class="ui-sechead"><p class="ui-sechead__title"><span class="ui-label">Ontem</span></p></div>
+          <ul class="ui-list" role="list">
+            ${row('serranda', `sostantivo femminile · ${story}`, true, { msg: 'Abre o verbete de “serranda”.' })}
+            ${row('biglietto', `sostantivo maschile · ${story}`, true, { msg: 'Abre o verbete de “biglietto”.' })}
+            ${row('binario', `sostantivo maschile · ${story}`, true, { msg: 'Abre o verbete de “binario”.' })}
+          </ul>
+        </div>
+        <div data-list="salvas" hidden>
+          <p class="dic-listmeta">3 palavras · salvas por último primeiro</p>
+          <ul class="ui-list" role="list">
+            ${row('serranda', `sostantivo femminile · ${story}`, true, { msg: 'Abre o verbete de “serranda”.' }).replace(' ui-row--saved', '')}
+            ${row('biglietto', `sostantivo maschile · ${story}`, true, { msg: 'Abre o verbete de “biglietto”.' }).replace(' ui-row--saved', '')}
+            ${row('binario', `sostantivo maschile · ${story}`, true, { msg: 'Abre o verbete de “binario”.' }).replace(' ui-row--saved', '')}
+          </ul>
+        </div>
+      </div>
+      ${tabbar}${toastEl}`,
+    'search': () => `
+      <div class="dic-searchbar">
+        <div class="ui-search is-focus">${ic('search')}<span class="ui-search__value" lang="it">fines<span class="ui-search__caret" aria-hidden="true"></span></span><button class="ui-iconbtn ui-search__clear" type="button" aria-label="Limpar busca" data-msg="Limpa o campo.">${ic('x')}</button></div>
+        <button class="ui-btn ui-btn--ghost ui-btn--sm" type="button" data-msg="Fecha a busca e volta à lista.">Cancelar</button>
+      </div>
+      <div class="phone__scroll">
+        <ul class="ui-list" role="list" aria-label="Sugestões">
+          ${row('finestrino', 'no seu histórico', false, { icon: 'history', typed: 'fines', href: '#finestrino', noMark: true, compact: true })}
+          ${row('finestra', 'sostantivo femminile', false, { icon: 'search', typed: 'fines', msg: 'Abre o verbete de “finestra”.', noMark: true, compact: true })}
+          ${row('finestrella', 'sostantivo femminile', false, { icon: 'search', typed: 'fines', msg: 'Abre o verbete de “finestrella”.', noMark: true, compact: true })}
+          ${row('finestrone', 'sostantivo maschile', false, { icon: 'search', typed: 'fines', msg: 'Abre o verbete de “finestrone”.', noMark: true, compact: true })}
+        </ul>
+        <p class="dic-hint">Formas da história levam ao lema: ${it('si siede')} abre ${it('sedersi')}.</p>
+        <p class="dic-hint">Use <kbd class="dic-k">?</kbd> para uma letra e <kbd class="dic-k">*</kbd> para várias: ${it('fin*ino')}.</p>
+      </div>
+      ${keyboard()}${toastEl}`,
+    'notfound': () => `
+      <div class="dic-searchbar">
+        <div class="ui-search">${ic('search')}<span class="ui-search__value" lang="it">finestrinno</span><button class="ui-iconbtn ui-search__clear" type="button" aria-label="Limpar busca" data-msg="Limpa o campo.">${ic('x')}</button></div>
+      </div>
+      <div class="phone__scroll">
+        <div class="ui-empty">
+          <span class="ui-empty__icon">${ic('search-x')}</span>
+          <p class="ui-empty__title">Nenhum verbete para “${it('finestrinno')}”</p>
+          <p class="ui-empty__text">Confira a grafia. Plurais e formas conjugadas também funcionam.</p>
+        </div>
+        <div class="ui-sechead"><p class="ui-sechead__title"><span class="ui-label">Você quis dizer</span></p></div>
+        <ul class="ui-list" role="list">${row('finestrino', 'sostantivo maschile', false, { icon: 'search', href: '#finestrino', noMark: true, compact: true })}</ul>
+      </div>
+      ${tabbar}${toastEl}`,
+    'offline': () => appbarEntry({ word: 'finestrino', offline: true }) + `
+      <div class="phone__scroll"><div class="dic-page"><div class="dic-entry" lang="it">
+        <header class="dic-head"><h3 class="ui-headword">finestrino</h3></header>
+        <div class="dic-offline" lang="pt-BR" role="status">
+          <p class="dic-offline__head">${ic('wifi-off')}Sem conexão</p>
+          <p>O verbete completo abre quando a conexão voltar. Você já pode salvar a palavra: ela sincroniza depois. Histórico e Salvas funcionam offline.</p>
+          <div><button class="ui-btn ui-btn--secondary ui-btn--sm" type="button" data-msg="Tenta carregar o verbete de novo.">Tentar de novo</button></div>
+        </div>
+        <section class="ui-block">
+          <h4 class="ui-label">Nella storia</h4>
+          ${ctx('«…e si siede vicino al <span class="ui-word is-selected">finestrino</span>.»')}
+        </section>
+      </div></div></div>${toastEl}`,
+  };
+
+  document.querySelectorAll('[data-screen]').forEach(el => { el.innerHTML = screens[el.dataset.screen](); });
+
+  /* static renders */
+  const R = {
+    anatomy: () => finestrino({ uid: 'an', pins: true }),
+    'head-noun': () => headNoun(),
+    'head-verb': () => headVerb(),
+    'conj-static': () => conjTable('presente'),
+    'conj-mini': () => `<div lang="it"><div class="dic-tenses" style="padding-top:0"><span class="ui-chip" aria-pressed="true" style="cursor:default">Presente</span><span class="ui-chip" style="cursor:default">Imperfetto</span></div><div class="ui-table-wrap"><table class="ui-table"><tbody><tr><th scope="row">io</th><td>${form('mi siedo')}</td></tr><tr><th scope="row">tu</th><td>${form('ti siedi')}</td></tr></tbody></table></div></div>`,
+    row: (el) => {
+      const s = el.dataset.state;
+      return row('finestrino', `sostantivo maschile · ${story}`, s === 'saved', { static: true, state: s });
+    },
+  };
+  document.querySelectorAll('[data-render]').forEach(el => { el.innerHTML = R[el.dataset.render](el); });
+
+  /* ---------- behaviour ---------- */
+  function toast(from, msg) {
+    const scr = from.closest('.phone__screen'); if (!scr) return;
+    const t = scr.querySelector('.ui-toast'); if (!t) return;
+    t.textContent = msg; t.classList.add('is-shown');
+    clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('is-shown'), 2600);
+  }
+
+  document.addEventListener('click', (e) => {
+    const g = e.target.closest('.dic-gloss[data-gloss]');
+    if (g) {
+      const open = g.getAttribute('aria-pressed') !== 'true';
+      g.setAttribute('aria-pressed', open);
+      g.querySelector('.dic-gloss__text').innerHTML = open ? `<span class="visually-hidden">Tradução: </span>${g.dataset.gloss}` : 'Mostrar tradução';
+      return;
+    }
+    const b = e.target.closest('[data-bookmark]');
+    if (b) {
+      const on = b.getAttribute('aria-pressed') !== 'true';
+      b.setAttribute('aria-pressed', on);
+      const r = b.closest('.ui-row');
+      if (r && r.closest('[data-list="historico"]')) r.classList.toggle('ui-row--saved', on);
+      toast(b, on ? 'Salva em Dicionário › Salvas' : 'Removida das Salvas');
+      return;
+    }
+    const chip = e.target.closest('[data-tense]');
+    if (chip) {
+      const grp = chip.parentElement;
+      grp.querySelectorAll('[data-tense]').forEach(c => c.setAttribute('aria-pressed', c === chip));
+      const sec = chip.closest('section');
+      sec.querySelector('[data-conj-body]').innerHTML = conjBody(chip.dataset.tense);
+      sec.querySelector('[data-conj-cap]').textContent = `Indicativo ${CONJ[chip.dataset.tense].label.toLowerCase()} di sedersi`;
+      return;
+    }
+    const seg = e.target.closest('[data-seg]');
+    if (seg) {
+      const body = seg.closest('.phone__body');
+      seg.parentElement.querySelectorAll('[data-seg]').forEach(s => s.setAttribute('aria-pressed', s === seg));
+      body.querySelectorAll('[data-list]').forEach(l => { l.hidden = l.dataset.list !== seg.dataset.seg; });
+      return;
+    }
+    const m = e.target.closest('[data-msg]');
+    if (m && m.closest('.phone')) { e.preventDefault(); toast(m, m.dataset.msg); }
+  });
+
+  /* scroll-linked title + initial scroll positions */
+  const lives = [...document.querySelectorAll('[data-live]')];
+  function setup(sc) {
+    const body = sc.closest('.phone__body');
+    const bar = body.querySelector('[data-appbar]');
+    const hw = sc.querySelector('.ui-headword');
+    if (!bar || !hw) return;
+    const title = bar.querySelector('[data-title]');
+    const word = hw.textContent;
+    const update = () => {
+      const past = hw.getBoundingClientRect().bottom <= sc.getBoundingClientRect().top + 4;
+      bar.classList.toggle('is-scrolled', sc.scrollTop > 0);
+      title.textContent = past ? word : '';
+    };
+    sc.addEventListener('scroll', update, { passive: true });
+    sc._update = update;
+  }
+  function position() {
+    lives.forEach(sc => {
+      const target = sc.dataset.start && sc.querySelector(`[data-anchor="${sc.dataset.start}"]`);
+      if (target) sc.scrollTop = target.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop - 8;
+      if (sc._update) sc._update();
+    });
+  }
+  lives.forEach(setup);
+  position();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => {
+    position();
+    const h = location.hash && document.getElementById(location.hash.slice(1));
+    if (h) h.scrollIntoView({ behavior: 'instant', block: 'start' }); /* re-anchor after webfonts shift layout */
+  });
+
+  /* theme toggle: auto → light → dark (shared, copy verbatim) */
+  const btn = document.querySelector('[data-theme-toggle]');
+  if (btn) {
+    const order = ['auto', 'light', 'dark'], label = { auto: 'automático', light: 'claro', dark: 'escuro' };
+    let i = 0;
+    btn.addEventListener('click', () => {
+      i = (i + 1) % 3; const t = order[i];
+      if (t === 'auto') document.documentElement.removeAttribute('data-theme');
+      else document.documentElement.setAttribute('data-theme', t);
+      btn.textContent = 'Tema: ' + label[t];
+    });
+  }
+})();
+</script>
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<script>
+  if (window.lucide) lucide.createIcons({ attrs: { 'stroke-width': 1.5, width: 24, height: 24 } });
+</script>
+</body>
+</html>

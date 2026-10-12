@@ -30,7 +30,7 @@ Primeiro requisito do app. Toda funcionalidade funciona sem conexão, sempre, in
 | OFF-10 | O pacote do app traz uma versão inicial do conteúdo, comprimida (~15 MB, quase tudo do dicionário). |
 | OFF-11 | Na primeira abertura, o app descompacta o conteúdo no armazenamento local (~90 MB). Isso acontece sem rede e mostra um estado "Preparando o dicionário" enquanto dura. |
 | OFF-12 | Se faltar espaço para descompactar, o app informa quanto espaço é necessário e tenta de novo quando o usuário pedir. |
-| OFF-13 | O conteúdo tem uma versão (a data do dump do Wiktionary, mais a versão do catálogo de histórias). Ajustes › Sobre mostra essa versão. |
+| OFF-13 | Dicionário e histórias têm versões próprias (SemVer, ARQ-12). Ajustes › Sobre mostra as duas e a data do dump do Wiktionary: "Dicionário 2.1.0 (Wikizionario de 01/10/2026) · Histórias 1.4.2". |
 
 ### Atualização de conteúdo
 

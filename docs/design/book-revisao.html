@@ -1,0 +1,1017 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Postilla Revisão</title>
+<meta name="description" content="Livro da Revisão da Postilla: cartões de vocabulário com recuperação, repetição espaçada, regra explícita e palavras por frequência.">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="book.css">
+<style>
+/* ===== book-revisao.html — book-specific (prefix rev-) =====
+   Shared pieces come from book.css: ui-appbar, ui-progress, ui-btn, ui-iconbtn,
+   ui-chip, ui-label, ui-hero, ui-headword, ui-pron, ui-pos, ui-senses, ui-table,
+   ui-word, ui-list/ui-row, ui-sechead, ui-search, ui-segmented, ui-tabbar,
+   ui-toast, ui-scroll, book-*. */
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+
+/* ---------- session chrome ---------- */
+.rev-meter { flex: none; display: flex; align-items: center; gap: var(--space-3); padding: 0 var(--gutter) var(--space-2); }
+.rev-meter__bar { flex: 1; display: block; }
+.rev-meter__count { font: var(--type-meta); color: var(--color-ink-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rev-page { display: grid; gap: var(--space-5); align-content: start; padding: var(--space-4) var(--gutter) var(--space-8); }
+.rev-actions { flex: none; display: flex; gap: var(--space-2); padding: var(--space-3) var(--gutter); background: var(--color-bg); border-top: var(--border-hairline) solid var(--color-rule); }
+.rev-actions__main { flex: 1; }
+
+/* ---------- question ---------- */
+.rev-q { display: grid; gap: var(--space-2); justify-items: start; min-width: 0; }
+.rev-q__pt { margin: 0; font: var(--weight-medium) var(--text-2xl-size)/var(--text-2xl-lh) var(--font-text); letter-spacing: var(--tracking-tight); }
+.rev-q__note { margin: 0; font: var(--type-small); color: var(--color-ink-muted); }
+.rev-q__it { margin: 0; font: var(--type-headword); letter-spacing: var(--tracking-display); overflow-wrap: anywhere; }
+.rev-q__def { margin: 0; font: var(--type-lead); }
+.rev-q__meta { margin: 0; font: var(--type-small); color: var(--color-ink-muted); }
+.rev-q__meta em { font-style: italic; }
+.rev-q__meta b { font-weight: var(--weight-semibold); color: var(--color-ink); }
+.rev-q__done { margin: 0; font: var(--type-button); }
+.rev-q__done .rev-q__meta { font-weight: var(--weight-regular); }
+.rev-instr { margin: 0 0 calc(var(--space-3) * -1); font: var(--type-small); color: var(--color-ink-muted); }
+.rev-blank { letter-spacing: 0.08em; color: var(--color-ink-faint); }
+.rev-cloze { margin: 0; padding: var(--space-3) var(--space-4); border-radius: var(--radius-field); background: var(--color-surface); font: var(--type-def); }
+.rev-hintwrap { display: grid; justify-items: start; }
+.rev-hint { justify-self: start; margin-inline-start: calc(-1 * var(--space-4)); }
+
+/* ---------- answer field ---------- */
+.rev-field {
+  display: flex; align-items: center; gap: var(--space-2); width: 100%; min-width: 0;
+  min-height: calc(var(--tap-min) + var(--space-3)); padding: 0 var(--space-4);
+  border: var(--border-strong) solid var(--color-rule-strong); border-radius: var(--radius-field);
+  background: var(--color-bg); color: var(--color-ink); font: var(--type-reader); cursor: text;
+  transition: border-color var(--dur-fast) var(--ease-standard);
+}
+.rev-field__pre { flex: none; color: var(--color-ink-muted); }
+.rev-field__input { flex: 1; min-width: 0; height: var(--tap-min); padding: 0; border: 0; background: transparent; color: inherit; font: inherit; }
+.rev-field__input::placeholder { color: var(--color-ink-faint); opacity: 1; }
+.rev-field__input:focus-visible { outline: none; }                        /* the ring moves to the whole field… */
+.rev-field:has(.rev-field__input:focus-visible) { outline: var(--border-focus) solid var(--color-focus); outline-offset: 2px; border-color: var(--color-ink); } /* …never removed */
+.rev-field.is-focus { border-color: var(--color-ink); }
+.rev-field__value { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rev-field__ph { color: var(--color-ink-faint); }
+.rev-field__caret { display: inline-block; width: var(--border-strong); height: 1.1em; margin-inline-start: 1px; vertical-align: -0.15em; background: var(--color-ink); }
+.rev-field > svg, .rev-field > [data-lucide] { flex: none; }
+.rev-field--ok, .rev-field--almost { border-color: var(--color-ink); cursor: default; }
+.rev-field--ok > svg { color: var(--color-success); }
+.rev-field--wrong { border-color: var(--color-error); cursor: default; }
+.rev-field--wrong > svg, .rev-field--wrong s { color: var(--color-error); }
+.rev-field--wrong s { text-decoration-thickness: var(--border-strong); }
+.rev-field--skip { border-style: dashed; color: var(--color-ink-faint); cursor: default; }
+
+/* ---------- accent bar + keyboard mock ---------- */
+.rev-acc { flex: none; display: flex; justify-content: center; gap: var(--space-1); padding: var(--space-1) var(--space-2); background: var(--color-surface-2); border-top: var(--border-hairline) solid var(--color-rule); }
+.rev-acc__key {
+  flex: 1 1 0; max-width: var(--space-12); min-height: var(--tap-min); padding: 0; border: 0; border-radius: var(--radius-mark);
+  background: var(--color-bg); color: var(--color-ink); font: var(--weight-medium) var(--text-lg-size)/1 var(--font-text); cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-standard);
+}
+.rev-acc__key:hover, .rev-acc__key.is-hover { background: var(--color-surface); }
+.rev-acc__key:active, .rev-acc__key.is-active { background: var(--color-rule); }
+.rev-kb { flex: none; display: grid; gap: var(--space-2); padding: var(--space-2) var(--space-1) var(--space-1); background: var(--color-surface-2); }
+.rev-kb__row { display: flex; justify-content: center; gap: var(--space-1); }
+.rev-kb__row span { flex: 1 1 0; max-width: var(--space-8); height: var(--space-10); display: grid; place-items: center; border-radius: var(--radius-mark); background: var(--color-bg); color: var(--color-ink); font: var(--type-body); }
+.rev-kb__row span.w { max-width: none; flex-grow: 5; font: var(--type-small); }
+.rev-kb__row span.m { max-width: none; flex-grow: 1.4; font: var(--type-small); background: color-mix(in oklab, var(--color-surface-2) 60%, var(--color-rule-strong)); }
+
+/* ---------- article options ---------- */
+.rev-opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); width: 100%; }
+.rev-opt {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+  min-height: calc(var(--tap-min) + var(--space-3)); padding: 0 var(--space-4);
+  border: var(--border-strong) solid var(--color-rule-strong); border-radius: var(--radius-pill);
+  background: transparent; color: var(--color-ink); font: var(--weight-medium) var(--text-xl-size)/var(--text-xl-lh) var(--font-text); cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-standard), border-color var(--dur-fast) var(--ease-standard);
+}
+.rev-opt:hover, .rev-opt.is-hover { background: var(--color-surface); }
+.rev-opt:active, .rev-opt.is-active { background: var(--color-surface-2); border-color: var(--color-ink); }
+.rev-opt.is-right { background: var(--color-ink); border-color: var(--color-ink); color: var(--color-on-ink); }
+.rev-opt.is-wrong { border-color: var(--color-error); color: var(--color-error); }
+.rev-opt.is-wrong span { text-decoration: line-through; text-decoration-thickness: var(--border-strong); }
+.rev-opt:disabled { cursor: default; }
+.rev-opt:disabled:not(.is-right):not(.is-wrong) { border-color: var(--color-rule); color: var(--color-ink-faint); background: transparent; }
+.rev-opt svg { width: var(--icon-size-sm); height: var(--icon-size-sm); }
+
+/* ---------- verdict + answer ---------- */
+.rev-verdict { display: flex; align-items: center; gap: var(--space-2); margin: 0; font: var(--type-button); }
+.rev-verdict svg { width: var(--icon-size-sm); height: var(--icon-size-sm); }
+.rev-verdict--ok { color: var(--color-success); }
+.rev-verdict--almost { color: var(--color-ink); }
+.rev-verdict--wrong { color: var(--color-error); }
+.rev-verdict--skip { color: var(--color-ink-muted); }
+.rev-other { margin: calc(var(--space-3) * -1) 0 0; font: var(--type-small); color: var(--color-ink-muted); }
+.rev-answer { display: grid; gap: var(--space-3); min-width: 0; padding-top: var(--space-4); border-top: var(--border-hairline) solid var(--color-rule); }
+.rev-answer__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
+.rev-answer__word { flex: 1; min-width: 0; margin: 0; font: var(--type-title); letter-spacing: var(--tracking-display); overflow-wrap: anywhere; }
+.rev-answer__alt { margin: calc(var(--space-2) * -1) 0 0; font: var(--type-small); color: var(--color-ink-muted); }
+.rev-gloss { display: flex; align-items: baseline; gap: var(--space-2); margin: 0; font: var(--type-body); }
+.rev-gloss__tag {
+  flex: none; display: inline-grid; place-items: center; min-width: var(--space-8); height: var(--space-5); padding: 0 var(--space-2);
+  border-radius: var(--radius-pill); background: var(--color-surface-2); color: var(--color-ink); font: var(--type-label); letter-spacing: var(--tracking-caps);
+}
+.rev-rule { display: grid; gap: var(--space-1); padding: var(--space-3) var(--space-4); border-radius: var(--radius-field); background: var(--color-surface); font: var(--type-small); }
+.rev-rule p { margin: 0; }
+.rev-rule[data-pin] { padding-inline-end: var(--space-10); }
+.rev-rule b { font-weight: var(--weight-semibold); }
+.rev-asked > * { background: var(--color-surface); }
+.rev-asked-tag { display: block; font: var(--type-meta); font-style: italic; color: var(--color-ink-muted); }
+.rev-alt { display: block; font: var(--type-meta); color: var(--color-ink-muted); }
+.rev-cl { color: var(--color-ink-muted); }
+.rev-ctx { display: grid; gap: var(--space-2); padding: var(--space-4); border-radius: var(--radius-card); background: var(--color-surface); color: var(--color-ink); text-decoration: none; transition: background-color var(--dur-fast) var(--ease-standard); }
+.rev-ctx:hover, .rev-ctx.is-hover { background: color-mix(in oklab, var(--color-surface) 50%, var(--color-surface-2)); }
+.rev-ctx:active, .rev-ctx.is-active { background: var(--color-surface-2); }
+.rev-ctx__quote { margin: 0; font: var(--type-def); }
+.rev-ctx__src { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); font: var(--type-meta); color: var(--color-ink-muted); }
+.rev-ctx__src svg { width: var(--icon-size-sm); height: var(--icon-size-sm); }
+.rev-links { display: flex; flex-wrap: wrap; gap: var(--space-1); margin-inline-start: calc(-1 * var(--space-4)); }
+.rev-next { display: flex; align-items: center; gap: var(--space-2); margin: 0; font: var(--type-meta); color: var(--color-ink-muted); }
+.rev-next svg { width: var(--space-4); height: var(--space-4); }
+
+/* ---------- image ---------- */
+.rev-img { margin: 0; width: 100%; max-width: calc(var(--space-20) * 3); border-radius: var(--radius-card); overflow: hidden; border: var(--border-hairline) solid var(--color-rule); }
+.rev-img--sm { max-width: calc(var(--space-20) * 1.5); }
+.rev-img svg { display: block; width: 100%; height: auto; }
+.rev-svg-wall { fill: var(--color-surface-2); }
+.rev-svg-sky { fill: var(--color-bg); }
+.rev-svg-hill { fill: var(--color-rule); }
+.rev-svg-hill2 { fill: var(--color-rule-strong); }
+.rev-svg-sun { fill: none; stroke: var(--color-ink-faint); stroke-width: 2; }
+.rev-svg-frame { fill: none; stroke: var(--color-ink-muted); stroke-width: 4; }
+.rev-svg-sill { fill: var(--color-rule-strong); }
+.rev-imgadd {
+  display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--tap-min); padding: 0 var(--space-4);
+  border: var(--border-strong) dashed var(--color-rule-strong); border-radius: var(--radius-pill);
+  background: transparent; color: var(--color-ink-muted); font: var(--type-small); cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-standard);
+}
+.rev-imgadd:hover, .rev-imgadd.is-hover { background: var(--color-surface); }
+.rev-imgadd:active, .rev-imgadd.is-active { background: var(--color-surface-2); }
+.rev-imgadd svg { width: var(--icon-size-sm); height: var(--icon-size-sm); }
+.rev-imgrow { display: flex; align-items: center; gap: var(--space-3); }
+
+/* ---------- new word ---------- */
+.rev-new { display: grid; gap: var(--space-3); justify-items: start; min-width: 0; }
+.rev-new__top { display: flex; align-items: baseline; gap: var(--space-2); }
+.rev-src { font: var(--type-meta); color: var(--color-ink-muted); }
+.rev-new__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); width: 100%; }
+
+/* ---------- end ---------- */
+.rev-done { display: grid; gap: var(--space-4); align-content: start; padding: var(--space-10) var(--gutter) var(--space-6); }
+.rev-done__title { margin: 0; font: var(--type-title); letter-spacing: var(--tracking-display); }
+.rev-done__stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); margin: 0; }
+.rev-done__stats div { display: grid; gap: calc(var(--space-1) / 2); padding: var(--space-3); border-radius: var(--radius-field); background: var(--color-surface); }
+.rev-done__stats dt { font: var(--type-meta); color: var(--color-ink-muted); }
+.rev-done__stats dd { margin: 0; font: var(--type-heading); font-variant-numeric: tabular-nums; }
+.rev-done__text { margin: 0; font: var(--type-small); color: var(--color-ink-muted); }
+
+/* ---------- dictionary root + settings ---------- */
+.rev-rootbar { display: grid; gap: var(--space-4); padding: 0 var(--gutter) var(--space-3); }
+.rev-hero-go { display: inline-flex; }
+.rev-hero-go svg { width: var(--icon-size-sm); height: var(--icon-size-sm); }
+.rev-chips { display: flex; flex-wrap: wrap; gap: var(--space-2); padding: var(--space-2) var(--gutter) 0; }
+.rev-setnote { margin: var(--space-3) var(--gutter) 0; font: var(--type-small); color: var(--color-ink-muted); }
+
+/* ---------- book furniture (local) ---------- */
+.rev-after { margin-bottom: var(--space-12); }
+.rev-grid4 { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); align-items: start; }
+.rev-q > [data-pin] { justify-self: stretch; }            /* anatomy only: pins sit at the row end, clear of the text */
+.rev-nw { white-space: nowrap; }
+.rev-flow { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); counter-reset: rev-f; }
+.rev-step { counter-increment: rev-f; display: grid; gap: var(--space-2); align-content: start; padding: var(--space-5); border-radius: var(--radius-card); background: var(--color-surface); font: var(--type-small); }
+.rev-step::before { content: counter(rev-f, decimal-leading-zero); font: var(--type-label); letter-spacing: var(--tracking-caps); color: var(--color-ink-muted); }
+.rev-step p { margin: 0; }
+.rev-step strong { font-weight: var(--weight-semibold); }
+.rev-id { font: var(--weight-semibold) var(--text-xs-size)/var(--text-xs-lh) ui-monospace, 'SF Mono', Menlo, Consolas, monospace; white-space: nowrap; }
+.rev-cite { font: var(--type-meta); color: var(--color-ink-muted); margin-top: var(--space-8); }
+.rev-stage-col { display: grid; gap: var(--space-3); width: 100%; justify-items: start; }
+.rev-bad-flame { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); border-radius: var(--radius-pill); background: var(--color-accent); color: var(--color-accent-ink); font: var(--type-button); }
+.rev-bad-red { margin: 0; font: var(--weight-bold) var(--text-xl-size)/var(--text-xl-lh) var(--font-text); color: var(--color-error); text-transform: uppercase; }
+</style>
+</head>
+<body class="book">
+<a class="book-skip" href="#conteudo">Pular para o conteúdo</a>
+
+<header class="book-header">
+  <div class="book-wrap">
+    <div class="book-topline">
+      <a class="book-brand" href="identity.html">Postilla<span class="book-brand__dot" aria-hidden="true">.</span></a>
+      <button class="ui-btn ui-btn--ghost ui-btn--sm" type="button" data-theme-toggle>Tema: automático</button>
+    </div>
+    <p class="book-series">Livro 6 · Revisão</p>
+    <h1 class="book-title">Revisão</h1>
+    <p class="book-lede">Cartões para fixar vocabulário. O aluno escreve a palavra em italiano antes de ver a resposta, e o app decide quando cada cartão volta. As palavras salvas entram primeiro; depois, as mais comuns do italiano.</p>
+    <nav class="book-toc" aria-label="Seções">
+      <a href="#estrutura">Estrutura</a><a href="#estados">Estados</a><a href="#telas">Telas</a><a href="#sessao">Sessão interativa</a><a href="#especificacao">Especificação</a><a href="#copia">Conteúdo e cópia</a>
+    </nav>
+  </div>
+</header>
+
+<main id="conteudo">
+
+<!-- ================================================================ 01 ESTRUTURA -->
+<section class="book-section" id="estrutura" aria-labelledby="estrutura-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">01 · Estrutura</p>
+      <h2 class="book-h2" id="estrutura-h">Lembrar antes de ver</h2>
+      <p class="book-note">Quatro técnicas com boa evidência sustentam a Revisão. Cada decisão deste livro serve a pelo menos uma delas.</p>
+    </header>
+
+    <div class="rev-grid4 rev-after">
+      <div class="book-card">
+        <h3>Recuperação</h3>
+        <p>O aluno escreve a resposta antes de vê-la. Tentar lembrar fixa mais do que reler (Roediger &amp; Karpicke, 2006). Por isso o exercício Palavra é digitado, e não de múltipla escolha.</p>
+      </div>
+      <div class="book-card">
+        <h3>Espaçamento</h3>
+        <p>Cada cartão volta num intervalo calculado pelo FSRS, o algoritmo aberto que o Anki usa desde 2023. Se o aluno acerta, o intervalo cresce. Se erra, o cartão volta na mesma revisão e o intervalo encolhe (Cepeda et al., 2006).</p>
+      </div>
+      <div class="book-card">
+        <h3>Regra explícita</h3>
+        <p>A resposta de Artigo, Plural e Conjugação vem com a regra aplicada àquela palavra. Instrução explícita rende mais do que só exposição (Norris &amp; Ortega, 2000).</p>
+      </div>
+      <div class="book-card">
+        <h3>Frequência</h3>
+        <p>Depois das Salvas, as palavras novas saem do <span lang="it">Nuovo vocabolario di base</span> (De Mauro, 2016), na ordem <span lang="it">fondamentale → alto uso → alta disponibilità</span>. As ~2.000 palavras mais frequentes cobrem a maior parte do texto do dia a dia (Nation).</p>
+      </div>
+    </div>
+
+    <h3 class="book-h3" style="margin-top:0">Quatro exercícios</h3>
+    <div class="book-table-wrap">
+      <table class="book-table book-table--stack">
+        <caption class="visually-hidden">Exercícios da Revisão</caption>
+        <thead><tr><th scope="col">Exercício</th><th scope="col">Pergunta</th><th scope="col">Resposta</th><th scope="col">Entrada</th><th scope="col">Existe quando</th></tr></thead>
+        <tbody>
+          <tr><td>Palavra</td><td data-l="Pergunta">Glosa PT, a imagem que o aluno escolheu ou, com Glosas em italiano, a primeira definição</td><td data-l="Resposta">O lema italiano (<span lang="it">finestrino</span>)</td><td data-l="Entrada">Digitada</td><td data-l="Existe quando">O verbete tem glosa PT (95% do vocabulário de base) ou imagem. Com Glosas em italiano, sempre</td></tr>
+          <tr><td>Artigo</td><td data-l="Pergunta">A palavra (<span lang="it">cane</span>)</td><td data-l="Resposta"><span lang="it">il · lo · la · l’</span>. Se começa com vogal, <span lang="it">un · uno · una · un’</span>, porque <span lang="it">l’</span> esconde o gênero</td><td data-l="Entrada">Toque numa de 4 opções</td><td data-l="Existe quando">Substantivo cujo artigo não sai da terminação: em -e, exceções (<span lang="it">la mano, il problema</span>) e os que levam <span lang="it">lo</span></td></tr>
+          <tr><td>Plural</td><td data-l="Pergunta">A palavra no singular (<span lang="it">binario</span>)</td><td data-l="Resposta">O plural (<span lang="it">binari</span>)</td><td data-l="Entrada">Digitada</td><td data-l="Existe quando">Substantivo ou adjetivo com plural na Flessione que foge de -o → -i, -a → -e, -e → -i</td></tr>
+          <tr><td>Conjugação</td><td data-l="Pergunta">Verbo, tempo e pessoa (<span lang="it">sedersi · presente · loro</span>)</td><td data-l="Resposta">A forma (<span lang="it">si siedono</span>)</td><td data-l="Entrada">Digitada</td><td data-l="Existe quando">Verbo com tabela de conjugação. Um cartão por tempo ligado em Ajustes; a pessoa muda a cada vez</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="book-callout">
+      <p><strong>Da lista original para este desenho.</strong> Das seis formas propostas, quatro ficaram como estavam, com ajustes, e duas foram fundidas:</p>
+      <p><strong>Tradução e imagem viraram um exercício só, Palavra.</strong> As duas perguntam a mesma coisa (significado → palavra italiana). Como cartões separados, o agendador contaria a mesma lembrança duas vezes. Quando a palavra tem imagem, a pergunta alterna entre imagem e glosa.</p>
+      <p><strong>Tempo e pessoa viraram um exercício só, Conjugação.</strong> Toda pergunta de conjugação precisa dos dois. O cartão é por verbo e tempo, e a pessoa varia.</p>
+      <p><strong>Artigo e plural só entram quando a regra não resolve.</strong> Treinar <span lang="it">il treno</span> ou <span lang="it">treno → treni</span> gasta revisão com o que a terminação já diz.</p>
+      <p><strong>Palavra nova é apresentada antes de ser cobrada.</strong> Não dá para lembrar o que nunca se viu. Isso vale principalmente para as palavras das mais comuns, que o aluno pode nunca ter lido no app.</p>
+    </div>
+
+    <h3 class="book-h3">Anatomia do cartão</h3>
+    <div class="book-screens book-pinned" data-mount="anatomy"></div>
+    <div class="book-cols" style="margin-top:var(--space-10)">
+      <ol class="book-legend">
+        <li><span class="book-pin" aria-hidden="true">1</span><div><strong>Progresso</strong><p>Linha em tinta e “4 de 14”. Nunca amarela: na Revisão, o amarelo fica só no grifo do trecho da história.</p></div></li>
+        <li><span class="book-pin" aria-hidden="true">2</span><div><strong>Exercício</strong><p><code>.ui-label</code> com o nome do exercício: Palavra, Artigo, Plural, Conjugação.</p></div></li>
+        <li><span class="book-pin" aria-hidden="true">3</span><div><strong>Pergunta</strong><p>Glosa PT em Literata 28. Pergunta em italiano usa o lema em <code>--type-headword</code>, como no verbete.</p></div></li>
+        <li><span class="book-pin" aria-hidden="true">4</span><div><strong>Pista de classe</strong><p>Classe e gênero em italiano. Separa <span lang="it">finestra</span> de <span lang="it">finestrino</span> sem dar a resposta.</p></div></li>
+        <li><span class="book-pin" aria-hidden="true">5</span><div><strong>Campo de resposta</strong><p>Literata 20, como o Leitor. <code>lang="it"</code>, sem autocorreção, sem sugestão e sem maiúscula automática.</p></div></li>
+        <li><span class="book-pin" aria-hidden="true">6</span><div><strong>Dica</strong><p>Mostra a frase da história com lacuna ou, sem história, a primeira letra. Usar a dica limita a nota a Quase.</p></div></li>
+        <li><span class="book-pin" aria-hidden="true">7</span><div><strong>Não sei · Conferir</strong><p>Conferir é o botão primário, em tinta, e fica desativado com o campo vazio. Enter também confere.</p></div></li>
+      </ol>
+      <ol class="book-legend" start="8">
+        <li><span class="book-pin" aria-hidden="true">8</span><div><strong>Veredito</strong><p>Ícone e texto, nunca só cor. Anunciado com <code>role="status"</code>. A pergunta encolhe para uma linha acima do campo, e a resposta ganha o espaço.</p></div></li>
+        <li><span class="book-pin" aria-hidden="true">9</span><div><strong>Quando volta</strong><p>O próximo intervalo calculado pelo FSRS, logo abaixo do veredito. A nota já está gravada quando a resposta aparece.</p></div></li>
+        <li><span class="book-pin" aria-hidden="true">10</span><div><strong>Resposta</strong><p>A palavra com o artigo, classe, IPA e áudio pelo TTS do aparelho (OFF-40).</p></div></li>
+        <li><span class="book-pin" aria-hidden="true">11</span><div><strong>Forma</strong><p>No Plural, singular e plural lado a lado; na Conjugação, a tabela do tempo com a linha pedida.</p></div></li>
+        <li><span class="book-pin" aria-hidden="true">12</span><div><strong>Regra</strong><p>Uma ou duas frases sobre esta palavra, não um capítulo de gramática.</p></div></li>
+        <li><span class="book-pin" aria-hidden="true">13</span><div><strong>Na história</strong><p>A frase onde o aluno salvou a palavra, com o grifo. É o único amarelo da tela. Tocar empilha a história no parágrafo.</p></div></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ 02 ESTADOS -->
+<section class="book-section" id="estados" aria-labelledby="estados-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">02 · Estados</p>
+      <h2 class="book-h2" id="estados-h">Componentes da Revisão</h2>
+      <p class="book-note">Botões, progresso, cartão da raiz, tabela e linhas vêm de <code>book.css</code>. São deste livro, com o prefixo <code>rev-</code>: campo de resposta, opção de artigo, veredito, barra de acentos, regra e imagem. Ordem dos estados: padrão, hover, pressionado, foco, selecionado, desativado.</p>
+    </header>
+
+    <h3 class="book-h3" style="margin-top:0">Cartão “Revisão de hoje” na raiz do Dicionário</h3>
+    <div class="book-states book-states--wide" data-mount="hero-states"></div>
+
+    <h3 class="book-h3">Pergunta</h3>
+    <div class="book-states" data-mount="question-states"></div>
+
+    <h3 class="book-h3">Campo de resposta</h3>
+    <div class="book-states book-states--wide" data-mount="field-states"></div>
+
+    <h3 class="book-h3">Opção de artigo</h3>
+    <div class="book-states" data-mount="opt-states"></div>
+
+    <h3 class="book-h3">Veredito</h3>
+    <div class="book-states" data-mount="verdict-states"></div>
+
+    <h3 class="book-h3">Dica, acentos e imagem</h3>
+    <div class="book-states book-states--wide" data-mount="misc-states"></div>
+  </div>
+</section>
+
+<!-- ================================================================ 03 TELAS -->
+<section class="book-section" id="telas" aria-labelledby="telas-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">03 · Telas</p>
+      <h2 class="book-h2" id="telas-h">Da raiz do Dicionário ao último cartão</h2>
+      <p class="book-note">A sessão é empilhada em tela cheia a partir da aba Dicionário, sem barra de abas, como o Leitor. O X fecha a sessão sem pedir confirmação: cada resposta já foi gravada.</p>
+    </header>
+
+    <h3 class="book-h3" id="sessao" style="margin-top:0">Sessão interativa</h3>
+    <div class="book-feature">
+      <figure class="phone" aria-label="Sessão de revisão interativa com cinco cartões">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body" data-live-session></div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Revisão</strong> · cinco cartões, a correção funciona</figcaption>
+      </figure>
+      <div class="book-card">
+        <h3>Experimente</h3>
+        <p>Os cinco cartões usam as palavras de <code>content.md</code>. A correção segue as regras da Especificação.</p>
+        <ul>
+          <li><span lang="it">finestrino</span>: escreva <span lang="it">finestrno</span> (uma letra a menos), <span lang="it">finestra</span> (outra palavra com a mesma glosa) ou <span lang="it">il finestrino</span> (o artigo a mais é aceito).</li>
+          <li><span lang="it">cane</span>: toque num artigo. A resposta já é a escolha.</li>
+          <li><span lang="it">sedersi</span>: <span lang="it">si siedono</span>, <span lang="it">si seggono</span> e <span lang="it">loro si siedono</span> valem. <span lang="it">siedono</span>, sem o pronome, não vale.</li>
+          <li><span lang="it">binario</span>: <span lang="it">binarii</span> não leva Quase. Em Plural, Artigo e Conjugação, uma letra diferente é justamente o erro.</li>
+          <li><span lang="it">città</span>: escreva <span lang="it">citta</span>. Use a barra de acentos ou a Dica.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 class="book-h3">Telas</h3>
+    <div class="book-screens" data-mount="screens"></div>
+  </div>
+</section>
+
+<!-- ================================================================ 04 ESPECIFICAÇÃO -->
+<section class="book-section" id="especificacao" aria-labelledby="especificacao-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">04 · Especificação</p>
+      <h2 class="book-h2" id="especificacao-h">Um cartão por lembrança</h2>
+      <p class="book-note">Os requisitos usam o prefixo <code>REV-</code>. A spec funcional ainda não tem esta seção: os ids entram lá quando o desenho for aprovado.</p>
+    </header>
+
+    <ol class="rev-flow">
+      <li class="rev-step"><p><strong>Dicionário.</strong> O cartão “Revisão de hoje” mostra 14 cartões e 5 palavras novas. Um toque empilha a sessão.</p></li>
+      <li class="rev-step"><p><strong>Pergunta.</strong> O aluno escreve e confere, ou toca em Não sei. No Artigo, tocar na opção já é a resposta.</p></li>
+      <li class="rev-step"><p><strong>Resposta.</strong> Veredito, palavra com artigo, regra, trecho da história e quando o cartão volta. A nota já foi gravada.</p></li>
+      <li class="rev-step"><p><strong>Erro.</strong> O cartão volta na mesma sessão, depois de pelo menos 3 outros. “Contar como certa” corrige a nota.</p></li>
+      <li class="rev-step"><p><strong>Fim.</strong> Contagens e a próxima revisão, sem comemoração. Voltar leva à raiz do Dicionário.</p></li>
+    </ol>
+
+    <h3 class="book-h3">Agendamento</h3>
+    <dl class="book-spec">
+      <dt>Unidade</dt><dd>Um cartão por palavra e exercício. Na Conjugação, um por verbo e tempo; a pessoa muda a cada revisão, começando pela que foi pedida há mais tempo.</dd>
+      <dt>Algoritmo</dt><dd>FSRS com retenção desejada de 90% e os parâmetros padrão. Otimizar os parâmetros com o histórico do aluno, no próprio aparelho, fica para depois da v1.</dd>
+      <dt>Notas</dt><dd>Errado e Não sei → <em>Again</em>. Quase, ou certo com dica → <em>Hard</em>. Certo → <em>Good</em>. Não há botão Fácil: a nota sai da correção, sem pedir avaliação ao aluno.</dd>
+      <dt>Palavra nova</dt><dd>Primeiro a apresentação (lema, artigo, glosa, definição, áudio). A primeira cobrança vem depois de 3 outros cartões, ou no fim se faltarem. Depois disso, o FSRS assume.</dd>
+      <dt>Desbloqueio</dt><dd>Artigo, Plural e Conjugação de uma palavra só entram depois que o cartão Palavra dela é acertado num dia posterior ao da apresentação. Primeiro o significado, depois a forma.</dd>
+      <dt>Irmãos</dt><dd>Dois cartões da mesma palavra nunca na mesma sessão, exceto apresentação e primeira cobrança. O irmão vencido passa para o dia seguinte.</dd>
+      <dt>Ordem</dt><dd>Cartões errados nesta sessão → vencidos, do de menor retenção estimada para o de maior → novos, um a cada 4 revisões. Exercícios de tipos diferentes se alternam.</dd>
+      <dt>Limites</dt><dd>Palavras novas por dia: 10 (0, 5, 10, 15 ou 20 em Ajustes). Conta cartões novos de qualquer tipo, e Palavra tem prioridade. Revisões não têm limite.</dd>
+      <dt>Dia</dt><dd>Vira às 4h, no horário do aparelho. Uma revisão à meia-noite e meia ainda conta para o dia anterior.</dd>
+      <dt>Atraso</dt><dd>Cartão vencido continua na fila. O FSRS usa o intervalo real desde a última revisão, então dias sem abrir o app não quebram nada.</dd>
+    </dl>
+
+    <h3 class="book-h3">Correção</h3>
+    <div class="book-table-wrap">
+      <table class="book-table book-table--stack">
+        <caption class="visually-hidden">Regras de correção da resposta digitada</caption>
+        <thead><tr><th scope="col">Situação</th><th scope="col">Exemplo</th><th scope="col">Resultado</th></tr></thead>
+        <tbody>
+          <tr><td>Igual, sem contar maiúsculas, espaços nas pontas, pontuação final e tipo de apóstrofo (’ = ')</td><td data-l="Exemplo" lang="it">Finestrino.</td><td data-l="Resultado">Certo</td></tr>
+          <tr><td>Artigo antes da palavra (Palavra) ou pronome sujeito antes do verbo (Conjugação)</td><td data-l="Exemplo" lang="it">il finestrino · loro si siedono</td><td data-l="Resultado">Certo</td></tr>
+          <tr><td>Forma alternativa da tabela</td><td data-l="Exemplo" lang="it">si seggono</td><td data-l="Resultado">Certo</td></tr>
+          <tr><td>Particípio do <span lang="it">passato prossimo</span>: concorda com a pessoa pedida (<span lang="it">lui</span> ou <span lang="it">lei</span>). <span lang="it">Noi, voi, loro</span> aceitam -i e -e</td><td data-l="Exemplo" lang="it">lei → si è seduta</td><td data-l="Resultado">Certo</td></tr>
+          <tr><td>Falta ou troca de acento</td><td data-l="Exemplo" lang="it">citta</td><td data-l="Resultado">Quase · “Falta o acento.”</td></tr>
+          <tr><td>Acento que muda a palavra: <span lang="it">e/è, da/dà, la/là, li/lì, ne/né, se/sé, si/sì, di/dì</span></td><td data-l="Exemplo"><span lang="it">e</span>, pedido <span lang="it">è</span></td><td data-l="Resultado">Errado</td></tr>
+          <tr><td>Uma letra a mais, a menos, trocada ou invertida, com 6 letras ou mais. Só no exercício Palavra</td><td data-l="Exemplo" lang="it">finestrno</td><td data-l="Resultado">Quase · “Uma letra diferente.”</td></tr>
+          <tr><td>Uma letra diferente em Plural, Artigo ou Conjugação</td><td data-l="Exemplo" lang="it">binarii</td><td data-l="Resultado">Errado</td></tr>
+          <tr><td>Outro lema com a mesma glosa PT</td><td data-l="Exemplo"><span lang="it">finestra</span>, pedido <span lang="it">finestrino</span></td><td data-l="Resultado">Quase · “Também é janela. Aqui, a palavra é finestrino.”</td></tr>
+          <tr><td>Outra palavra que existe no dicionário</td><td data-l="Exemplo" lang="it">tessera</td><td data-l="Resultado">Errado, com a glosa da palavra digitada</td></tr>
+          <tr><td>Qualquer outra coisa</td><td data-l="Exemplo" lang="it">fenestrino</td><td data-l="Resultado">Errado</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="book-h3">Requisitos</h3>
+    <div class="book-table-wrap">
+      <table class="book-table book-table--keyed">
+        <caption class="visually-hidden">Requisitos da Revisão</caption>
+        <thead><tr><th scope="col">Id</th><th scope="col">Requisito</th></tr></thead>
+        <tbody>
+          <tr><td class="rev-id">REV-01</td><td>A Revisão começa por um cartão na raiz da aba Dicionário, entre a busca e <em>Histórico | Salvas</em>, com o total de cartões do dia e quantas palavras novas. Tocar empilha a sessão em tela cheia, sem barra de abas. Sem cartões, o cartão diz quando é a próxima revisão e não pode ser tocado.</td></tr>
+          <tr><td class="rev-id">REV-02</td><td>Palavras novas vêm primeiro das Salvas, da mais antiga para a mais nova, e depois do NVdB, faixa por faixa. Ajustes › Revisão › Origem pode limitar a “Só salvas”. Palavras sem glosa PT ficam de fora enquanto Glosas estiver em português.</td></tr>
+          <tr><td class="rev-id">REV-03</td><td>Salvar uma palavra cria os cartões dela. Remover das Salvas suspende os cartões e guarda o histórico; salvar de novo retoma de onde parou. Uma expressão salva gera só o cartão Palavra.</td></tr>
+          <tr><td class="rev-id">REV-04</td><td>Exercícios: Palavra, Artigo, Plural e Conjugação, com as regras da tabela da seção 01. Palavra está sempre ligado; os outros três podem ser desligados em Ajustes › Revisão. Conjugação vem só com Presente; os outros tempos (<span lang="it">Passato prossimo, Imperfetto, Futuro</span>) são ligados ali.</td></tr>
+          <tr><td class="rev-id">REV-05</td><td>Palavra nova é apresentada antes da primeira cobrança. “Já sei” tira a palavra da Revisão e a põe em Ajustes › Revisão › Palavras que já sei, onde dá para desfazer.</td></tr>
+          <tr><td class="rev-id">REV-06</td><td>Agendamento pelo FSRS, com notas, desbloqueio, irmãos, ordem e limites como em Agendamento.</td></tr>
+          <tr><td class="rev-id">REV-07</td><td>Correção automática pelas regras de Correção. O campo desliga autocorreção, sugestão e maiúscula automática do teclado.</td></tr>
+          <tr><td class="rev-id">REV-08</td><td>Com o campo ativo, uma barra de acentos (<span lang="it">à è é ì ò ù</span>) fica sobre o teclado.</td></tr>
+          <tr><td class="rev-id">REV-09</td><td>Dica: mostra a frase da história com lacuna no lugar da palavra; sem história, a primeira letra. Existe só no exercício Palavra. Usar a dica limita a nota a Quase.</td></tr>
+          <tr><td class="rev-id">REV-10</td><td>A resposta mostra veredito, a palavra com artigo, classe, IPA, glosa, a forma (Plural, Conjugação), a regra (Artigo, Plural, Conjugação), a frase da história quando existe e quando o cartão volta. Áudio pelo TTS (OFF-40, OFF-41).</td></tr>
+          <tr><td class="rev-id">REV-11</td><td>Depois de Errado, “Contar como certa” troca a nota para Certo e recalcula o intervalo. Serve para sinônimos e glosas ruins.</td></tr>
+          <tr><td class="rev-id">REV-12</td><td>Cada resposta é gravada na hora (OFF-04). Fechar a sessão não pede confirmação; o que faltou continua vencido.</td></tr>
+          <tr><td class="rev-id">REV-13</td><td>Mais opções da sessão: Pular cartão (vai para o fim, sem nota) · Já sei esta palavra · Abrir verbete (empilha, com “Voltar à revisão”) · Relatar erro no cartão (e-mail, como LEI-09).</td></tr>
+          <tr><td class="rev-id">REV-14</td><td>Imagem: pela resposta ou pela apresentação, o aluno escolhe uma foto da galeria ou tira uma com a câmera. O app recorta em quadrado e guarda com 512 px. Uma imagem por lema. Com imagem, a pergunta do cartão Palavra alterna entre imagem e glosa.</td></tr>
+          <tr><td class="rev-id">REV-15</td><td>Com Imersão › Glosas = Italiano, o cartão Palavra pergunta pela primeira definição de Significati. O lema e as palavras que começam com as mesmas 5 letras viram lacuna. Rótulos, botões e regras seguem Imersão › Rótulos e botões. Tempo, pessoa e classe ficam sempre em italiano, como no verbete.</td></tr>
+          <tr><td class="rev-id">REV-16</td><td>Sem gamificação (seção 10 da spec): nada de sequência de dias, pontos, metas ou comemoração. O fim mostra só contagens e a próxima revisão.</td></tr>
+          <tr><td class="rev-id">REV-17</td><td>Cartões, histórico de respostas, imagens e palavras que já sei ficam no banco do usuário (OFF-30, OFF-31) e vão junto no Exportar (AJU-05).</td></tr>
+          <tr><td class="rev-id">REV-18</td><td>A resposta sai do dicionário na hora da revisão, então uma atualização de conteúdo já vale no próximo cartão. Se o verbete sair do dicionário, os cartões ficam suspensos e a palavra continua em Salvas (OFF-32).</td></tr>
+          <tr><td class="rev-id">REV-19</td><td>Acessibilidade: veredito com <code>role="status"</code>; estado sempre com ícone e texto; campo com <code>lang="it"</code>. O foco vai para o campo ao abrir o cartão e para Continuar depois da correção.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="book-h3">Dados no aparelho</h3>
+    <pre class="book-code"><code><span class="book-code__c">-- banco do usuário (OFF-34). Todas as linhas têm id estável, created_at e updated_at (OFF-31).</span>
+review_card (id, lemma, pos, kind, tense, source, state, due,
+             stability, difficulty, reps, lapses, last_person)
+review_log  (id, card_id, at, verdict, rating, typed, hinted, elapsed_ms, interval_days)
+word_image  (id, lemma, pos, jpeg_512)
+known_word  (id, lemma, pos)
+
+<span class="book-code__c">-- kind:   palavra | artigo | plurale | coniugazione   (tense só em coniugazione)</span>
+<span class="book-code__c">-- source: salvas | nvdb</span>
+<span class="book-code__c">-- state:  new | learning | review | relearning | suspended</span>
+<span class="book-code__c">-- verdict: ok | almost | wrong | skip  →  rating: Good | Hard | Again | Again</span></code></pre>
+
+    <h3 class="book-h3">Onde vai o amarelo</h3>
+    <div class="book-table-wrap">
+      <table class="book-table book-table--keyed">
+        <caption class="visually-hidden">O elemento amarelo de cada tela da Revisão</caption>
+        <thead><tr><th scope="col">Tela</th><th scope="col">O único amarelo</th></tr></thead>
+        <tbody>
+          <tr><td>Dicionário com o cartão Revisão</td><td>Traço da aba ativa. O cartão é surface, sem amarelo.</td></tr>
+          <tr><td>Cartão, pergunta</td><td>Nenhum. Progresso em tinta, Conferir em tinta.</td></tr>
+          <tr><td>Cartão, resposta</td><td>Grifo da palavra no trecho “Na história”. Sem trecho, nenhum.</td></tr>
+          <tr><td>Palavra nova, fim</td><td>Nenhum.</td></tr>
+          <tr><td>Ajustes › Revisão</td><td>Traço da aba ativa.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="book-h3">Em aberto</h3>
+    <div class="book-table-wrap">
+      <table class="book-table book-table--stack">
+        <caption class="visually-hidden">Decisões em aberto</caption>
+        <thead><tr><th scope="col">Tema</th><th scope="col">Proposta deste livro</th><th scope="col">Alternativa</th></tr></thead>
+        <tbody>
+          <tr><td>Onde mora a Revisão</td><td data-l="Proposta">Cartão na raiz do Dicionário. Mantém as 3 abas (NAV-01) e deixa a Revisão perto das Salvas, de onde vêm as palavras.</td><td data-l="Alternativa">Quarta aba, “Revisão”. Mais visível para um hábito diário, mas muda NAV-01 e a barra de abas de todos os books.</td></tr>
+          <tr><td>Imagem</td><td data-l="Proposta">Variante da pergunta do cartão Palavra.</td><td data-l="Alternativa">Exercício próprio, com agendamento separado. Conta a mesma lembrança duas vezes.</td></tr>
+          <tr><td>Ordem dentro de cada faixa do NVdB</td><td data-l="Proposta">Uma lista de frequência de corpus, com licença compatível, ordena as palavras dentro da faixa.</td><td data-l="Alternativa">Ordem alfabética dentro da faixa. Simples, mas a primeira semana seria toda de palavras em a-.</td></tr>
+          <tr><td>Glosa errada vira cartão errado</td><td data-l="Proposta">Depende do arquivo de correções do pipeline (<span lang="it">sedersi</span> → “estar sentado”). “Relatar erro no cartão” ajuda a achar os casos.</td><td data-l="Alternativa">Só cobrar glosas de <code>wikt</code> e <code>wikdict</code>, sem o pivô. Cai de 95% para 62% do vocabulário de base.</td></tr>
+          <tr><td>Lembrete diário</td><td data-l="Proposta">Fora da v1. Uma notificação local funciona offline, mas puxa para a lógica de sequência que a spec exclui.</td><td data-l="Alternativa">Lembrete opcional, desligado por padrão, sem contagem de dias.</td></tr>
+          <tr><td>Outro lema com a mesma glosa</td><td data-l="Proposta">Quase.</td><td data-l="Alternativa">Sem nota. O cartão volta no fim da sessão, com a primeira letra.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ 05 CONTEÚDO E CÓPIA -->
+<section class="book-section" id="copia" aria-labelledby="copia-h">
+  <div class="book-wrap">
+    <header class="book-section__head">
+      <p class="book-kicker">05 · Conteúdo e cópia</p>
+      <h2 class="book-h2" id="copia-h">Frases curtas, sem festa</h2>
+      <p class="book-note">A Revisão fala como o resto do app: PT-BR, sentença, sem exclamação e sem emoji. O erro aparece com ícone, cor e uma frase curta, e vem sempre seguido da resposta e da regra.</p>
+    </header>
+
+    <div class="book-cols">
+      <div class="book-table-wrap">
+        <table class="book-table">
+          <caption class="visually-hidden">Textos da interface</caption>
+          <thead><tr><th scope="col">Situação</th><th scope="col">Texto</th></tr></thead>
+          <tbody>
+            <tr><td>Raiz do Dicionário</td><td>Revisão de hoje · 14 cartões · 5 palavras novas</td></tr>
+            <tr><td>Sem cartões</td><td>Nada para revisar agora · Próxima revisão amanhã, 9 cartões</td></tr>
+            <tr><td>Instrução</td><td>Escreva em italiano. · Escolha o artigo. · Escreva o plural. · Conjugue.</td></tr>
+            <tr><td>Campo</td><td>em italiano</td></tr>
+            <tr><td>Botões</td><td>Não sei · Conferir · Continuar · Mostrar dica</td></tr>
+            <tr><td>Veredito</td><td>Certo · Certo, com dica. · Quase. Falta o acento. · Quase. Uma letra diferente. · Não é essa.</td></tr>
+            <tr><td>Depois de errar</td><td>Contar como certa</td></tr>
+            <tr><td>Intervalo</td><td>Volta em 4 dias · Volta amanhã · Volta ainda nesta revisão</td></tr>
+            <tr><td>Palavra nova</td><td>Palavra nova · das mais comuns · Já sei · Aprender</td></tr>
+            <tr><td>Imagem</td><td>Adicionar imagem · Trocar imagem · Remover imagem</td></tr>
+            <tr><td>Fim</td><td>14 cartões revisados · Próxima revisão amanhã, 9 cartões · Voltar ao Dicionário</td></tr>
+            <tr><td>Mais opções</td><td>Pular cartão · Já sei esta palavra · Abrir verbete · Relatar erro no cartão</td></tr>
+            <tr><td>Fechar</td><td><code>aria-label</code> “Encerrar revisão”, sem diálogo</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="book-table-wrap">
+        <table class="book-table">
+          <caption class="visually-hidden">Rótulos nos dois idiomas, conforme Imersão › Rótulos e botões</caption>
+          <thead><tr><th scope="col">Português</th><th scope="col">Italiano</th></tr></thead>
+          <tbody lang="it">
+            <tr><td lang="pt-BR">Revisão de hoje</td><td>Ripasso di oggi</td></tr>
+            <tr><td lang="pt-BR">Palavra · Artigo · Plural · Conjugação</td><td>Parola · Articolo · Plurale · Coniugazione</td></tr>
+            <tr><td lang="pt-BR">Palavra nova</td><td>Parola nuova</td></tr>
+            <tr><td lang="pt-BR">Escreva em italiano.</td><td>Scrivi la parola.</td></tr>
+            <tr><td lang="pt-BR">Escolha o artigo.</td><td>Scegli l’articolo.</td></tr>
+            <tr><td lang="pt-BR">Não sei · Conferir</td><td>Non lo so · Controlla</td></tr>
+            <tr><td lang="pt-BR">Continuar</td><td>Avanti</td></tr>
+            <tr><td lang="pt-BR">Certo · Quase · Não é essa.</td><td>Giusto · Quasi · Non è questa.</td></tr>
+            <tr><td lang="pt-BR">Mostrar dica</td><td>Mostra un aiuto</td></tr>
+            <tr><td lang="pt-BR">Já sei · Aprender</td><td>La so già · Impara</td></tr>
+            <tr><td lang="pt-BR">Regra</td><td>Regola</td></tr>
+            <tr><td lang="pt-BR">Na história</td><td>Nella storia</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <h3 class="book-h3">Faça e não faça</h3>
+    <div class="book-dd" data-mount="dd"></div>
+
+    <p class="rev-cite">Fontes: Roediger &amp; Karpicke (2006), <em>Test-enhanced learning</em> · Cepeda et al. (2006), meta-análise de prática distribuída · Norris &amp; Ortega (2000), meta-análise de instrução explícita · Nation, <em>Learning Vocabulary in Another Language</em> · De Mauro (2016), <span lang="it">Nuovo vocabolario di base</span> · FSRS (open-spaced-repetition). Conteúdo dos cartões: <code>content.md</code>.</p>
+  </div>
+</section>
+
+</main>
+
+<footer class="book-footer"><div class="book-wrap">Postilla · sistema v0.3 · Revisão · tokens em <code>tokens.css</code>, componentes em <code>book.css</code>, específicos com o prefixo <code>rev-</code></div></footer>
+
+<script>
+(() => {
+  const ic = (n) => `<i data-lucide="${n}" aria-hidden="true"></i>`;
+  const it = (s) => `<span lang="it">${s}</span>`;
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const status = `<div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>`;
+
+  /* ---------- data (content.md only, plus chiave/biglietto from the catalog) ---------- */
+  const PRES = [['io', 'mi siedo', 'mi seggo'], ['tu', 'ti siedi'], ['lui/lei', 'si siede'], ['noi', 'ci sediamo'], ['voi', 'vi sedete'], ['loro', 'si siedono', 'si seggono']];
+  const C = {
+    finestrino: {
+      kind: 'Palavra', ask: 'pt', pt: 'janela', note: 'de trem, carro, avião', pos: 'sostantivo maschile', word: 'finestrino', art: 'il',
+      ipa: '/fi.neˈstri.no/', gloss: 'janela (de trem, carro, avião)', answers: ['finestrino'], prefixes: ['il'], typo: true,
+      hint: '«…e si siede vicino al <span class="rev-blank">______</span>.»',
+      def: 'Piccola <span class="rev-blank">______</span>, in particolare quella di un veicolo (treno, automobile, aereo).',
+      ctx: ['«…e si siede vicino al ', 'finestrino', '.»'], para: '¶1', next: 'Volta em 4 dias',
+      others: { finestra: { gloss: 'janela', same: true }, 'oblò': { gloss: 'escotilha, janela redonda', same: true } },
+    },
+    cane: {
+      kind: 'Artigo', ask: 'art', word: 'cane', pos: 'sostantivo maschile', ipa: '/ˈka.ne/', gloss: 'cachorro, cão',
+      opts: ['il', 'lo', 'la', 'l’'], answer: 'il', art: 'il',
+      rule: 'Masculino que começa com consoante leva <b lang="it">il</b>. Terminada em -e, a palavra não mostra o gênero: guarde junto, <span lang="it">il cane</span>.',
+      ctx: ['«…una signora con il ', 'cane', '…»'], para: '¶2', next: 'Volta em 6 dias',
+    },
+    sedersi: {
+      kind: 'Conjugação', ask: 'conj', word: 'sedersi', tense: 'Indicativo presente', person: 'loro', pos: 'verbo intransitivo pronominale',
+      ipa: '/seˈder.si/', gloss: 'sentar-se', answers: ['si siedono', 'si seggono'], prefixes: ['loro'],
+      rule: 'Verbo pronominal: o pronome vem antes da forma, <span lang="it">si siedono</span>. A forma <span lang="it">si seggono</span> também vale.',
+      ctx: ['«…e ', 'si siede', ' vicino al finestrino.»'], para: '¶1', table: PRES, asked: 5, next: 'Volta em 3 dias',
+    },
+    binario: {
+      kind: 'Plural', ask: 'pl', word: 'binario', pos: 'sostantivo maschile', ipa: '/biˈna.rjo/', gloss: 'linha, via (de trem)',
+      answers: ['binari'], art: 'il', plural: 'binari', artPl: 'i',
+      rule: 'Em -io com o i átono, o plural perde o -o e fica com um i só: <span lang="it">binario → binari</span>. Com o i tônico, ele dobra: <span lang="it">zio → zii</span>.',
+      ctx: ['«Il ', 'binario', ' è quasi vuoto…»'], para: '¶1', next: 'Volta em 5 dias',
+    },
+    citta: {
+      kind: 'Palavra', ask: 'pt', pt: 'cidade', pos: 'sostantivo femminile', word: 'città', art: 'la', ipa: '/tʃitˈta/', gloss: 'cidade',
+      answers: ['città'], prefixes: ['la'], typo: true,
+      hint: '«Fuori, la <span class="rev-blank">______</span> si sveglia piano…»',
+      ctx: ['«Fuori, la ', 'città', ' si sveglia piano…»'], para: '¶2', next: 'Volta em 4 dias',
+    },
+    biglietto: {
+      kind: 'Palavra', ask: 'pt', pt: 'bilhete', note: 'de trem, de ônibus', pos: 'sostantivo maschile', word: 'biglietto', art: 'il', ipa: '/biʎˈʎet.to/',
+      gloss: 'bilhete, passagem', answers: ['biglietto'], prefixes: ['il'], typo: true,
+      ctx: ['«Compra un ', 'biglietto', ' alla macchinetta…»'], para: '¶1', next: 'Volta em 4 dias',
+      others: { tessera: { gloss: 'carteirinha, cartão' } },
+    },
+  };
+  const LIVE = ['finestrino', 'cane', 'sedersi', 'binario', 'citta'];
+  const INSTR = { pt: 'Escreva em italiano.', img: 'Escreva em italiano.', def: 'Escreva em italiano.', art: 'Escolha o artigo.', pl: 'Escreva o plural.', conj: 'Conjugue.' };
+
+  /* ---------- grading (rules in 04 · Correção) ---------- */
+  const norm = (s) => s.normalize('NFC').toLowerCase().replace(/[’‘`´]/g, "'").replace(/\s+/g, ' ').trim().replace(/[.!?;,]+$/, '');
+  const bare = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const MINIMAL = new Set(['è', 'dà', 'là', 'lì', 'né', 'sé', 'sì', 'dì']);  /* accented words with an unaccented twin */
+  function osa(a, b) {                                                      /* optimal string alignment distance */
+    const d = Array.from({ length: a.length + 1 }, (_, i) => Array.from({ length: b.length + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0)));
+    for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) {
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+    }
+    return d[a.length][b.length];
+  }
+  function grade(c, raw) {
+    let a = norm(raw);
+    if (!a) return null;
+    for (const p of c.prefixes || []) if (a.startsWith(p + ' ')) { a = a.slice(p.length + 1); break; }
+    const ans = c.answers.map(norm);
+    if (ans.includes(a)) return { v: 'ok' };
+    const acc = ans.find((x) => bare(x) === bare(a));
+    if (acc) {
+      const want = acc.split(' '), got = a.split(' ');
+      if (want.some((w, i) => MINIMAL.has(w) && got[i] !== w)) return { v: 'wrong' };
+      return { v: 'almost', msg: /[̀-ͯ]/.test(a.normalize('NFD')) ? 'Quase. Acento trocado.' : 'Quase. Falta o acento.' };
+    }
+    if (c.typo && a.length >= 6 && ans.some((x) => osa(x, a) === 1)) return { v: 'almost', msg: 'Quase. Uma letra diferente.' };
+    const o = c.others && c.others[a];
+    if (o && o.same) return { v: 'almost', msg: `Quase. Também é ${o.gloss}.`, note: `Aqui, a palavra é ${it(c.word)}.` };
+    if (o) return { v: 'wrong', note: `${it('«' + esc(a) + '»')} é ${o.gloss}.` };
+    return { v: 'wrong' };
+  }
+  const NEXT = (c, r) => (r.v === 'wrong' || r.v === 'skip') ? 'Volta ainda nesta revisão' : (r.v === 'almost' || r.hinted) ? 'Volta em 2 dias' : c.next;
+
+  /* ---------- pieces ---------- */
+  const pin = (o, n) => (o.pins && (o.pins === true || o.pins.includes(n)) ? ` data-pin="${n}"` : '');
+  const sessionBar = (o) => `
+    <div class="ui-appbar">
+      <button class="ui-iconbtn" type="button" aria-label="Encerrar revisão" data-msg="Fecha a sessão. O que faltou continua para depois.">${ic('x')}</button>
+      <p class="ui-appbar__title">Revisão</p>
+      <div class="ui-appbar__actions"><button class="ui-iconbtn" type="button" aria-label="Mais opções" data-msg="Pular cartão · Já sei esta palavra · Abrir verbete · Relatar erro no cartão">${ic('ellipsis')}</button></div>
+    </div>
+    <div class="rev-meter"><span class="rev-meter__bar"${pin(o, 1)}><span class="ui-progress" aria-hidden="true"><i style="--p:${Math.round(((o.n - 1) / o.total) * 100)}%"></i></span></span><span class="rev-meter__count"><span class="visually-hidden">Cartão </span>${o.n} de ${o.total}</span></div>`;
+  const scroll = (inner, start) => `<div class="phone__scroll"><div class="ui-scroll" tabindex="0" role="region" aria-label="Cartão"${start ? ` data-start="${start}"` : ''}><div class="rev-page">${inner}</div></div></div>`;
+  const toastEl = `<p class="ui-toast" role="status"></p>`;
+  const tabbar = (active) => `<nav class="ui-tabbar" aria-label="Principal">
+      <a class="ui-tab" href="#telas"${active === 'bib' ? ' aria-current="page"' : ''}>${ic('library-big')}Biblioteca</a>
+      <a class="ui-tab" href="#telas"${active === 'dic' ? ' aria-current="page"' : ''}>${ic('book-a')}Dicionário</a>
+      <a class="ui-tab" href="#telas"${active === 'set' ? ' aria-current="page"' : ''}>${ic('settings-2')}Ajustes</a></nav>`;
+  const keyboard = () => `<div class="rev-kb" aria-hidden="true">${['qwertyuiop', 'asdfghjkl', 'zxcvbnm'].map((r, i) =>
+      `<div class="rev-kb__row">${i === 2 ? '<span class="m">⇧</span>' : ''}${[...r].map((k) => `<span>${k}</span>`).join('')}${i === 2 ? '<span class="m">⌫</span>' : ''}</div>`).join('')}
+      <div class="rev-kb__row"><span class="m">123</span><span class="w">spazio</span><span class="m">fine</span></div></div>`;
+  const accents = (o = {}) => `<div class="rev-acc" role="group" aria-label="Acentos">${['à', 'è', 'é', 'ì', 'ò', 'ù'].map((k) => `<button class="rev-acc__key" type="button" lang="it" data-key="${k}"${o.static ? ' tabindex="-1"' : ''}>${k}</button>`).join('')}</div>`;
+
+  let imgN = 0;
+  const image = (sm) => {
+    const id = 'rev-w' + (++imgN);
+    return `<figure class="rev-img${sm ? ' rev-img--sm' : ''}"><svg viewBox="0 0 200 160" role="img" aria-label="Imagem escolhida pelo aluno: janela de trem com colinas">
+      <defs><clipPath id="${id}"><rect x="28" y="20" width="144" height="112" rx="28"/></clipPath></defs>
+      <rect class="rev-svg-wall" width="200" height="160"/>
+      <g clip-path="url(#${id})"><rect class="rev-svg-sky" x="28" y="20" width="144" height="112"/><circle class="rev-svg-sun" cx="138" cy="52" r="11"/>
+        <path class="rev-svg-hill" d="M20 102 C52 78 84 84 104 94 C124 104 148 84 180 90 V140 H20 Z"/>
+        <path class="rev-svg-hill2" d="M20 118 C60 106 100 114 130 110 C150 108 168 112 180 114 V140 H20 Z"/></g>
+      <rect class="rev-svg-frame" x="28" y="20" width="144" height="112" rx="28"/>
+      <rect class="rev-svg-sill" x="0" y="142" width="200" height="18"/></svg></figure>`;
+  };
+  const imgAdd = (label = 'Adicionar imagem', st = '') => `<button class="rev-imgadd${st}" type="button" data-msg="Abre a galeria ou a câmera. A imagem é recortada em quadrado.">${ic('image-plus')}<span>${label}</span></button>`;
+
+  const field = (c, o) => {
+    const pre = c.ask === 'conj' ? `<span class="rev-field__pre" lang="it">${c.person}</span>` : '';
+    if (o.live) return `<label class="rev-field"${pin(o, 5)}><span class="visually-hidden">Resposta em italiano</span>${pre}<input class="rev-field__input" type="text" lang="it" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="done" placeholder="em italiano" data-answer></label>`;
+    if (o.result) {
+      const r = o.result, t = esc(o.typed || '');
+      const icon = { ok: 'check', almost: 'circle-dot', wrong: 'x', skip: 'eye-off' }[r.v];
+      const val = r.v === 'skip' ? 'sem resposta' : r.v === 'wrong' ? `<s>${t}</s>` : t;
+      return `<div class="rev-field rev-field--${r.v}">${pre}<span class="rev-field__value" lang="it">${val}</span>${ic(icon)}</div>`;
+    }
+    const v = o.typed ? `${esc(o.typed)}` : `<span class="rev-field__ph">em italiano</span>`;
+    return `<div class="rev-field${o.focus ? ' is-focus' : ''}"${pin(o, 5)}>${pre}<span class="rev-field__value" lang="it">${v}${o.focus ? '<span class="rev-field__caret" aria-hidden="true"></span>' : ''}</span></div>`;
+  };
+
+  /* the question block (shared by ask and answer screens) */
+  function question(c, o) {
+    const mode = o.img ? 'img' : o.def ? 'def' : c.ask;
+    let q = '';
+    if (mode === 'pt') q = `<p class="rev-q__pt"${pin(o, 3)}>${c.pt}</p>${c.note ? `<p class="rev-q__note">${c.note}</p>` : ''}`;
+    if (mode === 'img') q = `<div${pin(o, 3)} style="width:100%">${image()}</div>`;
+    if (mode === 'def') q = `<p class="rev-q__def" lang="it"${pin(o, 3)}>${c.def}</p>`;
+    if (['art', 'pl', 'conj'].includes(mode)) q = `<p class="rev-q__it" lang="it"${pin(o, 3)}>${c.word}</p>`;
+    const meta = {
+      pt: `<em>${c.pos}</em>`, img: `<em>${c.pos}</em>`, def: `<em>${c.pos}</em>`,
+      art: `<em>sostantivo</em>`, pl: `<em>${c.pos}</em> · singolare`, conj: `${c.tense} · <b>${c.person}</b>`,
+    }[mode];
+    return `<div class="rev-q"><p class="ui-label"${pin(o, 2)}>${c.kind}</p>${q}<p class="rev-q__meta" lang="it"${pin(o, 4)}>${meta}</p></div>`;
+  }
+  const hint = (c, o) => {
+    if (c.ask !== 'pt' || !c.hint || o.result) return '';
+    if (o.hintOpen) return `<p class="rev-cloze" lang="it">${c.hint}</p>`;
+    return `<div class="rev-hintwrap"${pin(o, 6)}><button class="ui-btn ui-btn--ghost ui-btn--sm rev-hint" type="button" data-act="hint"${o.live ? '' : ' data-msg="Mostra a frase da história com uma lacuna."'}>${ic('lightbulb')}Mostrar dica</button></div>`;
+  };
+  const opts = (c, o) => `<div class="rev-opts" role="group" aria-label="Artigo" lang="it">${c.opts.map((x) => {
+      let cls = '', mark = '';
+      if (o.picked) { if (x === c.answer) { cls = ' is-right'; mark = ic('check'); } else if (x === o.picked) { cls = ' is-wrong'; mark = ic('x'); } }
+      return `<button class="rev-opt${cls}" type="button" data-opt="${x}"${o.picked ? ' disabled' : ''}${o.live || o.picked ? '' : ' data-msg="A escolha já é a resposta."'}><span>${x}</span>${mark}</button>`;
+    }).join('')}</div>`;
+
+  function askBody(c, o) {
+    const input = c.ask === 'art' ? opts(c, o) : field(c, o);
+    return question(c, o) + `<p class="rev-instr">${INSTR[o.img ? 'img' : c.ask]}</p>` + input + hint(c, o);
+  }
+  const askActions = (c, o) => `<div class="rev-actions"${pin(o, 7)}>
+      <button class="ui-btn ui-btn--ghost" type="button" data-act="skip"${o.live ? '' : ' data-msg="Mostra a resposta. O cartão volta nesta revisão."'}>Não sei</button>
+      ${c.ask === 'art' ? '' : `<button class="ui-btn ui-btn--primary rev-actions__main" type="button" data-act="check"${o.live ? ' disabled' : o.typed ? ' data-msg="Confere a resposta."' : ' disabled'}>Conferir</button>`}
+    </div>`;
+
+  function askScreen(c, o) {
+    return sessionBar(o) + scroll(askBody(c, o)) + askActions(c, o) + (c.ask !== 'art' && (o.live || o.keyboard) ? accents(o) : '') + (o.keyboard ? keyboard() : '') + toastEl;
+  }
+
+  /* the answer block */
+  const ctxCard = (c, o) => c.ctx ? `<a class="rev-ctx" href="#telas"${pin(o, 13)} data-msg="Empilha a história no ${c.para}. Voltar retorna à revisão."><p class="rev-ctx__quote" lang="it">${c.ctx[0]}<span class="ui-word is-selected">${c.ctx[1]}</span>${c.ctx[2]}</p><span class="rev-ctx__src"><span>${it('Il treno per Bologna')} · ${c.para}</span>${ic('chevron-right')}</span></a>` : '';
+  function form(c, o) {
+    if (c.ask === 'pl') return `<div class="ui-table-wrap"${pin(o, 11)}><table class="ui-table" lang="it"><thead><tr><th scope="col">singolare</th><th scope="col">plurale</th></tr></thead><tbody><tr><td>${c.art} ${c.word}</td><td>${c.artPl} ${c.plural}</td></tr></tbody></table></div>`;
+    if (c.ask === 'conj') return `<div class="ui-table-wrap"${pin(o, 11)}><table class="ui-table" lang="it"><caption class="visually-hidden">Indicativo presente di sedersi</caption><thead><tr><th scope="col">persona</th><th scope="col">presente</th></tr></thead><tbody>${c.table.map(([p, f, alt], i) => {
+        const sp = f.indexOf(' ');
+        return `<tr${i === c.asked ? ' class="rev-asked"' : ''}><th scope="row">${p}</th><td><span class="rev-cl">${f.slice(0, sp)}</span>${f.slice(sp)}${alt ? `<span class="rev-alt">anche ${alt}</span>` : ''}${i === c.asked ? '<span class="rev-asked-tag" lang="pt-BR">pedida</span>' : ''}</td></tr>`;
+      }).join('')}</tbody></table></div>`;
+    return '';
+  }
+  function verdict(r, o) {
+    const [icon, text] = {
+      ok: ['check', r.hinted ? 'Certo, com dica.' : r.counted ? 'Contada como certa.' : 'Certo'],
+      almost: ['circle-dot', r.msg], wrong: ['x', 'Não é essa.'], skip: ['eye-off', 'Resposta'],
+    }[r.v];
+    return `<p class="rev-verdict rev-verdict--${r.v}" role="status"${pin(o, 8)}>${ic(icon)}<span>${text}</span></p>${r.note ? `<p class="rev-other">${r.note}</p>` : ''}`;
+  }
+  function answerBody(c, r, o) {
+    const head = c.ask === 'conj' ? c.answers[0] : c.ask === 'pl' ? `${c.artPl} ${c.plural}` : `${c.art} ${c.word}`;
+    const alt = c.ask === 'conj' ? `<p class="rev-answer__alt" lang="pt-BR">também ${it(c.answers[1])}</p>` : '';
+    const posLine = c.ask === 'pl' ? `<em>${c.pos}</em> · plurale` : c.ask === 'conj' ? `${it(c.word)} · <em>${c.tense.toLowerCase()}, ${c.person}</em>` : `<em>${c.pos}</em>`;
+    const links = [
+      `<button class="ui-btn ui-btn--ghost ui-btn--sm" type="button" data-msg="Empilha o verbete. Voltar retorna à revisão.">${ic('book-a')}Abrir verbete</button>`,
+      c.ask === 'pt' ? `<button class="ui-btn ui-btn--ghost ui-btn--sm" type="button" data-msg="Abre a galeria ou a câmera.">${ic('image-plus')}Adicionar imagem</button>` : '',
+      r.v === 'wrong' ? `<button class="ui-btn ui-btn--ghost ui-btn--sm" type="button" data-act="count"${o.live ? '' : ' data-msg="Troca a nota para Certo."'}>${ic('check')}Contar como certa</button>` : '',
+    ].join('');
+    return `${verdict(r, o)}
+      <p class="rev-next"${pin(o, 9)}>${ic('calendar')}${NEXT(c, r)}</p>
+      <section class="rev-answer" aria-label="Resposta">
+        <div class="rev-answer__head"><p class="rev-answer__word" lang="it"${pin(o, 10)}>${head}</p><button class="ui-iconbtn" type="button" aria-label="Ouvir pronúncia" data-msg="Lê “${head}” em voz alta.">${ic('volume-2')}</button></div>
+        ${alt}
+        <p class="ui-pos" lang="it">${posLine} · <span class="rev-nw"><span class="ipa">${c.ipa}</span></span></p>
+        <p class="rev-gloss"><span class="rev-gloss__tag" aria-hidden="true">PT</span><span><span class="visually-hidden">Tradução: </span>${c.gloss}</span></p>
+        ${form(c, o)}
+        ${c.rule ? `<div class="rev-rule"${pin(o, 12)}><p class="ui-label">Regra</p><p>${c.rule}</p></div>` : ''}
+        ${ctxCard(c, o)}
+        <div class="rev-links">${links}</div>
+      </section>`;
+  }
+  const questionDone = (c) => {
+    const p = { pt: c.pt, art: it(c.word), pl: it(c.word), conj: it(c.word) }[c.ask];
+    const meta = { pt: c.pos, art: 'sostantivo', pl: `${c.pos} · singolare`, conj: `${c.tense} · ${c.person}` }[c.ask];
+    return `<div class="rev-q"><p class="ui-label">${c.kind}</p><p class="rev-q__done">${p} <span class="rev-q__meta" lang="it">· ${meta}</span></p></div>`;
+  };
+  function answerScreen(c, r, o) {
+    const top = questionDone(c) + (c.ask === 'art' ? opts(c, { picked: r.picked || '—' }) : field(c, { result: r, typed: r.typed }));
+    return sessionBar(o) + scroll(top + answerBody(c, r, o), o.startAt) +
+      `<div class="rev-actions"><button class="ui-btn ui-btn--primary rev-actions__main" type="button" data-act="next"${o.live ? '' : ' data-msg="Próximo cartão."'}>Continuar</button></div>` + toastEl;
+  }
+
+  /* new word: presentation before the first test */
+  const introScreen = (o) => sessionBar(o) + scroll(`
+      <div class="rev-new">
+        <p class="rev-new__top"><span class="ui-label">Palavra nova</span><span class="rev-src">das mais comuns</span></p>
+        <div class="rev-new__head"><h3 class="ui-headword" lang="it">chiave</h3><button class="ui-iconbtn" type="button" aria-label="Ouvir pronúncia" data-msg="Lê “la chiave” em voz alta.">${ic('volume-2')}</button></div>
+        <div class="ui-pron" lang="it"><span class="ipa">/ˈkja.ve/</span></div>
+        <p class="ui-pos" lang="it"><em>sostantivo femminile</em> · <b>la chiave</b> · plurale <b>le chiavi</b></p>
+        <p class="rev-gloss"><span class="rev-gloss__tag" aria-hidden="true">PT</span><span><span class="visually-hidden">Tradução: </span>chave</span></p>
+      </div>
+      <ol class="ui-senses" role="list" lang="it"><li class="ui-sense"><p class="ui-sense__def">Strumento di metallo che serve ad aprire e chiudere una serratura.</p><ul class="ui-examples" role="list"><li class="ui-example">Ho perso le chiavi di casa.</li></ul></li></ol>
+      <div>${imgAdd()}</div>
+      <p class="rev-next">${ic('calendar')}A primeira pergunta vem daqui a 3 cartões.</p>`) +
+    `<div class="rev-actions"><button class="ui-btn ui-btn--secondary" type="button" data-msg="Tira a palavra da revisão. Dá para desfazer em Ajustes.">Já sei</button><button class="ui-btn ui-btn--primary rev-actions__main" type="button" data-msg="A palavra entra na revisão.">Aprender</button></div>` + toastEl;
+
+  const endScreen = (s) => `
+    <div class="ui-appbar"><button class="ui-iconbtn" type="button" aria-label="Encerrar revisão"${s.live ? ' data-act="restart"' : ' data-msg="Volta ao Dicionário."'}>${ic('x')}</button><p class="ui-appbar__title">Revisão</p><div class="ui-appbar__actions"></div></div>
+    <div class="rev-meter"><span class="rev-meter__bar"><span class="ui-progress" aria-hidden="true"><i style="--p:100%"></i></span></span><span class="rev-meter__count">${s.total} de ${s.total}</span></div>
+    <div class="phone__scroll"><div class="rev-done">
+      <p class="ui-label">Revisão de hoje</p>
+      <h3 class="rev-done__title">${s.total} cartões revisados</h3>
+      <dl class="rev-done__stats"><div><dt>Certos</dt><dd>${s.ok}</dd></div><div><dt>Quase</dt><dd>${s.almost}</dd></div><div><dt>Errados</dt><dd>${s.wrong}</dd></div></dl>
+      ${s.fresh ? `<p class="rev-done__text">${s.fresh}</p>` : ''}
+      <p class="rev-done__text">Próxima revisão amanhã, 9 cartões.</p>
+    </div></div>
+    <div class="rev-actions"><button class="ui-btn ui-btn--primary rev-actions__main" type="button"${s.live ? ' data-act="restart"' : ' data-msg="Volta à raiz do Dicionário."'}>Voltar ao Dicionário</button></div>${toastEl}`;
+
+  const row = (w, meta, saved) => `<li class="ui-row"><a class="ui-row__main" href="#telas" data-msg="Abre o verbete de “${w}”."><span class="ui-row__text"><span class="ui-row__title" lang="it">${w}</span><span class="ui-row__meta">${meta}</span></span></a><button class="ui-iconbtn ui-iconbtn--bookmark" type="button" aria-label="Salvar ${w}" aria-pressed="${saved}" tabindex="-1">${ic('bookmark')}</button></li>`;
+  const hero = (st = '', empty = false, tab = '') => empty
+    ? `<div class="ui-hero ui-hero--compact${st}"><p class="ui-hero__title">Nada para revisar agora</p><p class="ui-hero__sub">Próxima revisão amanhã, 9 cartões.</p></div>`
+    : `<a class="ui-hero ui-hero--compact${st}" href="#sessao"${tab}><span class="ui-hero__title">Revisão de hoje</span><span class="ui-hero__meta"><span>14 cartões · 5 palavras novas</span><span class="ui-hero__pct rev-hero-go">${ic('chevron-right')}</span></span></a>`;
+  const rootScreen = () => `
+    <div class="ui-appbar ui-appbar--large"><p class="ui-appbar__title">Dicionário</p><div class="ui-appbar__actions"><button class="ui-iconbtn" type="button" aria-label="Mais opções" data-msg="Mais opções: limpar histórico.">${ic('ellipsis')}</button></div></div>
+    <div class="phone__scroll">
+      <h3 class="ui-largetitle">Dicionário</h3>
+      <div class="rev-rootbar">
+        <a class="ui-search ui-search--link" href="#telas" data-msg="Abre a busca.">${ic('search')}<span>Buscar em italiano</span></a>
+        ${hero()}
+        <div style="display:grid"><div class="ui-segmented" role="group" aria-label="Lista"><button type="button" aria-pressed="true" tabindex="-1">Histórico</button><button type="button" aria-pressed="false" tabindex="-1">Salvas</button></div></div>
+      </div>
+      <div class="ui-sechead"><p class="ui-sechead__title"><span class="ui-label">Hoje</span></p></div>
+      <ul class="ui-list" role="list">${row('finestrino', `sostantivo maschile · ${it('Il treno per Bologna')}`, false)}${row('sedersi', `verbo · ${it('Il treno per Bologna')}`, false)}</ul>
+    </div>${tabbar('dic')}${toastEl}`;
+
+  const settingsScreen = () => {
+    const chip = (t, on, l) => `<button class="ui-chip" type="button" aria-pressed="${on}"${l ? ' lang="it"' : ''} data-toggle>${t}</button>`;
+    const srow = (t, v) => `<li class="ui-row ui-row--compact"><a class="ui-row__main" href="#telas" data-msg="Abre as opções de “${t}”."><span class="ui-row__title">${t}</span><span class="ui-row__value">${v}</span>${ic('chevron-right')}</a></li>`;
+    return `
+    <div class="ui-appbar is-scrolled"><button class="ui-iconbtn" type="button" aria-label="Voltar a Ajustes" data-msg="Volta a Ajustes.">${ic('chevron-left')}</button><p class="ui-appbar__title">Revisão</p><div class="ui-appbar__actions"></div></div>
+    <div class="phone__scroll"><div class="ui-scroll" tabindex="0" role="region" aria-label="Ajustes da revisão">
+      <div class="ui-sechead"><p class="ui-sechead__title"><span class="ui-label">Palavras novas</span></p></div>
+      <ul class="ui-list" role="list">${srow('Por dia', '10')}${srow('Origem', 'Salvas e mais comuns')}</ul>
+      <p class="rev-setnote">As salvas entram primeiro. Depois, as mais comuns do italiano, da mais frequente para a menos frequente.</p>
+      <div class="ui-sechead"><p class="ui-sechead__title"><span class="ui-label">Exercícios</span></p></div>
+      <div class="rev-chips" role="group" aria-label="Exercícios">${chip('Artigo', true)}${chip('Plural', true)}${chip('Conjugação', true)}</div>
+      <p class="rev-setnote">Palavra fica sempre ligado.</p>
+      <div class="ui-sechead"><p class="ui-sechead__title"><span class="ui-label">Tempos da conjugação</span></p></div>
+      <div class="rev-chips" role="group" aria-label="Tempos da conjugação">${chip('Presente', true, 1)}${chip('Passato prossimo', false, 1)}${chip('Imperfetto', false, 1)}${chip('Futuro', false, 1)}</div>
+      <div class="ui-sechead"><p class="ui-sechead__title"><span class="ui-label">Palavras</span></p></div>
+      <ul class="ui-list" role="list">${srow('Imagens', '3')}${srow('Palavras que já sei', '12')}</ul>
+    </div></div>${tabbar('set')}${toastEl}`;
+  };
+
+  /* ---------- screens ---------- */
+  const s = (n) => ({ n, total: 14 });
+  const SCREENS = [
+    { cap: '<strong>Aba Dicionário</strong> · revisão de hoje acima das listas', html: rootScreen },
+    { cap: '<strong>Palavra nova</strong> · apresentação antes da primeira pergunta', html: () => introScreen(s(1)) },
+    { cap: '<strong>Palavra</strong> · glosa PT, digitando', html: () => askScreen(C.finestrino, { ...s(4), typed: 'finestr', focus: true, keyboard: true }), home: 'surface-2' },
+    { cap: '<strong>Palavra</strong> · com a imagem do aluno', html: () => askScreen(C.finestrino, { ...s(4), img: true }) },
+    { cap: '<strong>Palavra</strong> · Imersão › Glosas em italiano: definição com lacuna', html: () => askScreen(C.finestrino, { ...s(4), def: true }) },
+    { cap: '<strong>Resposta</strong> · certo', html: () => answerScreen(C.finestrino, { v: 'ok', typed: 'finestrino' }, s(4)) },
+    { cap: '<strong>Resposta</strong> · certo, tema escuro', html: () => answerScreen(C.finestrino, { v: 'ok', typed: 'finestrino' }, s(4)), dark: true },
+    { cap: '<strong>Resposta</strong> · quase, falta o acento', html: () => answerScreen(C.citta, { v: 'almost', msg: 'Quase. Falta o acento.', typed: 'citta' }, s(9)) },
+    { cap: '<strong>Resposta</strong> · errado, com a glosa da palavra digitada', html: () => answerScreen(C.biglietto, { v: 'wrong', typed: 'tessera', note: `${it('«tessera»')} é carteirinha, cartão.` }, s(6)) },
+    { cap: '<strong>Artigo</strong> · toque numa opção', html: () => askScreen(C.cane, s(5)) },
+    { cap: '<strong>Artigo</strong> · errado, com a regra', html: () => answerScreen(C.cane, { v: 'wrong', picked: 'lo' }, s(5)) },
+    { cap: '<strong>Plural</strong> · pergunta', html: () => askScreen(C.binario, s(7)) },
+    { cap: '<strong>Conjugação</strong> · resposta com a tabela do tempo', html: () => answerScreen(C.sedersi, { v: 'ok', typed: 'si siedono' }, s(8)) },
+    { cap: '<strong>Fim</strong> · contagens e próxima revisão', html: () => endScreen({ total: 14, ok: 10, almost: 2, wrong: 2, fresh: `5 palavras novas: ${it('chiave, giornale, piano, fretta, sorridere')}.` }) },
+    { cap: '<strong>Ajustes › Revisão</strong>', html: settingsScreen },
+  ];
+  const phone = (sc, label) => `<figure class="phone" aria-label="${label.replace(/<[^>]+>/g, '')}"><div class="phone__device"><div class="phone__screen"${sc.dark ? ' data-theme="dark"' : ''}>${status}<div class="phone__body">${sc.html()}</div><div class="phone__home" aria-hidden="true"${sc.home ? ` style="background:var(--color-${sc.home})"` : ''}></div></div></div><figcaption class="phone__caption">${sc.cap}</figcaption></figure>`;
+
+  const M = {
+    screens: () => SCREENS.map((sc) => phone(sc, sc.cap)).join(''),
+    anatomy: () => phone({ cap: '<strong>Pergunta</strong> · pinos 1 a 7', html: () => askScreen(C.citta, { ...s(4), typed: 'citt', focus: true, pins: true }) }, 'Anatomia da pergunta') +
+      phone({ cap: '<strong>Resposta</strong> · pinos 8, 9, 10 e 13, rolada', html: () => answerScreen(C.finestrino, { v: 'ok', typed: 'finestrino' }, { ...s(4), pins: [8, 9, 10, 13], startAt: 'verdict' }) }, 'Anatomia da resposta') +
+      phone({ cap: '<strong>Resposta de Plural</strong> · pinos 11 e 12, rolada', html: () => answerScreen(C.binario, { v: 'ok', typed: 'binari' }, { ...s(7), pins: [11, 12], startAt: 'answer' }) }, 'Anatomia da resposta de Plural'),
+    'hero-states': () => [
+      [hero('', false, ' tabindex="-1"'), '<strong>Padrão</strong> · surface, título e contagem'],
+      [hero(' is-hover', false, ' tabindex="-1"'), '<strong>Hover</strong> · surface-2'],
+      [hero(' is-active', false, ' tabindex="-1"'), '<strong>Pressionado</strong> · surface-2'],
+      [hero(' is-focus', false, ' tabindex="-1"'), '<strong>Foco</strong> · anel de <code>--color-focus</code>'],
+      [hero('', true), '<strong>Sem cartões</strong> · não é link'],
+    ].map(([h, l]) => `<figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill">${h}</div></div><figcaption class="book-state__label">${l}</figcaption></figure>`).join(''),
+    'question-states': () => [
+      [question(C.finestrino, {}), '<strong>Glosa PT</strong> · com a classe como pista'],
+      [question(C.finestrino, { img: true }), '<strong>Imagem</strong> · alterna com a glosa'],
+      [question(C.finestrino, { def: true }), '<strong>Definição</strong> · Glosas em italiano'],
+      [question(C.cane, {}), '<strong>Artigo</strong> · sem o gênero'],
+      [question(C.sedersi, {}), '<strong>Conjugação</strong> · tempo e pessoa'],
+    ].map(([h, l]) => `<figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill">${h}</div></div><figcaption class="book-state__label">${l}</figcaption></figure>`).join(''),
+    'field-states': () => [
+      [field(C.finestrino, {}), '<strong>Padrão</strong> · placeholder em ink-faint'],
+      [field(C.finestrino, { focus: true }), '<strong>Foco</strong> · filete em tinta e anel'],
+      [field(C.sedersi, { typed: 'si siedono' }), '<strong>Preenchido</strong> · pessoa fixa à esquerda'],
+      [field(C.finestrino, { result: { v: 'ok' }, typed: 'finestrino' }), '<strong>Certo</strong> · ícone em <code>--color-success</code>'],
+      [field(C.citta, { result: { v: 'almost' }, typed: 'citta' }), '<strong>Quase</strong> · ícone, filete em tinta'],
+      [field(C.biglietto, { result: { v: 'wrong' }, typed: 'tessera' }), '<strong>Errado</strong> · riscado, <code>--color-error</code>'],
+      [field(C.biglietto, { result: { v: 'skip' } }), '<strong>Não sei</strong> · tracejado'],
+    ].map(([h, l]) => `<figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill">${h}</div></div><figcaption class="book-state__label">${l}</figcaption></figure>`).join(''),
+    'opt-states': () => [
+      ['', '<strong>Padrão</strong>'], [' is-hover', '<strong>Hover</strong> · surface'], [' is-active', '<strong>Pressionado</strong> · surface-2, filete em tinta'],
+      [' is-focus', '<strong>Foco</strong>'], [' is-right', '<strong>Certa</strong> · tinta e ícone', 'check'], [' is-wrong', '<strong>Errada</strong> · riscada, ícone', 'x'],
+      [' dis', '<strong>Desativada</strong> · as outras, depois da escolha'],
+    ].map(([st, l, i]) => `<figure class="book-state"><div class="book-state__stage on-bg"><button class="rev-opt${st === ' dis' ? '' : st}" type="button" tabindex="-1" lang="it"${st === ' dis' || i ? ' disabled' : ''}><span>${st === ' is-wrong' ? 'lo' : st === ' dis' ? 'la' : 'il'}</span>${i ? ic(i) : ''}</button></div><figcaption class="book-state__label">${l}</figcaption></figure>`).join(''),
+    'verdict-states': () => [
+      [{ v: 'ok' }, '<strong>Certo</strong> · <em>Good</em>'],
+      [{ v: 'ok', hinted: true }, '<strong>Certo com dica</strong> · <em>Hard</em>'],
+      [{ v: 'almost', msg: 'Quase. Falta o acento.' }, '<strong>Quase</strong> · <em>Hard</em>'],
+      [{ v: 'wrong', note: `${it('«tessera»')} é carteirinha, cartão.` }, '<strong>Errado</strong> · <em>Again</em>, glosa da palavra digitada'],
+      [{ v: 'skip' }, '<strong>Não sei</strong> · <em>Again</em>'],
+    ].map(([r, l]) => `<figure class="book-state"><div class="book-state__stage on-bg"><div class="rev-stage-col">${verdict(r, {})}</div></div><figcaption class="book-state__label">${l}</figcaption></figure>`).join(''),
+    'misc-states': () => [
+      [hint(C.citta, {}), '<strong>Dica fechada</strong> · ghost, só no exercício Palavra'],
+      [hint(C.citta, { hintOpen: true }), '<strong>Dica aberta</strong> · frase da história com lacuna'],
+      [`<div style="width:100%;display:grid">${accents({ static: true })}</div>`, '<strong>Barra de acentos</strong> · sobre o teclado, alvos de 44px'],
+      [imgAdd(), '<strong>Sem imagem</strong> · tracejado, abre galeria ou câmera'],
+      [`<div class="rev-imgrow">${image(true)}${imgAdd('Trocar imagem')}</div>`, '<strong>Com imagem</strong> · miniatura e troca'],
+    ].map(([h, l]) => `<figure class="book-state"><div class="book-state__stage on-bg"><div class="rev-stage-col">${h}</div></div><figcaption class="book-state__label">${l}</figcaption></figure>`).join(''),
+    dd: () => {
+      const tag = (ok) => ok ? `<span class="book-dd__tag book-dd__tag--do">${ic('check')}Faça</span>` : `<span class="book-dd__tag book-dd__tag--dont">${ic('x')}Não faça</span>`;
+      const fig = (stage, ok, text) => `<figure><div class="book-dd__stage">${stage}</div><figcaption>${tag(ok)}<br>${text}</figcaption></figure>`;
+      return [
+        fig(`<div class="rev-stage-col"><p class="rev-q__pt" style="font:var(--type-heading)">janela</p>${field(C.finestrino, { typed: 'finestrino' })}</div>`, true, 'No exercício Palavra, peça para escrever. Lembrar a palavra inteira é o que fixa.'),
+        fig(`<div class="rev-stage-col"><p class="rev-q__pt" style="font:var(--type-heading)">janela</p><div class="rev-opts" lang="it"><span class="rev-opt">finestrino</span><span class="rev-opt">binario</span><span class="rev-opt">serranda</span><span class="rev-opt">biglietto</span></div></div>`, false, 'Não ofereça quatro palavras para escolher. Reconhecer é mais fácil que lembrar e dura menos. Opções só no Artigo, que tem quatro respostas possíveis.'),
+        fig(`<div class="rev-stage-col">${verdict({ v: 'wrong' }, {})}<div class="rev-rule" style="width:100%"><p class="ui-label">Regra</p><p>Em -io com o i átono, o plural fica com um i só: ${it('binario → binari')}.</p></div></div>`, true, 'Mostre a regra aplicada à palavra logo depois do erro. É quando ela ensina.'),
+        fig(`<p class="rev-bad-red">Errado</p>`, false, 'Não pare num “Errado” vermelho e grande. Sem a resposta e o porquê, o erro não ensina.'),
+        fig(`<div class="rev-stage-col"><p class="rev-done__title" style="font:var(--type-heading)">14 cartões revisados</p><p class="rev-done__text">Próxima revisão amanhã, 9 cartões.</p></div>`, true, 'Termine com números e a próxima data. A recompensa é ler melhor a próxima história.'),
+        fig(`<div class="rev-stage-col"><span class="rev-bad-flame">${ic('flame')}12 dias seguidos</span><p class="rev-done__text">+140 pontos</p></div>`, false, 'Sem sequência de dias, pontos ou confete (spec, seção 10). Eles premiam abrir o app, não lembrar a palavra.'),
+      ].join('');
+    },
+  };
+  document.querySelectorAll('[data-mount]').forEach((el) => { el.innerHTML = M[el.dataset.mount](); });
+
+  const position = () => document.querySelectorAll('[data-start]').forEach((sc) => {
+    const t = sc.querySelector({ verdict: '.rev-verdict', answer: '.rev-answer' }[sc.dataset.start]);
+    if (t) sc.scrollTop = t.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop - 12;
+  });
+  position();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(position);
+
+  /* ---------- live session ---------- */
+  const live = document.querySelector('[data-live-session]');
+  const S = { i: 0, res: null, hint: false, log: [] };
+  const icons = () => { if (window.lucide) lucide.createIcons({ attrs: { 'stroke-width': 1.5, width: 24, height: 24 } }); };
+  function render(focus) {
+    const o = { n: S.i + 1, total: LIVE.length, live: true, hintOpen: S.hint };
+    if (S.i >= LIVE.length) {
+      const n = (v) => S.log.filter((x) => x === v).length;
+      live.innerHTML = endScreen({ live: true, total: LIVE.length, ok: n('ok'), almost: n('almost'), wrong: n('wrong') + n('skip') });
+    } else {
+      const c = C[LIVE[S.i]];
+      live.innerHTML = S.res ? answerScreen(c, S.res, o) : askScreen(c, o);
+    }
+    icons();
+    if (focus) {
+      const t = live.querySelector(S.res || S.i >= LIVE.length ? '.rev-actions .ui-btn' : '[data-answer], .rev-opt');
+      if (t) t.focus({ preventScroll: true });
+    }
+  }
+  function settle(r) {
+    if (S.hint && r.v === 'ok') r.hinted = true;
+    S.res = r; S.log[S.i] = r.v; render(true);
+  }
+  function check() {
+    const inp = live.querySelector('[data-answer]'); if (!inp) return;
+    const r = grade(C[LIVE[S.i]], inp.value); if (!r) return;
+    settle({ ...r, typed: inp.value.trim() });
+  }
+  live.addEventListener('input', (e) => {
+    if (!e.target.matches('[data-answer]')) return;
+    live.querySelector('[data-act="check"]').disabled = !e.target.value.trim();
+  });
+  live.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.matches('[data-answer]')) { e.preventDefault(); check(); } });
+  live.addEventListener('mousedown', (e) => { if (e.target.closest('[data-key]')) e.preventDefault(); });  /* keep the caret in the field */
+  live.addEventListener('click', (e) => {
+    const k = e.target.closest('[data-key]');
+    if (k) {
+      const inp = live.querySelector('[data-answer]'); if (!inp) return;
+      const a = inp.selectionStart ?? inp.value.length, b = inp.selectionEnd ?? a;
+      inp.value = inp.value.slice(0, a) + k.dataset.key + inp.value.slice(b);
+      inp.focus(); inp.setSelectionRange(a + 1, a + 1);
+      inp.dispatchEvent(new Event('input', { bubbles: true }));
+      return;
+    }
+    const opt = e.target.closest('[data-opt]');
+    if (opt && !opt.disabled) { const c = C[LIVE[S.i]]; settle({ v: opt.dataset.opt === c.answer ? 'ok' : 'wrong', picked: opt.dataset.opt }); return; }
+    const act = e.target.closest('[data-act]'); if (!act) return;
+    const a = act.dataset.act;
+    if (a === 'check') check();
+    else if (a === 'skip') settle({ v: 'skip' });
+    else if (a === 'hint') {
+      const typed = live.querySelector('[data-answer]').value;
+      S.hint = true; render(false);
+      const inp = live.querySelector('[data-answer]'); inp.value = typed; inp.focus({ preventScroll: true });
+      inp.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    else if (a === 'count') { S.res = { ...S.res, v: 'ok', counted: true, note: '' }; S.log[S.i] = 'ok'; render(true); }
+    else if (a === 'next') { S.i++; S.res = null; S.hint = false; render(true); }
+    else if (a === 'restart') { S.i = 0; S.res = null; S.hint = false; S.log = []; render(true); toast(live, 'No app, volta ao Dicionário. Aqui, a sessão recomeça.'); }
+  }, true);
+  render(false);
+
+  /* ---------- static behaviour ---------- */
+  function toast(from, msg) {
+    const scr = from.closest('.phone__screen'); if (!scr) return;
+    const t = scr.querySelector('.ui-toast'); if (!t) return;
+    t.textContent = msg; t.classList.add('is-shown');
+    clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('is-shown'), 2600);
+  }
+  document.addEventListener('click', (e) => {
+    const chip = e.target.closest('[data-toggle]');
+    if (chip) { chip.setAttribute('aria-pressed', chip.getAttribute('aria-pressed') !== 'true'); return; }
+    const m = e.target.closest('[data-msg]');
+    if (m && m.closest('.phone')) { e.preventDefault(); toast(m, m.dataset.msg); return; }
+    const a = e.target.closest('.phone a[href]');
+    if (a && !a.closest('[data-live-session]') && a.getAttribute('href') !== '#sessao') e.preventDefault();
+  });
+
+  /* theme toggle: auto → light → dark (shared, copy verbatim) */
+  const btn = document.querySelector('[data-theme-toggle]');
+  if (btn) {
+    const order = ['auto', 'light', 'dark'], label = { auto: 'automático', light: 'claro', dark: 'escuro' };
+    let i = 0;
+    btn.addEventListener('click', () => {
+      i = (i + 1) % 3; const t = order[i];
+      if (t === 'auto') document.documentElement.removeAttribute('data-theme');
+      else document.documentElement.setAttribute('data-theme', t);
+      btn.textContent = 'Tema: ' + label[t];
+    });
+  }
+})();
+</script>
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<script>
+  if (window.lucide) lucide.createIcons({ attrs: { 'stroke-width': 1.5, width: 24, height: 24 } });
+</script>
+</body>
+</html>

@@ -63,12 +63,12 @@ próxima abertura ─► troca o ponteiro para a versão pronta ─► apaga a a
 
 ## 4. Bancos no aparelho
 
-Os três bancos de OFF-34: `user` (dados do usuário), `stories` e `dict`. O esquema de `stories` e `dict` é definido em `postilla-content` (ARQ-07).
+Os bancos de OFF-34: `user` (dados do usuário), `stories`, `dict` e `log` (ARQ-80). O esquema de `stories` e `dict` é definido em `postilla-content` (ARQ-07).
 
 | Id | Decisão | Motivo |
 |---|---|---|
 | ARQ-30 | O app acessa o SQLite pelo pacote `sqlite3` (FFI), com SQL escrito à mão. | Sem geração de código e sem camada entre o app e o SQL. |
-| ARQ-31 | Todas as consultas, nos três bancos, rodam num isolate dedicado. A UI recebe os resultados por mensagem. | O `sqlite3` é síncrono. Fora do isolate da UI, uma consulta lenta não trava a tela. |
+| ARQ-31 | Todas as consultas, em todos os bancos, rodam num isolate dedicado. A UI recebe os resultados por mensagem. | O `sqlite3` é síncrono. Fora do isolate da UI, uma consulta lenta não trava a tela. |
 | ARQ-32 | O esquema do `user` evolui por scripts SQL numerados (`001.sql`, `002.sql`…). `PRAGMA user_version` guarda o último aplicado, e cada script roda numa transação. Só para frente. | Migração explícita e fácil de revisar. |
 | ARQ-33 | Todo registro do `user` tem `id` UUID v7, `created_at`, `updated_at` e `deleted_at`. As datas são inteiros em ms desde a epoch, em UTC. | Ids únicos entre aparelhos e datas comparáveis permitem sync futuro sem migração de modelo (OFF-31). |
 | ARQ-34 | Remover uma palavra salva ou limpar o histórico preenche `deleted_at`, e as listas filtram essas linhas. | O sync futuro sabe o que foi removido. |
@@ -89,11 +89,53 @@ Tabelas do `user` (além das colunas do ARQ-33):
 
 ## 5. App Flutter
 
+O código do app e do pipeline segue os princípios do [AGENTS.md](../AGENTS.md). As decisões abaixo dizem como alguns deles viram escolhas concretas.
+
+| Id | Decisão | Motivo |
+|---|---|---|
+| ARQ-40 | Não há camadas entre a tela e o SQL. O módulo `db` tem uma função por consulta (`dbSavedList`, `dbProgressSet`…), que manda o SQL ao isolate (ARQ-31) e devolve structs. A tela chama essas funções direto. Não há repository, use case nem interface. | Menos código e menos conceitos. Dá para seguir uma ação da tela até o SQL no debugger. |
+| ARQ-41 | O estado de cada tela fica no `State` do próprio `StatefulWidget`. Uma classe de estado separada só aparece onde dividir estado entre telas for necessário, caso a caso. | O Flutter já dá o `State`, então nenhum conceito novo por tela. |
+| ARQ-42 | Os ajustes que valem para o app todo (tema, leitura, Imersão) ficam num struct imutável `Settings`, num `ValueNotifier<Settings>` na raiz, exposto por `InheritedNotifier`. Mudar um ajuste grava no `db` e troca o valor. | Um estado global só, com o que o Flutter já tem. Tema e Imersão mudam na hora (LEI-08, AJU-03). |
+| ARQ-43 | Depois de desempilhar uma tela, a tela que ficou embaixo relê as salvas (`await` do push). Não há conjunto de salvas global. | Uma consulta indexada resolve o SAL-05, sem estado compartilhado para manter igual ao banco. |
+| ARQ-44 | A navegação é feita à mão: um `IndexedStack` com um `Navigator` por aba, e o `Navigator` raiz para o Leitor e o verbete do Leitor em tela cheia. O voltar do Android passa pelo `NavigatorPopHandler`. | Sem pacote e sem tabela de rotas. O push leva direto ao widget, com argumentos tipados. O app não tem deep links. |
+| ARQ-45 | Uma pasta por tela (`library/`, `reader/`, `dictionary/`, `settings/`), mais `db/` e `ui/` (componentes do design system). | Quem mexe numa tela acha tudo dela numa pasta só. |
+| ARQ-47 | Ids e unidades têm tipos distintos, feitos com `extension type` (`StoryId`, `ParagraphIndex`, `CharOffset`, `WordKey`…). | O compilador impede misturar um `StoryId` com uma `String` qualquer, sem alocação em runtime. |
+| ARQ-48 | A linha do SQLite e o JSON do verbete (`entry.data`) viram struct no isolate do banco, que manda os structs prontos para a UI. | Parse na borda: a UI nunca vê linha crua nem JSON, e o parse do verbete não pesa no isolate da UI. |
+| ARQ-49 | Uma função do `db` nunca devolve `null` nem lança exceção. Se não acha nada ou falha, devolve o valor zero: um sentinela const (`Story.nil`, `Entry.nil`) ou uma lista vazia. A falha vai para o log (ARQ-80). | Quem chama tem um caminho só, sem `if (x == null)` nem `try/catch` na tela. |
+| ARQ-46 | Os textos de interface seguem o padrão abstract class + uma classe por língua + global trocável, com uma classe por área da Imersão que tem texto: `NavStrings nav`, `UiStrings ui` e `DictStrings dict`, cada uma com versão `Portuguese` e `Italian`. Quando a Imersão muda, o app troca os globais e então notifica o `ValueNotifier<Settings>`. A área Glosas não tem texto: ela só decide se a glosa aparece. | Sem geração de código. O compilador impede usar um texto da área errada. |
+
+```
+Navigator raiz
+ ├─ Shell: IndexedStack + barra de abas
+ │   ├─ Navigator Biblioteca
+ │   ├─ Navigator Dicionário   (verbetes da aba, até 20, DIC-06)
+ │   └─ Navigator Ajustes
+ ├─ Leitor                     (push no raiz, sem barra)
+ └─ Verbete do Leitor          (push no raiz, sem barra)
+```
+
+```dart
+NavStrings  nav  = NavPortuguese();
+UiStrings   ui   = UiPortuguese();
+DictStrings dict = DictPortuguese();
+
+Text(nav.library)
+Text(dict.synonyms)   // Sinonimi | Sinônimos
+```
+
 ## 6. Leitor
 
 ## 7. Dicionário
 
 ## 8. Integrações do sistema
+
+### Diagnóstico
+
+| Id | Decisão | Motivo |
+|---|---|---|
+| ARQ-80 | O log do app (`appLog`) é gravado num quarto banco, `log`, separado do `user`. Ele não entra no Exportar/Importar (AJU-05) nem no backup do sistema. | Um `user` corrompido não leva o log junto, e o log não se mistura aos dados do usuário. |
+| ARQ-81 | O `log` guarda os últimos 30 dias. As linhas mais antigas são apagadas ao gravar. | Cobre o intervalo comum entre um problema e o usuário decidir relatar. |
+| ARQ-82 | O log só sai do aparelho se o usuário enviar: Ajustes › Sobre › Enviar diagnóstico (AJU-06) abre o e-mail do sistema com o `log` anexado. | Sem telemetria (OFF-03). O usuário vê o e-mail antes de enviar. |
 
 ## 9. Pipeline
 

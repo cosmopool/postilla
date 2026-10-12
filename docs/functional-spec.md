@@ -52,7 +52,7 @@ Primeiro requisito do app. Toda funcionalidade funciona sem conexão, sempre, in
 | | • uma palavra salva guarda um resumo próprio (lema, classe, história de origem) e continua na lista mesmo se o verbete mudar ou sair do dicionário. Se o verbete sair, tocar na palavra abre a busca com o lema e o "Você quis dizer" (DIC-11); |
 | | • o progresso aponta para história + parágrafo. Se o texto da história mudar, o progresso vai para o parágrafo mais próximo que ainda existe. |
 | OFF-33 | Apagar o app apaga os dados. O backup do sistema (iCloud/Google) pode restaurá-los, mas o app não depende dele. |
-| OFF-34 | Há três bancos separados no aparelho: dados do usuário, histórias e dicionário. Só o banco do usuário é exportado e importado (AJU-05). Atualizar o conteúdo nunca toca o banco do usuário. |
+| OFF-34 | Há quatro bancos separados no aparelho: dados do usuário, histórias, dicionário e log do app (ARQ-80). Só o banco do usuário é exportado e importado (AJU-05). Atualizar o conteúdo nunca toca o banco do usuário. |
 
 ### Pronúncia
 
@@ -163,6 +163,7 @@ O book de Ajustes ainda não existe (`book-ajustes.html` está previsto). Por en
 | AJU-03 | Predefinições de Imersão: Iniciante (tudo em português, padrão), Intermediário (dicionário em italiano), Imersão total (tudo em italiano). Qualquer outra combinação é Personalizado. Efeito imediato. Não há onboarding: o app começa em Iniciante sem perguntar, e o usuário muda em Ajustes › Imersão. |
 | AJU-04 | **Sobre:** versão do app, versão do conteúdo (OFF-13) e créditos (Wiktionary CC BY-SA, wiktextract). |
 | AJU-05 | **Dados:** Exportar e Importar o banco do usuário como um arquivo, pela folha de compartilhar e pelo seletor de arquivos do sistema. O arquivo não inclui histórias nem dicionário. Importar substitui os dados atuais: o app pede confirmação e guarda antes uma cópia automática dos dados atuais, para poder desfazer. |
+| AJU-06 | **Sobre › Enviar diagnóstico:** abre o app de e-mail do sistema com destinatário (postilla@kaiodelphino.com), assunto, corpo preenchido (versões do app e do conteúdo) e o log dos últimos 30 dias anexado (ARQ-80..82). Nada sai do aparelho sem o usuário enviar o e-mail. |
 
 ## 9. Acessibilidade
 

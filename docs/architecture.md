@@ -63,7 +63,7 @@ próxima abertura ─► troca o ponteiro para a versão pronta ─► apaga a a
 
 ## 4. Bancos no aparelho
 
-Os bancos de OFF-34: `user` (dados do usuário), `stories`, `dict` e `log` (ARQ-80). O esquema de `stories` e `dict` é definido em `postilla-content` (ARQ-07).
+Os bancos de OFF-34: `user` (dados do usuário), `stories`, `dict` e `log` (ARQ-70). O esquema de `stories` e `dict` é definido em `postilla-content` (ARQ-07).
 
 | Id | Decisão | Motivo |
 |---|---|---|
@@ -72,7 +72,7 @@ Os bancos de OFF-34: `user` (dados do usuário), `stories`, `dict` e `log` (ARQ-
 | ARQ-32 | O esquema do `user` evolui por scripts SQL numerados (`001.sql`, `002.sql`…). `PRAGMA user_version` guarda o último aplicado, e cada script roda numa transação. Só para frente. | Migração explícita e fácil de revisar. |
 | ARQ-33 | Todo registro do `user` tem `id` UUID v7, `created_at`, `updated_at` e `deleted_at`. As datas são inteiros em ms desde a epoch, em UTC. | Ids únicos entre aparelhos e datas comparáveis permitem sync futuro sem migração de modelo (OFF-31). |
 | ARQ-34 | Remover uma palavra salva ou limpar o histórico preenche `deleted_at`, e as listas filtram essas linhas. | O sync futuro sabe o que foi removido. |
-| ARQ-35 | O `user` aponta para o verbete pela chave natural lema + classe (`"binario"`, `"sostantivo"`), nunca pelo `entry.id`. | O `entry.id` muda a cada build do `dict`. Lema + classe sobrevive às versões, e um verbete que saiu cai no OFF-32. |
+| ARQ-35 | O `user` nunca aponta para o `entry.id`. Uma palavra salva é só o lema, como texto (`"serranda"`), sem classe. O histórico aponta para o verbete por lema + classe (`"binario"`, `"sostantivo"`). | O `entry.id` muda a cada build do `dict`, e o lema sobrevive às versões. Fora do Leitor o app não conhece a forma tocada, então a salva é pelo lema. Salvar "binario" marca como salvos os dois verbetes de "binario" (substantivo e adjetivo). O histórico tem uma linha por verbete (SAL-01), então guarda a classe. Um verbete que saiu do `dict` cai no OFF-32. |
 | ARQ-36 | Cada história tem um UUID escrito na fonte, que nunca muda. Progresso, salvas e histórico apontam para esse UUID. | Renomear ou corrigir a história não quebra o vínculo. |
 | ARQ-37 | O progresso aponta para o parágrafo pela posição. Se a história encolher, o progresso vai para o último parágrafo que existe (OFF-32). O deslocamento dentro do parágrafo (LEI-07) é o índice do primeiro caractere visível. | Posição é o mais simples. O índice de caractere sobrevive a mudanças de tamanho do texto e rotação. Uma edição no meio da história desloca o progresso, e isso foi aceito. |
 | ARQ-38 | Os ajustes ficam numa tabela chave-valor do `user`. | Entram no Exportar/Importar (AJU-05) e no sync futuro. |
@@ -84,7 +84,7 @@ Tabelas do `user` (além das colunas do ARQ-33):
 |---|---|---|
 | `progress` | `story_id`, `paragraph` (posição), `offset` (caractere), `status` (andamento \| lida), `last_opened_at`. Sem linha, a história é nova. | BIB-02, BIB-03, LEI-07 |
 | `history` | `day` (data local), `lemma`, `pos`, `story_id`. Única por `day` + `lemma` + `pos`. | SAL-01 |
-| `saved` | `lemma`, `pos`, resumo (classe, história de origem), `story_id`. | SAL-02, OFF-32, LEI-10 |
+| `saved` | `lemma` (texto, chave), resumo (classe, história de origem), `story_id`. | SAL-02, OFF-32, LEI-10 |
 | `setting` | `key`, `value` (JSON): leitura, Imersão, proporção da tradução, ordenação das Salvas, dicas vistas, aviso de histórias novas. | OFF-30, ARQ-26 |
 
 ## 5. App Flutter
@@ -101,7 +101,7 @@ O código do app e do pipeline segue os princípios do [AGENTS.md](../AGENTS.md)
 | ARQ-45 | Uma pasta por tela (`library/`, `reader/`, `dictionary/`, `settings/`), mais `db/` e `ui/` (componentes do design system). | Quem mexe numa tela acha tudo dela numa pasta só. |
 | ARQ-47 | Ids e unidades têm tipos distintos, feitos com `extension type` (`StoryId`, `ParagraphIndex`, `CharOffset`, `WordKey`…). | O compilador impede misturar um `StoryId` com uma `String` qualquer, sem alocação em runtime. |
 | ARQ-48 | A linha do SQLite e o JSON do verbete (`entry.data`) viram struct no isolate do banco, que manda os structs prontos para a UI. | Parse na borda: a UI nunca vê linha crua nem JSON, e o parse do verbete não pesa no isolate da UI. |
-| ARQ-49 | Uma função do `db` nunca devolve `null` nem lança exceção. Se não acha nada ou falha, devolve o valor zero: um sentinela const (`Story.nil`, `Entry.nil`) ou uma lista vazia. A falha vai para o log (ARQ-80). | Quem chama tem um caminho só, sem `if (x == null)` nem `try/catch` na tela. |
+| ARQ-49 | Uma função do `db` nunca devolve `null` nem lança exceção. Se não acha nada ou falha, devolve o valor zero: um sentinela const (`Story.nil`, `Entry.nil`) ou uma lista vazia. A falha vai para o log (ARQ-70). | Quem chama tem um caminho só, sem `if (x == null)` nem `try/catch` na tela. |
 | ARQ-46 | Os textos de interface seguem o padrão abstract class + uma classe por língua + global trocável, com uma classe por área da Imersão que tem texto: `NavStrings nav`, `UiStrings ui` e `DictStrings dict`, cada uma com versão `Portuguese` e `Italian`. Quando a Imersão muda, o app troca os globais e então notifica o `ValueNotifier<Settings>`. A área Glosas não tem texto: ela só decide se a glosa aparece. | Sem geração de código. O compilador impede usar um texto da área errada. |
 
 ```
@@ -125,6 +125,16 @@ Text(dict.synonyms)   // Sinonimi | Sinônimos
 
 ## 6. Leitor
 
+| Id | Decisão | Motivo |
+|---|---|---|
+| ARQ-50 | O pipeline divide o texto em palavras e frases e grava no `stories`, por parágrafo, o início e o fim de cada palavra e de cada frase, em italiano e em português. Elisões (l'aria, c'è) são uma palavra só. O app só lê esses spans. | Um tokenizador só, em Python, testado no build. As contagens de palavras do LEI-07 e os pares de frase do TRA-08 saem prontos. |
+| ARQ-51 | Cada parágrafo é um `RenderBox` próprio com um `TextPainter`. Ele faz o layout, guarda o retângulo de cada palavra num array, resolve o toque e o arrasto da seleção pelo retângulo mais próximo (caixa ampliada), pinta grifo, frase marcada e pontilhado, e cria um nó de semântica por palavra. | O Leitor é o centro do app: o que importa fica grande e num lugar só. Sem widget nem recognizer por palavra, e a semântica fica sob controle (ACE-03, ACE-04). |
+| ARQ-52 | Todos os parágrafos fazem layout ao abrir a história, numa coluna não preguiçosa. O topo de cada parágrafo fica num array. | Com histórias de até ~2.000 palavras, o custo é aceitável. Progresso (LEI-07), restaurar a posição (ARQ-37) e sincronizar a tela dividida (TRA-07) viram busca binária nesse array. |
+| ARQ-53 | Ao abrir a história, o app resolve em lote forma → lema: uma consulta no `dict` com as formas distintas da história. Os lemas ficam num array paralelo aos spans de palavra e servem ao toque (LEI-02) e ao pontilhado (SAL-05). | Uma consulta só por história. O `stories` não depende da versão do `dict`, e o conteúdo continua sem anotação de lema (LEI-02). |
+| ARQ-54 | Uma palavra ganha pontilhado quando qualquer um dos lemas da forma está salvo. Com "serranda" salva, "serrande" é pontilhada. Com "portare" salvo, todo "porta" do texto é pontilhado, mesmo quando é o substantivo. | Sem anotação de lema, o app não sabe o sentido da palavra no texto. A regra nunca deixa de pontilhar uma palavra salva, e aceita pontilhar a mais nas formas ambíguas. |
+| ARQ-55 | O progresso é gravado quando a rolagem para, ao empilhar um verbete e quando o app vai para segundo plano. | Poucas escritas e nenhuma durante o gesto. Cobre o LEI-07, inclusive o sistema encerrar o app com um verbete aberto. |
+| ARQ-56 | Na tela dividida (TRA-07), a metade que lidera informa o parágrafo do topo e a fração dele já rolada. A outra metade rola para o mesmo parágrafo e a mesma fração. | Acompanha suave dentro do parágrafo, mesmo com italiano e português de alturas diferentes. |
+
 ## 7. Dicionário
 
 ## 8. Integrações do sistema
@@ -133,9 +143,9 @@ Text(dict.synonyms)   // Sinonimi | Sinônimos
 
 | Id | Decisão | Motivo |
 |---|---|---|
-| ARQ-80 | O log do app (`appLog`) é gravado num quarto banco, `log`, separado do `user`. Ele não entra no Exportar/Importar (AJU-05) nem no backup do sistema. | Um `user` corrompido não leva o log junto, e o log não se mistura aos dados do usuário. |
-| ARQ-81 | O `log` guarda os últimos 30 dias. As linhas mais antigas são apagadas ao gravar. | Cobre o intervalo comum entre um problema e o usuário decidir relatar. |
-| ARQ-82 | O log só sai do aparelho se o usuário enviar: Ajustes › Sobre › Enviar diagnóstico (AJU-06) abre o e-mail do sistema com o `log` anexado. | Sem telemetria (OFF-03). O usuário vê o e-mail antes de enviar. |
+| ARQ-70 | O log do app (`appLog`) é gravado num quarto banco, `log`, separado do `user`. Ele não entra no Exportar/Importar (AJU-05) nem no backup do sistema. | Um `user` corrompido não leva o log junto, e o log não se mistura aos dados do usuário. |
+| ARQ-71 | O `log` guarda os últimos 30 dias. As linhas mais antigas são apagadas ao gravar. | Cobre o intervalo comum entre um problema e o usuário decidir relatar. |
+| ARQ-72 | O log só sai do aparelho se o usuário enviar: Ajustes › Sobre › Enviar diagnóstico (AJU-06) abre o e-mail do sistema com o `log` anexado. | Sem telemetria (OFF-03). O usuário vê o e-mail antes de enviar. |
 
 ## 9. Pipeline
 

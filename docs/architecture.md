@@ -18,7 +18,7 @@ Documentos relacionados:
 | ARQ-03 | Dois repositórios: `postilla` (app Flutter e docs do app) e `postilla-content` (pipeline e fontes das histórias). | App e conteúdo têm ciclos de release separados. O app recebe conteúdo novo sem versão nova na loja. |
 | ARQ-04 | `postilla-content` é público. | Os pacotes ficam nas Releases dele, e o app baixa sem token. |
 | ARQ-05 | Os pacotes de conteúdo são publicados como GitHub Releases de `postilla-content`. | Sem custo e no mesmo lugar do código que gera os pacotes. |
-| ARQ-06 | A URL do manifesto embutida no app usa um domínio próprio, que aponta para o GitHub. | Trocar de host não exige versão nova do app. |
+| ARQ-06 | A URL do manifesto embutida no app é `https://postilla.kaiodelphino.com/content/manifest.json`. O manifesto é servido pelo GitHub Pages de `postilla-content`, com esse domínio configurado, e as URLs dos pacotes dentro dele apontam direto para as Releases. | Trocar de host não exige versão nova do app: só a URL do manifesto fica embutida. Um domínio não aponta por CNAME para um arquivo de Release, então o manifesto fica no Pages. O `/content` deixa a raiz livre para um site do app. |
 | ARQ-07 | `postilla-content` define o contrato entre os repositórios: esquema dos bancos de conteúdo e formato do manifesto. O app segue esse contrato. | Quem gera o dado documenta o formato. |
 | ARQ-08 | [dictionary.md](dictionary.md) e [dictionary-pipeline.md](dictionary-pipeline.md) mudam para `postilla-content`. | A doc fica junto do código que ela descreve. |
 
@@ -207,7 +207,6 @@ O pipeline, o formato-fonte das histórias e o contrato ficam em `postilla-conte
 
 | Tema | O que falta |
 |---|---|
-| Domínio do manifesto | O ARQ-06 pede um domínio próprio, mas falta escolher qual e o caminho do manifesto. |
 | Revisão | O [book-revisao.html](design/book-revisao.html) prevê cartões com FSRS. Falta a arquitetura: tabelas de cartão e de histórico de respostas no `user`, NVdB e imagens no conteúdo. Fica para quando o desenho for aprovado e os requisitos `REV-` entrarem na spec funcional. |
 | Semântica do Leitor | O ACE-03 pede leitura por parágrafo e cada palavra como botão. Como o RenderBox (ARQ-51) monta os nós de semântica para atender os dois só se valida no aparelho, com VoiceOver e TalkBack. |
 | Pedidos ao `postilla-content` | Os itens da seção 9 que o `dict` e o `stories` ainda não têm precisam ser aceitos lá: coluna normalizada (ARQ-63), rank NVdB (ARQ-64), nomes de gênero em português e italiano, spans de palavra e frase (ARQ-50) e histórias adicionadas por versão (ARQ-26). |

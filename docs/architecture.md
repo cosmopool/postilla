@@ -99,10 +99,10 @@ O código do app e do pipeline segue os Core Principles do [AGENTS.md](../AGENTS
 | ARQ-43 | Depois de desempilhar uma tela, a tela que ficou embaixo relê as salvas (`await` do push). Não há conjunto de salvas global. | Uma consulta indexada resolve o SAL-05, sem estado compartilhado para manter igual ao banco. |
 | ARQ-44 | A navegação é feita à mão: um `IndexedStack` com um `Navigator` por aba, e o `Navigator` raiz para o Leitor e o verbete do Leitor em tela cheia. O voltar do Android passa pelo `NavigatorPopHandler`. | Sem pacote e sem tabela de rotas. O push leva direto ao widget, com argumentos tipados. O app não tem deep links. |
 | ARQ-45 | Uma pasta por tela (`library/`, `reader/`, `dictionary/`, `settings/`), mais `db/` e `ui/` (componentes do design system). | Quem mexe numa tela acha tudo dela numa pasta só. |
+| ARQ-46 | Os textos de interface seguem o padrão abstract class + uma classe por língua + global trocável, com uma classe por área da Imersão que tem texto: `NavStrings nav`, `UiStrings ui` e `DictStrings dict`, cada uma com versão `Portuguese` e `Italian`. Quando a Imersão muda, o app troca os globais e então notifica o `ValueNotifier<Settings>`. A área Glosas não tem texto: ela só decide se a glosa aparece. | Sem geração de código. O compilador impede usar um texto da área errada. |
 | ARQ-47 | Ids e unidades têm tipos distintos, feitos com `extension type` (`StoryId`, `ParagraphIndex`, `CharOffset`, `WordKey`…). | O compilador impede misturar um `StoryId` com uma `String` qualquer, sem alocação em runtime. |
 | ARQ-48 | A linha do SQLite e o JSON do verbete (`entry.data`) viram struct no isolate do banco, que manda os structs prontos para a UI. | Parse na borda: a UI nunca vê linha crua nem JSON, e o parse do verbete não pesa no isolate da UI. |
 | ARQ-49 | Uma função do `db` nunca devolve `null` nem lança exceção. Se não acha nada ou falha, devolve o valor zero: um sentinela const (`Story.nil`, `Entry.nil`) ou uma lista vazia. A falha vai para o log (ARQ-70). | Quem chama tem um caminho só, sem `if (x == null)` nem `try/catch` na tela. |
-| ARQ-46 | Os textos de interface seguem o padrão abstract class + uma classe por língua + global trocável, com uma classe por área da Imersão que tem texto: `NavStrings nav`, `UiStrings ui` e `DictStrings dict`, cada uma com versão `Portuguese` e `Italian`. Quando a Imersão muda, o app troca os globais e então notifica o `ValueNotifier<Settings>`. A área Glosas não tem texto: ela só decide se a glosa aparece. | Sem geração de código. O compilador impede usar um texto da área errada. |
 
 ```
 Navigator raiz
@@ -151,6 +151,16 @@ O `dict` atual não tem a coluna normalizada (ARQ-63) nem o rank (ARQ-64). Os do
 
 ## 8. Integrações do sistema
 
+### Diagnóstico
+
+| Id | Decisão | Motivo |
+|---|---|---|
+| ARQ-70 | O log do app (`appLog`) é gravado num quarto banco, `log`, separado do `user`. Ele não entra no Exportar/Importar (AJU-05) nem no backup do sistema. | Um `user` corrompido não leva o log junto, e o log não se mistura aos dados do usuário. |
+| ARQ-71 | O `log` guarda os últimos 30 dias. As linhas mais antigas são apagadas ao gravar. | Cobre o intervalo comum entre um problema e o usuário decidir relatar. |
+| ARQ-72 | O log só sai do aparelho se o usuário enviar: Ajustes › Sobre › Enviar diagnóstico (AJU-06) abre o e-mail do sistema com o `log` anexado. | Sem telemetria (OFF-03). O usuário vê o e-mail antes de enviar. |
+
+### Sistema
+
 | Id | Decisão | Motivo |
 |---|---|---|
 | ARQ-73 | Tudo que o app pede ao sistema passa por um platform channel próprio, em Swift e Kotlin: TTS, e-mail, folha de compartilhar e seletor de arquivos. Sem pacotes de plugin. | Um mecanismo só para o sistema, sem dependências, e cada chamada nativa fica visível no código. |
@@ -160,14 +170,6 @@ O `dict` atual não tem a coluna normalizada (ARQ-63) nem o rank (ARQ-64). Os do
 | ARQ-77 | O `user` grava um `PRAGMA application_id` fixo do Postilla. Ao importar, o app abre o arquivo só para leitura, confere o id, aceita `user_version` menor ou igual ao seu e roda as migrações que faltam (ARQ-32). Um arquivo de um app mais novo é recusado com aviso. | Recusa qualquer SQLite que não seja do Postilla e aceita exportações de versões antigas. |
 | ARQ-78 | Antes de importar, o app guarda uma cópia do `user` atual (`VACUUM INTO`) na pasta do app. Fica só a última, substituída a cada importação. Desfazer troca o `user` por ela. | Cobre o desfazer do AJU-05 sem o espaço crescer. |
 | ARQ-79 | Só o `user` entra no backup do sistema (OFF-33). `dict`, `stories`, a pasta de preparação, o `log` e a cópia de desfazer ficam fora (`NSURLIsExcludedFromBackupKey` no iOS, regras de backup no Android). | O conteúdo volta do pacote embutido, e o iCloud do usuário não recebe ~90 MB. O Auto Backup do Android tem limite de 25 MB. |
-
-### Diagnóstico
-
-| Id | Decisão | Motivo |
-|---|---|---|
-| ARQ-70 | O log do app (`appLog`) é gravado num quarto banco, `log`, separado do `user`. Ele não entra no Exportar/Importar (AJU-05) nem no backup do sistema. | Um `user` corrompido não leva o log junto, e o log não se mistura aos dados do usuário. |
-| ARQ-71 | O `log` guarda os últimos 30 dias. As linhas mais antigas são apagadas ao gravar. | Cobre o intervalo comum entre um problema e o usuário decidir relatar. |
-| ARQ-72 | O log só sai do aparelho se o usuário enviar: Ajustes › Sobre › Enviar diagnóstico (AJU-06) abre o e-mail do sistema com o `log` anexado. | Sem telemetria (OFF-03). O usuário vê o e-mail antes de enviar. |
 
 ## 9. Pipeline
 
@@ -202,3 +204,10 @@ O pipeline, o formato-fonte das histórias e o contrato ficam em `postilla-conte
 | ARQ-95 | O analisador usa o `flutter_lints` padrão, sem ajustes. Os nomes seguem o estilo Dart. | Sem regras próprias para manter. |
 
 ## 11. Decisões em aberto
+
+| Tema | O que falta |
+|---|---|
+| Domínio do manifesto | O ARQ-06 pede um domínio próprio, mas falta escolher qual e o caminho do manifesto. |
+| Revisão | O [book-revisao.html](design/book-revisao.html) prevê cartões com FSRS. Falta a arquitetura: tabelas de cartão e de histórico de respostas no `user`, NVdB e imagens no conteúdo. Fica para quando o desenho for aprovado e os requisitos `REV-` entrarem na spec funcional. |
+| Semântica do Leitor | O ACE-03 pede leitura por parágrafo e cada palavra como botão. Como o RenderBox (ARQ-51) monta os nós de semântica para atender os dois só se valida no aparelho, com VoiceOver e TalkBack. |
+| Pedidos ao `postilla-content` | Os itens da seção 9 que o `dict` e o `stories` ainda não têm precisam ser aceitos lá: coluna normalizada (ARQ-63), rank NVdB (ARQ-64), nomes de gênero em português e italiano, spans de palavra e frase (ARQ-50) e histórias adicionadas por versão (ARQ-26). |

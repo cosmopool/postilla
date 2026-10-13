@@ -137,6 +137,18 @@ Text(dict.synonyms)   // Sinonimi | Sinônimos
 
 ## 7. Dicionário
 
+| Id | Decisão | Motivo |
+|---|---|---|
+| ARQ-60 | O toque procura só a palavra tocada. Em "si siede", tocar em "siede" abre *sedere*. *sedersi* abre pela expressão (pressionar e arrastar sobre "si siede", LEI-03) ou pela busca. | Uma regra só para o toque, sem olhar a palavra vizinha. |
+| ARQ-61 | Uma elisão é procurada primeiro inteira e depois só a parte após o apóstrofo. "c'è" acha a locução, se o `dict` tiver, e senão vai para "è" → *essere*. "l'aria" não existe inteira e vai para "aria". | Acha locuções com elisão quando existem e cai na palavra principal quando não. Tudo no lote do ARQ-53. |
+| ARQ-62 | Uma forma é procurada como está escrita e, sem resultado, em minúsculas. "Bologna" acha o nome próprio, e "Il" no início da frase vai para "il". Se as duas existirem ("Rosa" e "rosa"), vale a escrita exata. | Nomes próprios do `dict` têm maiúscula, e a palavra no início da frase também. |
+| ARQ-63 | A busca (DIC-11) ignora acento e maiúscula: "citta" acha "città". O `dict` tem uma coluna normalizada (minúscula, sem acento), com índice, em `entry.word` e em `form.form`. A busca consulta as duas tabelas e junta os resultados. | O teclado em português nem sempre tem à e ù à mão. |
+| ARQ-64 | As sugestões vêm nesta ordem: igual ao digitado, depois por frequência (NVdB: fondamentale → alto uso → alta disponibilità → resto), depois alfabética. O `dict` grava esse rank em cada `entry`. | "casa" e "caso" sobem antes de "casella". A Revisão também vai usar o NVdB. |
+| ARQ-65 | Os curingas (`?` uma letra, `*` várias) viram um `GLOB` sobre a coluna normalizada. | O `GLOB` do SQLite já usa esses dois curingas. |
+| ARQ-66 | O "Você quis dizer" usa uma trie dos lemas normalizados, percorrida com a linha da distância de Levenshtein e podada acima de 2 edições. Os candidatos são ordenados por distância e depois pelo rank do ARQ-64. A trie é montada no isolate do banco no primeiro uso e fica em memória até o app fechar. | Sem dado novo no `dict` e sem extensão no SQLite. Pega até dois erros em qualquer posição. Abrir o app não paga a montagem. |
+
+O `dict` atual não tem a coluna normalizada (ARQ-63) nem o rank (ARQ-64). Os dois são pedidos de mudança no contrato de `postilla-content` (ARQ-07).
+
 ## 8. Integrações do sistema
 
 ### Diagnóstico

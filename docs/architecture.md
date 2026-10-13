@@ -89,7 +89,7 @@ Tabelas do `user` (além das colunas do ARQ-33):
 
 ## 5. App Flutter
 
-O código do app e do pipeline segue os princípios do [AGENTS.md](../AGENTS.md). As decisões abaixo dizem como alguns deles viram escolhas concretas.
+O código do app e do pipeline segue os Core Principles do [AGENTS.md](../AGENTS.md). As convenções de nome de lá não valem aqui (ARQ-95). As decisões abaixo dizem como alguns deles viram escolhas concretas.
 
 | Id | Decisão | Motivo |
 |---|---|---|
@@ -171,6 +171,34 @@ O `dict` atual não tem a coluna normalizada (ARQ-63) nem o rank (ARQ-64). Os do
 
 ## 9. Pipeline
 
+O pipeline, o formato-fonte das histórias e o contrato ficam em `postilla-content` (ARQ-07, ARQ-08). Esta seção só lista o que o app exige do conteúdo, com a decisão que pede cada item.
+
+| Onde | O app exige | Pedido por |
+|---|---|---|
+| Pacotes | Um arquivo SQLite por pacote, comprimido com zstd -19 | ARQ-11 |
+| Pacotes | Versão SemVer, com major = esquema incompatível | ARQ-12 |
+| Manifesto | JSON com a última versão de cada pacote: versão, URL, tamanho, sha256 do `.zst` e sha256 do `.db` | ARQ-20 |
+| `stories` | UUID fixo por história | ARQ-36 |
+| `stories` | Título, subtítulo, nível, gênero, duração, obra e posição na obra | BIB-01, LEI-10 |
+| `stories` | Nome de cada gênero em português e em italiano. O card, os filtros e a busca da Biblioteca (BIB-06) usam a língua da área Navegação da Imersão | AJU-02, BIB-05 |
+| `stories` | Por parágrafo: texto em italiano e em português, spans de palavra e de frase nos dois, frases alinhadas 1:1 | ARQ-50, TRA-08 |
+| `stories` | Contagem de palavras por parágrafo | ARQ-50, LEI-07 |
+| `stories` | `meta` com as histórias adicionadas em cada versão | ARQ-26 |
+| `dict` | `meta` com versão e data do dump do Wiktionary | ARQ-15 |
+| `dict` | `entry.word` e `form.form` com a grafia original (maiúsculas e acentos) | ARQ-62 |
+| `dict` | Coluna normalizada (minúscula, sem acento), com índice, em `entry.word` e em `form.form` | ARQ-63 |
+| `dict` | Rank de frequência por `entry` (NVdB) | ARQ-64 |
+| `dict` | Formas com clítico em `form` ("si siede" → *sedersi*) | ARQ-60, DIC-01 |
+
 ## 10. Build, CI e testes
+
+| Id | Decisão | Motivo |
+|---|---|---|
+| ARQ-90 | Os testes são de integração: começam pela UI (`flutter_test`, dirigindo os widgets) e usam SQLite real, um arquivo temporário por teste. Só as chamadas HTTP e os erros de IO são simulados. | Testa o app como ele roda, sem mock de camada interna, já que não há camadas (ARQ-40). |
+| ARQ-91 | Teste unitário só para lógica pesada (ordenação da Biblioteca, trie do ARQ-66 e afins). Cada uma também ganha um teste de integração que passa por ela. | O unitário cobre os casos difíceis da lógica. O de integração confere que ela funciona ligada ao resto. |
+| ARQ-92 | Por enquanto não há teste ponta a ponta no aparelho (`integration_test`). | Rodar emulador ou aparelho no CI é lento e caro para a v1. |
+| ARQ-93 | Os testes usam os mesmos `dict` e `stories` de produção, nas versões fixadas pelo lock do build (ARQ-14). Não há banco de conteúdo de teste. Atualizar o lock roda os testes contra o conteúdo novo, e o bump só entra com os testes passando. | Mockar o mínimo possível. O teste vê exatamente o dado que o usuário vê. |
+| ARQ-94 | O CI do app roda no GitHub Actions, em Linux, a cada push e PR: baixa os pacotes do lock, roda `dart analyze` e `flutter test`. Build de loja fica fora do CI por enquanto. | Pega erro de análise e teste antes do merge, sem runner macOS. |
+| ARQ-95 | O analisador usa o `flutter_lints` padrão, sem ajustes. Os nomes seguem o estilo Dart. | Sem regras próprias para manter. |
 
 ## 11. Decisões em aberto

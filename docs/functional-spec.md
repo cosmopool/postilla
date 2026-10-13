@@ -87,7 +87,7 @@ Os books foram desenhados com o dicionário online. As correções estão em [12
 | BIB-03 | Card "Continuar lendo" com a última história aberta que ainda está em andamento. Uma história concluída nunca ocupa o card. Sem história em andamento, o card some. Ele também some quando há busca ou filtro. |
 | BIB-04 | Ordem fixa: Continuar lendo → todas as histórias (por nível de A1 a B2; no mesmo nível, da mais curta para a mais longa) → concluídas no fim. Não há ordenação manual. |
 | BIB-05 | Filtros em chips, em dois grupos (Nível e Gênero): "ou" dentro do grupo, "e" entre grupos. "Limpar filtros" no cabeçalho da lista. |
-| BIB-06 | A busca procura em título, subtítulo e gênero, sem diferenciar acento nem maiúscula, e o resultado muda a cada letra. Busca e filtros se somam. |
+| BIB-06 | A busca procura em título, subtítulo e gênero, sem diferenciar acento nem maiúscula, e o resultado muda a cada letra. Busca e filtros se somam. O gênero aparece e é buscado na língua de Imersão › Navegação (AJU-02). |
 | BIB-07 | Com busca ou filtro, aparece uma lista única, "Resultados", na ordem em andamento → novas → concluídas. |
 | BIB-08 | Estados vazios: busca sem resultado oferece "Limpar busca"; filtros sem resultado oferecem "Limpar filtros". A contagem de resultados é anunciada. |
 | BIB-09 | Tocar num card abre o Leitor. Uma história em andamento abre no último parágrafo lido; nova e concluída abrem no início. |

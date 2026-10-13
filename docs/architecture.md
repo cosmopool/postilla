@@ -151,6 +151,16 @@ O `dict` atual não tem a coluna normalizada (ARQ-63) nem o rank (ARQ-64). Os do
 
 ## 8. Integrações do sistema
 
+| Id | Decisão | Motivo |
+|---|---|---|
+| ARQ-73 | Tudo que o app pede ao sistema passa por um platform channel próprio, em Swift e Kotlin: TTS, e-mail, folha de compartilhar e seletor de arquivos. Sem pacotes de plugin. | Um mecanismo só para o sistema, sem dependências, e cada chamada nativa fica visível no código. |
+| ARQ-74 | A pronúncia (OFF-40) usa `AVSpeechSynthesizer` no iOS e `TextToSpeech` no Android, com voz `it-IT`. O canal lista as vozes com a marca de offline de cada sistema. Sem voz italiana offline, o botão fica desativado (OFF-41). | A voz do sistema funciona sem rede. |
+| ARQ-75 | O e-mail do Relatar erro (LEI-09) e do Enviar diagnóstico (AJU-06) abre pelo canal: `MFMailComposeViewController` no iOS e `Intent.ACTION_SEND` com anexo por `FileProvider` no Android. No iOS sem conta no app Mail, o app avisa que precisa de um app de e-mail configurado. | Um link `mailto:` não anexa arquivo, e o diagnóstico precisa do anexo. Um mecanismo só para os dois e-mails. |
+| ARQ-76 | O arquivo exportado (AJU-05) e o anexo do diagnóstico (ARQ-72) são gerados com `VACUUM INTO` num arquivo temporário, apagado depois de compartilhar. | Cópia consistente e compacta com o banco aberto, sem WAL pendente nem linhas apagadas. |
+| ARQ-77 | O `user` grava um `PRAGMA application_id` fixo do Postilla. Ao importar, o app abre o arquivo só para leitura, confere o id, aceita `user_version` menor ou igual ao seu e roda as migrações que faltam (ARQ-32). Um arquivo de um app mais novo é recusado com aviso. | Recusa qualquer SQLite que não seja do Postilla e aceita exportações de versões antigas. |
+| ARQ-78 | Antes de importar, o app guarda uma cópia do `user` atual (`VACUUM INTO`) na pasta do app. Fica só a última, substituída a cada importação. Desfazer troca o `user` por ela. | Cobre o desfazer do AJU-05 sem o espaço crescer. |
+| ARQ-79 | Só o `user` entra no backup do sistema (OFF-33). `dict`, `stories`, a pasta de preparação, o `log` e a cópia de desfazer ficam fora (`NSURLIsExcludedFromBackupKey` no iOS, regras de backup no Android). | O conteúdo volta do pacote embutido, e o iCloud do usuário não recebe ~90 MB. O Auto Backup do Android tem limite de 25 MB. |
+
 ### Diagnóstico
 
 | Id | Decisão | Motivo |

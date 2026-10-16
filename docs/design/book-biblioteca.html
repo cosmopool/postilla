@@ -386,15 +386,15 @@
 
     <h3 class="book-h3">Prévia · Navegação em italiano</h3>
     <div class="book-states book-states--wide">
-      <figure class="book-state"><div class="book-state__stage on-bg"><div class="lib-tabdemo" data-tabs="2"></div></div><figcaption class="book-state__label"><strong>Navegação = Português</strong></figcaption></figure>
-      <figure class="book-state"><div class="book-state__stage on-bg"><div class="lib-tabdemo" data-tabs="2" data-tabit></div></div><figcaption class="book-state__label"><strong>Navegação = Italiano</strong> · Dizionario, Impostazioni</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="lib-tabdemo" data-tabs="3"></div></div><figcaption class="book-state__label"><strong>Navegação = Português</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="lib-tabdemo" data-tabs="3" data-tabit></div></div><figcaption class="book-state__label"><strong>Navegação = Italiano</strong> · Dizionario, Ripasso, Impostazioni</figcaption></figure>
     </div>
 
     <h3 class="book-h3">Áreas e predefinições</h3>
     <table class="book-table book-table--stack">
       <thead><tr><th scope="col">Área</th><th scope="col">Português</th><th scope="col">Italiano</th><th scope="col">Onde aparece</th></tr></thead>
       <tbody>
-        <tr><td>Navegação</td><td data-l="PT">Biblioteca · Dicionário · Ajustes</td><td data-l="IT" lang="it">Biblioteca · Dizionario · Impostazioni</td><td data-l="Onde">barra de abas, menus</td></tr>
+        <tr><td>Navegação</td><td data-l="PT">Biblioteca · Dicionário · Revisão · Ajustes</td><td data-l="IT" lang="it">Biblioteca · Dizionario · Ripasso · Impostazioni</td><td data-l="Onde">barra de abas, menus</td></tr>
         <tr><td>Rótulos e botões</td><td data-l="PT">Mostrar tradução · Continuar lendo</td><td data-l="IT" lang="it">Mostra traduzione · Continua a leggere</td><td data-l="Onde">botões, avisos, títulos de tela</td></tr>
         <tr><td>Dicionário</td><td data-l="PT">Janela pequena, sobretudo de um veículo.</td><td data-l="IT" lang="it">Piccola finestra, in particolare quella di un veicolo.</td><td data-l="Onde">definições do verbete</td></tr>
         <tr><td>Glosas e tradução</td><td data-l="PT">janela (de trem, carro, avião)</td><td data-l="IT" lang="it">piccola finestra (di treno, auto, aereo)</td><td data-l="Onde">glosa curta atrás de “Mostrar tradução”</td></tr>
@@ -477,9 +477,9 @@
   const GENRES = ['Viagem', 'Cotidiano', 'Família', 'Mistério', 'Clássicos', 'Cartas', 'Conto'];
   const STATE_LABEL = { reading: '38% lido (em andamento)', new: 'nova', done: 'concluída' };
   const ORDER = { reading: 0, new: 1, done: 2 };
-  const TABS_PT = ['Biblioteca', 'Dicionário', 'Ajustes'];
-  const TABS_IT = ['Biblioteca', 'Dizionario', 'Impostazioni'];
-  const TAB_ICONS = ['library-big', 'book-a', 'settings-2'];
+  const TABS_PT = ['Biblioteca', 'Dicionário', 'Revisão', 'Ajustes'];
+  const TABS_IT = ['Biblioteca', 'Dizionario', 'Ripasso', 'Impostazioni'];
+  const TAB_ICONS = ['library-big', 'book-a', 'check', 'settings-2'];   /* 'check' = placeholder da aba Revisão até o ícone pedido ao brand lead (book-revisao › Em aberto) */
 
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const fold = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
@@ -675,7 +675,7 @@
         `<p class="ui-label">Predefinições</p><div data-presetbox>${presetsHTML(v)}</div>` +
         `<p class="ui-label">Por área</p><div class="lib-imm__rows">${AREAS.map(a => areaHTML(a, v[a[0]])).join('')}</div>` +
       `</div>` +
-      tabbarHTML(2, v.nav === 'it', { nav: true });
+      tabbarHTML(3, v.nav === 'it', { nav: true });
 
     function sync() {
       body.querySelectorAll('.lib-imm__rows [data-area]').forEach(b => b.setAttribute('aria-pressed', String(v[b.dataset.area] === b.dataset.v)));

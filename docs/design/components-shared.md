@@ -1,6 +1,6 @@
 # Postilla — componentes compartilhados (v0.3)
 
-Spec for the 4 book designers (Biblioteca, Leitor, Dicionário, Ajustes/Imersão).
+Spec for the book designers. Six books today: Identidade (`identity.html`), Biblioteca (with Ajustes › Imersão), Leitor, Leitor com tradução, Dicionário and Revisão (with the Treino). Ajustes gets its own book later.
 
 **All shared CSS lives in `book.css`.** Every book links two files and nothing else is shared:
 
@@ -9,7 +9,7 @@ Spec for the 4 book designers (Biblioteca, Leitor, Dicionário, Ajustes/Imersão
 <link rel="stylesheet" href="book.css">
 ```
 
-Do not copy, fork or override `ui-*`, `phone*`, `book-*`, `wordmark*` or `is-*` classes, and never write a local rule whose selector mentions a `ui-*` or `book-*` class (not even as an ancestor): add a local class to the element instead. If you need a variant that does not exist, ask the brand lead so it lands in `book.css` for everyone. Book-specific rules go in your own `<style>` with your prefix: `lib-` (Biblioteca), `rd-` (Leitor), `tr-` (Leitor com tradução), `dic-` (Dicionário), `set-` (Ajustes), `id-` (identity.html). No literal hex in a book: if a value is missing, it goes into `tokens.css`.
+Do not copy, fork or override `ui-*`, `phone*`, `book-*`, `wordmark*` or `is-*` classes, and never write a local rule whose selector mentions a `ui-*` or `book-*` class (not even as an ancestor): add a local class to the element instead. If you need a variant that does not exist, ask the brand lead so it lands in `book.css` for everyone. Book-specific rules go in your own `<style>` with your prefix: `lib-` (Biblioteca), `rd-` (Leitor), `tr-` (Leitor com tradução), `dic-` (Dicionário), `rev-` (Revisão), `set-` (Ajustes), `id-` (identity.html). No literal hex in a book: if a value is missing, it goes into `tokens.css`.
 
 Reference implementation: `identity.html` uses every class below.
 
@@ -43,15 +43,24 @@ Reference implementation: `identity.html` uses every class below.
 | Dicionário, pushed from the Reader (no tab bar) | grifo on the word inside the "Nella storia" snippet | nothing else; gloss, chips, labels are ink |
 | Dicionário tab root (Histórico \| Salvas, search) and entries pushed inside the tab | active-tab bar | the "Nella storia" snippet drops its grifo (ink underline only) |
 | Ajustes | active-tab bar | — |
+| Revisão tab root, theme and rule pages (Treino) | active-tab bar | — (the "Revisão de hoje" card is surface; weak-pattern lines are plain text) |
+| Revisão / Treino session: question (every format), presentation, reinforcement line, end | none | progress line and buttons are ink |
+| Revisão / Treino session: answer | grifo on the word inside the "Na história" card | none when the word has no source sentence |
+| Story excerpt pushed from an answer (D22) | grifo on the saved form | — |
 
 ## 1. Navigation (decided)
 
-- **Bottom tab bar, 3 tabs:** `Biblioteca` · `Dicionário` · `Ajustes`. Active tab = ink label, weight 600, and a 2px yellow bar under the label.
+- **Bottom tab bar, 4 tabs:** `Biblioteca` · `Dicionário` · `Revisão` · `Ajustes` (IT: *Biblioteca · Dizionario · Ripasso · Impostazioni*). Active tab = ink label, weight 600, and a 2px yellow bar under the label. The columns are equal but give way to the longest label, so *Impostazioni* in semibold never overflows on a 323px screen.
+- **Revisão is the 4th tab** (decision D5 of `propostas/revisao-treino-decisoes.md`): its root holds the "Revisão de hoje" card and the Treino list; theme and rule pages are pushed inside the tab. A review or training session is pushed full screen with no tab bar, like the Reader. The Dicionário root no longer has a review card.
 - **Saved words live inside Dicionário**, as a `.ui-segmented` switch at the top of the tab root: `Histórico | Salvas`.
 - The **Reader** is not a tab. It is pushed from Biblioteca and is full-screen with no tab bar. A dictionary entry opened from the Reader is a pushed full page ("Voltar à história") with no tab bar either.
 - **Top app bar:** `large` on tab roots (display title under a 56px bar) and `compact` on pushed pages (back + centered title + **up to 3** trailing icon buttons, e.g. dictionary entry: `volume-2`, `bookmark`, `ellipsis`).
 
 Icons: [Lucide](https://lucide.dev) pinned `lucide@0.460.0`, stroke 1.5. Names: `library-big` (Biblioteca), `book-a` (Dicionário), `settings-2` (Ajustes), `chevron-left`, `search`, `bookmark` (saved = same glyph filled via `.ui-iconbtn--bookmark[aria-pressed="true"]`), `volume-2`, `a-large-small`, `rows-2` (tradução dividida), `languages`, `ellipsis`, `x`, `check`.
+
+**Revisão tab icon: pending.** Until the brand lead picks one, every mock uses `check` from the list above as a placeholder. Requested (book-revisao › Em aberto A1): `layers` (a stack of cards), with `repeat-2` and `notebook-pen` as alternatives.
+
+**Icons requested by the Revisão book** (in use there, not yet on the list; Em aberto A2): `chevron-right` (link affordance on cards and rows, already used by the Dicionário book), `circle-dot` (verdict "Quase"), `circle-dashed` (verdict "Também é", no grade), `eye-off` (verdict "Não sei"). "Mostrar dica" has no icon (`lightbulb` stays off the list).
 
 ```html
 <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
@@ -69,7 +78,7 @@ Icons: [Lucide](https://lucide.dev) pinned `lucide@0.460.0`, stroke 1.5. Names: 
 |---|---|---|
 | `.ui-appbar` | `<div class="ui-appbar">` → leading `.ui-iconbtn`, `<p class="ui-appbar__title">`, `<div class="ui-appbar__actions">` | Compact bar. Add `.is-scrolled` for the bottom hairline. |
 | `.ui-appbar--large` + `.ui-largetitle` | `<div class="ui-appbar ui-appbar--large">…</div><h1 class="ui-largetitle">Biblioteca</h1>` | Tab roots. |
-| `.ui-tabbar` / `.ui-tab` | `<nav class="ui-tabbar" aria-label="Principal"><a class="ui-tab" aria-current="page">…` | Exactly 3 tabs. The active one gets `aria-current="page"`. |
+| `.ui-tabbar` / `.ui-tab` | `<nav class="ui-tabbar" aria-label="Principal"><a class="ui-tab" aria-current="page">…` | Exactly 4 tabs: Biblioteca · Dicionário · Revisão · Ajustes. The active one gets `aria-current="page"`. No badge or count on any tab (spec §10). |
 | `.ui-btn` | `--primary` (ink) · `--secondary` (ink outline) · `--ghost` · `--accent` (yellow fill, ink text; 1 per flow) · `--sm` · `--block` | A fixed-label toggle uses `aria-pressed`; `--secondary[aria-pressed="true"]` turns ink. The translation button is **not** such a toggle: it swaps its label and has no `aria-pressed`. Disabled via `disabled`. |
 | `.ui-iconbtn` | `--filled` · `--bookmark` | 44px circle. `aria-pressed="true"` = ink disc, except `--bookmark`, which fills the glyph in `--color-word-saved-mark`. Always has `aria-label`. |
 | `.ui-chip` | `<button class="ui-chip" aria-pressed="false">Mistério</button>` | Filter chip; pressed = ink fill. |
@@ -85,7 +94,7 @@ Icons: [Lucide](https://lucide.dev) pinned `lucide@0.460.0`, stroke 1.5. Names: 
 | `.ui-sechead` | `__title` (holds a `.ui-label`) · `__count` · `__action` (ghost sm button) | List group header. |
 | `.ui-list` / `.ui-row` | `__main` (link) · `__text` · `__title` · `__meta` · `__value` · `--saved` · `--compact` + trailing `.ui-iconbtn--bookmark` | History, saved, suggestions, settings rows. |
 | `.ui-empty` | `__icon` · `__title` · `__text` · `__action` · `--compact` | Empty / not found / offline. |
-| `.ui-toast` | `<p class="ui-toast" role="status">` + `.is-shown` (2.6 s) · `--static` | Inside `.phone__screen`. |
+| `.ui-toast` | `<p class="ui-toast" role="status">` + `.is-shown` (2.6 s) · `--static` · `--action` + `__action` | Inside `.phone__screen`. With one action ("Desfazer"): `<div class="ui-toast ui-toast--action" role="status"><span>…</span><button class="ui-toast__action">Desfazer</button></div>`, shown for 6 s; the timer pauses while the toast has focus, and the focus is never moved to it. The action is underlined text in `--color-on-ink`, with an inset `--color-on-ink` focus ring. Used by "Já sei esta palavra", "Tirar da Revisão" and, when adopted, SAL-02 ("Removida das Salvas. Desfazer"). |
 | `.ui-overlay` / `.ui-scrim` / `.ui-sheet` | `__head` · `__title` + `.ui-grip` | Bottom sheet for quick settings (Aa). The dictionary never opens in a sheet. |
 | `.ui-grip` | | 40×4 pill in `--color-ink-faint`; sheet handle and divider grip. |
 | `.ui-divider` | `__handle` (`role="separator"`) · `__ratio` · `.is-hover` · `.is-active` (dragging) · `__handle.is-focus` (inset ring) | Split-reader divider. |
@@ -121,6 +130,14 @@ One convention for every book: add `.is-hover`, `.is-active` (pressed) or `.is-f
 - `--text-reader-1-size` … `--text-reader-5-size` (18 · 20 · 22 · 24 · 26px; step 2 = `--text-reader-size`) and `--leading-reader-compact / -default / -loose` (1.5 · 1.7 · 2): the Aa sheet steps. Line height = size × leading.
 - `--border-mark` (2px: grifo/saved underline, progress, active-tab bar, paragraph rule) and `--border-focus` (2px focus ring).
 
+### Pending requests to the brand lead (from `book-revisao.html` › Em aberto)
+
+- Revisão tab icon (A1) and the four verdict/link icons (A2), above.
+- `.ui-tabbar` with 4 tabs and `.ui-toast--action` are already in `book.css` with existing tokens only (A3): confirm or adjust.
+- A field-outline token with 3:1 contrast at rest (A4). `--color-rule-strong`, today's input outline, gives 1.66:1 on light and 1.91:1 on dark.
+- Promote the "Nella storia" card (`.dic-ctx`, copied as `.rev-ctx`) and the gloss pill (`.dic-gloss`, copied as `.rev-gloss`) to `book.css` (A5).
+- A `.ui-menu` for "Mais opções" (A6): every book mocks those actions in a toast today.
+
 ---
 
 ## 3. Phone frame
@@ -148,7 +165,7 @@ The frame is fluid from about 330px to 410px wide (390pt screen + bezel) with a 
 
 ## 4. Book page skeleton
 
-File names: `book-biblioteca.html`, `book-leitor.html`, `book-dicionario.html`, `book-ajustes.html`, all in `design/`. `<title>` = `Postilla · <Área>`.
+File names: `book-biblioteca.html`, `book-leitor.html`, `book-leitor-traducao.html`, `book-dicionario.html`, `book-revisao.html`, `book-ajustes.html` (future), all in `design/`. `<title>` = `Postilla · <Área>`.
 
 ```html
 <!doctype html>

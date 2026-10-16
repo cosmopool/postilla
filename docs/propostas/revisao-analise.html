@@ -1,0 +1,400 @@
+<title>Revisão em quatro óticas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400..700;1,7..72,400&family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400&display=swap">
+<style>
+/* Layout: uma coluna de leitura (~68ch), seções em sequência, achados como linhas com faixa de severidade à esquerda.
+   Tokens: os do design system do Postilla (docs/design/tokens.css), um amarelo só (o grifo do título). */
+:root {
+  --bg: #FDFDFC; --surface: #F6F6F3; --surface-2: #EDECE8;
+  --ink: #181713; --muted: #5C5B55; --faint: #878681;
+  --rule: #DDDCD8; --rule-strong: #C8C7C2;
+  --grifo: #FFEB99; --grifo-line: #C99A00;
+  --error: #BA2B28; --error-soft: #FFE7E4; --success: #1F6B50;
+  --focus: #181713;
+  --font-display: 'Newsreader', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  --font-text: 'Literata', 'Iowan Old Style', Charter, Georgia, serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #100F0D; --surface: #191816; --surface-2: #22221E;
+    --ink: #ECEBE7; --muted: #ACABA5; --faint: #7C7A75;
+    --rule: #31302C; --rule-strong: #44423E;
+    --grifo: #3D3210; --grifo-line: #F2C94C;
+    --error: #F47C70; --error-soft: #421C18; --success: #7FCBA9;
+    --focus: #F2C94C; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #100F0D; --surface: #191816; --surface-2: #22221E;
+  --ink: #ECEBE7; --muted: #ACABA5; --faint: #7C7A75;
+  --rule: #31302C; --rule-strong: #44423E;
+  --grifo: #3D3210; --grifo-line: #F2C94C;
+  --error: #F47C70; --error-soft: #421C18; --success: #7FCBA9;
+  --focus: #F2C94C; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 400 16px/1.6 var(--font-text); }
+.page { max-width: 46rem; margin: 0 auto; padding-inline: 20px; padding-block: 48px 72px; display: grid; gap: 56px; }
+@media (max-width: 480px) { .page { padding-inline: 16px; padding-block: 28px 56px; gap: 44px; } }
+
+h1, h2, h3 { font-family: var(--font-display); font-weight: 500; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(34px, 7vw, 48px); line-height: 1.08; letter-spacing: -0.01em; }
+h1 .grifo { background: linear-gradient(transparent 58%, var(--grifo) 58%); box-shadow: inset 0 -2px 0 var(--grifo-line); padding: 0 2px; }
+h2 { font-size: 28px; line-height: 1.15; }
+h3 { font-size: 19px; line-height: 1.3; font-family: var(--font-text); font-weight: 600; }
+p { margin: 0; }
+code { font: 0.86em var(--font-mono); background: var(--surface-2); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+
+.eyebrow { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+
+header { display: grid; gap: 18px; }
+.lede { font-size: 18px; line-height: 1.6; color: var(--muted); max-width: 62ch; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 14px; color: var(--muted); }
+.meta b { color: var(--ink); font-weight: 600; }
+
+/* lenses */
+.lenses { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; }
+@media (max-width: 560px) { .lenses { grid-template-columns: 1fr; } }
+.lens { background: var(--bg); padding: 14px 16px; display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; align-items: start; }
+.lens p { grid-column: 2; font-size: 14px; line-height: 1.5; color: var(--muted); }
+.lens strong { font-weight: 600; }
+.tag { display: inline-grid; place-items: center; min-width: 24px; height: 22px; padding: 0 6px; border-radius: 6px; border: 1px solid var(--rule-strong); font: 600 12px/1 var(--font-mono); color: var(--ink); background: var(--surface); }
+
+/* counts */
+.counts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 560px) { .counts { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.count { border-top: 2px solid var(--rule-strong); padding-top: 10px; display: grid; gap: 2px; }
+.count b { font: 500 32px/1 var(--font-display); font-variant-numeric: tabular-nums; }
+.count span { font-size: 13px; color: var(--muted); }
+.count.alta { border-top-color: var(--error); }
+.count.media { border-top-color: var(--ink); }
+.count.ok { border-top-color: var(--success); }
+
+/* filter */
+.filter { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 2; background: var(--bg); padding-block: 10px; border-bottom: 1px solid var(--rule); display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.filter span { font-size: 13px; color: var(--muted); margin-right: 4px; }
+.filter button { font: 500 14px/1 var(--font-text); color: var(--ink); background: var(--bg); border: 1px solid var(--rule-strong); border-radius: 999px; padding: 9px 14px; cursor: pointer; min-height: 36px; }
+.filter button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+section { display: grid; gap: 20px; }
+.section-head { display: grid; gap: 6px; }
+.section-head p { color: var(--muted); font-size: 15px; }
+
+/* findings */
+.list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; border-top: 1px solid var(--rule); }
+.item { display: grid; grid-template-columns: 4px minmax(0, 1fr); gap: 0 16px; padding-block: 18px; border-bottom: 1px solid var(--rule); }
+.item::before { content: ''; border-radius: 2px; background: var(--rule-strong); }
+.item.alta::before { background: var(--error); }
+.item.media::before { background: var(--ink); }
+.item.baixa::before { background: var(--rule-strong); }
+.item.ok::before { background: var(--success); }
+.item-body { display: grid; gap: 8px; min-width: 0; }
+.item-top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 10px; }
+.item-top h3 { flex: 1 1 22rem; }
+.tags { display: flex; gap: 4px; flex-wrap: wrap; }
+.item p { color: var(--muted); font-size: 15px; line-height: 1.6; }
+.item p strong { color: var(--ink); font-weight: 600; }
+.item ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 15px; display: grid; gap: 4px; }
+.check { font-size: 12px; font-weight: 600; color: var(--success); letter-spacing: 0.02em; white-space: nowrap; }
+.num { font: 600 13px/1 var(--font-mono); color: var(--faint); font-variant-numeric: tabular-nums; }
+
+.compact .item { padding-block: 12px; }
+.compact .item p { font-size: 14px; }
+
+/* decisions */
+.decisions { counter-reset: d; list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.decisions li { counter-increment: d; display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 4px 12px; padding: 16px; background: var(--surface); border-radius: 10px; }
+.decisions li::before { content: counter(d); font: 500 26px/1 var(--font-display); color: var(--muted); grid-row: span 2; }
+.decisions h3 { font-size: 17px; }
+.decisions p { grid-column: 2; font-size: 14px; color: var(--muted); }
+
+footer { font-size: 13px; color: var(--faint); border-top: 1px solid var(--rule); padding-top: 18px; display: grid; gap: 6px; }
+
+[data-hidden-by-filter] { display: none; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<main class="page">
+  <header>
+    <p class="eyebrow">Postilla · análise de design</p>
+    <h1>A <span class="grifo">Revisão</span> em quatro óticas</h1>
+    <p class="lede">Quatro agentes leram o <code>book-revisao.html</code> ao lado da spec funcional, da arquitetura e dos outros books. Cada um analisou a feature por uma ótica diferente. Os achados abaixo estão juntos, sem repetições e ordenados por severidade.</p>
+    <div class="meta">
+      <span><b>Data</b> 14 out 2026</span>
+      <span><b>Fonte</b> docs/design/book-revisao.html</span>
+      <span><b>Estado</b> nenhum arquivo editado</span>
+    </div>
+  </header>
+
+  <section aria-labelledby="oticas">
+    <div class="section-head">
+      <p class="eyebrow" id="oticas">As quatro óticas</p>
+    </div>
+    <div class="lenses">
+      <div class="lens"><span class="tag">P</span><strong>Pedagogia e SRS</strong><p>Origem dos cartões, formato, uso do FSRS, carga diária e o ciclo ler → salvar → revisar.</p></div>
+      <div class="lens"><span class="tag">U</span><strong>UX e interação</strong><p>Fluxo da sessão, alvos de toque, feedback, desfazer e coerência com Leitor e Dicionário.</p></div>
+      <div class="lens"><span class="tag">S</span><strong>Coerência com o sistema</strong><p>Spec funcional, arquitetura, design system, princípios do AGENTS.md.</p></div>
+      <div class="lens"><span class="tag">A</span><strong>Acessibilidade e bordas</strong><p>Leitor de tela, contraste, texto grande e estados de borda.</p></div>
+    </div>
+    <div class="counts" aria-label="Contagem de achados">
+      <div class="count ok"><b>6</b><span>acertos em comum</span></div>
+      <div class="count alta"><b>12</b><span>problemas altos</span></div>
+      <div class="count media"><b>10</b><span>problemas médios</span></div>
+      <div class="count"><b>7</b><span>decisões abertas</span></div>
+    </div>
+  </section>
+
+  <div class="filter" role="group" aria-label="Filtrar por ótica">
+    <span>Filtrar:</span>
+    <button type="button" id="f-all" data-lens="all" aria-pressed="true">Todas</button>
+    <button type="button" id="f-p" data-lens="P" aria-pressed="false">Pedagogia</button>
+    <button type="button" id="f-u" data-lens="U" aria-pressed="false">UX</button>
+    <button type="button" id="f-s" data-lens="S" aria-pressed="false">Sistema</button>
+    <button type="button" id="f-a" data-lens="A" aria-pressed="false">A11y</button>
+  </div>
+
+  <section aria-labelledby="acertos">
+    <div class="section-head">
+      <h2 id="acertos">Acertos</h2>
+      <p>O que as óticas, em conjunto ou separadas, consideram bem resolvido.</p>
+    </div>
+    <ul class="list">
+      <li class="item ok" data-lens="P U S A"><div class="item-body">
+        <div class="item-top"><h3>A nota sai da correção, sem autoavaliação</h3><span class="tags"><span class="tag">P</span><span class="tag">U</span><span class="tag">S</span><span class="tag">A</span></span></div>
+        <p>Sem Again/Hard/Good/Easy, não há botão errado para tocar nem o viés de se avaliar. A nota é gravada antes de a resposta aparecer, então o aluno não muda de ideia depois de ver.</p>
+      </div></li>
+      <li class="item ok" data-lens="P U"><div class="item-body">
+        <div class="item-top"><h3>Recordação digitada, com um erro que ensina</h3><span class="tags"><span class="tag">P</span><span class="tag">U</span></span></div>
+        <p>O exercício Palavra pede a palavra digitada, não múltipla escolha. A resposta traz regra, frase da história, IPA e, se o aluno digitou outra palavra que existe, a glosa dela («tessera» é carteirinha). A correção também tolera artigo antes da palavra, apóstrofo tipográfico e uma letra trocada.</p>
+      </div></li>
+      <li class="item ok" data-lens="P S"><div class="item-body">
+        <div class="item-top"><h3>Menos exercícios, cada lembrança contada uma vez</h3><span class="tags"><span class="tag">P</span><span class="tag">S</span></span></div>
+        <p>Tradução e Imagem viraram um exercício, Tempo e Pessoa outro. Artigo e Plural só aparecem quando a terminação não resolve. Os cartões de forma só desbloqueiam depois do significado.</p>
+      </div></li>
+      <li class="item ok" data-lens="P U S A"><div class="item-body">
+        <div class="item-top"><h3>Sessão interrompível e sem gamificação</h3><span class="tags"><span class="tag">P</span><span class="tag">U</span><span class="tag">S</span><span class="tag">A</span></span></div>
+        <p>Cada resposta é gravada na hora (OFF-04), então fechar não pede confirmação. O fim mostra contagens e a próxima data, sem sequência de dias nem pontos, no mesmo tom do LEI-10 e da §10.</p>
+      </div></li>
+      <li class="item ok" data-lens="A"><div class="item-body">
+        <div class="item-top"><h3>O veredito não depende só de cor</h3><span class="tags"><span class="tag">A</span></span></div>
+        <p>Cada veredito tem ícone e texto. O contraste passa AA nos dois temas: sucesso 6,30:1 e erro 5,96:1 no claro. Nenhum gesto é obrigatório e não há limite de tempo.</p>
+      </div></li>
+      <li class="item ok" data-lens="S"><div class="item-body">
+        <div class="item-top"><h3>Encaixa na arquitetura existente</h3><span class="tags"><span class="tag">S</span></span></div>
+        <p>Dados no <code>user</code> com migração aditiva (ARQ-32). Chave <code>lemma</code>+<code>pos</code>, sem <code>entry.id</code> (ARQ-35). Reaproveita NVdB (ARQ-64), coluna sem acento, formas com clítico, TTS e o canal de e-mail. Mantém as 3 abas, com o cartão na raiz do Dicionário.</p>
+      </div></li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="altos">
+    <div class="section-head">
+      <h2 id="altos">Problemas altos</h2>
+      <p>Bloqueiam o uso, ensinam errado ou deixam o modelo de dados sem como ser implementado.</p>
+    </div>
+    <ol class="list">
+      <li class="item alta" data-lens="U"><div class="item-body">
+        <div class="item-top"><span class="num">01</span><h3>O Plural ensina "i binari" e reprova "i binari"</h3><span class="tags"><span class="tag">U</span></span><span class="check">✓ conferido</span></div>
+        <p>A resposta mostra <code>${artPl} ${plural}</code>, mas o cartão de <em>binario</em> não aceita prefixo (<code>book-revisao.html:581</code>). Artigo errado com o lema certo também cai em "qualquer outra coisa", vira Errado e não recebe explicação.</p>
+        <p><strong>Sugestão:</strong> aceitar o artigo no Plural. Com artigo errado e lema certo, dar Quase com "O artigo é il". Definir também o caso do artigo elidido (l’acqua).</p>
+      </div></li>
+      <li class="item alta" data-lens="P S"><div class="item-body">
+        <div class="item-top"><span class="num">02</span><h3>A Dica mostra a forma da frase, mas a correção cobra o lema</h3><span class="tags"><span class="tag">P</span><span class="tag">S</span></span></div>
+        <p>«le ______ dei negozi» leva o aluno a escrever <em>serrande</em>, que dá Errado (o mesmo com <em>si siede</em> e <em>sedersi</em>). A tabela de correção não tem o caso "forma flexionada do lema certo".</p>
+        <p><strong>Sugestão:</strong> forma que leva ao lema pedido vira Quase, com "Essa é a forma da frase. A palavra é <em>serranda</em>." Outra saída é usar a lacuna só quando a forma na frase é igual ao lema.</p>
+      </div></li>
+      <li class="item alta" data-lens="P"><div class="item-body">
+        <div class="item-top"><span class="num">03</span><h3>Só PT→IT (produção) num app de leitura</h3><span class="tags"><span class="tag">P</span></span></div>
+        <p>No Postilla, o vocabulário é usado para ler, ou seja, de forma receptiva. Para um A1–A2, produzir a partir da glosa gera muitos Again, sessões longas e a sensação de "não sei nada". O FSRS ainda encurta o intervalo de palavras que o aluno já lê bem.</p>
+        <p><strong>Sugestão:</strong> um cartão de reconhecimento IT→PT em contexto como primeira etapa, com PT→IT depois. Ou deixar explícito no book que a meta é produtiva.</p>
+      </div></li>
+      <li class="item alta" data-lens="P S A"><div class="item-body">
+        <div class="item-top"><span class="num">04</span><h3>A maioria das salvas e quase todas as expressões nunca viram cartão</h3><span class="tags"><span class="tag">P</span><span class="tag">S</span><span class="tag">A</span></span></div>
+        <p>O REV-02 exclui palavras sem glosa PT. A cobertura de glosa é de 45,7% dos lemas e 98% das locuções ficam sem glosa (dictionary.md). Os "95%" do book valem só para o NVdB. O REV-03 promete um cartão de expressão que quase nunca vai existir, e o aluno não é avisado.</p>
+        <p><strong>Sugestão:</strong> sem glosa, usar sempre a definição com lacuna (REV-15) como pergunta, num caminho só. Para expressões, uma lacuna na frase IT com a frase PT alinhada como pista.</p>
+      </div></li>
+      <li class="item alta" data-lens="P S A"><div class="item-body">
+        <div class="item-top"><span class="num">05</span><h3>Salva sem classe, cartão com classe</h3><span class="tags"><span class="tag">P</span><span class="tag">S</span><span class="tag">A</span></span></div>
+        <p>SAL-02 e ARQ-35 salvam por lema sem classe ("binario" substantivo e adjetivo), e <code>review_card</code> é por <code>lemma, pos</code>. Não está definido quantos cartões nascem. O próprio book se contradiz: <code>word_image</code> tem <code>pos</code>, mas o REV-14 diz "uma imagem por lema".</p>
+      </div></li>
+      <li class="item alta" data-lens="P S"><div class="item-body">
+        <div class="item-top"><span class="num">06</span><h3>"Na história" e a Dica não têm de onde sair</h3><span class="tags"><span class="tag">P</span><span class="tag">S</span></span><span class="check">✓ conferido</span></div>
+        <p>A tabela <code>saved</code> guarda só <code>story_id</code>, sem parágrafo nem frase (<code>architecture.md:87</code>). No mock, palavras do NVdB que não estão nas salvas do content.md aparecem com trecho de história, o que supõe um índice lema → ocorrência que não existe.</p>
+        <p><strong>Sugestão:</strong> <code>saved</code> passa a guardar parágrafo e frase. Palavras do NVdB ficam sem trecho, a menos que se decida criar o índice.</p>
+      </div></li>
+      <li class="item alta" data-lens="S"><div class="item-body">
+        <div class="item-top"><span class="num">07</span><h3>3 dos 4 exercícios dependem de dados que nenhum documento produz</h3><span class="tags"><span class="tag">S</span></span></div>
+        <p>Artigo, plural irregular e texto da regra não estão no contrato do <code>dict</code>. O REV-15 ainda pede a regra em duas línguas.</p>
+        <p><strong>Sugestão:</strong> o pipeline grava <code>article</code> e <code>rule_id</code> por entry. O app tem modelos de regra fixos, em PT e IT, preenchidos com a palavra.</p>
+      </div></li>
+      <li class="item alta" data-lens="S P"><div class="item-body">
+        <div class="item-top"><span class="num">08</span><h3>Estado FSRS gravado em colunas mutáveis</h3><span class="tags"><span class="tag">S</span><span class="tag">P</span></span></div>
+        <p>Suspender cartões quando um verbete sai do <code>dict</code> exige escrever no <code>user</code> durante a atualização de conteúdo, o que viola o OFF-34. <code>suspended</code> e <code>source</code> repetem o que já está em <code>saved.deleted_at</code> e <code>known_word</code>. "Contar como certa" precisa do estado anterior, que o log não guarda. Campos mutáveis também conflitam num sync futuro.</p>
+        <p><strong>Sugestão:</strong> <code>review_log</code> só de inserções como fonte da verdade, com o estado FSRS calculado a partir dele. "Suspenso" vira filtro de consulta, não coluna.</p>
+      </div></li>
+      <li class="item alta" data-lens="U A"><div class="item-body">
+        <div class="item-top"><span class="num">09</span><h3>O desfazer está escondido ou não existe</h3><span class="tags"><span class="tag">U</span><span class="tag">A</span></span></div>
+        <ul>
+          <li>"Não sei" fica colado em Conferir e não tem desfazer: um toque escapado vira um lapso no FSRS.</li>
+          <li>"Contar como certa" é o último bloco da resposta e fica abaixo da dobra no Artigo e na Conjugação.</li>
+          <li>"Já sei" fica ao lado de "Aprender" e só se desfaz em Ajustes. O toast do sistema não tem ação.</li>
+        </ul>
+        <p><strong>Sugestão:</strong> "Contar como certa" ou "Desfazer" junto do veredito e também depois de Não sei. Um toast com Desfazer, que também serviria ao SAL-02.</p>
+      </div></li>
+      <li class="item alta" data-lens="U P S A"><div class="item-body">
+        <div class="item-top"><span class="num">10</span><h3>"N de 14" não diz o que acontece quando um cartão volta</h3><span class="tags"><span class="tag">U</span><span class="tag">P</span><span class="tag">S</span><span class="tag">A</span></span></div>
+        <p>Não está definido se o total cresce, se a apresentação de palavra nova conta como cartão nem se há limite de voltas. A fila de reinserção vive só na sessão e se perde se o app for encerrado.</p>
+        <p><strong>Sugestão:</strong> contar cartões distintos e mostrar "+2 para repetir" à parte. Again grava vencimento = agora e a sessão só consulta vencidos. Limite de 3 voltas.</p>
+      </div></li>
+      <li class="item alta" data-lens="A"><div class="item-body">
+        <div class="item-top"><span class="num">11</span><h3>Leitor de tela e texto grande</h3><span class="tags"><span class="tag">A</span></span></div>
+        <ul>
+          <li>Depois de conferir, o foco vai para Continuar e o aluno não ouve a resposta certa (4.1.3, 2.4.3).</li>
+          <li>Ao abrir o cartão, o foco no campo pula a pergunta e a pista.</li>
+          <li>A pergunta por imagem usa foto da galeria sem texto alternativo (1.1.1).</li>
+          <li>Texto grande quebra o layout: campo com altura fixa de 44px, resultado com <code>nowrap</code> e reticências, "finestrino" partido no meio (1.4.4).</li>
+        </ul>
+      </div></li>
+      <li class="item alta" data-lens="P A"><div class="item-body">
+        <div class="item-top"><span class="num">12</span><h3>Carga diária e acúmulo</h3><span class="tags"><span class="tag">P</span><span class="tag">A</span></span></div>
+        <p>Com o padrão de 10 palavras novas por dia, a revisão digitada chega a cerca de 100 cartões por dia em algumas semanas (estimativa a confirmar por simulação). Não há freio para acúmulo nem sessões em lotes ("1 de 412"). Com Origem = Salvas e NVdB, os cartões de forma nunca ganham vaga no limite diário.</p>
+        <p><strong>Sugestão:</strong> padrão de 5. Pausar as novas acima de N vencidos. Cotas separadas para os cartões de forma.</p>
+      </div></li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="medios">
+    <div class="section-head">
+      <h2 id="medios">Problemas médios</h2>
+      <p>Lacunas de comportamento e contradições com a spec que dá para resolver sem refazer o desenho.</p>
+    </div>
+    <ul class="list compact">
+      <li class="item media" data-lens="U S"><div class="item-body">
+        <div class="item-top"><h3>Abrir a história no ¶1 sobrescreve o progresso de leitura</h3><span class="tags"><span class="tag">U</span><span class="tag">S</span></span></div>
+        <p>LEI-07 grava o progresso continuamente, então o "Continuar lendo" volta para trás. Uma história nova vira "em andamento".</p>
+      </div></li>
+      <li class="item media" data-lens="U S A"><div class="item-body">
+        <div class="item-top"><h3>Navegação da sessão</h3><span class="tags"><span class="tag">U</span><span class="tag">S</span><span class="tag">A</span></span></div>
+        <p>A sessão é empilhada mas usa X em vez de ‹ (NAV-04). O gesto de borda e o voltar do Android não estão definidos. O verbete aberto pela sessão é um terceiro contexto que a spec não prevê: entra no Histórico? Tem grifo?</p>
+      </div></li>
+      <li class="item media" data-lens="U"><div class="item-body">
+        <div class="item-top"><h3>"Abrir verbete" está disponível antes de responder</h3><span class="tags"><span class="tag">U</span></span></div>
+        <p>O verbete entrega a resposta, e não há regra de nota para isso. Mais opções deveria mudar de conteúdo conforme o estado (pergunta ou resposta).</p>
+      </div></li>
+      <li class="item media" data-lens="S"><div class="item-body">
+        <div class="item-top"><h3>A glosa aparece aberta mesmo com Glosas = Italiano</h3><span class="tags"><span class="tag">S</span></span></div>
+        <p>Isso contraria DIC-03 e AJU-02. Também falta a tabela que liga cada texto novo a uma área da Imersão e a uma classe do ARQ-46.</p>
+      </div></li>
+      <li class="item media" data-lens="S P"><div class="item-body">
+        <div class="item-top"><h3>"Também é janela" exige um índice PT→IT</h3><span class="tags"><span class="tag">S</span><span class="tag">P</span></span></div>
+        <p>É o mesmo dado da busca reversa, que está fora do escopo (§10). A alternativa do próprio book ("sem nota, volta no fim") dispensa o índice.</p>
+      </div></li>
+      <li class="item media" data-lens="P"><div class="item-body">
+        <div class="item-top"><h3>Hard para desvios que não são esquecimento</h3><span class="tags"><span class="tag">P</span></span></div>
+        <p>Acento faltando é ortografia, e sinônimo válido é ambiguidade da pista. Dar Hard nesses casos encurta o intervalo de um cartão que estava bem.</p>
+      </div></li>
+      <li class="item media" data-lens="P"><div class="item-body">
+        <div class="item-top"><h3>O Artigo de 4 opções deixa chutar, e a Conjugação inclui verbos regulares</h3><span class="tags"><span class="tag">P</span></span></div>
+        <p>Em <em>cane</em>, lo e l’ caem pela fonologia e a escolha real fica em 50%. <em>parlano</em> sai da regra. As duas coisas contradizem o critério "só quando a regra não resolve".</p>
+      </div></li>
+      <li class="item media" data-lens="S"><div class="item-body">
+        <div class="item-top"><h3>Imagens de 512 px no <code>user</code></h3><span class="tags"><span class="tag">S</span></span></div>
+        <p>Cerca de 400 imagens estouram o limite de 25 MB do backup do Android (ARQ-79). Câmera e galeria não estão no canal nativo previsto (ARQ-73).</p>
+      </div></li>
+      <li class="item media" data-lens="U"><div class="item-body">
+        <div class="item-top"><h3>O teclado sobe e desce a cada cartão</h3><span class="tags"><span class="tag">U</span></span></div>
+        <p>Conferir e Continuar ficam em alturas diferentes, e um Enter duplo pode pular a resposta. Falta também definir movimento, háptico e áudio automático.</p>
+      </div></li>
+      <li class="item media" data-lens="A S"><div class="item-body">
+        <div class="item-top"><h3>Detalhes de acessibilidade e dois conceitos de "dia"</h3><span class="tags"><span class="tag">A</span><span class="tag">S</span></span></div>
+        <ul>
+          <li><code>lang="it"</code> em "sem resposta".</li>
+          <li>A lacuna "______" é lida como sublinhados.</li>
+          <li>Placeholder com 3,58:1 e borda do campo com 1,66:1.</li>
+          <li>É e è não se distinguem no leitor de tela.</li>
+          <li>O IPA é lido símbolo por símbolo.</li>
+          <li>O foco fica sem destino no fim da sessão.</li>
+          <li>A Revisão vira o dia às 4h e o Histórico à meia-noite.</li>
+        </ul>
+      </div></li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="baixos">
+    <div class="section-head">
+      <h2 id="baixos">Problemas baixos</h2>
+    </div>
+    <ul class="list compact">
+      <li class="item baixa" data-lens="P S U"><div class="item-body">
+        <div class="item-top"><h3>"skip" tem dois sentidos</h3><span class="tags"><span class="tag">P</span><span class="tag">S</span><span class="tag">U</span></span><span class="check">✓ conferido</span></div>
+        <p>No esquema, "Não sei" é <code>skip</code> e vira Again (<code>book-revisao.html:450</code>). Já o "Pular cartão" do REV-13 não dá nota. Quem implementar vai gravar Again para Pular.</p>
+      </div></li>
+      <li class="item baixa" data-lens="S"><div class="item-body">
+        <div class="item-top"><h3>Nomes e design system</h3><span class="tags"><span class="tag">S</span></span></div>
+        <ul>
+          <li><code>kind</code> mistura português e italiano.</li>
+          <li>A correção usa OSA e o ARQ-66 usa Levenshtein.</li>
+          <li><code>.rev-ctx</code> duplica o cartão "Nella storia".</li>
+          <li>Há ícones fora da lista do components-shared.</li>
+        </ul>
+      </div></li>
+      <li class="item baixa" data-lens="P"><div class="item-body">
+        <div class="item-top"><h3>A regra de plural é ingênua com -co/-go</h3><span class="tags"><span class="tag">P</span></span></div>
+        <p><em>amico → amici</em> passa pela regra e fica sem cartão, mas a dúvida real do aluno é amici ou amichi.</p>
+      </div></li>
+      <li class="item baixa" data-lens="U"><div class="item-body">
+        <div class="item-top"><h3>Textos</h3><span class="tags"><span class="tag">U</span></span></div>
+        <ul>
+          <li>"Certo" vem sem ponto final, e os outros vereditos têm.</li>
+          <li>Rótulo, instrução e placeholder repetem "em italiano".</li>
+          <li><code>enterkeyhint="done"</code> deveria ser <code>go</code>.</li>
+          <li>"Quase. Uma letra diferente." não mostra qual letra.</li>
+        </ul>
+      </div></li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="decisoes">
+    <div class="section-head">
+      <h2 id="decisoes">Decisões abertas</h2>
+      <p>Estas decisões destravam a maior parte dos problemas acima. Cada uma é do dono do produto.</p>
+    </div>
+    <ol class="decisions">
+      <li><h3>Meta pedagógica</h3><p>Vocabulário para ler (reconhecimento) ou para escrever (produção)? Decide o problema 03 e os do Artigo e da Conjugação.</p></li>
+      <li><h3>Quantos cartões uma salva gera</h3><p>Um por classe, só a classe de maior rank NVdB, ou passar a guardar <code>pos</code> em <code>saved</code>? E se <code>saved</code> ganha parágrafo e frase.</p></li>
+      <li><h3>Palavra sem glosa PT</h3><p>Usar sempre a definição com lacuna como pergunta, ou deixar de fora e avisar o aluno?</p></li>
+      <li><h3>Estado do cartão</h3><p>Colunas gravadas, como no book, ou calculado a partir de um log só de inserções?</p></li>
+      <li><h3>Imagens na v1</h3><p>Manter (256 px, com câmera e galeria no ARQ-73) ou adiar para depois da v1?</p></li>
+      <li><h3>Contador, repetição e carga</h3><p>Como o "N de M" se comporta quando um cartão volta, qual o limite de voltas, e qual o padrão de palavras novas por dia.</p></li>
+      <li><h3>História aberta pela Revisão</h3><p>Abre o Leitor sem gravar progresso, abre uma página só com o trecho, ou segue o comportamento normal?</p></li>
+    </ol>
+  </section>
+
+  <footer>
+    <p>Fontes cruzadas: book-revisao.html, functional-spec.md, architecture.md, dictionary.md, dictionary-pipeline.md, components-shared.md, tokens.css, book-leitor.html, book-dicionario.html.</p>
+    <p>"✓ conferido" marca os achados confirmados diretamente no arquivo. Os outros vêm dos relatórios dos agentes e estão com a referência citada.</p>
+  </footer>
+</main>
+
+<script>
+(function () {
+  var buttons = document.querySelectorAll('.filter button');
+  var items = document.querySelectorAll('[data-lens]:not(button)');
+  function apply(lens) {
+    buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.lens === lens)); });
+    items.forEach(function (el) {
+      var show = lens === 'all' || el.dataset.lens.split(' ').indexOf(lens) !== -1;
+      if (show) el.removeAttribute('data-hidden-by-filter'); else el.setAttribute('data-hidden-by-filter', '');
+    });
+    try { localStorage.setItem('revisao-lens', lens); } catch (e) {}
+  }
+  buttons.forEach(function (b) { b.addEventListener('click', function () { apply(b.dataset.lens); }); });
+  var saved = null;
+  try { saved = localStorage.getItem('revisao-lens'); } catch (e) {}
+  if (saved && document.querySelector('.filter button[data-lens="' + saved + '"]')) apply(saved);
+})();
+</script>

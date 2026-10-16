@@ -2,7 +2,7 @@
 
 Quais campos do Wiktionary italiano o Postilla usa, como cada um é transformado e quais ficam de fora, com o motivo. O processo de build está em [dictionary-pipeline.md](dictionary-pipeline.md). O layout do verbete está em [design/content.md](../design/content.md).
 
-Fonte: JSONL do kaikki.org (wiktextract sobre o it.wiktionary). Três seções vêm direto do wikitext do dump. A Glosa PT usa também o WikDict e o en.wiktionary. Os números de cobertura são do dump de 2026-10-01 e contam a porcentagem dos 75.590 lemas que têm o campo.
+Fonte: JSONL do kaikki.org (wiktextract sobre o it.wiktionary). Três seções vêm direto do wikitext do dump. A Glosa PT usa também o WikDict e o en.wiktionary. Os traços de treino (gênero, artigo, plural, conjugação), que a Revisão e o Treino cobram, completam o it.wiktionary com o en.wiktionary e, se entrar, com o Morph-it! (ver [Traços de treino](#traços-de-treino)). Os números de cobertura são do dump de 2026-10-01 e contam a porcentagem dos 75.590 lemas que têm o campo.
 
 ## Seções do verbete
 
@@ -55,10 +55,10 @@ Resultado: "verbo intransitivo pronominale · ausiliare: essere".
 
 ### Flessione e Coniugazione
 
-- De cada forma só ficam `form` e `tags`. Saem `source` e `raw_tags`.
+- De cada forma só ficam `form` e `tags`. Sai `source`. Os `raw_tags` saem da Flessione, mas passam a ser lidos na conjugação: eles dão modo e tempo onde as `tags` não bastam, inclusive o imperativo ([etapa 5b do pipeline](dictionary-pipeline.md#5b-traços-de-treino)).
 - A primeira forma da conjugação ("sedere (coniugazione)", sem tags) é só o link para a tabela e é descartada.
 - O pronome da conjugação (io, tu, lui/lei…) é derivado de pessoa + número (`first-person` + `singular` → io), não de `raw_tags`.
-- As formas são agrupadas por modo e tempo para montar as tabelas (Indicativo presente, Passato prossimo, Imperfetto…).
+- As formas são agrupadas por modo e tempo para montar as tabelas (Indicativo presente, Passato prossimo, Imperfetto…). Se a seção passa a mostrar o imperativo como 5º tempo é uma decisão em aberto (ver [Decisões em aberto](#decisões-em-aberto)).
 
 ### Sillabazione e Pronuncia
 
@@ -113,6 +113,36 @@ Resultado: "verbo intransitivo pronominale · ausiliare: essere".
 - Vêm do wikitext (etapa 3 do pipeline) e substituem o `related` do wiktextract.
 - Em Alterati, o template da linha dá o tipo: `{{Dim}}` diminutivo, `{{Accr}}` accrescitivo, `{{Vezz}}` vezzeggiativo, `{{Pegg}}` peggiorativo.
 
+## Traços de treino
+
+Campos de `entry.data` que a Revisão e o Treino leem para montar e corrigir os exercícios de Artigo, Gênero, Plural, Preposições e dos tempos verbais (ARQ-87). São preenchidos na [etapa 5b do pipeline](dictionary-pipeline.md#5b-traços-de-treino), pela cadeia it.wiktionary → en.wiktionary → Morph-it! (D19). **Nada é gerado por regra:** um lema sem o dado em nenhuma fonte fica sem o campo e fora do padrão correspondente. A exceção é o artigo, que é a própria regra do `art.forma` aplicada ao gênero.
+
+| Campo | Classe | O que é | De onde vem |
+|---|---|---|---|
+| `gender` | sostantivo | `m` ou `f` | `tags` do it.wiktionary (`masculine`, `feminine`) → en.wiktionary → Morph-it! |
+| `article`, `article_indef`, `article_pl` | sostantivo | Artigo definido no singular, indefinido e definido no plural (`il` · `un` · `i`) | Calculado do `gender` e do som inicial (*lo* antes de s + consoante, z, gn, ps; *l'* antes de vogal; *il* no resto), com um arquivo de exceções para o que a escrita não resolve (*lo yogurt*, *gli dei*) |
+| `plural` | sostantivo | Lista de plurais. Invariável: a própria palavra (`["città"]`). Incontável (*marzo*): sem o campo | `forms[]` com tag `plural` ou a tag `invariable` do it.wiktionary → en.wiktionary (sem o acento tônico, aceitando o feminino plural de *uova*, *braccia*) → Morph-it! |
+| `plural_src` | sostantivo | Fonte do plural: `wikt` · `enwikt` · `morphit`. Não existe valor para plural gerado | Etapa 5b |
+| `conj_class` | verbo | `group` (`are` · `ere` · `ire`), `isc`, `pronominal`, `aux` (`avere` · `essere`) | Terminação do infinitivo, formas do presente, infinitivo em -rsi e forma com tag `auxiliary` |
+| `conj` | verbo | Lista plana `{ tense, person, forms }`. `tense`: 1 presente · 2 passato_prossimo · 3 imperfetto · 4 futuro · 5 imperativo. `person`: 1 io … 6 loro | Tabela do it.wiktionary (com os `raw_tags`) → en.wiktionary (pelas `tags`, sem o acento tônico) → Morph-it! |
+
+```json
+{ "word": "binario", "pos": "sostantivo", "gender": "m",
+  "article": "il", "article_indef": "un", "article_pl": "i",
+  "plural": ["binari"], "plural_src": "enwikt" }
+
+{ "word": "finire", "pos": "verbo",
+  "conj_class": { "group": "ire", "isc": true, "pronominal": false, "aux": "avere" },
+  "conj": [ { "tense": 1, "person": 1, "forms": ["finisco"] },
+            { "tense": 2, "person": 1, "forms": ["ho finito"] },
+            { "tense": 5, "person": 2, "forms": ["finisci"] } ] }
+```
+
+- **Origem de gênero e conjugação:** a D19 marca só a do plural. `gender_src` e `conj_src` estão em aberto no [pipeline](dictionary-pipeline.md#decisões-em-aberto).
+- **Cobertura:** dos substantivos do it.wiktionary sem plural nem marca de invariável, o en.wiktionary resolve 55% (5.807 de 10.464); dos sem gênero, 64% (2.772 de 4.348); dos verbos sem tabela, 59% (1.384 de 2.352). O que sobra é quase todo lixo ou palavra rara ([cobertura-enwiktionary.md](propostas/cobertura-enwiktionary.md)).
+- **Divergência entre fontes** (*uomo*: "donne" no it.wiktionary × *uomini* no en.wiktionary) vai para o relatório do build e se resolve no arquivo de correções.
+- O catálogo de padrões (`rule`) e o índice de quem é membro de qual padrão (`drill`) não fazem parte do verbete: estão no esquema da [etapa 6 do pipeline](dictionary-pipeline.md#6-montar-o-sqlite).
+
 ## Campos não utilizados
 
 | Campo | Conteúdo | Tamanho² | Por quê |
@@ -120,7 +150,7 @@ Resultado: "verbo intransitivo pronominale · ausiliare: essere".
 | `categories` | categorias do MediaWiki ("Sostantivi in italiano") | 45 MB | Repete `pos` e `topics`. Só a valência do verbo é aproveitada, e vira campo próprio. |
 | `senses[].categories` | área e registro por sentido ("Medicina-IT") | 6 MB | Repete `topics` e `raw_tags`. Só "Pagine senza definizione" é usada, como filtro. |
 | `etymology_links` | links da etimologia | 30 MB | O verbete mostra a etimologia como texto. |
-| `forms[].source`, `forms[].raw_tags` | origem da tabela, rótulos brutos | 30 MB | Metadado do wiki. Pessoa e número já estão em `tags`. |
+| `forms[].source`, `forms[].raw_tags` (fora da conjugação) | origem da tabela, rótulos brutos | 30 MB | Metadado do wiki. Pessoa e número já estão em `tags`. Na conjugação, os `raw_tags` passam a ser lidos para modo e tempo ([Traços de treino](#traços-de-treino)). |
 | `senses[].id` | id interno da acepção | 23 MB | Não é exibido. |
 | `translations[]` (outras línguas) | inglês, alemão, latim… | ~20 MB | O app é monolíngue com glosa em PT. |
 | WikDict `sense`, `sense_num` | rótulo do quadro de tradução ("sostantivo (stazione)") | — | Não liga às acepções de Significati. A glosa é por verbete. |
@@ -136,3 +166,13 @@ Resultado: "verbo intransitivo pronominale · ausiliare: essere".
 | Note / Riferimenti | bibliografia | — | O wiktextract não extrai, e não é útil para quem está lendo. |
 
 ² Tamanho no JSONL inteiro (501 MB), incluindo as formas flexionadas.
+
+## Decisões em aberto
+
+As do build (fontes, divergências, licenças) estão no [dictionary-pipeline.md](dictionary-pipeline.md#decisões-em-aberto).
+
+| Decisão | Recomendação |
+|---|---|
+| Imperativo na Conjugação do verbete (DIC-05; proposta 12.2, item 13). O imperativo virou o 5º valor de `tense` (D11e) e é cobrado no Treino. Opções: (a) a seção Coniugazione mostra o imperativo como 5º tempo, depois dos 4 do DIC-05; (b) a seção fica com os 4 tempos, e o imperativo só existe no `conj` para a Revisão e o Treino. | (a): o aluno acha no verbete o que treina. Pede mudar o DIC-05 na spec funcional e o book do verbete. |
+| O verbete mostra os traços vindos do en.wiktionary e do Morph-it!? Hoje a Flessione e a Coniugazione só têm o it.wiktionary. Opções: (a) as seções usam os campos da cadeia (`plural`, `conj`), e o verbete mostra o mesmo que o Treino cobra; (b) só o it.wiktionary, e os traços das outras fontes ficam para os exercícios. | (a): uma fonte de verdade para o aluno. Nas divergências, vale o que o pipeline decidir para o verbete (lá a recomendação é deixá-lo como está até o arquivo de correções). |
+| Crédito no verbete (DIC-09). Ele diz "Fonte: Wikizionario · CC BY-SA", mas um plural ou uma tabela pode vir do en.wiktionary ou do Morph-it!. Opções: (a) crédito fixo com todas as fontes; (b) a fonte extra só no verbete que a usa. | (b), lendo `plural_src` e os `gender_src` e `conj_src` propostos no pipeline. |

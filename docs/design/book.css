@@ -4,7 +4,7 @@
      <link rel="stylesheet" href="tokens.css">
      <link rel="stylesheet" href="book.css">
    Do not copy, fork or override these classes in a book. Book-specific rules
-   go in the book's own <style>, prefixed lib- / rd- / tr- / dic- / set- / id-,
+   go in the book's own <style>, prefixed lib- / rd- / tr- / dic- / rev- / set- / id-,
    and never target a ui-* or book-* class (not even as an ancestor).
    Forced states for mockups: .is-hover · .is-active · .is-focus (one convention).
    Spec and markup: components-shared.md
@@ -43,8 +43,10 @@
 }
 
 /* ---- Bottom tab bar ----------------------------------------------------- */
+/* exactly 4 tabs: Biblioteca · Dicionário · Revisão · Ajustes (NAV-01, D5). Equal columns that
+   give way to the longest label ("Impostazioni", semibold, on a 323px screen) instead of overflowing. */
 .ui-tabbar {
-  display: grid; grid-template-columns: repeat(3, 1fr);
+  display: grid; grid-template-columns: repeat(4, minmax(min-content, 1fr));
   height: var(--tabbar-height); background: var(--color-bg);
   border-top: var(--border-hairline) solid var(--color-rule);
 }
@@ -354,6 +356,19 @@ a.ui-hero:hover, a.ui-hero:active, .ui-hero.is-hover, .ui-hero.is-active { backg
 }
 .ui-toast.is-shown, .ui-toast--static { opacity: 1; transform: none; }
 .ui-toast--static { position: static; }
+/* toast with one action ("Desfazer"): 6 s instead of 2.6 s; the timer pauses while the toast has focus.
+   <div class="ui-toast ui-toast--action" role="status"><span>chiave não vai mais para a revisão.</span><button class="ui-toast__action" type="button">Desfazer</button></div> */
+.ui-toast--action { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding-block: var(--space-1); padding-inline-end: var(--space-1); }
+.ui-toast--action.is-shown, .ui-toast--action.ui-toast--static { pointer-events: auto; }
+.ui-toast__action {
+  flex: none; min-height: var(--tap-min); padding: 0 var(--space-3); border: 0; border-radius: var(--radius-pill);
+  background: transparent; color: var(--color-on-ink); font: var(--type-small); font-weight: var(--weight-semibold);
+  text-decoration: underline; text-decoration-thickness: var(--border-hairline); text-underline-offset: 0.24em; cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-standard);
+}
+.ui-toast__action:hover, .ui-toast__action.is-hover { background: color-mix(in oklab, var(--color-on-ink) 14%, var(--color-ink)); }
+.ui-toast__action:active, .ui-toast__action.is-active { background: color-mix(in oklab, var(--color-on-ink) 24%, var(--color-ink)); }
+.ui-toast__action:focus-visible, .ui-toast__action.is-focus { outline: var(--border-focus) solid var(--color-on-ink); outline-offset: calc(var(--border-focus) * -2); } /* the ink ring would vanish on the ink toast */
 
 /* ---- Grip, sheet, split divider ------------------------------------------- */
 .ui-grip {

@@ -449,6 +449,7 @@ kbd.dic-k { display: inline-grid; place-items: center; min-width: var(--space-6)
       <dt>App bar</dt><dd>Voltar + <code>volume-2</code>, marcador e <code>ellipsis</code>: três ações à direita, o máximo do app bar compacto (<code>components-shared.md</code>). O áudio fica ao alcance durante toda a rolagem.</dd>
       <dt>Pela aba</dt><dd>Busca ou toque numa linha empilha o verbete dentro da aba Dicionário. A barra de abas fica, e o traço amarelo da aba passa a ser o único amarelo: o cartão “Nella storia” perde o grifo e a ocorrência ganha só o sublinhado em tinta. Tocar de novo na aba ativa volta à raiz.</dd>
       <dt id="expressao">Expressão</dt><dd>Pressão longa numa palavra da história, arrastando, seleciona uma expressão (<span lang="it">a un certo punto</span>). Ela abre como qualquer verbete, em página inteira empilhada: a expressão inteira é o lema (pode quebrar em duas linhas), a classe é a da locução (<span lang="it"><em>locuzione avverbiale</em></span>), sem sillabazione nem flexão, e “Nella storia” grifa a expressão toda. Expressão sem verbete próprio cai no verbete da palavra-chave, com a expressão destacada em Significati. O marcador salva a expressão como uma entrada só em Salvas; nenhum gesto na história salva.</dd>
+      <dt>Revisão</dt><dd>A raiz do Dicionário não tem o cartão “Revisão de hoje”: ele mora na raiz da 4ª aba, Revisão (D5, <a href="book-revisao.html">book-revisao</a>). A raiz fica com busca e <em>Histórico | Salvas</em>. O verbete aberto durante uma sessão de Revisão entra no Histórico com a origem “Revisão” no lugar do nome da história (D29).</dd>
       <dt>Pilha</dt><dd>Até 20 verbetes. Acima disso, o mais antigo sai; o Leitor nunca sai.</dd>
       <dt>Movimento</dt><dd>Push e pop com <code>--dur-base</code>. Com movimento reduzido, a troca é instantânea, sem deslocamento.</dd>
       <dt>Glosa</dt><dd>Sempre fechada ao abrir um verbete, inclusive ao voltar. Reabrir é um toque.</dd>
@@ -726,7 +727,8 @@ kbd.dic-k { display: inline-grid; place-items: center; min-width: var(--space-6)
   const tabbar = `<nav class="ui-tabbar" aria-label="Principal">
       <a class="ui-tab" href="#telas">${ic('library-big')}Biblioteca</a>
       <a class="ui-tab" href="#telas" aria-current="page">${ic('book-a')}Dicionário</a>
-      <a class="ui-tab" href="#telas">${ic('settings-2')}Ajustes</a></nav>`;
+      <a class="ui-tab" href="#telas">${ic('check')}Revisão</a>
+      <a class="ui-tab" href="#telas">${ic('settings-2')}Ajustes</a></nav>`;   /* 'check' = placeholder da aba Revisão (book-revisao › Em aberto) */
 
   const row = (w, meta, saved, opts = {}) => `<li class="ui-row${saved ? ' ui-row--saved' : ''}${opts.state === 'active' ? ' is-active' : ''}${opts.compact ? ' ui-row--compact' : ''}">
       <a class="ui-row__main${opts.state === 'focus' ? ' is-focus' : ''}" href="${opts.href || '#telas'}"${opts.static ? ' tabindex="-1"' : ''}${opts.msg ? ` data-msg="${opts.msg}"` : ''}>${opts.icon ? ic(opts.icon) : ''}<span class="ui-row__text"><span class="ui-row__title" lang="it">${opts.typed ? `<span class="dic-typed">${opts.typed}</span>${w.slice(opts.typed.length)}` : w}</span>${meta ? `<span class="ui-row__meta">${meta}</span>` : ''}</span></a>

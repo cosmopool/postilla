@@ -1,0 +1,913 @@
+<!doctype html>
+<html lang="pt-BR">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Revisão e Treino</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400..700;1,7..72,400&family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400&display=swap">
+<style>
+/* Layout: uma coluna de leitura (~72ch) com índice no topo; tabelas e telas rolam dentro do próprio bloco.
+   Tokens: os do design system do Postilla (docs/design/tokens.css); um amarelo só (o grifo do título). */
+:root {
+  --bg: #FDFDFC; --surface: #F6F6F3; --surface-2: #EDECE8;
+  --ink: #181713; --muted: #5C5B55; --faint: #878681;
+  --rule: #DDDCD8; --rule-strong: #C8C7C2;
+  --grifo: #FFEB99; --grifo-line: #C99A00;
+  --error: #BA2B28; --success: #1F6B50;
+  --focus: #181713;
+  --font-display: 'Newsreader', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  --font-text: 'Literata', 'Iowan Old Style', Charter, Georgia, serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #100F0D; --surface: #191816; --surface-2: #22221E;
+    --ink: #ECEBE7; --muted: #ACABA5; --faint: #7C7A75;
+    --rule: #31302C; --rule-strong: #44423E;
+    --grifo: #3D3210; --grifo-line: #F2C94C;
+    --error: #F47C70; --success: #7FCBA9;
+    --focus: #F2C94C; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #100F0D; --surface: #191816; --surface-2: #22221E;
+  --ink: #ECEBE7; --muted: #ACABA5; --faint: #7C7A75;
+  --rule: #31302C; --rule-strong: #44423E;
+  --grifo: #3D3210; --grifo-line: #F2C94C;
+  --error: #F47C70; --success: #7FCBA9;
+  --focus: #F2C94C; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 400 16px/1.6 var(--font-text); }
+.page { max-width: 50rem; margin: 0 auto; padding-inline: 20px; padding-block: 48px 72px; display: grid; gap: 64px; }
+@media (max-width: 480px) { .page { padding-inline: 16px; padding-block: 28px 56px; gap: 48px; } }
+
+h1, h2, h3 { font-family: var(--font-display); font-weight: 500; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(36px, 7.5vw, 52px); line-height: 1.05; letter-spacing: -0.01em; }
+h1 .grifo { background: linear-gradient(transparent 58%, var(--grifo) 58%); box-shadow: inset 0 -2px 0 var(--grifo-line); padding: 0 2px; }
+h2 { font-size: 30px; line-height: 1.15; }
+h3 { font: 600 18px/1.35 var(--font-text); }
+p { margin: 0; }
+em { font-style: italic; }
+code { font: 0.86em var(--font-mono); background: var(--surface-2); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+a { color: inherit; text-underline-offset: 3px; text-decoration-color: var(--rule-strong); }
+a:hover { text-decoration-color: var(--ink); }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+
+.eyebrow { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.muted { color: var(--muted); }
+.small { font-size: 14px; }
+
+header { display: grid; gap: 18px; }
+.thesis { font: 400 clamp(21px, 3.6vw, 25px)/1.45 var(--font-display); max-width: 40ch; }
+.lede { font-size: 17px; color: var(--muted); max-width: 64ch; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 14px; color: var(--muted); }
+.meta b { color: var(--ink); font-weight: 600; }
+.note { border-left: 2px solid var(--rule-strong); padding: 4px 0 4px 14px; font-size: 15px; color: var(--muted); max-width: 64ch; }
+.note b { color: var(--ink); }
+
+nav.toc { border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); padding-block: 14px; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px 20px; counter-reset: t; }
+@media (max-width: 640px) { nav.toc ol { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+nav.toc li { counter-increment: t; font-size: 14px; display: flex; gap: 8px; min-width: 0; }
+nav.toc li::before { content: counter(t, decimal-leading-zero); font: 600 12px/1.9 var(--font-mono); color: var(--faint); font-variant-numeric: tabular-nums; }
+nav.toc a { text-decoration: none; }
+nav.toc a:hover { text-decoration: underline; }
+
+section { display: grid; gap: 22px; scroll-margin-top: 16px; }
+.section-head { display: grid; gap: 8px; }
+.section-head .eyebrow { font-family: var(--font-mono); letter-spacing: 0.04em; }
+.section-head p { color: var(--muted); font-size: 16px; max-width: 64ch; }
+.block { display: grid; gap: 12px; }
+ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 6px; color: var(--muted); max-width: 66ch; }
+ul.plain b, ul.plain strong { color: var(--ink); font-weight: 600; }
+
+/* tables */
+.tw { overflow-x: auto; border: 1px solid var(--rule); border-radius: 10px; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; line-height: 1.5; }
+th, td { text-align: left; vertical-align: top; padding: 9px 12px; border-bottom: 1px solid var(--rule); }
+th { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 600; background: var(--surface); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.k { font-weight: 600; white-space: nowrap; }
+td.mono, .mono { font-family: var(--font-mono); font-size: 12.5px; }
+td em { color: var(--ink); }
+tr.hl td { background: var(--surface); font-weight: 600; }
+.w-wide { min-width: 640px; }
+
+/* code + diagrams */
+pre { margin: 0; font: 12.5px/1.55 var(--font-mono); background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 16px; overflow-x: auto; color: var(--ink); }
+pre .c { color: var(--muted); }
+
+/* concept cards */
+.trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 640px) { .trio { grid-template-columns: 1fr; } }
+.trio div { border-top: 2px solid var(--ink); padding-top: 10px; display: grid; gap: 4px; }
+.trio b { font: 500 22px/1.2 var(--font-display); }
+.trio p { font-size: 14px; color: var(--muted); }
+
+/* phone screens */
+.screens { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 720px) { .screens { grid-template-columns: 1fr; } }
+figure { margin: 0; display: grid; gap: 8px; min-width: 0; }
+figure pre { background: var(--bg); border: 1.5px solid var(--rule-strong); border-radius: 18px; padding: 16px 16px 18px; font-size: 12px; line-height: 1.6; }
+figcaption { font-size: 13px; color: var(--muted); }
+figcaption b { color: var(--ink); font-weight: 600; }
+.screens .full { grid-column: 1 / -1; }
+
+/* rules G1.. */
+.verdict-ok { color: var(--success); font-weight: 600; }
+.verdict-bad { color: var(--error); font-weight: 600; }
+
+/* decisions */
+.decisions { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.decision { background: var(--surface); border-radius: 12px; padding: 18px; display: grid; grid-template-columns: 62px minmax(0, 1fr); gap: 6px 14px; }
+.decision .id { font: 500 24px/1 var(--font-display); color: var(--muted); grid-row: span 3; padding-top: 2px; }
+.decision h3 { font-size: 17px; }
+.decision .opts { font-size: 14px; color: var(--muted); display: grid; gap: 3px; }
+.decision .rec { font-size: 14px; }
+.decision .rec b { font-weight: 600; }
+.decision .rec .tag { display: inline-block; font: 600 11px/1 var(--font-text); letter-spacing: 0.06em; text-transform: uppercase; border: 1px solid var(--ink); border-radius: 999px; padding: 4px 8px; margin-right: 6px; vertical-align: 1px; }
+
+.steps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+@media (max-width: 640px) { .steps { grid-template-columns: 1fr; } }
+.steps ol { margin: 0; padding-left: 20px; display: grid; gap: 5px; font-size: 14px; color: var(--muted); }
+
+footer { font-size: 13px; color: var(--faint); border-top: 1px solid var(--rule); padding-top: 18px; display: grid; gap: 6px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<main class="page">
+  <header>
+    <p class="eyebrow">Postilla · proposta de design · versão 2</p>
+    <h1><span class="grifo">Revisão</span> e Treino</h1>
+    <p class="thesis">O Treino é a Revisão com o aluno escolhendo o assunto. Os dois usam os mesmos cartões, a mesma correção e o mesmo log de respostas, e a Revisão usa esse log para insistir no que o aluno mais erra.</p>
+    <p class="lede">Esta é a versão 2, com as decisões de 2026-10-16. A proposta saiu de três especialistas que trabalharam em paralelo (pedagogia, UX e sistema), um juiz e um arquiteto, e responde aos problemas do relatório "A Revisão em quatro óticas", citados como P01–P12.</p>
+    <div class="meta">
+      <span><b>Data</b> 16 out 2026</span>
+      <span><b>Base</b> book-revisao.html, spec, arquitetura, dictionary.md</span>
+      <span><b>Estado</b> versão 2, com as decisões de 2026-10-16</span>
+    </div>
+    <p class="note"><b>As 36 decisões estão em <a href="revisao-treino-decisoes.md">revisao-treino-decisoes.md</a>.</b> Quando o texto cita D1, D2…, é a decisão tomada. O que as decisões cortaram saiu do texto (<a href="#cortes">seção 11</a>); o que falta decidir está nas <a href="#decisoes">pendências</a>. O catálogo de padrões foi reclassificado pelas referências A1, com peso no <em>Dai! 1</em>, e volta para aprovação (D11b).</p>
+  </header>
+
+  <nav class="toc" aria-label="Seções">
+    <ol>
+      <li><a href="#modelo">Modelo mental</a></li>
+      <li><a href="#padroes">Habilidades e padrões</a></li>
+      <li><a href="#exercicios">Exercícios e correção</a></li>
+      <li><a href="#fraqueza">Ponto fraco</a></li>
+      <li><a href="#revisao">Revisão</a></li>
+      <li><a href="#treino">Treino</a></li>
+      <li><a href="#telas">Navegação e telas</a></li>
+      <li><a href="#dados">Dados e pipeline</a></li>
+      <li><a href="#carga">Carga</a></li>
+      <li><a href="#problemas">Problemas resolvidos</a></li>
+      <li><a href="#cortes">O que foi cortado</a></li>
+      <li><a href="#decisoes">Decisões e pendências</a></li>
+      <li><a href="#proximos">Próximos passos</a></li>
+    </ol>
+  </nav>
+
+  <!-- 1 -->
+  <section id="modelo" aria-labelledby="h-modelo">
+    <div class="section-head">
+      <p class="eyebrow">01</p>
+      <h2 id="h-modelo">Um log, um gerador, duas portas</h2>
+    </div>
+    <div class="trio">
+      <div><b>Um log</b><p>Toda resposta, venha da Revisão ou do Treino, vira uma linha em <code>answer</code>. O estado do cartão, a fraqueza e as cotas são calculados a partir dele e não ficam gravados (P08).</p></div>
+      <div><b>Um gerador</b><p>Uma função monta o exercício e outra o corrige. As duas são as mesmas na Revisão e no Treino.</p></div>
+      <div><b>Duas portas</b><p>Na Revisão, o app escolhe os cartões. No Treino, o aluno escolhe um tema (Plural) ou uma regra (-co, -go). As respostas das duas contam igual no FSRS (D2).</p></div>
+    </div>
+<pre aria-label="Diagrama do modelo">            <span class="c">dict (conteúdo)</span>                         <span class="c">user (aluno)</span>
+  entry ── verbete + traços (artigo, plural, conj)    saved  ── lema + classe + frase de origem
+  drill ── membros de cada padrão + itens curados     answer ── log só de inserções
+  rule  ── catálogo de padrões (rules.toml, PT/IT)         │
+     │                                                     ▼
+     └──────────► gerador de exercício ◄──── dobra do log (FSRS, fraqueza, cotas)
+                         │
+          ┌──────────────┴──────────────┐
+      porta REVISÃO                 porta TREINO
+      o app escolhe:                o aluno escolhe:
+      vencidos, novos,              um tema (Plural)
+      reforço do mais fraco         ou uma regra (-co, -go)
+                         │
+                  correção ─► INSERT em answer</pre>
+    <div class="tw"><table class="w-wide">
+      <thead><tr><th>Para quem</th><th>Conceito</th><th>O que é</th><th>Novo?</th></tr></thead>
+      <tbody>
+        <tr><td>Código</td><td class="k">Cartão</td><td>Uma lembrança agendada pelo FSRS. Há o <b>cartão de palavra</b> (<em>binario</em> · Palavra) e o <b>cartão de padrão</b> (<code>pl.co_go</code>). No cartão de padrão, o que se lembra é a regra, e a palavra muda a cada vez.</td><td>O de padrão</td></tr>
+        <tr><td>Código</td><td class="k">Padrão</td><td>Uma regularidade com id, nível, regra em PT e IT, exemplos e membros. Pode ser do tipo <code>regra</code>, que vira cartão de padrão, ou <code>lista</code>, em que cada membro tem um cartão próprio.</td><td>Sim</td></tr>
+        <tr><td>Código</td><td class="k">Resposta</td><td>Uma linha de <code>answer</code>.</td><td>Substitui <code>review_card</code> e <code>review_log</code></td></tr>
+        <tr><td>Aluno</td><td class="k">Revisão · Treino · tema · regra</td><td>"Plural" é um tema. "-co, -go" é uma regra dentro dele.</td><td>Treino, tema, regra</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note"><b>Por que existe o cartão de padrão (D1).</b> Quem esquece que <em>-co</em> vira <em>-chi</em> esquece isso em <em>parco</em>, <em>banco</em> e <em>bosco</em> de uma vez. Um cartão por palavra multiplicaria a carga e misturaria vocabulário com regra. Uma exceção como <em>uomo → uomini</em> é uma lembrança própria e ganha cartão de palavra. Os ids de padrão só podem ser acrescentados. Não existem "domínio", "nível do tema" nem estado "Firme".</p>
+  </section>
+
+  <!-- 2 -->
+  <section id="padroes" aria-labelledby="h-padroes">
+    <div class="section-head">
+      <p class="eyebrow">02</p>
+      <h2 id="h-padroes">Habilidades e padrões da v1</h2>
+      <p>São 9 habilidades e um catálogo fechado de 30 padrões em 9 temas: 25 do tipo <code>regra</code> e 5 do tipo <code>lista</code>. Todos são A1 pelo critério "o que os livros A1 apresentam", com peso no <em>Dai! 1</em> (D11, D11c–e).</p>
+    </div>
+    <div class="tw"><table class="w-wide">
+      <thead><tr><th><code>skill</code></th><th>Tema</th><th>O que mede</th><th>Exemplo</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">1 scrivere</td><td>Palavra</td><td>Ver a glosa e escrever a palavra (PT→IT)</td><td>"janela (de trem)" → <em>finestrino</em></td></tr>
+        <tr><td class="mono">2 genere</td><td>Artigo</td><td>Gênero quando a terminação não o indica</td><td>___ <em>pane</em> → <em>il</em></td></tr>
+        <tr><td class="mono">3 articolo</td><td>Artigo</td><td>Forma do artigo, que é uma regra de som</td><td>___ <em>zaino</em> → <em>lo</em></td></tr>
+        <tr><td class="mono">4 coniugazione</td><td>Presente · Passato prossimo · Imperativo</td><td>Uma forma do verbo; o imperativo é o 5º valor de <code>tense</code> (D11e)</td><td><em>finire</em> · <em>loro</em> → <em>finiscono</em></td></tr>
+        <tr><td class="mono">5 plurale</td><td>Plural</td><td>Plural do substantivo</td><td><em>il parco</em> → <em>parchi</em></td></tr>
+        <tr><td class="mono">6 preposizione</td><td>Preposições</td><td>Preposição com artigo, isolada</td><td><em>di + il treno</em> → <em>del treno</em></td></tr>
+        <tr><td class="mono">7 accordo</td><td>Adjetivos</td><td>Forma do adjetivo que concorda com o nome</td><td><em>le chiavi</em> ___ (<em>nuovo</em>) → <em>nuove</em></td></tr>
+        <tr><td class="mono">8 possessivo</td><td>Possessivos</td><td>Possessivo e artigo, que concordam com a coisa possuída</td><td>___ <em>madre</em> (<em>io</em>) → <em>mia madre</em></td></tr>
+        <tr><td class="mono">9 piacere</td><td>Piacere</td><td><em>piace</em> × <em>piacciono</em> e o pronome indireto</td><td><em>Mi</em> ___ <em>i libri</em> → <em>piacciono</em></td></tr>
+      </tbody>
+    </table></div>
+    <p class="small muted">Sai o <code>riconoscere</code> (D3). <code>tense</code>: 1 presente · 2 passato_prossimo · 3 imperfetto · 4 futuro · 5 imperativo; a v1 cobra 1, 2 e 5. O enum foi renumerado porque nada foi publicado; depois da v1, só ganha acréscimos.</p>
+
+    <div class="tw"><table class="w-wide">
+      <thead><tr><th>Tema</th><th>Ordem</th><th>Id</th><th>Tipo</th><th>Fonte</th><th>Regra</th><th>Exemplos e membros</th></tr></thead>
+      <tbody>
+        <tr><td class="k">Artigo</td><td>1</td><td class="mono">gen.lista</td><td>lista</td><td>Dai! u0</td><td>Gênero dos nomes em -e frequentes</td><td>il pane, la chiave, la notte, il mare</td></tr>
+        <tr><td></td><td>2</td><td class="mono">gen.sufixo</td><td>regra</td><td>sem fonte (D11d)</td><td>-ione, -tà femininos; -ore masculino; só frequentes</td><td>la stazione, la città, il colore</td></tr>
+        <tr><td></td><td>3</td><td class="mono">art.forma</td><td>regra</td><td>Dai! u1–3</td><td><em>lo/gli/uno</em> antes de s + consoante, z, gn, ps; <em>l'</em> antes de vogal</td><td>lo zaino, gli studenti, l'amico, un'amica</td></tr>
+        <tr><td class="k">Presente</td><td>4</td><td class="mono">pres.are</td><td>regra</td><td>Dai! u1–2</td><td>Desinências de -are</td><td>parlo, parli, parliamo</td></tr>
+        <tr><td></td><td>5</td><td class="mono">pres.lista</td><td>lista</td><td>Dai! u1–8</td><td>Irregulares frequentes, com os modais (D11e)</td><td>sono, ho, sto, faccio, vado, esco, vengo, voglio, posso, devo, so</td></tr>
+        <tr><td></td><td>6</td><td class="mono">pres.ere</td><td>regra</td><td>Dai! u2</td><td>Desinências de -ere</td><td>prendo, prendono</td></tr>
+        <tr><td></td><td>10</td><td class="mono">pres.isc</td><td>regra</td><td>Dai! u3, u5</td><td>-isc- em io, tu, lui e loro</td><td>finisco, finiscono</td></tr>
+        <tr><td></td><td>21</td><td class="mono">pres.ire</td><td>regra</td><td>Dai! u5</td><td>Desinências de -ire</td><td>dormo, dormite</td></tr>
+        <tr><td></td><td>22</td><td class="mono">pres.rifl</td><td>regra</td><td>Dai! u5</td><td>Pronome antes do verbo</td><td>mi alzo, si chiama</td></tr>
+        <tr><td></td><td>23</td><td class="mono">pres.care_gare</td><td>regra</td><td>AlD u3, Arr u6</td><td>Antes de i entra h</td><td>cerchi, paghiamo</td></tr>
+        <tr><td></td><td>24</td><td class="mono">pres.ciare_giare</td><td>regra</td><td>sem fonte (D11d)</td><td>O i do radical cai antes de i; só <em>mangiare</em>, <em>cominciare</em>, <em>viaggiare</em></td><td>mangi, cominciamo</td></tr>
+        <tr><td class="k">Plural</td><td>7</td><td class="mono">pl.base</td><td>regra</td><td>Dai! u2</td><td>-o → -i, -a → -e, -e → -i</td><td>libro → libri, casa → case</td></tr>
+        <tr><td></td><td>8</td><td class="mono">pl.invar</td><td>regra</td><td>Profilo A1, AlD u7</td><td>Não muda: vogal tônica final, consoante final, abreviação</td><td>la città, il bar, la foto</td></tr>
+        <tr><td></td><td>9</td><td class="mono">pl.lista</td><td>lista</td><td>Profilo A1</td><td>Irregular</td><td>uomo → uomini (único membro)</td></tr>
+        <tr><td></td><td>14</td><td class="mono">pl.ca_ga</td><td>regra</td><td>Dai! u3</td><td>-ca/-ga → -che/-ghe</td><td>amica → amiche</td></tr>
+        <tr><td></td><td>15</td><td class="mono">pl.co_go</td><td>regra</td><td>Dai! u3 (parcial)</td><td>-co/-go → -chi/-ghi; exceções nomeadas <em>amici</em>, <em>medici</em></td><td>parco → parchi, lago → laghi, amico → amici</td></tr>
+        <tr><td></td><td>16</td><td class="mono">pl.io</td><td>regra</td><td>sem fonte (D11d)</td><td>-io → -i; ì tônico → -ii; só frequentes</td><td>negozio → negozi, binario → binari, zio → zii</td></tr>
+        <tr><td class="k">Preposições</td><td>11</td><td class="mono">prep.art</td><td>regra</td><td>Dai! u3 (parcial)</td><td>a, da, di, in, su + artigo, nas combinações frequentes</td><td>al, alla, del, nella, sul, dai</td></tr>
+        <tr><td class="k">Adjetivos</td><td>12</td><td class="mono">agg.o</td><td>regra</td><td>Dai! u3–4</td><td>4 formas: -o, -a, -i, -e</td><td>la casa nuova, le chiavi nuove</td></tr>
+        <tr><td></td><td>13</td><td class="mono">agg.e</td><td>regra</td><td>Dai! u3–4</td><td>2 formas: -e, -i</td><td>la casa grande, le chiavi grandi</td></tr>
+        <tr><td class="k">Possessivos</td><td>17</td><td class="mono">poss.forma</td><td>regra</td><td>Dai! u4</td><td>Concorda com a coisa, não com o dono; vem com artigo</td><td>la mia casa, i miei libri, la sua borsa</td></tr>
+        <tr><td></td><td>18</td><td class="mono">poss.famiglia</td><td>regra</td><td>Dai! u4</td><td>Parente no singular sem artigo; no plural e com <em>loro</em>, com artigo</td><td>mia madre, i miei fratelli, la loro madre</td></tr>
+        <tr><td class="k">Piacere</td><td>19</td><td class="mono">piac.numero</td><td>regra</td><td>Dai! u4</td><td><em>piace</em> com singular ou infinitivo; <em>piacciono</em> com plural</td><td>mi piace leggere, mi piacciono i libri</td></tr>
+        <tr><td></td><td>20</td><td class="mono">piac.pronome</td><td>regra</td><td>Dai! u4</td><td>a me → mi … a lei → le, a loro → gli</td><td>le piace, gli piacciono</td></tr>
+        <tr><td class="k">Passato prossimo</td><td>25</td><td class="mono">pp.avere</td><td>regra</td><td>Dai! u7</td><td>avere + -ato/-uto/-ito</td><td>ho parlato, ho venduto</td></tr>
+        <tr><td></td><td>26</td><td class="mono">pp.essere</td><td>regra</td><td>Dai! u7 (parcial)</td><td>Cobra só a escolha do auxiliar, não a concordância</td><td>sono arrivato, è partita</td></tr>
+        <tr><td></td><td>27</td><td class="mono">pp.lista</td><td>lista</td><td>Dai! u7 (parcial)</td><td>Particípios irregulares frequentes</td><td>fatto, detto, preso, visto, messo, stato, venuto, scritto, letto, aperto</td></tr>
+        <tr><td class="k">Imperativo</td><td>28</td><td class="mono">imper.base</td><td>regra</td><td>Dai! u8</td><td>tu: -are → forma de <em>lui</em>; -ere/-ire → forma de <em>tu</em>; voi: forma de <em>voi</em></td><td>parla, prendi, finisci, parlate</td></tr>
+        <tr><td></td><td>29</td><td class="mono">imper.neg</td><td>regra</td><td>Dai! u8</td><td>Negativo do tu: <em>non</em> + infinito</td><td>non parlare, non prendere</td></tr>
+        <tr><td></td><td>30</td><td class="mono">imper.lista</td><td>lista</td><td>Dai! u8</td><td>Irregulares frequentes</td><td>va'/vai, fa'/fai, di', sii, abbi, siate</td></tr>
+      </tbody>
+    </table></div>
+    <p class="small muted"><b>Ordem</b> é o <code>rule.position</code>: a ordem em que a Revisão apresenta os padrões (D4), pelas unidades do <em>Dai! 1</em>, intercalando temas. Os padrões sem fonte no <em>Dai! 1</em> ficam ao lado do vizinho mais próximo.</p>
+
+    <div class="block">
+      <h3>Cinco regras do catálogo</h3>
+      <ul class="plain">
+        <li><b>O padrão é definido pela palavra de entrada, não pela resposta.</b> <em>amico</em> e <em>parco</em> ficam os dois em <code>pl.co_go</code>, porque a dúvida real é entre <em>amici</em> e <em>amichi</em>. No A1, a regra é só -chi/-ghi, com <em>amici</em> e <em>medici</em> nomeadas (D11c); <em>tecnico</em> e <em>psicologo</em> ficam fora, porque pedem a regra da tônica, que é A2.</li>
+        <li><b>Os padrões triviais também são cartões de padrão</b> (<code>pl.base</code>, <code>pres.are</code>). Cada um custa 1 cartão e serve de vizinho que obriga a decidir (<em>parchi</em> × <em>treni</em>). Nenhum verbo regular ganha cartão próprio.</li>
+        <li><b>Cada verbo × tempo cai num padrão só:</b> <code>lista &gt; isc &gt; grafia &gt; rifl &gt; base</code> no presente, <code>lista &gt; essere &gt; avere</code> no passato prossimo e <code>lista &gt; base</code> no imperativo afirmativo. O <code>imper.neg</code> tem linha própria para todo verbo.</li>
+        <li><b>As restrições do A1 ficam nos membros.</b> O <code>rules.toml</code> traz a lista fechada de membros dos padrões restritos, e o pipeline só grava no <code>drill</code> o que está nela.</li>
+        <li><b>Itens curados.</b> Os membros de Adjetivos, Possessivos e Piacere são linhas escritas à mão no <code>rules.toml</code> (D11e), porque gerar pares de nome e adjetivo dá frases sem sentido.</li>
+      </ul>
+      <p class="small muted"><b>Vizinhos</b> (<code>rule.neighbor</code>): co_go ↔ base, ca_ga ↔ co_go, io ↔ base, invar ↔ base, isc ↔ ire, care_gare ↔ are, ciare_giare ↔ are, pp.essere ↔ pp.avere, gen.lista ↔ gen.sufixo, agg.o ↔ agg.e, poss.forma ↔ poss.famiglia, piac.numero ↔ piac.pronome, imper.neg ↔ imper.base.</p>
+    </div>
+
+    <div class="tw"><table class="w-wide">
+      <thead><tr><th>Fica fora da v1</th><th>Por quê</th></tr></thead>
+      <tbody>
+        <tr><td>Imperfetto, futuro</td><td>Nenhum livro A1 apresenta (D11c)</td></tr>
+        <tr><td><code>pl.ma</code>, <code>pl.cia_gia</code>, plurais irregulares além de <em>uomo</em>; <em>il problema</em> e <em>la mano</em> no Gênero</td><td>A2 ou acima (D11c)</td></tr>
+        <tr><td>Plural -ci/-gi pela tônica; concordância do particípio; particípios irregulares fora da lista</td><td>Só a parte A1 de cada regra entra (D11c)</td></tr>
+        <tr><td>Preposição com <em>lo</em> e <em>gli</em> (<em>allo</em>, <em>negli</em>)</td><td>Proposta de corte das "combinações frequentes"; volta para aprovação</td></tr>
+        <tr><td><em>c'è/ci sono</em>, <em>questo/quello</em>, <em>non… mai</em></td><td>Fora por ora (D11e)</td></tr>
+        <tr><td>Clíticos, imperativo com pronome (<em>alzati</em>), passato prossimo dos pronominais</td><td>Pedem transformar a frase; a correção fica frágil</td></tr>
+        <tr><td>Condizionale, congiuntivo, passato remoto</td><td>Não são A1; o passato remoto volta com as histórias B1 (D28)</td></tr>
+        <tr><td>Preposição em frase; imagens no cartão</td><td>Sem índice de ocorrências; imagens adiadas (D24)</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- 3 -->
+  <section id="exercicios" aria-labelledby="h-exercicios">
+    <div class="section-head">
+      <p class="eyebrow">03</p>
+      <h2 id="h-exercicios">Exercícios e correção</h2>
+      <p>São quatro formatos. Cada cartão tem o seu, e só as respostas nesse formato contam no FSRS. Nas decisões, o "formato B" é o A daqui e o "formato E" é o D.</p>
+    </div>
+    <div class="tw"><table class="w-wide">
+      <thead><tr><th>Formato</th><th>Pergunta</th><th>Resposta</th><th>Conta no FSRS</th></tr></thead>
+      <tbody>
+        <tr><td class="k">A · Escrever a palavra</td><td>A glosa PT e a classe. Sem glosa, a frase de origem com lacuna mais a frase PT alinhada; sem frase, a definição com lacuna (D13).</td><td>Digitada</td><td>Sim. É a única cobrança da palavra (D3)</td></tr>
+        <tr><td class="k">B · Gênero</td><td>"___ <em>pane</em>"</td><td>2 opções pelo som: <em>il · la</em>, <em>lo · la</em>; antes de vogal, <em>un · un'</em> (D15)</td><td>Sim: é o formato do próprio cartão</td></tr>
+        <tr><td class="k">C · Forma digitada</td><td><em>il parco</em> → plural · <em>capire</em> · <em>tu</em> · <em>di + il treno</em> · <em>le chiavi</em> ___ · ___ <em>madre</em> (<em>io</em>) · <em>Mi</em> ___ <em>i libri</em></td><td>Digitada</td><td>Sim</td></tr>
+        <tr><td class="k">D · Escolha de forma</td><td><em>il parco</em> → <em>parchi</em> · <em>parci</em></td><td>2 opções</td><td>Não (D2b). Só no Treino, na 1ª rodada de um padrão; só alimenta o ponto fraco</td></tr>
+      </tbody>
+    </table></div>
+    <ul class="plain small">
+      <li><b>Itens curados:</b> cada um é uma linha do <code>rules.toml</code> com pergunta, lema, resposta e forma errada (<code>le chiavi ___ · nuovo · nuove · nuovi</code>). O pipeline confere o gênero e o número do nome e a forma do adjetivo; divergência vai para o relatório (D19). A lista de parentesco do <code>poss.famiglia</code> também fica lá.</li>
+      <li><b>Pares do formato D:</b> vêm prontos do catálogo (<code>rule.examples</code>), e são as mesmas linhas da tabela da página da regra.</li>
+      <li><b>Frase de contexto:</b> na v1, só a da salva (D18). Com o índice (v1.1), pode vir de história não lida do mesmo nível (D31).</li>
+    </ul>
+
+    <div class="block">
+      <h3>Regras de nota: a nota mede só o alvo do cartão (D6)</h3>
+      <div class="tw"><table class="w-wide">
+        <thead><tr><th>#</th><th>Regra</th><th>Exemplo</th><th>Veredito → nota</th><th>Resolve</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">G1</td><td>Erro fora do alvo não muda a nota</td><td><em>è arrivato</em> com sujeito <em>lei</em></td><td><span class="verdict-ok">Certo</span> + aviso → Good</td><td>P01, Hard</td></tr>
+          <tr><td class="mono">G2</td><td>No <code>scrivere</code>, qualquer forma do lema pedido vale</td><td><em>serrande</em> para <em>serranda</em></td><td>"Certo. A palavra no dicionário é <em>serranda</em>." → Good</td><td>P02</td></tr>
+          <tr><td class="mono">G3</td><td>O artigo é opcional; se vier, é conferido. No Possessivo, o artigo é o alvo</td><td><em>le binari</em> → "Certo. O artigo é <em>i</em>."</td><td>Good</td><td>P01</td></tr>
+          <tr><td class="mono">G4</td><td>Acento: no <code>scrivere</code> é ortografia; num cartão de forma, é a própria forma. O apóstrofo (<em>va'</em>) conta como acento</td><td><em>citta</em> no <code>scrivere</code>; <em>le citta</em> no Plural</td><td>Good no <code>scrivere</code>; <span class="verdict-bad">Quase</span> (Hard) na forma</td><td>Hard</td></tr>
+          <tr><td class="mono">G4b</td><td>Acento que muda a palavra</td><td><em>e</em> no lugar de <em>è</em></td><td><span class="verdict-bad">Errado</span> → Again</td><td>—</td></tr>
+          <tr><td class="mono">G5</td><td>Outro lema com a mesma glosa é ambiguidade da pista</td><td><em>finestra</em> no lugar de <em>finestrino</em></td><td>"Também é janela." Sem nota; volta no fim com a primeira letra</td><td>"Também é janela"</td></tr>
+          <tr><td class="mono">G6</td><td>Uma letra diferente, com 6 letras ou mais, só no <code>scrivere</code></td><td><em>finestrno</em></td><td>Quase → Hard</td><td>—</td></tr>
+          <tr><td class="mono">G6b</td><td>Uma letra diferente num cartão de forma é o próprio erro</td><td><em>amichi</em>, <em>nuovi</em> para <em>nuove</em></td><td><span class="verdict-bad">Errado</span> → Again</td><td>—</td></tr>
+          <tr><td class="mono">G7</td><td>Usar a dica limita a nota a Hard (D20)</td><td>—</td><td>Certo, com dica → Hard</td><td>—</td></tr>
+          <tr><td class="mono">G8</td><td>Não sei vira Again (<code>dontKnow</code>). Pular não grava nada</td><td>—</td><td>—</td><td>"skip"</td></tr>
+          <tr><td class="mono">G9</td><td>Escolha (B, D): acertou → Good; errou → Again. Não há Hard</td><td>—</td><td>—</td><td>—</td></tr>
+        </tbody>
+      </table></div>
+      <div class="tw"><table class="w-wide">
+        <thead><tr><th>Skill</th><th>O que vale</th><th>Erros típicos</th></tr></thead>
+        <tbody>
+          <tr><td class="k">Conjugação</td><td>Pronome sujeito opcional; pronome do pronominal obrigatório; formas alternativas da tabela (<em>va'</em> e <em>vai</em>)</td><td><em>siede</em> para <em>si siede</em></td></tr>
+          <tr><td class="k">Passato prossimo com <em>essere</em></td><td>Qualquer terminação do particípio; se o sujeito pede outra, Certo + aviso (G1)</td><td><em>ho arrivato</em></td></tr>
+          <tr><td class="k">Imperativo negativo</td><td>Só <em>non</em> + infinito</td><td><em>non parla</em></td></tr>
+          <tr><td class="k">Concordância</td><td>O adjetivo sozinho ou a frase inteira</td><td><em>nuovi</em> para <em>nuove</em></td></tr>
+          <tr><td class="k">Possessivo</td><td>Artigo + possessivo, com ou sem o nome</td><td><em>la mia madre</em>, <em>mia casa</em>, <em>suo</em> para <em>sua sorella</em></td></tr>
+          <tr><td class="k">Piacere</td><td>Só a lacuna, ou a frase inteira</td><td><em>piace i libri</em>; <em>gli</em> para <em>a lei</em></td></tr>
+        </tbody>
+      </table></div>
+      <p class="small muted"><b>Dica:</b> no <code>scrivere</code>, a frase de origem com lacuna ou a primeira letra; nos cartões de forma, a regra numa linha, sem a resposta (D20). Nas escolhas, não há dica. O G5 não precisa de índice PT→IT: a correção procura o que foi digitado (forma → lema → glosa) e compara as duas glosas.</p>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section id="fraqueza" aria-labelledby="h-fraqueza">
+    <div class="section-head">
+      <p class="eyebrow">04</p>
+      <h2 id="h-fraqueza">Modelo de ponto fraco</h2>
+      <p>O ponto fraco é uma fórmula por padrão, calculada na mesma dobra do log que produz o FSRS. A retenção do FSRS diz se o aluno lembra agora; a fraqueza diz quanto ele acerta.</p>
+    </div>
+<pre>para cada resposta com nota cujo alvo é o padrão p:
+  w   = 0,5 ^ (idade_dias / 30)            <span class="c">-- meia-vida de 30 dias</span>
+        × (0,5 se for escolha, 1 se for digitada)
+  bad += w   se Again          ok += w   se Good ou Hard          n += 1
+
+fraqueza(p) = (bad + 1) / (ok + bad + 4)    <span class="c">-- prior Beta(1, 3): 25% de erro sem dado</span>
+fraco(p)    = n ≥ 5  e  fraqueza(p) ≥ 0,35
+mais fraco  = o padrão fraco com maior fraqueza</pre>
+    <div class="tw"><table>
+      <thead><tr><th>Onde o aluno vê</th><th>Texto</th><th>Quando</th></tr></thead>
+      <tbody>
+        <tr><td>Linha do tema ou da regra, no Treino</td><td>"Você tem errado -co, -go"</td><td>Quando o padrão está fraco</td></tr>
+        <tr><td>Linha do tema ou da regra, no Treino</td><td>"Ainda não treinado"</td><td>Quando não há nenhuma resposta</td></tr>
+        <tr><td>Transição do reforço, na Revisão</td><td>"Reforço: plural em -co, -go · 3 cartões"</td><td>No bloco de reforço</td></tr>
+        <tr><td>Fim da Revisão</td><td>"Você tem errado plural em -co, -go." + "Treinar -co, -go ›"</td><td>Quando existe um padrão mais fraco</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note">A escolha de forma, que não conta no FSRS, conta aqui com peso 0,5 (D2b). O ponto fraco aparece só como texto e só quando há algo a dizer (D10): sem número, barra, cor, "Firme" nem "dominado". A lista do Treino <b>não muda de ordem</b> conforme o desempenho (spec §10, REV-16). Vocabulário não tem fraqueza na v1: o FSRS basta (D25).</p>
+  </section>
+
+  <!-- 5 -->
+  <section id="revisao" aria-labelledby="h-revisao">
+    <div class="section-head">
+      <p class="eyebrow">05</p>
+      <h2 id="h-revisao">Revisão: como a sessão é montada</h2>
+    </div>
+    <div class="tw"><table class="w-wide">
+      <thead><tr><th>Fila</th><th>O que é</th><th>Cota por dia</th></tr></thead>
+      <tbody>
+        <tr><td class="k">Vencidos</td><td>Cartões ativos já vencidos, do de menor retenção para o de maior</td><td>Sem limite</td></tr>
+        <tr><td class="k">Palavras novas</td><td>Apresentação e, 3 cartões depois, o <code>scrivere</code> (D3). Primeiro as salvas, da mais antiga para a mais nova; depois o NVdB por frequência (D26)</td><td>5 (Ajustes: 0 · 3 · 5 · 10)</td></tr>
+        <tr><td class="k">Forma</td><td>Gênero e membros de <code>lista</code>, de palavras cujo <code>scrivere</code> foi acertado num dia depois da apresentação. Membros de <code>lista</code> só depois que a Revisão chega ao padrão deles</td><td>2</td></tr>
+        <tr><td class="k">Padrão novo</td><td>O próximo do catálogo, com nível até o de leitura e com algum membro entre as palavras do aluno (D4)</td><td>1</td></tr>
+        <tr><td class="k">Reforço</td><td>3 itens do padrão mais fraco, num bloco (D8)</td><td>1 bloco</td></tr>
+      </tbody>
+    </table></div>
+<pre>montarLote(agora, hoje, dobra, cfg):                <span class="c">-- determinístico: hash(cartão, hoje) desempata</span>
+  voltas   = cartões com Again hoje e menos de 2 respostas depois dele    <span class="c">-- sai do log</span>
+  vencidos = [c em ativos | c.due ≤ agora], por retenção crescente
+  freio    = len(vencidos) &gt; 60
+  novos    = freio ? [] : palavras(5) ++ forma(2) ++ padrão(1)
+  reforço  = existe um mais fraco e é o 1º lote do dia ? 3 itens dele : []
+  lote     = intercala(voltas depois de ≥ 3 cartões, vencidos, novos 1 a cada 4)
+             <span class="c">-- 2 cartões da mesma palavra nunca no mesmo lote; reforço depois do 10º</span>
+             corta em 20</pre>
+    <ul class="plain">
+      <li><b>Lotes de 20.</b> No fim de cada lote, o aluno escolhe entre "Continuar" e parar. Nunca aparece "1 de 412".</li>
+      <li><b>Freio:</b> se houver mais de 60 vencidos, nada novo entra naquele dia.</li>
+      <li><b>Erro:</b> o cartão volta depois de pelo menos 3 outros, no máximo 2 vezes, e depois fica para amanhã (D21). As voltas contam no FSRS (D2). A fila sai do log e sobrevive ao fechamento do app.</li>
+      <li><b>Apresentação de padrão:</b> um <code>regra</code> mostra a página da regra, e a 1ª pergunta digitada, 3 cartões depois, cria o cartão. Um <code>lista</code> mostra a página sem pergunta, e dali em diante os membros que são palavras do aluno podem entrar pela cota de forma.</li>
+      <li><b>Palavra da vez num cartão de padrão:</b> o membro que o aluno errou da última vez; se não houver, o usado há mais tempo. As palavras do aluno (salvas e apresentadas) vêm antes das do NVdB.</li>
+      <li><b>Nível de leitura</b> é o nível mais alto entre as histórias lidas ou em andamento. Na v1, todo o catálogo é A1, então esse filtro não corta nada (D32).</li>
+      <li><b>"Por que este cartão"</b> é uma linha discreta <b>na resposta</b>, nunca na pergunta (D17): "Errou há pouco", "Palavra nova · das salvas", "Regra nova". No cartão de padrão, "A regra volta em 4 dias".</li>
+      <li><b>Reforço:</b> um bloco por dia, depois do 10º cartão, anunciado por uma linha de transição. Nunca cria cartão; as respostas contam no FSRS como qualquer outra (D8).</li>
+      <li><b>Cartão ativo é um filtro de consulta, não uma coluna:</b> fonte válida, presente no <code>dict</code>, não marcado como "Já sei", tema incluído na Revisão e desbloqueado (OFF-34).</li>
+    </ul>
+  </section>
+
+  <!-- 6 -->
+  <section id="treino" aria-labelledby="h-treino">
+    <div class="section-head">
+      <p class="eyebrow">06</p>
+      <h2 id="h-treino">Treino</h2>
+      <p>Quem quer treinar só o plural vai ao tema em 2 toques, ou a uma regra só em 3. A rodada usa os mesmos cartões e a mesma correção da Revisão.</p>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Caminho</th><th>Toques</th></tr></thead>
+      <tbody>
+        <tr><td>Raiz da aba › tema › <b>Treinar plural</b> (mistura as regras do tema)</td><td>2</td></tr>
+        <tr><td>Raiz da aba › tema › regra › <b>Treinar só esta regra</b></td><td>3</td></tr>
+        <tr><td>Fim da Revisão › <b>Treinar -co, -go</b></td><td>1</td></tr>
+      </tbody>
+    </table></div>
+    <div class="block">
+      <h3>A rodada: 10 itens em sequência fixa (D16)</h3>
+      <ul class="plain">
+        <li><b>Na primeira vez num padrão,</b> a regra é apresentada (não conta como item), e vêm 2 itens de escolha de forma (formato D), fora do FSRS (D2b).</li>
+        <li><b>O resto, até 10,</b> é forma digitada. Em "só esta regra", 1 item em cada 3 vem do padrão vizinho. Em "tema inteiro", os padrões são sorteados com peso pela fraqueza, com no máximo um padrão nunca visto por rodada.</li>
+        <li><b>No erro,</b> a resposta explica a regra aplicada à palavra ("<em>medico</em> é exceção: o plural é <em>medici</em>"). O item volta 2 itens depois, no máximo 2 vezes, sem contar nos 10: "4 de 10 · +1".</li>
+        <li><b>Palavras:</b> primeiro as do aluno; depois o NVdB por frequência, com a glosa visível na pergunta quando a palavra não é do aluno (<em>il parco</em> · parque).</li>
+      </ul>
+    </div>
+    <div class="block">
+      <h3>Como conta no FSRS (D2, D2b)</h3>
+      <p class="muted" style="max-width:64ch">Igual ao Anki com FSRS-6: toda resposta no formato do próprio cartão, de qualquer porta, atualiza S e D. As do mesmo dia passam pela fórmula de curto prazo. Não existe "só a primeira resposta do dia" nem resposta de "prática", exceto a escolha de forma.</p>
+      <div class="tw"><table class="w-wide">
+        <thead><tr><th>Caso</th><th>Efeito</th></tr></thead>
+        <tbody>
+          <tr><td class="k">Primeira resposta do dia</td><td>Revisão normal do FSRS-6, com o tempo real desde a última (antecipada, se o cartão não estava vencido)</td></tr>
+          <tr><td class="k">Outras do mesmo dia</td><td>Voltas, reforço, outra rodada ou outra sessão: fórmula de curto prazo; S e D mudam</td></tr>
+          <tr><td class="k">Again</td><td>O contador de lapsos sobe só no primeiro erro do dia de um cartão em revisão</td></tr>
+          <tr><td class="k">Gênero (B)</td><td>Conta: a escolha é o formato do próprio cartão <code>genere</code></td></tr>
+          <tr><td class="k">Escolha de forma (D)</td><td>Não conta: é escolha num cartão digitado. Só alimenta a fraqueza</td></tr>
+          <tr><td class="k">Padrão nunca visto</td><td>A primeira resposta digitada cria o cartão (D9)</td></tr>
+          <tr><td class="k">NVdB no Treino</td><td>Gera respostas, mas nunca vira cartão de Palavra (D9)</td></tr>
+          <tr><td class="k">Cotas</td><td>O Treino nunca gasta cota da Revisão</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section id="telas" aria-labelledby="h-telas">
+    <div class="section-head">
+      <p class="eyebrow">07</p>
+      <h2 id="h-telas">Navegação e telas</h2>
+      <p>4ª aba "Revisão" (IT: <em>Ripasso</em>), com a seção "Treino" (IT: <em>Allenamento</em>) na raiz (D5, D36). A barra fica Biblioteca · Dicionário · Revisão · Ajustes. A sessão abre sem barra; dela saem, empilhados no raiz, o verbete (entra no Histórico com origem "Revisão", D29), a regra sem "Treinar" e o trecho da história (D22).</p>
+    </div>
+    <div class="screens">
+      <figure>
+<pre>Revisão                                ⋯
+┌──────────────────────────────────────┐
+│ Revisão de hoje                    › │
+│ 20 cartões · 5 palavras novas        │
+└──────────────────────────────────────┘
+TREINO
+ Artigo              ›   il, lo, la, l'
+ Presente            ›   parlo, prendo
+ Plural              ›   Você tem errado -co, -go
+ Preposições         ›   del, nella, alla
+ Adjetivos           ›   nuovo, nuova
+ Possessivos         ›   la mia, mia madre
+ Piacere             ›   mi piace
+ Passato prossimo    ›   Ainda não treinado
+ Imperativo          ›   parla, non parlare
+──────────────────────────────────────
+Biblioteca  Dicionário  Revisão  Ajustes</pre>
+        <figcaption><b>Raiz da aba.</b> Uma lista só, sem grupos, na ordem do <em>Dai! 1</em> (D35), sem reordenar. O cartão do dia tem 4 estados: com cartões, interrompida, nada vencido e só salvas sem nenhuma salva.</figcaption>
+      </figure>
+      <figure>
+<pre>‹ Plural                      -co, -go
+PLURAL
+-co, -go
+-co e -go ganham h no plural:
+parco → parchi, lago → laghi.
+Exceções: amico → amici,
+medico → medici.
+┌ singolare ─────────── plurale ┐
+│ il parco              i parchi│
+│ il lago               i laghi │
+└───────────────────────────────┘
+
+[     Treinar só esta regra     ]
+Mais opções: Tirar da Revisão · Relatar erro</pre>
+        <figcaption><b>Página da regra.</b> Aberta de dentro de uma sessão ("Ver a regra"), aparece sem o botão "Treinar".</figcaption>
+      </figure>
+      <figure>
+<pre>‹ Revisão                           ⋯
+━━━━━━━━──────────────   4 de 20 · +1
+PLURAL · -co, -go
+il medico
+sostantivo maschile · singolare
+Escreva o plural.
+┌────────────────────────────────────┐
+│                                    │
+└────────────────────────────────────┘
+Mostrar dica
+                          [  Não sei  ]
+ à  è  é  ì  ò  ù</pre>
+        <figcaption><b>Cartão de padrão, pergunta.</b> O mesmo layout serve para todo cartão digitado. Um botão só: "Não sei" com o campo vazio, "Conferir" com texto.</figcaption>
+      </figure>
+      <figure>
+<pre>PLURAL · il medico
+┌────────────────────────────────────┐
+│ medichi                         ✕  │
+└────────────────────────────────────┘
+✕ Não é essa.     [Contar como certa]
+A regra volta ainda nesta revisão · Errou há pouco
+i medici                           &lt;)
+REGRA
+medico é exceção: medici.  Ver a regra ›
+NA HISTÓRIA
+«… frase de origem …»   Ver o trecho ›
+                        [  Continuar  ]</pre>
+        <figcaption><b>Resposta.</b> O desfazer fica na linha do veredito. Depois vêm quando volta e o porquê, a palavra com áudio, a regra e "Na história" (o grifo dela é o único amarelo da tela).</figcaption>
+      </figure>
+      <figure>
+<pre>ADJETIVOS · -o, -a, -i, -e
+le chiavi ___
+nuovo · aggettivo
+Escreva o adjetivo.
+→ nuove
+
+POSSESSIVOS · parentesco
+___ madre                      (io)
+Escreva o possessivo, com o artigo
+se tiver.
+→ mia madre</pre>
+        <figcaption><b>Concordância e Possessivo.</b> Itens curados do <code>rules.toml</code>. No Possessivo, o artigo é o alvo: <em>la mia madre</em> está errado.</figcaption>
+      </figure>
+      <figure>
+<pre>PIACERE · piace, piacciono
+Mi ___ i libri.
+piacere
+Escreva o verbo.
+→ piacciono
+
+IMPERATIVO · negativo
+parlare
+tu · negativo
+Escreva o imperativo.
+→ non parlare</pre>
+        <figcaption><b>Piacere e Imperativo.</b> O Piacere tem também a pergunta do pronome: "(a lei) ___ piace il caffè." → <em>le</em>. No imperativo negativo do <em>tu</em>, <em>non parla</em> está errado.</figcaption>
+      </figure>
+      <figure>
+<pre>GÊNERO
+___ pane
+sostantivo
+Escolha o artigo.
+
+[    il    ]   [    la    ]
+
+                          [  Não sei  ]
+
+
+━━━━━━━━━━━━━──────────   11 de 20
+Reforço: plural em -co, -go · 3 cartões
+[ Continuar ]</pre>
+        <figcaption><b>Gênero e bloco de reforço.</b> Gênero tem 2 opções pelo som (<em>lo · la</em>; antes de vogal, <em>un · un'</em>) e conta no FSRS. O reforço é só uma linha de transição dentro do lote.</figcaption>
+      </figure>
+      <figure>
+<pre>‹ Voltar ao cartão
+NA HISTÓRIA
+Título da história · A1
+
+… Il [binario] è quasi vuoto
+e l'aria sa di caffè. …</pre>
+        <figcaption><b>Trecho da história (D22).</b> Uma página empilhada só com o parágrafo da frase de origem, com a forma salva grifada. Sem o Leitor: abrir não grava progresso, conclusão nem última aberta. O desenho final é pendência.</figcaption>
+      </figure>
+      <figure class="full">
+<pre>REVISÃO DE HOJE                              PLURAL · -co, -go
+20 cartões revisados                         10 cartões · Certos 7 · Quase 1 · Errados 2
+Certos 15 · Quase 2 · Errados 3              amico: você escreveu amichi · amici
+5 palavras novas: chiave, giornale…          medico: você escreveu medichi · medici
+Você tem errado plural em -co, -go.          A regra volta na Revisão em 3 dias.
+Treinar -co, -go ›                           [ Voltar a Plural ]  [ Treinar de novo ]
+Mais 34 vencidos.
+[ Continuar ]   [ Voltar à Revisão ]</pre>
+        <figcaption><b>Fim da Revisão e fim do Treino.</b> Sem comemoração (REV-16). A única ligação entre o Treino e a Revisão é a linha "A regra volta na Revisão em…".</figcaption>
+      </figure>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Tema</th><th><em>Dai! 1</em></th><th>O que a unidade traz</th></tr></thead>
+      <tbody>
+        <tr><td class="k">Artigo</td><td>u0–1</td><td><em>il genere dei nomi</em>; <em>articoli determinativi singolari</em></td></tr>
+        <tr><td class="k">Presente</td><td>u1</td><td><em>essere</em>, <em>avere</em>, <em>stare</em> e os verbos em -are</td></tr>
+        <tr><td class="k">Plural</td><td>u2</td><td><em>la formazione del plurale</em></td></tr>
+        <tr><td class="k">Preposições</td><td>u3</td><td><em>alcune preposizioni articolate</em></td></tr>
+        <tr><td class="k">Adjetivos</td><td>u3</td><td><em>aggettivi qualificativi</em></td></tr>
+        <tr><td class="k">Possessivos</td><td>u4</td><td><em>aggettivi possessivi</em></td></tr>
+        <tr><td class="k">Piacere</td><td>u4</td><td><em>il verbo piacere</em>, <em>pronomi indiretti</em></td></tr>
+        <tr><td class="k">Passato prossimo</td><td>u7</td><td><em>il passato prossimo</em>, <em>i participi passati irregolari</em></td></tr>
+        <tr><td class="k">Imperativo</td><td>u8</td><td><em>l'imperativo</em></td></tr>
+      </tbody>
+    </table></div>
+    <p class="small muted">Todos os temas têm lugar no índice. Os empates de unidade (u3 e u4) seguem a ordem da coluna GRAMMATICA, que pode não ser a ordem das páginas. As Preposições do Treino são só as articuladas; as simples (<em>a</em>, <em>in</em>, u2) não são treinadas.</p>
+
+    <div class="tw"><table class="w-wide">
+      <thead><tr><th>Comportamento</th><th>Proposta</th><th>Resolve</th></tr></thead>
+      <tbody>
+        <tr><td class="k">Desfazer</td><td>"Contar como certa" na linha do veredito em Errado e Quase; tocado, vira "Desfazer". "Já sei" mostra um aviso com Desfazer por 6 s.</td><td>P09</td></tr>
+        <tr><td class="k">Contador</td><td>"N de M · +K": M é o tamanho do lote; K são as voltas pendentes. O leitor de tela anuncia "Cartão 4 de 20, mais 1 para repetir".</td><td>P10</td></tr>
+        <tr><td class="k">Navegação</td><td>O chevron ‹ diz o destino. Gesto de borda e voltar do Android fecham a sessão sem confirmação (NAV-04).</td><td>X / voltar</td></tr>
+        <tr><td class="k">Mais opções</td><td>Na pergunta: Pular, Já sei, Relatar erro. Na resposta: Abrir verbete, Já sei, Relatar erro.</td><td>Verbete antes</td></tr>
+        <tr><td class="k">Na história</td><td>"Ver o trecho ›" empilha a página do trecho; voltar devolve à resposta, com o foco no link (D22).</td><td>Progresso</td></tr>
+        <tr><td class="k">Teclado</td><td>Desce ao conferir. Depois do veredito, Enter é ignorado por 500 ms e depois vale como Continuar. Nas escolhas, 1 e 2 escolhem. <code>enterkeyhint="go"</code>.</td><td>Teclado</td></tr>
+        <tr><td class="k">Foco</td><td>No campo, o nome acessível junta instrução, pergunta e pista. Depois de conferir, o foco vai para o veredito, lido numa frase só.</td><td>P11</td></tr>
+        <tr><td class="k">Texto grande</td><td>O campo tem altura mínima e cresce. O resultado quebra linha, sem reticências.</td><td>P11</td></tr>
+        <tr><td class="k">Áudio</td><td>Sem áudio automático e sem ajuste para ele; só toca no botão de ouvir (D33).</td><td>—</td></tr>
+      </tbody>
+    </table></div>
+    <p class="small muted"><b>O único amarelo:</b> traço da aba ativa na raiz, no tema e na regra; grifo em "Na história" na resposta; grifo na forma salva no trecho; nenhum na pergunta. <b>Pedidos ao brand lead:</b> barra de 4 abas com ícone para Revisão; aviso com ação (serve também ao SAL-02); borda de campo com 3:1 (hoje, com o <code>--color-rule-strong</code>, dá 1,66:1); "Mostrar dica" sem ícone; reusar o "Nella storia" na resposta e no trecho.</p>
+  </section>
+
+  <!-- 8 -->
+  <section id="dados" aria-labelledby="h-dados">
+    <div class="section-head">
+      <p class="eyebrow">08</p>
+      <h2 id="h-dados">Dados e pipeline</h2>
+      <p>No banco <code>user</code> entram uma tabela nova (<code>answer</code>) e quatro colunas em <code>saved</code>. Saem <code>review_card</code>, <code>review_log</code>, <code>known_word</code> e <code>word_image</code>.</p>
+    </div>
+<pre>CREATE TABLE saved (                <span class="c">-- continua por lema (ARQ-35, SAL-02)</span>
+  …, lemma TEXT NOT NULL UNIQUE,
+  pos       TEXT    NOT NULL,                <span class="c">-- classe onde salvou: só ela gera cartões (D12)</span>
+  story_id  TEXT    NOT NULL DEFAULT '',
+  paragraph INTEGER NOT NULL DEFAULT 0,      <span class="c">-- também abre o trecho (D22)</span>
+  sentence  INTEGER NOT NULL DEFAULT 0,
+  form      TEXT    NOT NULL DEFAULT ''      <span class="c">-- forma tocada; '' = sem frase de origem</span>
+);
+
+CREATE TABLE answer (               <span class="c">-- só inserções; nenhuma linha muda nem é apagada</span>
+  id TEXT PRIMARY KEY,  at INTEGER NOT NULL,  day INTEGER NOT NULL,   <span class="c">-- day: virada às 4h (D30)</span>
+  replaces TEXT NOT NULL DEFAULT '',         <span class="c">-- correção/desfazer = linha nova</span>
+  kind  INTEGER NOT NULL DEFAULT 0,          <span class="c">-- 0 cartão de palavra · 1 cartão de padrão</span>
+  rule  TEXT NOT NULL DEFAULT '',  lemma TEXT NOT NULL,  pos TEXT NOT NULL,
+  skill INTEGER NOT NULL,  tense INTEGER NOT NULL DEFAULT 0,  person INTEGER NOT NULL DEFAULT 0,
+  cue   TEXT NOT NULL DEFAULT '',            <span class="c">-- item curado: a pergunta da linha</span>
+  format  INTEGER NOT NULL DEFAULT 0,        <span class="c">-- 0 digitado · 1 escolha</span>
+  verdict INTEGER NOT NULL,                  <span class="c">-- intro · known · void · wrong · dontKnow · almost · ok</span>
+  reason INTEGER NOT NULL DEFAULT 0,  hinted INTEGER NOT NULL DEFAULT 0,
+  mode INTEGER NOT NULL,  origin INTEGER NOT NULL DEFAULT 0,
+  typed TEXT NOT NULL DEFAULT '',  elapsed_ms INTEGER NOT NULL DEFAULT 0
+);</pre>
+    <ul class="plain">
+      <li><b>A nota não é gravada.</b> Ela sai de <code>(verdict, reason, hinted, format)</code> por uma tabela no código. Mudar essa tabela recalcula tudo sem migração.</li>
+      <li><b>A dobra</b> lê as linhas que não foram substituídas, no isolate do banco, e mantém em memória o estado FSRS-6 (S, D, lapsos), a fraqueza, as cotas, as voltas e o que já foi apresentado. O fuzz do intervalo usa semente fixa, então o estado depende só do log.</li>
+      <li><b>Tamanho estimado:</b> cerca de 3,5 MB por ano com 100 respostas por dia, o que cabe no backup de 25 MB do Android. O custo da dobra ainda precisa ser <b>medido</b>.</li>
+    </ul>
+    <div class="block">
+      <h3>Contrato do <code>dict</code> (pedido ao <code>postilla-content</code>)</h3>
+<pre>{ "word": "binario", "pos": "sostantivo", "gender": "m",
+  "article": "il", "article_indef": "un", "article_pl": "i",
+  "plural": ["binari"], "plural_src": "enwikt" }      <span class="c">-- wikt · enwikt · morphit (D19)</span>
+
+{ "word": "finire", "pos": "verbo",
+  "conj_class": { "group": "ire", "isc": true, "pronominal": false, "aux": "avere" },
+  "conj": [ { "tense": 1, "person": 1, "forms": ["finisco"] },
+            { "tense": 5, "person": 2, "forms": ["finisci"] } ] }   <span class="c">-- 5 = imperativo</span>
+
+rule  (id, skill, type, level, position, neighbor, name_pt, name_it,
+       text_pt, text_it, examples, retired)       <span class="c">-- escrito à mão em rules.toml (D14)</span>
+drill (entry_id, skill, tense, rule, cue, answer)  <span class="c">-- cue e answer só nos itens curados</span></pre>
+      <p class="note"><b>Ids estáveis.</b> O <code>rule.id</code> é a chave do FSRS do cartão de padrão, e renomear um id apaga o histórico do aluno. Por isso os ids só podem ser acrescentados, e um padrão que sai do catálogo fica com <code>retired = 1</code>. O tamanho do <code>drill</code> precisa ser recontado com o catálogo A1.</p>
+    </div>
+    <div class="block">
+      <h3>Etapa 5b do pipeline: cadeia de fontes, nada gerado por regra (D19)</h3>
+      <ul class="plain">
+        <li><b>Plural, gênero e conjugação:</b> it.wiktionary → en.wiktionary (kaikki, já no pipeline) → Morph-it!, com a origem marcada em <code>plural_src</code> e um relatório de divergências. O que nenhuma fonte tem fica sem o dado.</li>
+        <li><b>Normalização do en.wiktionary:</b> tira o acento tônico de toda vogal que não é a última (<em>pàrlo</em> → <em>parlo</em>) e aceita as formas marcadas como feminino plural (<em>uova</em>, <em>braccia</em>).</li>
+        <li><b>Classificação:</b> o pipeline calcula o que cada regra produziria só para pôr a palavra num padrão, nunca para preencher. O artigo continua calculado (gênero + som inicial + exceções), porque é a própria regra do <code>art.forma</code>.</li>
+        <li><b>Morph-it!:</b> licença a confirmar (CC BY-SA 2.0 / LGPL) e quanto ele acrescenta, a medir. A linguagem do pipeline segue a D23.</li>
+      </ul>
+    </div>
+    <div class="tw"><table class="w-wide">
+      <thead><tr><th>Dado</th><th>Falta no it.wiktionary</th><th>O en.wiktionary resolve</th><th>O que sobra</th></tr></thead>
+      <tbody>
+        <tr><td class="k">Plural</td><td>10.464 de 36.860 substantivos</td><td>5.807 (55%): 4.841 plurais, 846 invariáveis, 120 incontáveis</td><td>3.860 sem o lema no en, 797 sem plural; quase tudo lixo ou raro</td></tr>
+        <tr><td class="k">Gênero</td><td>4.348 substantivos</td><td>2.772 (64%)</td><td>—</td></tr>
+        <tr><td class="k">Conjugação</td><td>2.352 de 7.606 verbos</td><td>1.384 (59%)</td><td>Formas flexionadas como verbo, classe errada, pronominais sem tabela</td></tr>
+        <tr><td class="k">Glosa PT (v1)</td><td colspan="3">45,7% dos lemas têm; NVdB 97% · 96% · 91%. Sem glosa, o <code>scrivere</code> usa a lacuna (D13)</td></tr>
+      </tbody>
+    </table></div>
+    <p class="small muted">Medição de 2026-10-16 em <a href="cobertura-enwiktionary.md">cobertura-enwiktionary.md</a>. Nos 20.315 substantivos com plural nas duas fontes, elas concordam em 20.018 (98,5%); muitas das 297 divergências são erros de digitação do it.wiktionary. Casos conferidos: o it.wiktionary dá "donne" como plural de <em>uomo</em>; <em>marzo</em> é incontável e fica fora do Plural; <em>latte</em>, <em>fame</em>, <em>sete</em> vão para o relatório. <b>Falta medir:</b> a cobertura dentro do NVdB, o Morph-it!, o imperativo nas tabelas, o <code>drill</code> e a dobra.</p>
+  </section>
+
+  <!-- 9 -->
+  <section id="carga" aria-labelledby="h-carga">
+    <div class="section-head">
+      <p class="eyebrow">09</p>
+      <h2 id="h-carga">Carga</h2>
+      <p>Parâmetros decididos (D7): 5 palavras novas por dia, 2 formas novas, 1 padrão novo, freio a partir de 60 vencidos e lotes de 20. Os números ainda precisam ser confirmados por uma simulação nova. Ajustes › Revisão fica com três itens: Palavras novas por dia (0 · 3 · 5 · 10), Origem (Só salvas · Salvas e mais comuns) e Palavras que já sei (D34).</p>
+    </div>
+    <p class="note"><b>A simulação antiga não vale.</b> Ela foi medida com outro desenho: FSRS-4.5, toda palavra começando pelo reconhecer, escrever com cota de 2 e só a primeira resposta do dia contando. As decisões D2 e D3 trocaram as três coisas. A tabela fica só como registro.</p>
+    <div class="tw"><table class="w-wide">
+      <thead><tr><th>Cenário (desenho da v1, não válido)</th><th>Resp./dia (mês 3)</th><th>Min/dia (mês 3)</th><th>Min/dia (mês 6)</th><th>Palavras</th></tr></thead>
+      <tbody class="muted">
+        <tr><td>10 novas, sem cotas, sem freio (perto do book)</td><td>142</td><td>23,6</td><td>34,6 e subindo</td><td>1.800</td></tr>
+        <tr><td>5 novas, sem cotas, sem freio</td><td>103</td><td>18,8</td><td>23,3 e subindo</td><td>900</td></tr>
+        <tr><td>5 novas, cotas 2 + 2, sem freio</td><td>75</td><td>11,6</td><td>15,5 e subindo</td><td>900</td></tr>
+        <tr><td>5 novas, cotas 2 + 2, freio a 60 (proposta da v1)</td><td>67</td><td>10,4</td><td>12,4, estável</td><td>650</td></tr>
+        <tr><td>10 novas, cotas 2 + 2, freio a 60</td><td>71</td><td>11,8</td><td>12,5, estável</td><td>800</td></tr>
+        <tr><td>5 novas, cotas 2 + 2, freio a 40</td><td>50</td><td>8,3</td><td>8,6, estável</td><td>430</td></tr>
+      </tbody>
+    </table></div>
+    <div class="block">
+      <h3>O que a simulação nova precisa cobrir (FSRS-6, 21 parâmetros)</h3>
+      <ul class="plain">
+        <li>Toda resposta no formato do cartão atualizando S e D, com curto prazo no mesmo dia e lapso só no 1º erro do dia (D2).</li>
+        <li>Toda palavra nova começando pelo <code>scrivere</code>, com o tempo de digitação (D3).</li>
+        <li>30 cartões de padrão a 1 por dia, e o Gênero como escolha que conta.</li>
+        <li>O reforço e as 2 voltas, que agora contam no FSRS.</li>
+        <li>Uma rodada de Treino por dia, à parte, medindo o efeito de ~8 respostas no mesmo dia num cartão de padrão.</li>
+        <li>As opções 0 · 3 · 5 · 10 com o freio a 60, e o tempo do primeiro mês, onde o hábito se forma.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 10 -->
+  <section id="problemas" aria-labelledby="h-problemas">
+    <div class="section-head">
+      <p class="eyebrow">10</p>
+      <h2 id="h-problemas">Como cada problema do relatório foi resolvido</h2>
+    </div>
+    <div class="tw"><table class="w-wide">
+      <thead><tr><th>#</th><th>Problema</th><th>Solução</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">P01</td><td>O Plural ensina "i binari" e depois o reprova</td><td>Artigo opcional e conferido; artigo errado dá Certo com aviso (G3, D6)</td></tr>
+        <tr><td class="mono">P02</td><td>A dica mostra a forma, mas a correção exige o lema</td><td>Qualquer forma do lema vale no <code>scrivere</code> (G2)</td></tr>
+        <tr><td class="mono">P03</td><td>Só PT→IT</td><td><b>Aceito pela D3:</b> só escrever, como no book</td></tr>
+        <tr><td class="mono">P04</td><td>Salvas sem glosa nunca viram cartão</td><td>Escrever com lacuna na frase de origem ou na definição; NVdB sem glosa e sem frase fica fora (D13)</td></tr>
+        <tr><td class="mono">P05</td><td>Salva sem classe, cartão com classe</td><td><code>saved.pos</code>: só a classe salva gera cartões (D12)</td></tr>
+        <tr><td class="mono">P06</td><td>"Na história" não tem de onde sair</td><td><code>saved.paragraph</code>, <code>sentence</code> e <code>form</code>; página do trecho (D22); índice na v1.1 (D18, D31)</td></tr>
+        <tr><td class="mono">P07</td><td>Dados que nenhum documento produz</td><td>Contrato com <code>entry.data</code>, <code>rule</code> e <code>drill</code>; cadeia de fontes sem dado gerado (D19)</td></tr>
+        <tr><td class="mono">P08</td><td>Estado FSRS em colunas mutáveis</td><td>Log só de inserções mais dobra; suspensão como filtro</td></tr>
+        <tr><td class="mono">P09</td><td>Desfazer escondido</td><td>Botão único; desfazer na linha do veredito; aviso com Desfazer</td></tr>
+        <tr><td class="mono">P10</td><td>"N de 14" e as voltas</td><td>"N de M · +K", até 2 voltas, fila calculada do log (D21)</td></tr>
+        <tr><td class="mono">P11</td><td>Leitor de tela e texto grande</td><td>Foco no veredito, nome acessível do campo, campo que cresce. Ainda falta o token de borda</td></tr>
+        <tr><td class="mono">P12</td><td>Carga diária</td><td>5 novas, forma 2, padrão 1, freio a 60, lotes de 20 (D7); números a confirmar</td></tr>
+        <tr><td>—</td><td>Abrir a história sobrescreve o progresso</td><td>Página do trecho, sem o Leitor (D22)</td></tr>
+        <tr><td>—</td><td>Glosa aberta com Glosas = Italiano</td><td>Pílula fechada, que some com Italiano; tabela de textos × Imersão</td></tr>
+        <tr><td>—</td><td>"Também é janela" exige índice</td><td>Busca no sentido direto, sem índice e sem nota (G5)</td></tr>
+        <tr><td>—</td><td>Artigo de 4 opções; Conjugação com regulares</td><td>Gênero com 2 opções e <code>art.forma</code> (D15); regulares só no cartão de padrão</td></tr>
+        <tr><td>—</td><td>Imagens no <code>user</code></td><td>Adiadas; o REV-14 sai (D24)</td></tr>
+        <tr><td>—</td><td>"skip" com dois sentidos; dois conceitos de "dia"</td><td><code>dontKnow</code> grava e Pular não grava; uma <code>localDay</code> com virada às 4h (D30)</td></tr>
+        <tr><td>—</td><td>Regra -co/-go ingênua</td><td><code>pl.co_go</code> pela entrada; no A1, -chi/-ghi com <em>amici</em>, <em>medici</em> nomeadas (D11c)</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- 11 -->
+  <section id="cortes" aria-labelledby="h-cortes">
+    <div class="section-head">
+      <p class="eyebrow">11</p>
+      <h2 id="h-cortes">O que foi cortado e por quê</h2>
+      <p>O critério é o do AGENTS.md: menos conceitos, menos caminhos no código e o zero como valor válido.</p>
+    </div>
+    <div class="tw"><table class="w-wide">
+      <thead><tr><th>Cortado pelas decisões</th><th>Decisão</th><th>Por quê</th></tr></thead>
+      <tbody>
+        <tr><td>Reconhecer (escolha de sentido IT→PT), distratores, desbloqueio do escrever com S ≥ 10 dias, cota "escrever 2/dia", ajuste "Produção", <code>.rev-opt</code> largo</td><td>D3, D34</td><td>Palavra só se cobra escrevendo, como no book</td></tr>
+        <tr><td>"Só a primeira resposta do dia mexe no FSRS"; respostas de "prática"</td><td>D2</td><td>Toda resposta no formato do cartão conta, como no Anki</td></tr>
+        <tr><td>Leitor em consulta (LEI-13 candidato)</td><td>D22</td><td>A página do trecho não precisa do Leitor</td></tr>
+        <tr><td>Plural gerado por regra (<code>regola</code>)</td><td>D19</td><td>Cadeia de fontes; sem fonte, sem plural</td></tr>
+        <tr><td>Imperfetto, futuro, <code>pl.ma</code>, <code>pl.cia_gia</code>, resto de <code>pl.lista</code>, regra da tônica e silabação, concordância do particípio</td><td>D11c</td><td>Não são A1 pelo critério dos livros</td></tr>
+        <tr><td>Grupos na lista; ordem "da gramática"</td><td>D35</td><td>Uma lista só, na ordem do <em>Dai! 1</em></td></tr>
+        <tr><td>Imagens (REV-14)</td><td>D24</td><td>Adiadas para depois da v1</td></tr>
+      </tbody>
+    </table></div>
+    <div class="tw"><table class="w-wide">
+      <thead><tr><th>Cortado na unificação (v1)</th><th>De onde</th><th>Por quê</th></tr></thead>
+      <tbody>
+        <tr><td>Padrão definido pela resposta (<code>co_ci</code> × <code>co_chi</code>)</td><td>Sistema</td><td>"Só esta regra" teria sempre a mesma resposta</td></tr>
+        <tr><td>Um item de forma por palavra; reforço que cria cartões</td><td>Sistema</td><td>Multiplica a carga justo onde o aluno erra</td></tr>
+        <tr><td><code>due = agora</code> depois de Again; 3 voltas</td><td>Sistema</td><td>Distorce o FSRS. A fila de voltas sai do log</td></tr>
+        <tr><td>Estados Não visto · Aprendendo · Firme</td><td>Pedagogia</td><td>"Firme" é rótulo de domínio (§10) e traz 5 limiares a mais</td></tr>
+        <tr><td>4 fases e "5 acertos seguidos em 3 palavras"</td><td>Pedagogia</td><td>Uma sequência fixa de 10 itens faz o mesmo, sem ramificações</td></tr>
+        <tr><td>Análise da próxima história; toque no Leitor antecipa o cartão</td><td>Pedagogia</td><td>Exige classificar formas na hora e é um sinal ambíguo; v1.1 (D26, D27)</td></tr>
+        <tr><td>Índice de ocorrências; conjugação e preposição em frase</td><td>Pedagogia</td><td>Tabela nova só para frases de contexto; v1.1 (D18)</td></tr>
+        <tr><td>Linha do porquê na pergunta</td><td>UX</td><td>Funcionaria como dica sem limitar a nota (D17)</td></tr>
+        <tr><td>"A Revisão só cobra temas já treinados"</td><td>UX</td><td>Quem nunca abre o Treino nunca teria a gramática trabalhada (D4)</td></tr>
+        <tr><td>Ajuste por tempo verbal (REV-04); chips por tema</td><td>UX, book</td><td>Um caminho só: "Tirar da Revisão" na página do tema</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- 12 -->
+  <section id="decisoes" aria-labelledby="h-decisoes">
+    <div class="section-head">
+      <p class="eyebrow">12</p>
+      <h2 id="h-decisoes">Decisões tomadas e pendências</h2>
+      <p>As 36 decisões e os desdobramentos estão em <a href="revisao-treino-decisoes.md">revisao-treino-decisoes.md</a>, que é a fonte da verdade.</p>
+    </div>
+    <div class="tw"><table class="w-wide">
+      <thead><tr><th>Área</th><th>Decisões</th><th>O que ficou</th></tr></thead>
+      <tbody>
+        <tr><td class="k">Memória e FSRS</td><td class="mono">D1 D2 D2b D25</td><td>Cartão de padrão por regra; toda resposta no formato do cartão conta, como no Anki; escolha de forma fora</td></tr>
+        <tr><td class="k">Palavra</td><td class="mono">D3 D12 D13 D27</td><td>Só escrever; só a classe salva gera cartões; sem glosa, lacuna; toque no Leitor não agenda</td></tr>
+        <tr><td class="k">Gramática</td><td class="mono">D4 D11 D11b–e D15 D28 D32</td><td>Só A1, pelos livros; 30 padrões, 9 temas; 1 padrão novo por dia; Gênero e Artigo separados</td></tr>
+        <tr><td class="k">Correção</td><td class="mono">D6 D20</td><td>A nota mede só o alvo; dica limita a Hard</td></tr>
+        <tr><td class="k">Sessão</td><td class="mono">D7 D8 D17 D21 D33</td><td>5 · 2 · 1, freio a 60, lotes de 20; reforço de 3; porquê na resposta; 2 voltas; sem áudio automático</td></tr>
+        <tr><td class="k">Treino</td><td class="mono">D9 D10 D16 D35</td><td>Só cartões de padrão e de membros do aluno; estado em texto; rodada de 10; ordem do <em>Dai! 1</em></td></tr>
+        <tr><td class="k">Navegação</td><td class="mono">D5 D22 D29 D36</td><td>4ª aba Revisão/<em>Ripasso</em>; Treino/<em>Allenamento</em>; página do trecho; verbete no Histórico</td></tr>
+        <tr><td class="k">Dados</td><td class="mono">D14 D18 D19 D23 D26 D30 D31</td><td><code>rules.toml</code>; índice e pré-ensino na v1.1; cadeia de fontes; <code>localDay</code> às 4h</td></tr>
+        <tr><td class="k">Ajustes e adiados</td><td class="mono">D24 D34</td><td>Imagens depois da v1; Ajustes com 3 itens</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="block">
+      <h3>Pendências</h3>
+      <p class="small muted">Cada uma vai ao dono do produto separadamente, com a recomendação.</p>
+      <ol class="decisions">
+        <li class="decision"><span class="id">D7</span><h3>Refazer a simulação de carga</h3>
+          <p class="opts">Em FSRS-6, com o desenho decidido (seção 9).</p>
+          <p class="rec"><span class="tag">Recomendo</span>Fechar os números só depois dela.</p></li>
+        <li class="decision"><span class="id">D19</span><h3>Morph-it!: licença e ganho</h3>
+          <p class="opts">Confirmar a licença (CC BY-SA 2.0 / LGPL) e medir quanto acrescenta depois do en.wiktionary.</p>
+          <p class="rec"><span class="tag">Recomendo</span>Se não acrescentar palavra de A1–B1, ficar só com as duas wikis.</p></li>
+        <li class="decision"><span class="id">D11b</span><h3>Aprovar o catálogo</h3>
+          <p class="opts">30 padrões, ordem e membros da seção 2.</p>
+          <p class="rec"><span class="tag">Recomendo</span>Aprovar como está, com as pendências abaixo.</p></li>
+        <li class="decision"><span class="id">D22</span><h3>Página do trecho</h3>
+          <p class="opts">Mostra a tradução? Tocar numa palavra abre o verbete? Há "Abrir a história"?</p>
+          <p class="rec"><span class="tag">Recomendo</span>Nada disso na v1: a página só lembra o contexto.</p></li>
+      </ol>
+    </div>
+    <div class="tw"><table class="w-wide">
+      <thead><tr><th>#</th><th>Encontrada ao reescrever</th><th>Recomendação</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">1</td><td>A D2 diz "toda resposta <b>digitada</b>", mas o Gênero é escolha e é o formato do próprio cartão</td><td>Conta: a regra é "no formato do cartão"</td></tr>
+        <tr><td class="mono">2</td><td><em>amico</em> e <em>medico</em>: exceção nomeada dentro do cartão de padrão, ou cartão de palavra próprio (leitura literal da D1)?</td><td>Dentro do padrão: <em>amici</em> × <em>amichi</em> é a decisão que a regra treina</td></tr>
+        <tr><td class="mono">3</td><td>"Frequente" (D11c, D11d) não tem fonte para <code>gen.lista</code> e <code>gen.sufixo</code></td><td>NVdB <em>fondamentale</em></td></tr>
+        <tr><td class="mono">4</td><td>Combinações frequentes do <code>prep.art</code> (a pesquisa inclui <em>allo</em>)</td><td>As 5 preposições com <em>il, la, l', i, le</em></td></tr>
+        <tr><td class="mono">5</td><td>"Ordem do catálogo" da D4: intercalando temas pela unidade do <em>Dai! 1</em> ou tema por tema?</td><td>Intercalando</td></tr>
+        <tr><td class="mono">6</td><td>Quando entram os membros de um padrão <code>lista</code> (<em>fatto</em> antes do passato prossimo?)</td><td>Só depois que a Revisão chega ao padrão</td></tr>
+        <tr><td class="mono">7</td><td>Com 1 padrão por dia e o filtro de nível sem efeito (D32), o passato prossimo e o imperativo podem chegar já no 25º dia, qualquer que seja a leitura</td><td>Aceitar e olhar com dados de uso</td></tr>
+        <tr><td class="mono">8</td><td>O filtro de nível da D4 não tem efeito na v1</td><td>Implementar só quando entrar A2</td></tr>
+        <tr><td class="mono">9</td><td>A D19 marca a origem só do plural; e gênero e conjugação?</td><td><code>gender_src</code> e <code>conj_src</code></td></tr>
+        <tr><td class="mono">10</td><td>Na divergência (<em>uomo</em> → "donne"), que valor entra até o relatório ser revisto?</td><td>O membro fica fora do <code>drill</code> até um arquivo de correções resolver</td></tr>
+        <tr><td class="mono">11</td><td>Pronominais sem tabela herdam a do verbo base? É derivação, e a D19 diz "nada gerado por regra"</td><td>Não na v1</td></tr>
+        <tr><td class="mono">12</td><td><code>imper.neg</code>: <em>non</em> + infinito é a única forma do <code>drill</code> que não vem de dicionário</td><td>Aceitar: é a regra inteira, sem exceção</td></tr>
+        <tr><td class="mono">13</td><td>O verbete (DIC-05) passa a mostrar o imperativo?</td><td>Sim, para o aluno achar o que treina</td></tr>
+        <tr><td class="mono">14</td><td>Créditos (AJU-04) do en.wiktionary e do Morph-it!</td><td>Acrescentar</td></tr>
+        <tr><td class="mono">15</td><td><code>pp.essere</code>: terminação errada dá Certo com aviso ou sem aviso?</td><td>Com aviso (G1)</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- 13 -->
+  <section id="proximos" aria-labelledby="h-proximos">
+    <div class="section-head">
+      <p class="eyebrow">13</p>
+      <h2 id="h-proximos">Próximos passos</h2>
+      <p>Fechar as pendências, depois o book e por fim a spec.</p>
+    </div>
+    <div class="steps">
+      <div class="block">
+        <h3>O que o book precisa desenhar</h3>
+        <ol>
+          <li>Raiz da aba, com os 4 estados do cartão do dia e os 9 temas</li>
+          <li>Página do tema e página da regra</li>
+          <li>Gênero com 2 opções, nas três variantes de som</li>
+          <li>Cartão de padrão de Artigo, Presente, Plural, Preposição, Passato prossimo e Imperativo</li>
+          <li>Itens curados: Adjetivos, Possessivos, Piacere</li>
+          <li>Escrever: com glosa e com lacuna</li>
+          <li>Todos os vereditos, com desfazer e a linha do porquê</li>
+          <li>Apresentação de palavra, de regra e de <code>lista</code>; escolha de forma (D)</li>
+          <li>Bloco de reforço; contador; fim do lote</li>
+          <li>Fim da Revisão e fim do Treino</li>
+          <li>Aviso com Desfazer; página do trecho</li>
+          <li>Foco, ordem de leitura e textos PT/IT</li>
+        </ol>
+      </div>
+      <div class="block">
+        <h3>O que a spec precisa ganhar</h3>
+        <ol>
+          <li><b>NAV-01, NAV-06:</b> quatro abas</li>
+          <li><b>REV-01…19:</b> mudam 15 requisitos (REV-06 com o FSRS-6 como no Anki), e o REV-14 sai</li>
+          <li><b>REV-20…26:</b> limites, contador, reforço, padrão novo, porquê, botão único e página do trecho</li>
+          <li><b>TRE-01…09:</b> 9 temas na ordem do <em>Dai! 1</em>, rodada, FSRS, fim, sem gamificação</li>
+          <li><b>SAL-01, AJU-07, OFF-30:</b> Histórico, Ajustes › Revisão com 3 itens, dados</li>
+          <li><b>AJU-04, DIC-05:</b> créditos e imperativo, se aprovados</li>
+          <li><b>ARQ-80…89:</b> log, dobra, FSRS-6, filtro, <code>localDay</code>, OSA, <code>rule</code>, <code>drill</code> com itens curados, hash, fraqueza</li>
+          <li><b>dictionary.md e pipeline:</b> cadeia de fontes, normalização, <code>raw_tags</code>, etapa 5b, <code>rules.toml</code>, relatório</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>Processo: três especialistas em paralelo (pedagogia, UX, sistema) → juiz → arquiteto (v1) → decisões do dono do produto de 2026-10-16 (v2). Fontes cruzadas: book-revisao.html, functional-spec.md, architecture.md, dictionary.md, dictionary-pipeline.md, AGENTS.md, a1-referencias.md, cobertura-enwiktionary.md.</p>
+    <p>Os números de carga são de uma simulação com outro desenho e não valem; a nova está pendente. Os números de cobertura são da medição de 2026-10-16.</p>
+  </footer>
+</main>
+</html>

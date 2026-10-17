@@ -313,7 +313,6 @@ Conflitos entre os books do design e definições que faltam. Quando a spec já 
 
 | # | Tema | Conflito ou lacuna |
 |---|---|---|
-| 11 | Glosa PT | Decidido: o pipeline baixa um dicionário italiano → português e preenche a glosa a partir dele. Falta escolher a fonte (ver [dictionary-pipeline.md](dictionary-pipeline.md#decisões-em-aberto)). |
 | 12 | Carga da Revisão (REV-20, D7) | Os números (5 palavras, 2 formas, 1 padrão, freio a 60, lote de 20) vieram de uma simulação em FSRS-4.5 com outro desenho. Falta refazê-la em FSRS-6 com toda resposta contando (D2), só escrever (D3), cartões de padrão, reforço e Treino (proposta, seção 9.3). **Recomendação:** a spec fica com esses números até a simulação, e eles só fecham depois dela. |
 | 13 | Catálogo de padrões (REV-04, D11b) | O catálogo de 30 padrões (ordem, membros) volta para aprovação. Dentro dele: a) "frequente" no `gen.lista` e no `gen.sufixo` não tem fonte; b) combinações do `prep.art`: as 9 da pesquisa (*al, alla, allo, del, della, nel, nella, sul, dal*) ou as 5 preposições com *il, la, l', i, le*. **Recomendação:** aprovar como está, com a) NVdB *fondamentale* e b) as 5 preposições com *il, la, l', i, le*, deixando *lo* e *gli* para o A2. |
 | 14 | *amico* e *medico* (REV-04) | Exceção nomeada dentro do cartão de padrão `pl.co_go`, ou cartão de palavra próprio (leitura literal da D1, "cartão de palavra só para exceções")? **Recomendação:** dentro do padrão: *amici* × *amichi* é a decisão que a regra treina. |

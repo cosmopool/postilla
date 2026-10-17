@@ -2,7 +2,7 @@
 
 Quais campos do Wiktionary italiano o Postilla usa, como cada um é transformado e quais ficam de fora, com o motivo. O processo de build está em [dictionary-pipeline.md](dictionary-pipeline.md). O layout do verbete está em [design/content.md](../design/content.md).
 
-Fonte: JSONL do kaikki.org (wiktextract sobre o it.wiktionary). Três seções vêm direto do wikitext do dump. A Glosa PT usa também o WikDict e o en.wiktionary. Os traços de treino (gênero, artigo, plural, conjugação), que a Revisão e o Treino cobram, completam o it.wiktionary com o en.wiktionary e, se entrar, com o Morph-it! (ver [Traços de treino](#traços-de-treino)). Os números de cobertura são do dump de 2026-10-01 e contam a porcentagem dos 75.590 lemas que têm o campo.
+Fonte: JSONL do kaikki.org (wiktextract sobre o it.wiktionary). Três seções vêm direto do wikitext do dump. A Glosa PT usa também o WikDict, o pt.wiktionary e o en.wiktionary. Os traços de treino (gênero, artigo, plural, conjugação), que a Revisão e o Treino cobram, completam o it.wiktionary com o en.wiktionary e, se entrar, com o Morph-it! (ver [Traços de treino](#traços-de-treino)). Os números de cobertura são do dump de 2026-10-01 e contam a porcentagem dos 75.590 lemas que têm o campo.
 
 ## Seções do verbete
 
@@ -14,7 +14,7 @@ As seções seguem as do app Livio (`livio.pack.lang.it_IT`), que exibe as seç�
 | 2 | Flessione (plurale, femminile) | `forms[]` sem `source` | 47% |
 | 3 | Sillabazione | `hyphenations[0].parts` | 82% |
 | 4 | Pronuncia | `sounds[].ipa` | 58% |
-| 5 | Glosa PT (oculta por padrão) | `translations[]` com `lang_code: "pt"`, WikDict it-pt e pivô pelo en.wiktionary | 46% (95% do vocabulário de base) |
+| 5 | Glosa PT (oculta por padrão) | `translations[]` com `lang_code: "pt"`, WikDict it-pt, pt.wiktionary e pivô pelo en.wiktionary | 47% (95% do vocabulário de base, medido sem o pt.wiktionary) |
 | 6 | Significati | `senses[].glosses`, `examples[].text`, rótulos | 100% (exemplos 13%) |
 | 7 | Coniugazione | `forms[]` com `source: "Appendice:Coniugazioni/..."` | 7,5% (os verbos) |
 | 8 | Etimologia | `etymology_texts` | 89% |
@@ -82,17 +82,18 @@ Resultado: "verbo intransitivo pronominale · ausiliare: essere".
 
 ### Glosa PT
 
-- **Origem:** três fontes, nesta ordem. Cada verbete usa a primeira que tiver tradução (regras na [etapa 4 do pipeline](dictionary-pipeline.md#4-juntar-a-glosa-pt)):
-  1. `translations[]` com `lang_code: "pt"` do próprio verbete;
+- **Origem:** quatro fontes, nesta ordem. Cada verbete usa a primeira que tiver tradução (regras na [etapa 4 do pipeline](dictionary-pipeline.md#4-juntar-a-glosa-pt)):
+  1. `translations[]` com `lang_code: "pt"` do próprio verbete, sem os quadros rotulados com outra classe;
   2. WikDict it-pt, com `score` ≥ 10;
-  3. pivô: a glosa inglesa do lema no en.wiktionary ("finestrino: window"), traduzida pelo WikDict en-pt ("janela").
+  3. pt.wiktionary: a definição em português do verbete italiano, limpa ("cão (Canis lupus familiaris)" → "cão");
+  4. pivô: a glosa inglesa do lema no en.wiktionary ("finestrino: window"), traduzida pelo WikDict en-pt ("janela").
 - **Junção:** por lema + classe.
 - **Uma glosa por verbete, não por acepção.** Nenhuma fonte liga a tradução às acepções de Significati. O it.wiktionary e o WikDict só trazem o rótulo do quadro de tradução ("sostantivo (stazione)"), e o pivô usa as acepções do en.wiktionary.
-- **Formato:** até 3 traduções, na ordem da fonte, e a origem (`wikt`, `wikdict` ou `pivo-en`).
+- **Formato:** até 3 traduções, na ordem da fonte, em `gloss`, e a origem em `gloss_src` (`wikt`, `wikdict`, `ptwikt` ou `pivo-en`).
 - **Sem glosa:** a seção não aparece.
 - **Licença:** todas as fontes são CC BY-SA. `meta` guarda licença e atribuição de cada uma (ver [Licença](dictionary-pipeline.md#licença)).
 
-**Cobertura.** Medida com o it.wiktionary de 2026-10-01, o WikDict de 2026-06-23 e o en.wiktionary de 2026-09-02. O vocabulário de base é o [Nuovo vocabolario di base](https://www.internazionale.it/opinione/tullio-de-mauro/2016/12/23/il-nuovo-vocabolario-di-base-della-lingua-italiana) (De Mauro, 2016), usado como aproximação do vocabulário A1–B2.
+**Cobertura.** Medida com o it.wiktionary de 2026-10-01, o WikDict de 2026-06-23 e o en.wiktionary de 2026-09-02, antes de o pt.wiktionary entrar. No build de 2026-10-17, com as quatro fontes, 46,6% dos 74.327 verbetes têm glosa (wikt 3.829, wikdict 9.898, ptwikt 946, pivo-en 19.989). O NVdB não está no disco, então o recorte por vocabulário de base não foi refeito. O vocabulário de base é o [Nuovo vocabolario di base](https://www.internazionale.it/opinione/tullio-de-mauro/2016/12/23/il-nuovo-vocabolario-di-base-della-lingua-italiana) (De Mauro, 2016), usado como aproximação do vocabulário A1–B2.
 
 | Recorte | Só it.wiktionary | Com WikDict | Com WikDict + pivô |
 |---|---|---|---|

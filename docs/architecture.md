@@ -14,8 +14,8 @@ Documentos relacionados:
 | Id | Decisão | Motivo |
 |---|---|---|
 | ARQ-01 | O app é feito em Flutter, para iOS e Android. | Uma base de código para as duas plataformas que a spec funcional pede. |
-| ARQ-02 | O pipeline de conteúdo é escrito em Python. | O wiktextract e as ferramentas de parse do wikitext são Python. |
-| ARQ-03 | Dois repositórios: `postilla` (app Flutter e docs do app) e `postilla-content` (pipeline e fontes das histórias). | App e conteúdo têm ciclos de release separados. O app recebe conteúdo novo sem versão nova na loja. |
+| ARQ-02 | O pipeline de conteúdo é escrito em Zig (0.17). SQLite e zstd entram como fontes C pelo `build.zig.zon`, com hash fixo. | O pipeline lê o JSONL do kaikki.org já extraído e não roda o wiktextract, então não depende de Python. Um binário só, sem runtime e sem dependência instalada na máquina (D23). |
+| ARQ-03 | Dois repositórios: `postilla` (app Flutter e docs do app) e `postilla-content` (pipeline e fontes das histórias). `postilla-content` fica aninhado em `postilla/content/`, com git próprio, e o `.gitignore` do app o ignora. | App e conteúdo têm ciclos de release separados. O app recebe conteúdo novo sem versão nova na loja. |
 | ARQ-04 | `postilla-content` é público. | Os pacotes ficam nas Releases dele, e o app baixa sem token. |
 | ARQ-05 | Os pacotes de conteúdo são publicados como GitHub Releases de `postilla-content`. | Sem custo e no mesmo lugar do código que gera os pacotes. |
 | ARQ-06 | A URL do manifesto embutida no app é `https://postilla.kaiodelphino.com/content/manifest.json`. O manifesto é servido pelo GitHub Pages de `postilla-content`, com esse domínio configurado, e as URLs dos pacotes dentro dele apontam direto para as Releases. | Trocar de host não exige versão nova do app: só a URL do manifesto fica embutida. Um domínio não aponta por CNAME para um arquivo de Release, então o manifesto fica no Pages. O `/content` deixa a raiz livre para um site do app. |
@@ -24,7 +24,7 @@ Documentos relacionados:
 
 ```
 postilla-content (público)                     postilla
-  pipeline (Python)                              app (Flutter)
+  pipeline (Zig)                                 app (Flutter)
   fontes das histórias          Releases           conteúdo embutido
   contrato (esquema, manifesto) ─────────► manifesto ─► atualização (seção 3)
                                      domínio próprio
@@ -157,7 +157,7 @@ Text(dict.synonyms)   // Sinonimi | Sinônimos
 
 | Id | Decisão | Motivo |
 |---|---|---|
-| ARQ-50 | O pipeline divide o texto em palavras e frases e grava no `stories`, por parágrafo, o início e o fim de cada palavra e de cada frase, em italiano e em português. Elisões (l'aria, c'è) são uma palavra só. O app só lê esses spans. | Um tokenizador só, em Python, testado no build. As contagens de palavras do LEI-07 e os pares de frase do TRA-08 saem prontos. |
+| ARQ-50 | O pipeline divide o texto em palavras e frases e grava no `stories`, por parágrafo, o início e o fim de cada palavra e de cada frase, em italiano e em português. Elisões (l'aria, c'è) são uma palavra só. O app só lê esses spans. | Um tokenizador só, no pipeline, testado no build. As contagens de palavras do LEI-07 e os pares de frase do TRA-08 saem prontos. |
 | ARQ-51 | Cada parágrafo é um `RenderBox` próprio com um `TextPainter`. Ele faz o layout, guarda o retângulo de cada palavra num array, resolve o toque e o arrasto da seleção pelo retângulo mais próximo (caixa ampliada), pinta grifo, frase marcada e pontilhado, e cria um nó de semântica por palavra. | O Leitor é o centro do app: o que importa fica grande e num lugar só. Sem widget nem recognizer por palavra, e a semântica fica sob controle (ACE-03, ACE-04). |
 | ARQ-52 | Todos os parágrafos fazem layout ao abrir a história, numa coluna não preguiçosa. O topo de cada parágrafo fica num array. | Com histórias de até ~2.000 palavras, o custo é aceitável. Progresso (LEI-07), restaurar a posição (ARQ-37) e sincronizar a tela dividida (TRA-07) viram busca binária nesse array. |
 | ARQ-53 | Ao abrir a história, o app resolve em lote forma → lema: uma consulta no `dict` com as formas distintas da história. Os lemas ficam num array paralelo aos spans de palavra e servem ao toque (LEI-02) e ao pontilhado (SAL-05). | Uma consulta só por história. O `stories` não depende da versão do `dict`, e o conteúdo continua sem anotação de lema (LEI-02). |
@@ -293,7 +293,6 @@ A Revisão saiu daqui: a arquitetura dela está na seção 9 (ARQ-80…89). Fica
 |---|---|---|
 | Semântica do Leitor | O ACE-03 pede leitura por parágrafo e cada palavra como botão. Como o RenderBox (ARQ-51) monta os nós de semântica para atender os dois só se valida no aparelho, com VoiceOver e TalkBack. | — |
 | Pedidos ao `postilla-content` | Os itens da seção 10 que o `dict` e o `stories` ainda não têm precisam ser aceitos lá: coluna normalizada (ARQ-63), rank e faixa do NVdB (ARQ-64), nomes de gênero em português e italiano, spans de palavra e frase (ARQ-50), histórias adicionadas por versão (ARQ-26), traços de treino em `entry.data`, `rule` e `drill` (ARQ-86, ARQ-87). | — |
-| Linguagem do pipeline (D23) | O ARQ-02 diz Python; o [todo.md](todo.md) diz C ou Zig. A etapa nova de traços de treino segue o que for adotado. Fato a pesar: o pipeline lê o JSONL do kaikki.org já extraído e não roda o wiktextract, então o motivo do ARQ-02 pesa menos do que parece. | Decidir uma vez para o pipeline inteiro, como diz a D23, antes de começar a etapa 5b. |
 | Números da carga e da fraqueza (D7) | Lote de 20, cotas 5 · 2 · 1, freio a 60, 2 voltas e os limiares do ARQ-89 (30 dias, Beta(1, 3), n ≥ 5, 0,35, peso 0,5) vêm de premissas. A simulação antiga era FSRS-4.5 com outro desenho e não vale. | Constantes num lugar só do código; fechar os números depois da simulação em FSRS-6 da proposta (9.3). |
 | Parâmetros do FSRS-6 | "Igual ao Anki" (D2) não diz se os 21 parâmetros são os padrão ou otimizados por aluno, nem a retenção desejada. Opções: (a) parâmetros padrão e retenção 0,9 fixos; (b) otimizador no aparelho, a partir do log, depois de N respostas. | (a) na v1. O log guarda tudo, então o otimizador pode entrar depois e recalcular a dobra sem migração. |
 | Passos de aprendizado do Anki | O Anki usa passos em minutos para cartão novo e para lapso. Aqui, as voltas da sessão (D21) fazem esse papel. Opções: (a) sem passos: intervalo em dias inteiros, mínimo 1, vencimento por `localDay`; (b) imitar os passos do Anki em minutos. | (a): é o que o ARQ-82 e o ARQ-84 descrevem, e a D21 já manda o cartão para amanhã depois de 2 voltas. |

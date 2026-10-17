@@ -32,13 +32,13 @@ As seções seguem as do app Livio (`livio.pack.lang.it_IT`), que exibe as seç�
 
 ### Lemas e formas
 
-- **Lemas e formas:** uma entrada cujos sentidos são todos `form_of`/`alt_of` não vira verbete. Cada palavra de `form_of[].word` alimenta a tabela `form` (forma → lema).
-- **Formas com clítico:** as formas das tabelas de conjugação também entram em `form`, inclusive as com clítico. Assim "si siede" leva a sedersi, e não a sedere.
+- **Lemas e formas:** uma entrada cujos sentidos são todos `form_of`, ou que tem a tag `form-of`, não vira verbete. Cada palavra de `form_of[].word` alimenta a tabela `form` (forma → lema). A entrada com a tag e sem `form_of[]` ("siede") se liga ao lema pelas tabelas dele.
+- **Formas das tabelas:** as formas da Flessione e da conjugação também entram em `form`, inclusive as com clítico. Assim "si siede" leva a sedersi, e não a sedere, e "binari" leva aos dois verbetes de binario.
 - **Um verbete por classe:** "binario" substantivo e "binario" adjetivo são duas linhas.
 
 ### Classe
 
-- `pos` vira o nome em italiano: `noun` → sostantivo, `verb` → verbo, `adj` → aggettivo, `adv` → avverbio, `name` → nome proprio, `phrase` → locuzione.
+- `pos` vira o nome em italiano: `noun` → sostantivo, `verb` → verbo, `adj` → aggettivo, `adv` → avverbio, `name` → nome proprio, `phrase` → locuzione. As classes menores seguem o mesmo padrão: abbreviazione, locuzione avverbiale, locuzione prepositiva, prefisso, suffisso, affisso, interiezione, pronome, congiunzione, preposizione, articolo, numerale, particella, simbolo, carattere.
 - `tags` de gênero e número vira `masculine` → maschile, `feminine` → femminile, `invariable` → invariabile.
 - **Valência do verbo:** vem das `categories` da entrada, porque `tags` não traz essa informação (sedersi vem só com `reflexive`).
 
@@ -57,7 +57,8 @@ Resultado: "verbo intransitivo pronominale · ausiliare: essere".
 
 - De cada forma só ficam `form` e `tags`. Sai `source`. Os `raw_tags` saem da Flessione, mas passam a ser lidos na conjugação: eles dão modo e tempo onde as `tags` não bastam, inclusive o imperativo ([etapa 5b do pipeline](dictionary-pipeline.md#5b-traços-de-treino)).
 - A primeira forma da conjugação ("sedere (coniugazione)", sem tags) é só o link para a tabela e é descartada.
-- O pronome da conjugação (io, tu, lui/lei…) é derivado de pessoa + número (`first-person` + `singular` → io), não de `raw_tags`.
+- O pronome da conjugação (io, tu, lui/lei…) é derivado de pessoa + número (`first-person` + `singular` → io), não de `raw_tags`. A exceção é o imperativo, que só tem a tag `imperative`: a pessoa vem do `raw_tags` (tu, lui/lei, noi, voi, essi/esse).
+- Os cinco tempos do DIC-05 saem das `tags` do indicativo: pessoa + número + `present` (1), `past` + `perfect` (2, passato prossimo), `imperfect` (3), `future` (4). O imperativo é o 5. Congiuntivo, condizionale e passato remoto vêm sem as tags de pessoa ou com outro tempo e ficam fora do `conj`, mas as formas entram em `form`. O "non parlare" da 2ª pessoa do imperativo fica na lista, como vem da tabela.
 - As formas são agrupadas por modo e tempo para montar as tabelas (Indicativo presente, Passato prossimo, Imperfetto…). Se a seção passa a mostrar o imperativo como 5º tempo é uma decisão em aberto (ver [Decisões em aberto](#decisões-em-aberto)).
 
 ### Sillabazione e Pronuncia

@@ -53,13 +53,17 @@ O arquivo do en.wiktionary por língua está marcado como *deprecated* no kaikki
 - Baixa os dois arquivos do it.wiktionary da data escolhida e a versão mais recente das outras fontes.
 - Guarda a data de cada fonte, as URLs e o sha256 de cada arquivo para gravar em `meta` (etapa 6).
 - Os arquivos brutos ficam fora do controle de versão (`data/`).
+- A lista de fontes é um array no código, que serve ao download e à `meta`. `postilla-content fetch` baixa só os arquivos que faltam. A data de cada fonte é o `Last-Modified` da resposta, gravado em `data/<arquivo>.date`. O sha256 é calculado no build, ao ler o arquivo.
+- O transporte é o `curl`, chamado pelo binário: o `std.http.Client` do Zig 0.17 não atravessa o proxy HTTP do sandbox de desenvolvimento, que responde `HTTP/1.0` ao `CONNECT`.
 
 ### 2. Separar lemas e formas
 
-O JSONL tem 560.689 entradas. 485 mil delas (86%) são formas flexionadas: todos os sentidos são `form_of`/`alt_of` ("siede → sedere").
+O JSONL tem 560.689 entradas (dump de 2026-10-16). 486.362 delas (87%) são formas flexionadas: todos os sentidos são `form_of` ("case → casa"), ou a entrada tem a tag `form-of`. Nenhuma entrada do dump usa `alt_of`.
 
-- **Lemas** (75.590): viram verbetes.
+- **Lemas** (74.327): viram verbetes.
 - **Formas**: não viram verbete. Alimentam o índice forma → lema.
+- **Tag `form-of` sem `form_of[]`** (1.263 entradas, como "siede", "provenienze", "dannati"): também são formas. Elas não dizem o lema, então o vínculo vem das tabelas do próprio lema (Flessione e conjugação, etapa 6), que cobrem 1.077 delas. As outras 186 ficam sem vínculo. Antes, a regra contava só os sentidos, o que dava 75.590 lemas e um verbete "siede: terza persona singolare…".
+- **Lema que não existe:** 10.424 lemas apontados por `form_of` não têm página no it.wiktionary (6.522 verbos, como *riarmare* e *infiltrare*, com as páginas de forma criadas por bot). As 286 mil formas que apontam para eles ficam fora de `form`.
 
 ### 3. Extrair seções do wikitext
 
@@ -108,7 +112,7 @@ Filtra, renomeia e converte os campos. As regras completas estão em [dictionary
 
 ### 5b. Traços de treino
 
-Preenche em `entry.data` os campos que a Revisão e o Treino cobram (plural, gênero, artigo, conjugação), classifica cada palavra nos padrões do catálogo e monta as tabelas `rule` e `drill` (ARQ-86, ARQ-87). Os campos estão em [dictionary.md](dictionary.md#traços-de-treino). A linguagem desta etapa segue a do pipeline inteiro, ainda em aberto (D23).
+Preenche em `entry.data` os campos que a Revisão e o Treino cobram (plural, gênero, artigo, conjugação), classifica cada palavra nos padrões do catálogo e monta as tabelas `rule` e `drill` (ARQ-86, ARQ-87). Os campos estão em [dictionary.md](dictionary.md#traços-de-treino).
 
 **Cadeia de fontes (D19).** Para plural, gênero e conjugação, cada lema usa a primeira fonte que tiver o dado, nesta ordem:
 
@@ -177,11 +181,13 @@ Esquema proposto:
 
 ```sql
 CREATE TABLE meta  (key TEXT PRIMARY KEY, value TEXT);          -- versão, data, URL e sha256 de cada fonte, licença, atribuições
-CREATE TABLE entry (id INTEGER PRIMARY KEY, word TEXT NOT NULL, pos TEXT NOT NULL, data TEXT NOT NULL);
-CREATE TABLE form  (form TEXT NOT NULL, entry_id INTEGER NOT NULL REFERENCES entry(id));
+CREATE TABLE entry (id INTEGER PRIMARY KEY, word TEXT NOT NULL, word_norm TEXT NOT NULL, pos TEXT NOT NULL, data BLOB NOT NULL);
+CREATE TABLE form  (form TEXT NOT NULL, form_norm TEXT NOT NULL, entry_id INTEGER NOT NULL REFERENCES entry(id));
 
-CREATE INDEX entry_word ON entry(word);
-CREATE INDEX form_form  ON form(form);
+CREATE INDEX entry_word      ON entry(word);
+CREATE INDEX entry_word_norm ON entry(word_norm);
+CREATE INDEX form_form       ON form(form);
+CREATE INDEX form_form_norm  ON form(form_norm);
 
 CREATE TABLE rule (                       -- de rules.toml (etapa 5b)
   id        TEXT    PRIMARY KEY,          -- 'pl.co_go'; só acréscimo, nunca renomeado (ARQ-86)
@@ -210,11 +216,12 @@ CREATE INDEX drill_rule  ON drill(rule, skill, tense);
 CREATE INDEX drill_entry ON drill(entry_id);
 ```
 
-- **`entry`**: uma linha por lema e classe gramatical. "binario" substantivo e "binario" adjetivo são duas linhas. `data` guarda o verbete inteiro.
-- **`form`**: forma → lema, com o id do lema em vez da string, o que economiza espaço. Recebe as formas da etapa 2 e também as formas das tabelas de conjugação, incluindo as com clítico ("si siede" → sedersi).
+- **`entry`**: uma linha por lema e classe gramatical. "binario" substantivo e "binario" adjetivo são duas linhas. `pos` é o nome em italiano (`sostantivo`). `data` guarda o verbete inteiro em MessagePack: um map com chaves em texto, os nomes do [dictionary.md](dictionary.md), e campo vazio fica de fora.
+- **`form`**: forma → lema, com o id do lema em vez da string, o que economiza espaço. Recebe as formas da etapa 2 e também as das tabelas do lema: Flessione (`binari` → binario) e conjugação, incluindo as com clítico ("si siede" → sedersi). Saem o auxiliar e a primeira forma da conjugação, que é só o link. A forma de `form_of` vai para o verbete do lema com a mesma classe e, se não houver, para todos os verbetes do lema. As linhas repetidas saem.
+- **`word_norm`** e **`form_norm`** (ARQ-63): minúscula e sem acento ("città" → "citta"), cobrindo Latin-1 e Latin Extended-A.
 - **`rule`** e **`drill`**: o catálogo de padrões e o índice de pertinência da etapa 5b. Uma linha de `drill` por substantivo × skill (`genere`, `articolo`, `plurale`, `preposizione`), por verbo × tempo (mais uma de `imper.neg`) e por item curado.
 - **`meta`**: para cada fonte, a data, a URL, o sha256, a licença e a atribuição (ver [Licença](#licença)).
-- A coluna normalizada (ARQ-63) e o rank e a faixa do NVdB (ARQ-64) também são pedidos do app, ainda fora deste esquema.
+- O rank e a faixa do NVdB (ARQ-64) também são pedidos do app, ainda fora deste esquema.
 - **Ao final**: `VACUUM` para compactar o arquivo.
 
 ### 7. Comprimir
@@ -227,6 +234,8 @@ O arquivo `.db` é comprimido inteiro. Medição com uma versão provisória do 
 | gzip -9 | ~21 MB |
 | zstd -19 | ~15 MB |
 | brotli -q 11 | ~13 MB |
+
+Medido no primeiro build em Zig (2026-10-17, dump de 2026-10-16, sem glosa PT, wikitext nem 5b): `.db` de 93,7 MB e `.zst` de 20,2 MB. O `.db` se divide em `entry` (45 MB, dos quais 37 MB de `data`) e `form` com os dois índices (45 MB, 553 mil linhas). A coluna `form_norm` e o índice dela custam ~19 MB.
 
 ## Licença
 
@@ -253,9 +262,7 @@ Com isso:
 |---|---|
 | Fonte da glosa PT. Alternativas medidas (lemas / vocabulário de base): WikDict it-pt só (18% / 62%); WikDict it-pt + pivô en.wiktionary (46% / 95%); as duas + pt.wiktionary (48% / 96%); Open Multilingual Wordnet, MultiWordNet + OpenWN-PT (27% / 84%, sem ordem de acepção); FreeDict ita-por (subconjunto antigo do WikDict). Descartadas: MUSE (CC BY-NC), Apertium ita-por (dicionário vazio, GPL), lexemas do Wikidata (~2 mil lemas com tradução). | WikDict it-pt + pivô en.wiktionary (etapa 4), com a origem de cada glosa marcada. |
 | Erros e variante PT-PT nas glosas: sedersi → "estar sentado", serranda → "postigo"; as fontes misturam PT-BR e PT-PT ("comboio", "terramoto", "crónico") | Arquivo de correções (lema + classe → glosa) versionado com o script, começando pelas palavras do vocabulário de base |
-| Formato da coluna `data` | JSON (fácil de depurar). MessagePack reduz o banco em ~14% e não muda o tamanho comprimido. |
 | Algoritmo de compressão | — |
-| Linguagem e local do script | O ARQ-02 diz Python e o [todo.md](todo.md) diz C ou Zig (D23). A etapa 5b segue o que for adotado. O pipeline lê o JSONL do kaikki.org já extraído e não roda o wiktextract, então o motivo do ARQ-02 pesa menos do que parece. Recomendação: decidir uma vez para o pipeline inteiro, antes de escrever a 5b. |
 | Morph-it! como 3ª fonte (D19) | Confirmar a licença (CC BY-SA 2.0 / LGPL) e medir quanto ele acrescenta depois do en.wiktionary. Se não acrescentar palavra de A1–B1, ficar só com as duas wikis. |
 | Origem do gênero e da conjugação (proposta 12.2, item 9) | A D19 marca só a origem do plural. Recomendação: `gender_src` e `conj_src`, com os mesmos valores do `plural_src`. Também servem para o crédito por verbete (ver [dictionary.md](dictionary.md#decisões-em-aberto)). |
 | Valor na divergência entre fontes (proposta 12.2, item 10) | *uomo* → "donne" no it.wiktionary. Opções: (a) vale a ordem da cadeia (it.wiktionary); (b) vale o en.wiktionary quando ele discorda; (c) o membro fica fora do `drill` até o arquivo de correções resolver, e o verbete fica como está. Recomendação: (c), e começar o arquivo de correções pelas palavras do NVdB que aparecerem no relatório. |

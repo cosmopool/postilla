@@ -24,7 +24,7 @@ As duas primeiras fontes vêm do mesmo dump mensal do it.wiktionary. O script de
 | Fonte | Arquivo | Tamanho | Para quê |
 |---|---|---|---|
 | [kaikki.org](https://kaikki.org/itwiktionary/Italiano/index.html) | `kaikki.org-dictionary-Italiano.jsonl.gz` | 41 MB (478 MB descompactado), dump de 2026-10-01 | Quase tudo: verbetes já estruturados pelo [wiktextract](https://github.com/tatuylonen/wiktextract) |
-| [dumps.wikimedia.org](https://dumps.wikimedia.org/itwiktionary/) | `itwiktionary-<data>-pages-articles.xml.bz2` | 71 MB, dump de 2026-10-01 | Só as seções Termini correlati, Alterati e Da non confondere con |
+| [dumps.wikimedia.org](https://dumps.wikimedia.org/itwiktionary/) | `itwiktionary-<data>-pages-articles.xml.bz2` | 71 MB, dump de 2026-10-01. A data fica na URL, no código, e muda junto com a do kaikki.org (a página dele diz de qual dump saiu) | Só as seções Termini correlati, Alterati e Da non confondere con |
 | [WikDict](https://download.wikdict.com/dictionaries/sqlite/2/) | `it-pt.sqlite3`, gravado como `wikdict-it-pt.sqlite3` | 3,6 MB, gerado em 2026-06-23 | Glosa PT: traduções italiano → português |
 | [kaikki.org](https://kaikki.org/ptwiktionary/Italiano/index.html) | `kaikki.org-dictionary-Italiano.jsonl` (pt.wiktionary, sem gzip), gravado como `kaikki.org-ptwiktionary-Italiano.jsonl` | 3,2 MB, 5.022 verbetes, dump de 2026-10-01 | Glosa PT: definição em português dos verbetes italianos do Wikcionário |
 | [WikDict](https://download.wikdict.com/dictionaries/sqlite/2/) | `en-pt.sqlite3`, gravado como `wikdict-en-pt.sqlite3` | 12,9 MB, gerado em 2026-06-23 | Glosa PT: segundo passo do pivô pelo inglês |
@@ -71,15 +71,23 @@ O JSONL tem 560.689 entradas (dump de 2026-10-16). 486.362 delas (87%) são form
 
 ### 3. Extrair seções do wikitext
 
-Para cada página com seção `{{-it-}}`, o script lê as seções:
+Para cada página do espaço principal (`<ns>0</ns>`) com seção `{{-it-}}`, o script lê as seções, só dentro da parte italiana (até o próximo cabeçalho `== … ==`):
 
-| Template | Título exibido | Campo |
-|---|---|---|
-| `{{-rel-}}` | Termini correlati | `related` |
-| `{{-alter-}}` | Alterati | `altered`, com o tipo vindo de `{{Dim}}`, `{{Accr}}`, `{{Vezz}}`, `{{Pegg}}` |
-| `{{-noconf-}}` | Da non confondere con | `confusables` |
+| Template | Título exibido | Campo | Páginas² | Verbetes³ |
+|---|---|---|---|---|
+| `{{-rel-}}` | Termini correlati | `related` | 9.565 | 10.350 (13,9%) |
+| `{{-alter-}}` | Alterati | `altered`, com o tipo vindo de `{{Dim}}`, `{{Accr}}`, `{{Vezz}}`, `{{Pegg}}`, `{{Spreg}}` | 1.617 | 1.675 (2,3%) |
+| `{{-noconf-}}` | Da non confondere con | `confusables` | 448 | 482 (0,6%) |
 
-Cada linha `* ... [[palavra]] ...` vira um item. O resultado é unido ao lema pelo título da página. O `related` do wiktextract é descartado.
+² Páginas do dump de 2026-10-01 com o cabeçalho da seção. ³ Verbetes do build de 2026-10-17 com pelo menos um item; uma página dá um verbete por classe.
+
+- **Cabeçalho:** uma linha só com `{{-nome-}}` ou `{{-nome-|…}}`. A seção vai até o próximo cabeçalho; dentro dela, só contam as linhas que começam com `*`.
+- **Itens:** cada `[[link]]` da linha é um item `{ word }`. O alvo é o que vem antes de `|` e de `#`. Link para outro espaço (`w:`, `File:`) fica fora, e também a própria página. Linha sem link (`* {{Fonte|trec}}`, `* sveglia`) não dá item.
+- **Nota:** o que vem antes do primeiro link vira `note` de todos os itens da linha, como em Sinonimi. `{{Est}}` → "estens.", `{{Fig}}` → "fig.", `{{Term|area|it}}` → a abreviação da tabela de rótulos (ou a área como veio), e o texto em itálico, sem os parênteses (*''(significato geometrico)''* → "significato geometrico").
+- **Alterati:** o template do tipo dá `type` (`diminutivo`, `accrescitivo`, `vezzeggiativo`, `peggiorativo`, `spregiativo`). O `{{Spreg}}` aparece em 85 linhas, ao lado do `{{Pegg}}` (444), e fica como tipo próprio. Linha sem template de tipo (`{{Term|ironico|it}} [[lacrimuccia]]`) fica sem `type`.
+- **Da non confondere con:** quando sobra texto depois do primeiro link, ele é a explicação e vira a `note` desse link, em texto puro ("[[frontiera]]: il confine è prevalentemente geografico…"). Sem explicação, cada link é um item. Em 85 das 450 linhas há explicação, às vezes com mais de uma frase.
+- O resultado é unido ao lema pelo título da página: todos os verbetes com esse `word` recebem as seções. O `related` do wiktextract é descartado.
+- **Leitura:** o dump é lido em fluxo, com a libbz2 (vários streams em sequência são aceitos). Do XML só interessam `<title>`, `<ns>` e `<text>`, com as entidades `&lt; &gt; &amp; &quot; &#039;` desfeitas.
 
 ### 4. Juntar a glosa PT
 
@@ -251,7 +259,7 @@ O arquivo `.db` é comprimido inteiro. Medição com uma versão provisória do 
 | zstd -19 | ~15 MB |
 | brotli -q 11 | ~13 MB |
 
-Medido no primeiro build em Zig (2026-10-17, dump de 2026-10-16, sem glosa PT, wikitext nem 5b): `.db` de 93,7 MB e `.zst` de 20,2 MB. Com a glosa PT: `.db` de 95,1 MB e `.zst` de 20,5 MB, e o build leva ~1 min 45 s. O `.db` se divide em `entry` (45 MB, dos quais 37 MB de `data`) e `form` com os dois índices (45 MB, 553 mil linhas). A coluna `form_norm` e o índice dela custam ~19 MB.
+Medido no primeiro build em Zig (2026-10-17, dump de 2026-10-16, sem glosa PT, wikitext nem 5b): `.db` de 93,7 MB e `.zst` de 20,2 MB. Com a glosa PT: `.db` de 95,1 MB e `.zst` de 20,5 MB, e o build leva ~1 min 45 s. Com o wikitext: `.db` de 96,4 MB e `.zst` de 20,7 MB, e o build leva ~3 min 20 s, a maior parte para descomprimir o bzip2. O `.db` se divide em `entry` (45 MB, dos quais 37 MB de `data`) e `form` com os dois índices (45 MB, 553 mil linhas). A coluna `form_norm` e o índice dela custam ~19 MB.
 
 ## Licença
 

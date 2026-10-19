@@ -14,7 +14,7 @@ Documentos relacionados:
 | Id | Decisão | Motivo |
 |---|---|---|
 | ARQ-01 | O app é feito em Flutter, para iOS e Android. | Uma base de código para as duas plataformas que a spec funcional pede. |
-| ARQ-02 | O pipeline de conteúdo é escrito em Zig (0.17). SQLite e zstd entram como fontes C pelo `build.zig.zon`, com hash fixo. | O pipeline lê o JSONL do kaikki.org já extraído e não roda o wiktextract, então não depende de Python. Um binário só, sem runtime e sem dependência instalada na máquina (D23). |
+| ARQ-02 | O pipeline de conteúdo é escrito em Zig (0.17). SQLite, zstd e bzip2 entram como fontes C pelo `build.zig.zon`, com hash fixo. | O pipeline lê o JSONL do kaikki.org já extraído e não roda o wiktextract, então não depende de Python. Um binário só, sem runtime e sem dependência instalada na máquina (D23). |
 | ARQ-03 | Dois repositórios: `postilla` (app Flutter e docs do app) e `postilla-content` (pipeline e fontes das histórias). `postilla-content` fica aninhado em `postilla/content/`, com git próprio, e o `.gitignore` do app o ignora. | App e conteúdo têm ciclos de release separados. O app recebe conteúdo novo sem versão nova na loja. |
 | ARQ-04 | `postilla-content` é público. | Os pacotes ficam nas Releases dele, e o app baixa sem token. |
 | ARQ-05 | Os pacotes de conteúdo são publicados como GitHub Releases de `postilla-content`. | Sem custo e no mesmo lugar do código que gera os pacotes. |

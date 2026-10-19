@@ -21,12 +21,12 @@ As seções seguem as do app Livio (`livio.pack.lang.it_IT`), que exibe as seç�
 | 9 | Sinonimi | `synonyms[]` | 42% |
 | 10 | Contrari | `antonyms[]` | 25% |
 | 11 | Parole derivate | `derived[]` | 21% |
-| 12 | Termini correlati | wikitext `{{-rel-}}` | < 20%¹ |
-| 13 | Alterati | wikitext `{{-alter-}}` | < 20%¹ |
-| 14 | Da non confondere con | wikitext `{{-noconf-}}` | < 20%¹ |
+| 12 | Termini correlati | wikitext `{{-rel-}}` | 13,9%¹ |
+| 13 | Alterati | wikitext `{{-alter-}}` | 2,3%¹ |
+| 14 | Da non confondere con | wikitext `{{-noconf-}}` | 0,6%¹ |
 | — | Nella storia | não vem do dicionário: o trecho sai da própria história | — |
 
-¹ As três seções aparecem juntas em 20% dos lemas (campo `related` do wiktextract). A cobertura de cada uma só fica conhecida depois do parse do wikitext.
+¹ Porcentagem dos 74.327 verbetes do build de 2026-10-17 (dump de 2026-10-01). O campo `related` do wiktextract, que junta as três com Varianti, aparecia em 20% dos lemas.
 
 ## Transformações
 
@@ -113,7 +113,9 @@ Resultado: "verbo intransitivo pronominale · ausiliare: essere".
 ### Termini correlati, Alterati, Da non confondere con
 
 - Vêm do wikitext (etapa 3 do pipeline) e substituem o `related` do wiktextract.
-- Em Alterati, o template da linha dá o tipo: `{{Dim}}` diminutivo, `{{Accr}}` accrescitivo, `{{Vezz}}` vezzeggiativo, `{{Pegg}}` peggiorativo.
+- Cada item é `{ word, note }`, como em Sinonimi: a nota sai dos rótulos e do texto antes do link ("(estens.)", "(significato geometrico)"). Regras na [etapa 3 do pipeline](dictionary-pipeline.md#3-extrair-seções-do-wikitext).
+- Em Alterati, o template da linha dá `type`: `{{Dim}}` diminutivo, `{{Accr}}` accrescitivo, `{{Vezz}}` vezzeggiativo, `{{Pegg}}` peggiorativo, `{{Spreg}}` spregiativo.
+- Em Da non confondere con, a `note` é a explicação que vem depois da palavra, quando há ("frontiera: il confine è prevalentemente geografico, la frontiera è prevalentemente politica").
 
 ## Traços de treino
 

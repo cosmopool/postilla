@@ -37,8 +37,7 @@ Arquivos escritos à mão, versionados com o script em `postilla-content`:
 | Arquivo | Para quê |
 |---|---|
 | `rules.toml` | Catálogo de padrões da Revisão e do Treino (D14): ids, textos em PT e IT, exemplos, listas fechadas de membros do A1, itens curados e lista de parentesco (etapa 5b) |
-| Exceções de artigo | Substantivos cujo artigo não sai do som escrito (*lo yogurt*, *il whisky*, *gli dei*) |
-| Correções | Lema + classe → valor certo, para glosa e para traços (*uomo*: plural *uomini*, não "donne"). Ver as decisões em aberto |
+| `corrections.tsv` | Correções por cima das fontes, uma por linha: lema, classe (em italiano), campo, valor. Campos: `gloss`, `plural`, `gender`, `article`, `article_indef`, `article_pl`; lista separada por " \| ". O campo corrigido fica com a origem `fix`. Serve também às exceções de artigo (*lo yogurt*, *gli dei*). Uma correção que não acha o verbete falha o build |
 
 Por que o wikitext: o wiktextract junta Termini correlati, Varianti, Alterati e Da non confondere con no mesmo campo `related` e não marca de qual seção cada palavra veio (ver `LINKAGE_SECTIONS` em `extractor/it/section_titles.py`). Essas três seções são listas simples de links, então o script as lê direto do wikitext.
 
@@ -144,26 +143,39 @@ Preenche em `entry.data` os campos que a Revisão e o Treino cobram (plural, gê
 2. en.wiktionary (o mesmo JSONL do pivô da glosa, junção por lema + classe);
 3. Morph-it!, se entrar.
 
-**Nada é gerado por regra.** Um lema sem o dado em nenhuma fonte fica sem ele e não entra no padrão correspondente. A origem do plural fica em `plural_src` (`wikt`, `enwikt`, `morphit`); não existe valor para plural gerado.
+**Estado (build de 2026-10-21).** A cadeia, a normalização, plural, gênero, artigo, conjugação, as correções e o relatório estão no código. A classificação nos padrões, `rule`, `drill` e o corte pelo NVdB esperam o `rules.toml` e o catálogo aprovado. O Morph-it! não entrou.
 
-**Normalização das formas do en.wiktionary.** Elas vêm com o acento tônico marcado (*pàrlo*, *finìsco*). Antes de comparar ou gravar, o script tira o acento de toda vogal que não está no fim da palavra, em cada palavra de uma forma composta (*pàrlo* → *parlo*, *finìsco* → *finisco*; *città* fica). As formas marcadas como feminino plural (*uova*, *braccia*) contam como plural do lema masculino.
+**Nada é gerado por regra**, com duas exceções decididas em 2026-10-21: o passato prossimo composto de auxiliar + particípio, quando as duas partes vêm de fonte, e a tabela do pronominal herdada do verbo-base (abaixo). Um lema sem o dado em nenhuma fonte fica sem ele e não entra no padrão correspondente. A origem fica em `plural_src`, `gender_src` e `conj_src`: `wikt`, `enwikt`, `base` (só `conj_src`) ou `fix` (correção).
+
+**Normalização das formas do en.wiktionary.** Elas vêm com o acento tônico marcado (*pàrlo*, *finìsco*). Antes de comparar ou gravar, o script tira o acento de toda vogal que não está no fim da palavra, em cada palavra de uma forma composta (*pàrlo* → *parlo*, *finìsco* → *finisco*; *città* e *andrò* ficam). Monossílabo perde o acento final, a não ser os que a ortografia acentua (*dà*, *è*, *può*, *più*, *già*, *ciò*, *giù*, *sì*, *né*, *sé*, *là*, *lì*, *dì*, *tè*): *sò* → *so*, *và'* → *va'*. Saem as marcas de nota ("finiènte¹^") e a forma "-" dos defectivos.
 
 **Plural.**
 
-- it.wiktionary: as formas de `forms[]` com tag `plural`. Com a tag `invariable`, o plural é a própria palavra.
-- en.wiktionary: o plural, depois da normalização. "Invariável" dá a própria palavra; "incontável" (*marzo*) deixa o lema sem plural e fora do Plural.
+- it.wiktionary: as formas de `forms[]` com tag `plural` e nenhuma outra além de gênero. Com a tag `invariable`, o plural é a própria palavra.
+- **Contraparte:** o `forms[]` do it.wiktionary traz também o outro gênero (*uomo*: *donna*, *donne*). Quando há uma forma do outro gênero no singular, os plurais desse gênero são dela e saem. Sem contraparte, o plural do outro gênero é do lema (*uovo* → *uova*, *braccio* → *braccia*). Era essa a causa do "donne" de *uomo*, que não é erro da fonte.
+- en.wiktionary: o mesmo, depois da normalização. "Invariável" dá a própria palavra; "incontável" sem plural (*marzo*) deixa o lema sem o campo.
 - Plurais duplos legítimos (*riso*: *risa* × *risi*) ficam todos na lista, na ordem da fonte.
 
 **Gênero e artigo.**
 
-- Gênero: tags `masculine`/`feminine` do it.wiktionary, depois o en.wiktionary, depois o Morph-it!.
-- Artigo (`article`, `article_indef`, `article_pl`): sai do gênero e do som inicial, pela própria regra do `art.forma` (*lo/gli/uno* antes de s + consoante, z, gn, ps; *l'* antes de vogal; *il/i/un* no resto; feminino *la/le/una/l'/un'*). Não é dado que falta, então não fere a D19. Os casos que o som escrito não resolve vêm do arquivo de exceções.
+- Gênero: tags `masculine`/`feminine` do it.wiktionary, depois o en.wiktionary. Com as duas tags, `mf` (*cantante*), sem artigo.
+- Artigo (`article`, `article_indef`, `article_pl`): sai do gênero e da escrita, pela própria regra do `art.forma` (*lo/uno/gli* antes de s + consoante, z, gn, ps; *l'/un/gli* antes de vogal; *il/un/i* no resto; feminino *la/una/le*, *l'/un'/le* antes de vogal). Não é dado que falta, então não fere a D19. O que a escrita não resolve (*lo yogurt*, *gli dei*) vem do arquivo de correções.
 
 **Conjugação.**
 
-- it.wiktionary: as formas com `source: "Appendice:Coniugazioni/..."`. Os `raw_tags` dessas formas, que hoje saem (ver [dictionary.md](dictionary.md#flessione-e-coniugazione)), passam a ser lidos: eles dão modo e tempo onde as `tags` normalizadas não bastam, inclusive o imperativo. Quais rótulos trazem o quê precisa ser conferido no dump.
-- en.wiktionary: as formas pelas `tags` (pessoa, número, modo, tempo), depois da normalização.
-- Resultado: `conj` plano (`tense`, `person`, `forms`), com `tense` 1 presente · 2 passato_prossimo · 3 imperfetto · 4 futuro · 5 imperativo, e `conj_class` (`group` pela terminação do infinitivo, `isc` pelas formas do presente, `pronominal` pelo infinitivo em -rsi, `aux` pela forma com tag `auxiliary`).
+- it.wiktionary: as formas com `source: "Appendice:Coniugazioni/..."`, com o imperativo pelos `raw_tags` (ver [dictionary.md](dictionary.md#flessione-e-coniugazione)). Forma repetida no mesmo lugar sai.
+- en.wiktionary: as formas pelas `tags`, depois da normalização. Os tempos 1, 3 e 4 só do indicativo (as formas do cabeçalho vêm sem "indicative" e se repetiriam). No imperativo, o formal (`third-person`) é a pessoa 3 ou 6, e a forma `negative` da 2ª do singular vira "non …" no fim da lista, como no it.wiktionary (*alzati*, *non alzarti*, *non ti alzare*).
+- **Passato prossimo composto:** o en.wiktionary não traz tempo composto, só o particípio e o auxiliar. O tempo 2 sai do presente do auxiliar + particípio: *ho parlato*; com *essere*, o particípio no masculino plural nas pessoas 4–6 (*siamo andati*); no pronominal, com o clítico e sempre *essere* (*mi sono alzato*). Com os dois auxiliares (*finire*), as duas formas, como no it.wiktionary.
+- **Pronominal sem tabela em nenhuma fonte** (*cuocersi*) herda a do verbo-base (*cuocere*) com o clítico: *mi cuocio*, *mi sono cotto*, *si sono cotti*; no imperativo, *cuociti*, *non cuocerti*, *si cuocia*, *cuociamoci*, *cuocetevi*, *si cuociano*. Imperativo monossílabo (*fa'*, *da'*), que dobraria a consoante, fica fora.
+- Resultado: `conj` plano (`tense`, `person`, `forms`), `conj_src` e `conj_class` (`group` pela terminação do infinitivo, `isc` pela 1ª do presente em *-isco*, `pronominal` pelo infinitivo em -rsi, `aux` pelo primeiro auxiliar *avere*/*essere* da fonte; pronominal é *essere*).
+
+**Resultado no build de 2026-10-21** (verbetes, não lemas):
+
+| Campo | it.wiktionary | en.wiktionary | Herdado | Sem o campo |
+|---|---|---|---|---|
+| Gênero (sostantivo) | 32.616 | 2.721 | — | 1.631 (`mf`: 1.666) |
+| Plural (sostantivo) | 26.342 | 5.884 | — | — |
+| Conjugação (verbo) | 5.652 | 1.551 | 74 | — |
 
 **Classificação nos padrões.** Para cada substantivo e para cada verbo × tempo, o script calcula o que cada regra do catálogo produziria e compara com a forma do dicionário. Isso só classifica e nunca preenche:
 
@@ -181,7 +193,7 @@ Preenche em `entry.data` os campos que a Revisão e o Treino cobram (plural, gê
 
 **Relatório de divergências.** Um arquivo de texto por build, fora do pacote, revisado à mão. Lista:
 
-- lemas em que as fontes discordam, com o valor de cada uma (*uomo*: "donne" no it.wiktionary × *uomini* no en.wiktionary; *latte*, *fame*, *sete*: invariáveis no it.wiktionary × *latti*, *fami*, *seti* no en.wiktionary);
+- lemas em que as fontes discordam, com o valor de cada uma (*latte*, *fame*, *sete*: invariáveis no it.wiktionary × *latti*, *fami*, *seti* no en.wiktionary). O verbete fica com o valor da cadeia (it.wiktionary). Formato: `out/report-<versão>.txt`, uma linha por divergência, com campo, lema, valor do it.wiktionary e do en.wiktionary separados por TAB. No build de 2026-10-21: 1.555 de plural, 1.024 de gênero e 934 lugares de conjugação (a maioria, formas alternativas que só o en.wiktionary lista: *dovea*, *daraggio*);
 - palavras que nenhuma regra classifica;
 - exemplos e itens curados do `rules.toml` que não batem com o dicionário.
 
@@ -259,7 +271,7 @@ O arquivo `.db` é comprimido inteiro. Medição com uma versão provisória do 
 | zstd -19 | ~15 MB |
 | brotli -q 11 | ~13 MB |
 
-Medido no primeiro build em Zig (2026-10-17, dump de 2026-10-16, sem glosa PT, wikitext nem 5b): `.db` de 93,7 MB e `.zst` de 20,2 MB. Com a glosa PT: `.db` de 95,1 MB e `.zst` de 20,5 MB, e o build leva ~1 min 45 s. Com o wikitext: `.db` de 96,4 MB e `.zst` de 20,7 MB, e o build leva ~3 min 20 s, a maior parte para descomprimir o bzip2. O `.db` se divide em `entry` (45 MB, dos quais 37 MB de `data`) e `form` com os dois índices (45 MB, 553 mil linhas). A coluna `form_norm` e o índice dela custam ~19 MB.
+Com os traços (2026-10-21): `.db` de 103,4 MB e `.zst` de 21,1 MB. Medido no primeiro build em Zig (2026-10-17, dump de 2026-10-16, sem glosa PT, wikitext nem 5b): `.db` de 93,7 MB e `.zst` de 20,2 MB. Com a glosa PT: `.db` de 95,1 MB e `.zst` de 20,5 MB, e o build leva ~1 min 45 s. Com o wikitext: `.db` de 96,4 MB e `.zst` de 20,7 MB, e o build leva ~3 min 20 s, a maior parte para descomprimir o bzip2. O `.db` se divide em `entry` (45 MB, dos quais 37 MB de `data`) e `form` com os dois índices (45 MB, 553 mil linhas). A coluna `form_norm` e o índice dela custam ~19 MB.
 
 ## Licença
 
@@ -288,12 +300,7 @@ Com isso:
 | Erros e variante PT-PT nas glosas: sedersi → "estar sentado", serranda → "postigo"; as fontes misturam PT-BR e PT-PT ("comboio", "terramoto", "crónico") | Arquivo de correções (lema + classe → glosa) versionado com o script, começando pelas palavras do vocabulário de base |
 | Algoritmo de compressão | — |
 | Morph-it! como 3ª fonte (D19) | Confirmar a licença (CC BY-SA 2.0 / LGPL) e medir quanto ele acrescenta depois do en.wiktionary. Se não acrescentar palavra de A1–B1, ficar só com as duas wikis. |
-| Origem do gênero e da conjugação (proposta 12.2, item 9) | A D19 marca só a origem do plural. Recomendação: `gender_src` e `conj_src`, com os mesmos valores do `plural_src`. Também servem para o crédito por verbete (ver [dictionary.md](dictionary.md#decisões-em-aberto)). |
-| Valor na divergência entre fontes (proposta 12.2, item 10) | *uomo* → "donne" no it.wiktionary. Opções: (a) vale a ordem da cadeia (it.wiktionary); (b) vale o en.wiktionary quando ele discorda; (c) o membro fica fora do `drill` até o arquivo de correções resolver, e o verbete fica como está. Recomendação: (c), e começar o arquivo de correções pelas palavras do NVdB que aparecerem no relatório. |
-| Um arquivo de correções ou dois | A glosa já pede um arquivo de correções (linha acima). Recomendação: um arquivo só, lema + classe + campo → valor, para glosa e traços. |
-| Pronominais sem tabela (proposta 12.2, item 11) | *cuocersi* pode herdar a tabela de *cuocere* + *si*? É derivação, e a D19 diz "nada gerado por regra". Recomendação: não na v1; ficam sem conjugação. |
 | Imperativo negativo (proposta 12.2, item 12) | A resposta do `imper.neg` é *non* + infinito, a única do `drill` que não vem do dicionário. Recomendação: aceitar, porque é a regra inteira, sem exceção, e o infinitivo é o próprio lema. |
-| Passato prossimo sem tabela composta | O Morph-it! tem só formas simples, e não está medido se o en.wiktionary traz as formas compostas. Opções: (a) compor auxiliar + particípio quando os dois vêm de fonte; (b) só aceitar a forma composta pronta. Recomendação: (a), pelo mesmo motivo do `imper.neg`: auxiliar + particípio é a definição do tempo, não uma regra de forma. Medir antes. |
 | Corte "frequente" (proposta 12.2, item 3) | `gen.lista` e `gen.sufixo` só com palavras frequentes, mas a D11c e a D11d não dão a fonte. Recomendação: NVdB *fondamentale*. |
 | Combinações do `prep.art` (proposta 12.2, item 4) | A pesquisa sugere *al, alla, allo, del, della, nel, nella, sul, dal*. Recomendação: as 5 preposições com *il, la, l', i, le*; *lo* e *gli* ficam para o A2. |
 | Substantivo com os dois gêneros | *il/la cantante*, *il/la fine* (com sentidos diferentes): a escolha de Gênero não tem uma resposta. Recomendação: fora de `gen.lista` e `gen.sufixo`; continuam nos outros padrões. |

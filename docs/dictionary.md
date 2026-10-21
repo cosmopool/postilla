@@ -123,12 +123,12 @@ Campos de `entry.data` que a Revisão e o Treino leem para montar e corrigir os 
 
 | Campo | Classe | O que é | De onde vem |
 |---|---|---|---|
-| `gender` | sostantivo | `m` ou `f` | `tags` do it.wiktionary (`masculine`, `feminine`) → en.wiktionary → Morph-it! |
+| `gender`, `gender_src` | sostantivo | `m`, `f` ou `mf` (as duas tags: *cantante*), e a origem | `tags` do it.wiktionary (`masculine`, `feminine`) → en.wiktionary → Morph-it! |
 | `article`, `article_indef`, `article_pl` | sostantivo | Artigo definido no singular, indefinido e definido no plural (`il` · `un` · `i`) | Calculado do `gender` e do som inicial (*lo* antes de s + consoante, z, gn, ps; *l'* antes de vogal; *il* no resto), com um arquivo de exceções para o que a escrita não resolve (*lo yogurt*, *gli dei*) |
 | `plural` | sostantivo | Lista de plurais. Invariável: a própria palavra (`["città"]`). Incontável (*marzo*): sem o campo | `forms[]` com tag `plural` ou a tag `invariable` do it.wiktionary → en.wiktionary (sem o acento tônico, aceitando o feminino plural de *uova*, *braccia*) → Morph-it! |
-| `plural_src` | sostantivo | Fonte do plural: `wikt` · `enwikt` · `morphit`. Não existe valor para plural gerado | Etapa 5b |
+| `plural_src` | sostantivo | Fonte do plural: `wikt` · `enwikt` · `morphit` · `fix` (correção). Não existe valor para plural gerado | Etapa 5b |
 | `conj_class` | verbo | `group` (`are` · `ere` · `ire`), `isc`, `pronominal`, `aux` (`avere` · `essere`) | Terminação do infinitivo, formas do presente, infinitivo em -rsi e forma com tag `auxiliary` |
-| `conj` | verbo | Lista plana `{ tense, person, forms }`. `tense`: 1 presente · 2 passato_prossimo · 3 imperfetto · 4 futuro · 5 imperativo. `person`: 1 io … 6 loro | Tabela do it.wiktionary (com os `raw_tags`) → en.wiktionary (pelas `tags`, sem o acento tônico) → Morph-it! |
+| `conj`, `conj_src` | verbo | Lista plana `{ tense, person, forms }`, e a origem: `wikt` · `enwikt` · `base` (pronominal herdado do verbo-base). `tense`: 1 presente · 2 passato_prossimo · 3 imperfetto · 4 futuro · 5 imperativo. `person`: 1 io … 6 loro | Tabela do it.wiktionary (com os `raw_tags`) → en.wiktionary (pelas `tags`, sem o acento tônico) → Morph-it! |
 
 ```json
 { "word": "binario", "pos": "sostantivo", "gender": "m",
@@ -142,9 +142,11 @@ Campos de `entry.data` que a Revisão e o Treino leem para montar e corrigir os 
             { "tense": 5, "person": 2, "forms": ["finisci"] } ] }
 ```
 
-- **Origem de gênero e conjugação:** a D19 marca só a do plural. `gender_src` e `conj_src` estão em aberto no [pipeline](dictionary-pipeline.md#decisões-em-aberto).
+- **Origem:** `gender_src` e `conj_src` existem desde 2026-10-21, com os valores do `plural_src`, mais `base` na conjugação.
+- **Exceções à D19** (2026-10-21): o passato prossimo composto de auxiliar + particípio, quando o en.wiktionary só traz os dois, e a tabela do pronominal herdada do verbo-base. Regras na [etapa 5b](dictionary-pipeline.md#5b-traços-de-treino).
+- **Substantivo `mf`** fica sem artigo.
 - **Cobertura:** dos substantivos do it.wiktionary sem plural nem marca de invariável, o en.wiktionary resolve 55% (5.807 de 10.464); dos sem gênero, 64% (2.772 de 4.348); dos verbos sem tabela, 59% (1.384 de 2.352). O que sobra é quase todo lixo ou palavra rara ([cobertura-enwiktionary.md](propostas/cobertura-enwiktionary.md)).
-- **Divergência entre fontes** (*uomo*: "donne" no it.wiktionary × *uomini* no en.wiktionary) vai para o relatório do build e se resolve no arquivo de correções.
+- **Divergência entre fontes** (*latte*: invariável no it.wiktionary × *latti* no en.wiktionary): o verbete fica com o valor da cadeia, a divergência vai para o relatório do build e se resolve no `corrections.tsv`. O "donne" de *uomo* era a contraparte feminina nas Flessione e já sai pela regra do plural.
 - O catálogo de padrões (`rule`) e o índice de quem é membro de qual padrão (`drill`) não fazem parte do verbete: estão no esquema da [etapa 6 do pipeline](dictionary-pipeline.md#6-montar-o-sqlite).
 
 ## Campos não utilizados

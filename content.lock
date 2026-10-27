@@ -1,0 +1,17 @@
+{
+  "source": "../postilla-content/out",
+  "packages": {
+    "dict": {
+      "version": "1.0.0",
+      "gz_sha256": "dfae4ada0ce83474d802e5a55af4d178c3900e488fb28f519c3217483e67cada",
+      "db_sha256": "4ed32b6fb914289de6971568c9e597732ca318b87ab2ecf437a2dec66bef47cb",
+      "db_size": 88629248
+    },
+    "stories": {
+      "version": "1.0.0",
+      "gz_sha256": "9d9a7f13ab16f99da830524254f87309109cfa3a733a5fbd45443d21b39d32b3",
+      "db_sha256": "f34f54ce545c52aa755f001e7b3603efcf2e1eb92c2d6751a4a73de089b3568e",
+      "db_size": 188416
+    }
+  }
+}

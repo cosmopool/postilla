@@ -14,7 +14,7 @@ Documentos relacionados:
 | Id | Decisão | Motivo |
 |---|---|---|
 | ARQ-01 | O app é feito em Flutter, para iOS e Android. | Uma base de código para as duas plataformas que a spec funcional pede. |
-| ARQ-02 | O pipeline de conteúdo é escrito em Python. | O wiktextract e as ferramentas de parse do wikitext são Python. |
+| ARQ-02 | O pipeline de conteúdo é escrito em Zig 0.17. As dependências vêm pelo package manager do Zig (`build.zig.zon`). | O pipeline lê o JSONL do kaikki.org já extraído e não roda o wiktextract, então não precisa de Python. O package manager fixa cada dependência por hash, sem outra ferramenta. Fecha a D23. |
 | ARQ-03 | Dois repositórios: `postilla` (app Flutter e docs do app) e `postilla-content` (pipeline e fontes das histórias). | App e conteúdo têm ciclos de release separados. O app recebe conteúdo novo sem versão nova na loja. |
 | ARQ-04 | `postilla-content` é público. | Os pacotes ficam nas Releases dele, e o app baixa sem token. |
 | ARQ-05 | Os pacotes de conteúdo são publicados como GitHub Releases de `postilla-content`. | Sem custo e no mesmo lugar do código que gera os pacotes. |
@@ -24,7 +24,7 @@ Documentos relacionados:
 
 ```
 postilla-content (público)                     postilla
-  pipeline (Python)                              app (Flutter)
+  pipeline (Zig)                                 app (Flutter)
   fontes das histórias          Releases           conteúdo embutido
   contrato (esquema, manifesto) ─────────► manifesto ─► atualização (seção 3)
                                      domínio próprio
@@ -35,10 +35,10 @@ postilla-content (público)                     postilla
 | Id | Decisão | Motivo |
 |---|---|---|
 | ARQ-10 | Dois pacotes, com versões independentes: `dict` (dicionário) e `stories` (histórias e traduções). | Uma história nova não baixa os ~15 MB do dicionário. |
-| ARQ-11 | Cada pacote é um único arquivo SQLite comprimido com zstd -19 (`dict-2.1.0.db.zst`). Versão, fontes e licenças ficam na tabela `meta` do próprio banco. | zstd tem o melhor equilíbrio entre tamanho (~15 MB) e velocidade de descompressão. Um arquivo só simplifica download e verificação. |
+| ARQ-11 | Cada pacote é um único arquivo SQLite comprimido com zstd -19 (`dict-2.1.0.db.zst`). Versão, fontes e licenças ficam na tabela `meta` do próprio banco. Na v1, o pacote embutido usa gzip -9 (`dict-2.1.0.db.gz`, ~21 MB); o zstd volta na v1.2 ([roadmap](roadmap.md)). | zstd tem o melhor equilíbrio entre tamanho (~15 MB) e velocidade de descompressão. Um arquivo só simplifica download e verificação. Na v1, o `dart:io` já descomprime gzip, sem pacote. |
 | ARQ-12 | A versão de cada pacote é SemVer: major muda quando o esquema fica incompatível com apps antigos; minor, quando entra conteúdo novo (dump novo, histórias novas); patch, em correções pontuais (glosa errada, erro no texto). | O major diz ao app se ele consegue ler o pacote. |
 | ARQ-13 | Cada build do app aceita um único major por pacote (ex.: `dict` 2.x, `stories` 1.x). Um pacote de outro major é ignorado, e o app continua com a versão que tem. | Regra simples, verificada sem consultar nada além da versão. |
-| ARQ-14 | A versão inicial embutida (OFF-10) não fica no git. Um arquivo de lock no repo do app fixa versão e sha256 de cada pacote, e um script baixa os arquivos das Releases antes do `flutter build`. | Sem binários grandes no repositório do app. O lock deixa o build reproduzível. |
+| ARQ-14 | A versão inicial embutida (OFF-10) não fica no git. Um arquivo de lock no repo do app fixa versão e sha256 de cada pacote, e um script baixa os arquivos das Releases antes do `flutter build`. Na v1, nada é publicado: o lock aponta para `../postilla-content/out`, e o script copia os arquivos de lá. | Sem binários grandes no repositório do app. O lock deixa o build reproduzível. |
 | ARQ-15 | Ajustes › Sobre (OFF-13) mostra a versão dos dois pacotes e a data do dump do Wiktionary, lida da `meta` do `dict`. | A data diz ao usuário de quando é o dicionário; o SemVer identifica o pacote num relato de erro. |
 
 ## 3. Atualização de conteúdo
@@ -157,7 +157,7 @@ Text(dict.synonyms)   // Sinonimi | Sinônimos
 
 | Id | Decisão | Motivo |
 |---|---|---|
-| ARQ-50 | O pipeline divide o texto em palavras e frases e grava no `stories`, por parágrafo, o início e o fim de cada palavra e de cada frase, em italiano e em português. Elisões (l'aria, c'è) são uma palavra só. O app só lê esses spans. | Um tokenizador só, em Python, testado no build. As contagens de palavras do LEI-07 e os pares de frase do TRA-08 saem prontos. |
+| ARQ-50 | O pipeline divide o texto em palavras e frases e grava no `stories`, por parágrafo, o início e o fim de cada palavra e de cada frase, em italiano e em português. Elisões (l'aria, c'è) são uma palavra só. O app só lê esses spans. | Um tokenizador só, no pipeline, testado no build. As contagens de palavras do LEI-07 e os pares de frase do TRA-08 saem prontos. |
 | ARQ-51 | Cada parágrafo é um `RenderBox` próprio com um `TextPainter`. Ele faz o layout, guarda o retângulo de cada palavra num array, resolve o toque e o arrasto da seleção pelo retângulo mais próximo (caixa ampliada), pinta grifo, frase marcada e pontilhado, e cria um nó de semântica por palavra. | O Leitor é o centro do app: o que importa fica grande e num lugar só. Sem widget nem recognizer por palavra, e a semântica fica sob controle (ACE-03, ACE-04). |
 | ARQ-52 | Todos os parágrafos fazem layout ao abrir a história, numa coluna não preguiçosa. O topo de cada parágrafo fica num array. | Com histórias de até ~2.000 palavras, o custo é aceitável. Progresso (LEI-07), restaurar a posição (ARQ-37) e sincronizar a tela dividida (TRA-07) viram busca binária nesse array. |
 | ARQ-53 | Ao abrir a história, o app resolve em lote forma → lema: uma consulta no `dict` com as formas distintas da história. Os lemas ficam num array paralelo aos spans de palavra e servem ao toque (LEI-02) e ao pontilhado (SAL-05). | Uma consulta só por história. O `stories` não depende da versão do `dict`, e o conteúdo continua sem anotação de lema (LEI-02). |
@@ -185,7 +185,7 @@ O `dict` atual não tem a coluna normalizada (ARQ-63), o rank e a faixa do NVdB 
 
 | Id | Decisão | Motivo |
 |---|---|---|
-| ARQ-70 | O log do app (`appLog`) é gravado num quarto banco, `log`, separado do `user`. Ele não entra no Exportar/Importar (AJU-05) nem no backup do sistema. | Um `user` corrompido não leva o log junto, e o log não se mistura aos dados do usuário. |
+| ARQ-70 | O log do app (`appLog`) é gravado num quarto banco, `log`, separado do `user`. Ele não entra no Exportar/Importar (AJU-05) nem no backup do sistema. Na v1, o `appLog` só escreve no console; o banco `log` entra na v1.1, com o Enviar diagnóstico. | Um `user` corrompido não leva o log junto, e o log não se mistura aos dados do usuário. |
 | ARQ-71 | O `log` guarda os últimos 30 dias. As linhas mais antigas são apagadas ao gravar. | Cobre o intervalo comum entre um problema e o usuário decidir relatar. |
 | ARQ-72 | O log só sai do aparelho se o usuário enviar: Ajustes › Sobre › Enviar diagnóstico (AJU-06) abre o e-mail do sistema com o `log` anexado. | Sem telemetria (OFF-03). O usuário vê o e-mail antes de enviar. |
 
@@ -250,7 +250,7 @@ O pipeline, o formato-fonte das histórias e o contrato ficam em `postilla-conte
 
 | Onde | O app exige | Pedido por |
 |---|---|---|
-| Pacotes | Um arquivo SQLite por pacote, comprimido com zstd -19 | ARQ-11 |
+| Pacotes | Um arquivo SQLite por pacote, comprimido com zstd -19 (gzip -9 na v1) | ARQ-11 |
 | Pacotes | Versão SemVer, com major = esquema incompatível | ARQ-12 |
 | Manifesto | JSON com a última versão de cada pacote: versão, URL, tamanho, sha256 do `.zst` e sha256 do `.db` | ARQ-20 |
 | `stories` | UUID fixo por história | ARQ-36 |
@@ -282,7 +282,7 @@ O pipeline, o formato-fonte das histórias e o contrato ficam em `postilla-conte
 | ARQ-91 | Teste unitário só para lógica pesada (ordenação da Biblioteca, trie do ARQ-66, `grade()` e `osa()`, FSRS-6 e a dobra do log, e afins). Cada uma também ganha um teste de integração que passa por ela. | O unitário cobre os casos difíceis da lógica. O de integração confere que ela funciona ligada ao resto. |
 | ARQ-92 | Por enquanto não há teste ponta a ponta no aparelho (`integration_test`). | Rodar emulador ou aparelho no CI é lento e caro para a v1. |
 | ARQ-93 | Os testes usam os mesmos `dict` e `stories` de produção, nas versões fixadas pelo lock do build (ARQ-14). Não há banco de conteúdo de teste. Atualizar o lock roda os testes contra o conteúdo novo, e o bump só entra com os testes passando. | Mockar o mínimo possível. O teste vê exatamente o dado que o usuário vê. |
-| ARQ-94 | O CI do app roda no GitHub Actions, em Linux, a cada push e PR: baixa os pacotes do lock, roda `dart analyze` e `flutter test`. Build de loja fica fora do CI por enquanto. | Pega erro de análise e teste antes do merge, sem runner macOS. |
+| ARQ-94 | O CI do app roda no GitHub Actions, em Linux, a cada push e PR: baixa os pacotes do lock, roda `dart analyze` e `flutter test`. Build de loja fica fora do CI por enquanto. Na v1 não há CI: `dart analyze` e `flutter test` rodam na máquina. O CI entra na v1.2. | Pega erro de análise e teste antes do merge, sem runner macOS. |
 | ARQ-95 | O analisador usa o `flutter_lints` padrão, sem ajustes. Os nomes seguem o estilo Dart. | Sem regras próprias para manter. |
 
 ## 12. Decisões em aberto
@@ -293,7 +293,6 @@ A Revisão saiu daqui: a arquitetura dela está na seção 9 (ARQ-80…89). Fica
 |---|---|---|
 | Semântica do Leitor | O ACE-03 pede leitura por parágrafo e cada palavra como botão. Como o RenderBox (ARQ-51) monta os nós de semântica para atender os dois só se valida no aparelho, com VoiceOver e TalkBack. | — |
 | Pedidos ao `postilla-content` | Os itens da seção 10 que o `dict` e o `stories` ainda não têm precisam ser aceitos lá: coluna normalizada (ARQ-63), rank e faixa do NVdB (ARQ-64), nomes de gênero em português e italiano, spans de palavra e frase (ARQ-50), histórias adicionadas por versão (ARQ-26), traços de treino em `entry.data`, `rule` e `drill` (ARQ-86, ARQ-87). | — |
-| Linguagem do pipeline (D23) | O ARQ-02 diz Python; o [todo.md](todo.md) diz C ou Zig. A etapa nova de traços de treino segue o que for adotado. Fato a pesar: o pipeline lê o JSONL do kaikki.org já extraído e não roda o wiktextract, então o motivo do ARQ-02 pesa menos do que parece. | Decidir uma vez para o pipeline inteiro, como diz a D23, antes de começar a etapa 5b. |
 | Números da carga e da fraqueza (D7) | Lote de 20, cotas 5 · 2 · 1, freio a 60, 2 voltas e os limiares do ARQ-89 (30 dias, Beta(1, 3), n ≥ 5, 0,35, peso 0,5) vêm de premissas. A simulação antiga era FSRS-4.5 com outro desenho e não vale. | Constantes num lugar só do código; fechar os números depois da simulação em FSRS-6 da proposta (9.3). |
 | Parâmetros do FSRS-6 | "Igual ao Anki" (D2) não diz se os 21 parâmetros são os padrão ou otimizados por aluno, nem a retenção desejada. Opções: (a) parâmetros padrão e retenção 0,9 fixos; (b) otimizador no aparelho, a partir do log, depois de N respostas. | (a) na v1. O log guarda tudo, então o otimizador pode entrar depois e recalcular a dobra sem migração. |
 | Passos de aprendizado do Anki | O Anki usa passos em minutos para cartão novo e para lapso. Aqui, as voltas da sessão (D21) fazem esse papel. Opções: (a) sem passos: intervalo em dias inteiros, mínimo 1, vencimento por `localDay`; (b) imitar os passos do Anki em minutos. | (a): é o que o ARQ-82 e o ARQ-84 descrevem, e a D21 já manda o cartão para amanhã depois de 2 voltas. |

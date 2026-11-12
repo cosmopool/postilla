@@ -1,5 +1,5 @@
-// Tokens do design system (docs/design/tokens.css) em Dart. Uma cor por papel,
-// em claro e escuro; tipos prontos por papel (`T.reader`, `T.def`…).
+// Design system tokens (docs/design/tokens.css) in Dart. One color per role,
+// in light and dark; ready-made text styles per role (`T.reader`, `T.def`…).
 import 'package:flutter/material.dart';
 
 class Tokens extends ThemeExtension<Tokens> {
@@ -96,7 +96,7 @@ extension TokensOf on BuildContext {
   Tokens get tk => Theme.of(this).extension<Tokens>()!;
 }
 
-/// Durações e curvas (tokens de movimento). Com movimento reduzido, zero (ACE-01).
+/// Durations and curves (motion tokens). With reduced motion, zero (ACE-01).
 abstract final class Motion {
   static const instant = Duration(milliseconds: 80);
   static const fast = Duration(milliseconds: 150);
@@ -109,7 +109,7 @@ abstract final class Motion {
   static Duration of(BuildContext context, Duration d) => MediaQuery.disableAnimationsOf(context) ? Duration.zero : d;
 }
 
-/// Tipos por papel. Cor fica a cargo de quem usa (`.copyWith(color: …)`).
+/// Text styles per role. Color is up to the caller (`.copyWith(color: …)`).
 abstract final class T {
   static const _text = 'Literata';
   static const _display = 'Newsreader';
@@ -143,7 +143,7 @@ abstract final class T {
   static final label = _s(_text, 11, 14, FontWeight.w600, tracking: 0.08);
   static final ipa = const TextStyle(fontFamily: 'NotoSerif', fontSize: 17, height: 26 / 17);
 
-  /// Corpo de leitura: 5 tamanhos (LEI-08) e 3 entrelinhas.
+  /// Reading body: 5 sizes (LEI-08) and 3 line spacings.
   static const readerSizes = [18.0, 20.0, 22.0, 24.0, 26.0];
   static const readerLeadings = [1.5, 1.7, 2.0];
   static TextStyle reader(int size, int leading) {

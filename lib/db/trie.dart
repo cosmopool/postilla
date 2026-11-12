@@ -1,17 +1,17 @@
-// "Você quis dizer" (ARQ-66): trie dos lemas normalizados, percorrida com as
-// linhas da distância OSA (Levenshtein em que trocar duas letras vizinhas
-// conta 1 edição) e podada acima do limite. Cada nó guarda a linha anterior e
-// a de antes dela, que a transposição precisa.
+// "Did you mean" (ARQ-66): trie of normalized lemmas, walked with the
+// rows of the OSA distance (Levenshtein where swapping two adjacent letters
+// counts as 1 edit) and pruned above the limit. Each node keeps the previous row and
+// the one before it, which transposition needs.
 import 'dart:math';
 
 class TrieHit {
   const TrieHit(this.word, this.distance, this.rank);
   final String word;
   final int distance;
-  final int rank; // faixa do NVdB, 9 = fora
+  final int rank; // NVdB band, 9 = outside
 }
 
-/// Nós em arrays paralelos: filhos por código, palavra e rank no nó final.
+/// Nodes in parallel arrays: children by code unit, word and rank on the final node.
 class Trie {
   final List<Map<int, int>> _children = [{}];
   final List<String?> _word = [null];
@@ -36,7 +36,7 @@ class Trie {
     _rank[node] = min(_rank[node], rank);
   }
 
-  /// Palavras a até `maxDist` edições de `query`, por distância e depois rank.
+  /// Words within `maxDist` edits of `query`, by distance then rank.
   List<TrieHit> search(String query, int maxDist) {
     final q = query.runes.toList();
     final first = List<int>.generate(q.length + 1, (i) => i);
@@ -75,7 +75,7 @@ class Trie {
   }
 }
 
-/// Distância OSA entre duas palavras (a mesma da busca).
+/// OSA distance between two words (the same as the search).
 int osa(String a, String b) {
   final s = a.runes.toList();
   final t = b.runes.toList();

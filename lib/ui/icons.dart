@@ -1,5 +1,5 @@
-// Ícones da v1: paths do Lucide 0.460.0 (licença ISC), desenhados com traço
-// 1,5 numa grade 24×24, pontas e junções redondas, na cor do texto.
+// v1 icons: Lucide 0.460.0 paths (ISC license), drawn with a 1.5 stroke
+// on a 24×24 grid, round caps and joins, in the text color.
 import 'dart:math';
 
 import 'package:flutter/widgets.dart';
@@ -83,14 +83,14 @@ class _GlyphPainter extends CustomPainter {
   bool shouldRepaint(_GlyphPainter old) => old.glyph != glyph || old.color != color;
 }
 
-/// Parser do subconjunto de path SVG que os ícones usam: M L H V C S A Z, absolutos e relativos.
+/// Parser for the SVG path subset the icons use: M L H V C S A Z, absolute and relative.
 Path parseSvgPath(String d) {
   final path = Path();
   final tokens = RegExp(r'[MmLlHhVvCcSsAaZz]|-?(?:\d+\.?\d*|\.\d+)').allMatches(d).map((m) => m.group(0)!).toList();
   var i = 0;
   var cmd = 'M';
   var x = 0.0, y = 0.0, sx = 0.0, sy = 0.0;
-  var cx2 = 0.0, cy2 = 0.0; // último controle de curva, para o S
+  var cx2 = 0.0, cy2 = 0.0; // last curve control point, for S
   double n() => double.parse(tokens[i++]);
   bool isNum() => i < tokens.length && !RegExp(r'^[A-Za-z]$').hasMatch(tokens[i]);
   while (i < tokens.length) {
@@ -104,7 +104,7 @@ Path parseSvgPath(String d) {
         path.moveTo(x, y);
         sx = x;
         sy = y;
-        cmd = rel ? 'l' : 'L'; // pares seguintes são linhas
+        cmd = rel ? 'l' : 'L'; // following pairs are lines
       case 'L':
         x = ox + n();
         y = oy + n();

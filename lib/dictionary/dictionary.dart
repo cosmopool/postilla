@@ -1,5 +1,5 @@
-// Dicionário: verbete (DIC-01..09), página de escolha de lema (LEI-02, DIC-07),
-// raiz da aba com a busca (DIC-10, DIC-11) e o "Você quis dizer".
+// Dictionary: entry (DIC-01..09), lemma choice page (LEI-02, DIC-07),
+// tab root with search (DIC-10, DIC-11) and "Did you mean".
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -12,7 +12,7 @@ import '../ui/icons.dart';
 import '../ui/theme.dart';
 import '../ui/widgets.dart';
 
-/// De onde o verbete foi aberto, quando foi de uma história ("Nella storia", DIC-04).
+/// Where the entry was opened from, when it was from a story ("Nella storia", DIC-04).
 class StoryContext {
   const StoryContext({
     required this.title,
@@ -23,20 +23,20 @@ class StoryContext {
     required this.form,
   });
   final String title;
-  final int paragraph; // a partir de 0
+  final int paragraph; // from 0
   final String sentence;
-  final int hlStart, hlEnd; // trecho grifado, relativo à frase
-  final String form; // a forma tocada ("si siede")
+  final int hlStart, hlEnd; // highlighted span, relative to the sentence
+  final String form; // the tapped form ("si siede")
 }
 
-// ---------------------------------------------------------------- abrir
+// ---------------------------------------------------------------- open
 
-/// Pilha de verbetes por Navigator (DIC-06): até 20; o mais antigo sai.
+/// Entry stack per Navigator (DIC-06): up to 20; the oldest drops off.
 final _stacks = Expando<List<Route<void>>>();
 const maxEntries = 20;
 
-/// Abre o resultado de uma consulta: sem lema, aviso; um lema, o verbete;
-/// mais de um, a página de escolha.
+/// Opens a lookup result: no lemma, notice; one lemma, the entry;
+/// more than one, the choice page.
 Future<void> openLookup(
   BuildContext context, {
   required List<EntryRef> refs,
@@ -68,7 +68,7 @@ Future<void> pushEntry(NavigatorState navigator, EntryRef ref, {required String 
   stack.remove(route);
 }
 
-// ---------------------------------------------------------------- escolha de lema
+// ---------------------------------------------------------------- lemma choice
 
 class ChoicePage extends StatelessWidget {
   const ChoicePage({super.key, required this.refs, required this.backLabel, this.story});
@@ -112,7 +112,7 @@ class ChoicePage extends StatelessWidget {
   }
 }
 
-// ---------------------------------------------------------------- verbete
+// ---------------------------------------------------------------- entry
 
 class EntryPage extends StatefulWidget {
   const EntryPage({super.key, required this.ref, required this.backLabel, this.story});
@@ -131,7 +131,7 @@ const _clitics = {'mi', 'ti', 'si', 'ci', 'vi'};
 class _EntryPageState extends State<EntryPage> {
   Entry _e = Entry.nil;
   bool _loaded = false;
-  bool _gloss = false; // sempre fechada ao abrir (DIC-03)
+  bool _gloss = false; // always closed on open (DIC-03)
   int _tense = 1;
   final _scroll = ScrollController();
   final _headKey = GlobalKey();
@@ -167,7 +167,7 @@ class _EntryPageState extends State<EntryPage> {
     super.dispose();
   }
 
-  /// Tempo em que a forma da história aparece, para abrir a Conjugação nele (DIC-05).
+  /// Tense the story's form appears in, to open the Conjugation on it (DIC-05).
   static int? _tenseOfForm(Entry e, String form) {
     if (form.isEmpty) return null;
     for (final c in e.conj) {
@@ -227,7 +227,7 @@ class _EntryPageState extends State<EntryPage> {
     );
   }
 
-  /// Volta direto à história: tira todos os verbetes e escolhas da pilha.
+  /// Goes straight back to the story: pops every entry and choice from the stack.
   void _toStory() => Navigator.of(context).popUntil((r) => r is! PushRoute || r.settings.name == 'reader');
 
   void _open(String word) async {
@@ -293,7 +293,7 @@ class _EntryPageState extends State<EntryPage> {
       );
     }
 
-    // 1. Lema e classe
+    // 1. Lemma and class
     final plural = e.flex.where((f) => f.tags == 'plurale').map((f) => f.form).toList();
     out.add(
       KeyedSubtree(
@@ -384,7 +384,7 @@ class _EntryPageState extends State<EntryPage> {
       ),
     );
 
-    // 2. Glosa PT (oculta; nenhuma com Glosas = Italiano, DIC-03)
+    // 2. PT gloss (hidden; none with Glosses = Italian, DIC-03)
     if (e.gloss.isNotEmpty && !s.glossIt) {
       out.add(const SizedBox(height: 24));
       out.add(
@@ -437,7 +437,7 @@ class _EntryPageState extends State<EntryPage> {
       section(dict.etymology, [Text(e.etym, style: T.def.copyWith(color: t.ink), locale: it)]);
     }
 
-    // 7. Palavras que levam a outro verbete (DIC-06)
+    // 7. Words that lead to another entry (DIC-06)
     void words(String heading, List<Link> list) {
       if (list.isEmpty) return;
       section(heading, [
@@ -455,7 +455,7 @@ class _EntryPageState extends State<EntryPage> {
     words(dict.altered, e.altered);
     words(dict.confusables, [for (final w in e.confusables) Link(w)]);
 
-    // 8. Atribuição (DIC-09): linha fixa.
+    // 8. Attribution (DIC-09): fixed line.
     out.add(Padding(
       padding: const EdgeInsets.only(top: 32),
       child: Text('Fonte: Wikizionario, Wiktionary, WikDict · CC BY-SA', style: T.meta.copyWith(color: t.inkMuted)),
@@ -749,7 +749,7 @@ class _EntryPageState extends State<EntryPage> {
     );
   }
 
-  /// O pronome reflexivo (mi, ti, si…) em tinta suave; o resto em tinta.
+  /// The reflexive pronoun (mi, ti, si…) in soft ink; the rest in ink.
   Widget _form(Tokens t, String form) {
     final sp = form.indexOf(' ');
     if (sp > 0 && _clitics.contains(form.substring(0, sp))) {
@@ -883,7 +883,7 @@ class _WordLink extends StatelessWidget {
   }
 }
 
-// ---------------------------------------------------------------- raiz da aba e busca
+// ---------------------------------------------------------------- tab root and search
 
 class DictionaryRoot extends StatefulWidget {
   const DictionaryRoot({super.key});
@@ -926,7 +926,7 @@ class _DictionaryRootState extends State<DictionaryRoot> {
   void _changed() {
     _debounce?.cancel();
     final q = _query.text;
-    // Resultado a cada letra (DIC-11), sem martelar o banco no meio da digitação.
+    // Result on every letter (DIC-11), without hammering the database mid-typing.
     _debounce = Timer(const Duration(milliseconds: 60), () async {
       if (q.trim().isEmpty) {
         if (mounted) {
@@ -1043,7 +1043,7 @@ class _DictionaryRootState extends State<DictionaryRoot> {
     );
   }
 
-  /// O prefixo digitado em tinta suave, o resto em tinta ("fines|tra").
+  /// The typed prefix in soft ink, the rest in ink ("fines|tra").
   Widget _prefixTitle(Tokens t, String lemma, String q) {
     final n = normalize(lemma);
     final style = T.body.copyWith(color: t.ink);
@@ -1073,7 +1073,7 @@ class _DictionaryRootState extends State<DictionaryRoot> {
           decoration: BoxDecoration(color: t.surface2, borderRadius: BorderRadius.circular(4)),
           child: Text(k, textAlign: TextAlign.center, style: T.smallMedium.copyWith(color: t.ink, fontWeight: FontWeight.w600)),
         );
-    // `?` e `*` soltos na frase viram teclas.
+    // Loose `?` and `*` in the sentence become keys.
     final words = ui.hintWildcards.split(' ');
     final body = Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),

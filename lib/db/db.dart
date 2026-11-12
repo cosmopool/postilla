@@ -1,7 +1,7 @@
-// Bancos do app: `user` (ajustes), `stories` e `dict` (só leitura).
-// Todas as consultas rodam num isolate dedicado (ARQ-31); a tela chama uma
-// função `db…` por consulta, que devolve structs prontos (ARQ-40, ARQ-48).
-// Nenhuma função devolve null nem lança: falha vira valor zero e vai para o
+// App databases: `user` (settings), `stories` and `dict` (read-only).
+// Every query runs on a dedicated isolate (ARQ-31); the screen calls one
+// `db…` function per query, which returns ready structs (ARQ-40, ARQ-48).
+// No function returns null or throws: failure becomes a zero value and goes to the
 // log (ARQ-49).
 import 'dart:async';
 import 'dart:convert';
@@ -13,15 +13,15 @@ import 'package:sqlite3/sqlite3.dart';
 
 import 'trie.dart';
 
-/// Log do app (v1: só o console; o banco `log` volta com o diagnóstico).
+/// App log (v1: console only; the `log` database returns with diagnostics).
 void appLog(String msg) => debugPrint('[postilla] $msg');
 
-// ---------------------------------------------------------------- tipos
+// ---------------------------------------------------------------- types
 
 extension type const StoryId(String v) {}
 extension type const GenreId(String v) {}
 
-/// Nível A1…B2 como 1…4.
+/// Level A1…B2 as 1…4.
 extension type const Level(int v) {
   static const names = ['A1', 'A2', 'B1', 'B2'];
   String get name => v >= 1 && v <= 4 ? names[v - 1] : '';
@@ -51,7 +51,7 @@ class Story {
   final String subtitle;
   final Level level;
   final GenreId genre;
-  final String work; // '' fora de obra dividida
+  final String work; // '' outside a split work
   final int part;
   final int words;
   final int minutes;
@@ -60,7 +60,7 @@ class Story {
       id: StoryId(''), title: '', subtitle: '', level: Level(0), genre: GenreId(''), work: '', part: 0, words: 0, minutes: 0);
 }
 
-/// Span em unidades UTF-16 do texto do parágrafo.
+/// Span in UTF-16 units of the paragraph text.
 class Span {
   const Span(this.start, this.end);
   final int start;
@@ -80,12 +80,12 @@ class Paragraph {
   final List<Span> ptSents;
 }
 
-/// Lema + classe: como o app aponta para um verbete (ARQ-35).
+/// Lemma + class: how the app points to an entry (ARQ-35).
 class EntryRef {
   const EntryRef(this.lemma, this.pos, [this.meta = '']);
   final String lemma;
   final String pos;
-  final String meta; // "sostantivo maschile", para listas
+  final String meta; // "sostantivo maschile", for lists
   @override
   bool operator ==(Object other) => other is EntryRef && other.lemma == lemma && other.pos == pos;
   @override
@@ -118,7 +118,7 @@ class Link {
   final String note;
 }
 
-/// Verbete inteiro, já parseado do JSON no isolate do banco.
+/// Whole entry, already parsed from JSON on the database isolate.
 class Entry {
   const Entry({
     required this.word,
@@ -162,7 +162,7 @@ class Entry {
   final List<Link> ant;
   final List<Link> derived;
   final List<String> related;
-  final List<Link> altered; // note = tipo (diminutivo…)
+  final List<Link> altered; // note = kind (diminutivo…)
   final List<String> confusables;
 
   static const nil = Entry(word: '', pos: '');
@@ -182,19 +182,19 @@ class ContentInfo {
   const ContentInfo(this.dictVersion, this.storiesVersion, this.dumpDate);
   final String dictVersion;
   final String storiesVersion;
-  final String dumpDate; // AAAA-MM-DD
+  final String dumpDate; // YYYY-MM-DD
   static const nil = ContentInfo('', '', '');
 }
 
 // ---------------------------------------------------------------- isolate
 
-/// O que vive no isolate do banco.
+/// What lives on the database isolate.
 class Dbs {
   Dbs(this.user, this.stories, this.dict);
   final Database user;
   final Database stories;
   final Database dict;
-  Trie? trie; // "Você quis dizer", montada no primeiro uso (ARQ-66)
+  Trie? trie; // "Did you mean", built on first use (ARQ-66)
 }
 
 class _Request {
@@ -205,8 +205,8 @@ class _Request {
 
 SendPort? _port;
 
-/// Abre os três bancos no isolate. `dir` tem `user.db`; `dictPath` e
-/// `storiesPath` são os pacotes já descompactados.
+/// Opens the three databases on the isolate. `dir` has `user.db`; `dictPath` and
+/// `storiesPath` are the already-decompressed packages.
 Future<void> dbOpen({required String userPath, required String dictPath, required String storiesPath}) async {
   final ready = ReceivePort();
   await Isolate.spawn(_main, (ready.sendPort, userPath, dictPath, storiesPath), debugName: 'db');
@@ -235,7 +235,7 @@ void _main((SendPort, String, String, String) args) {
 
 class _Failed {}
 
-/// Roda `fn` no isolate do banco. Em falha, devolve `zero`.
+/// Runs `fn` on the database isolate. On failure, returns `zero`.
 Future<T> _run<T>(T Function(Dbs) fn, T zero) async {
   final port = _port;
   if (port == null) return zero;
@@ -246,11 +246,11 @@ Future<T> _run<T>(T Function(Dbs) fn, T zero) async {
   return res is _Failed ? zero : res as T;
 }
 
-// ---------------------------------------------------------------- user: migrações e ajustes
+// ---------------------------------------------------------------- user: migrations and settings
 
 const _appId = 0x506f7374; // "Post" (ARQ-77)
 
-/// Scripts numerados, só para frente (ARQ-32). O índice + 1 é o user_version.
+/// Numbered scripts, forward only (ARQ-32). Index + 1 is the user_version.
 const _migrations = [
   '''
   CREATE TABLE setting (
@@ -275,7 +275,7 @@ void _migrate(Database db) {
   }
 }
 
-/// UUID v7: 48 bits de ms + aleatório (ARQ-33).
+/// UUID v7: 48 bits of ms + random (ARQ-33).
 String uuidV7() {
   final rnd = Random.secure();
   final b = Uint8List(16);
@@ -292,7 +292,7 @@ String uuidV7() {
   return '${h.substring(0, 8)}-${h.substring(8, 12)}-${h.substring(12, 16)}-${h.substring(16, 20)}-${h.substring(20)}';
 }
 
-/// Todos os ajustes gravados, chave → JSON.
+/// Every stored setting, key → JSON.
 Future<Map<String, Object?>> dbSettingsLoad() => _run((d) {
       final out = <String, Object?>{};
       for (final r in d.user.select('SELECT key, value FROM setting WHERE deleted_at = 0')) {
@@ -321,7 +321,7 @@ Future<List<Genre>> dbGenres() => _run(
       const [],
     );
 
-/// Catálogo na ordem fixa do BIB-04: nível, depois da mais curta para a mais longa.
+/// Catalog in fixed BIB-04 order: level, then shortest to longest.
 Future<List<Story>> dbStories() => _run(
       (d) => [
         for (final r in d.stories.select(
@@ -372,10 +372,10 @@ Future<ContentInfo> dbContentInfo() => _run((d) {
       return ContentInfo(meta(d.dict, 'version'), meta(d.stories, 'version'), meta(d.dict, 'wiktionary_dump'));
     }, ContentInfo.nil);
 
-// ---------------------------------------------------------------- dict: forma → lema
+// ---------------------------------------------------------------- dict: form → lemma
 
-/// Variantes de uma forma, na ordem de procura (ARQ-61, ARQ-62): como está
-/// escrita, em minúsculas; numa elisão, depois só a parte após o apóstrofo.
+/// Variants of a form, in lookup order (ARQ-61, ARQ-62): as
+/// written, lowercase; on an elision, then only the part after the apostrophe.
 List<String> formCandidates(String form) {
   final f = form.replaceAll('’', "'");
   final out = <String>[f];
@@ -390,8 +390,8 @@ List<String> formCandidates(String form) {
   return out;
 }
 
-/// Lemas de uma forma exatamente como escrita: verbete com essa palavra e
-/// verbetes de que ela é forma. Verbete próprio primeiro.
+/// Lemmas of a form exactly as written: entry with that word and
+/// entries it is a form of. Own entry first.
 List<EntryRef> _lemmasExact(Database dict, String s) {
   final out = <EntryRef>[];
   for (final r in dict.select(
@@ -417,15 +417,15 @@ List<EntryRef> _lemmas(Database dict, String form) {
   return const [];
 }
 
-/// Resolve em lote as formas distintas de uma história (ARQ-53).
+/// Resolves a story's distinct forms in batch (ARQ-53).
 Future<Map<String, List<EntryRef>>> dbLemmasOf(List<String> forms) => _run((d) {
       return {for (final f in forms) f: _lemmas(d.dict, f)};
     }, const {});
 
-/// Lemas de uma forma ou expressão ("si siede" → sedersi).
+/// Lemmas of a form or expression ("si siede" → sedersi).
 Future<List<EntryRef>> dbLemmas(String form) => _run((d) => _lemmas(d.dict, form), const []);
 
-// ---------------------------------------------------------------- dict: verbete
+// ---------------------------------------------------------------- dict: entry
 
 Future<Entry> dbEntry(EntryRef ref) => _run((d) {
       final rs = d.dict.select('SELECT data FROM entry WHERE word = ? AND pos = ? LIMIT 1', [ref.lemma, ref.pos]);
@@ -433,7 +433,7 @@ Future<Entry> dbEntry(EntryRef ref) => _run((d) {
       return parseEntry(rs.first['data'] as String);
     }, Entry.nil);
 
-/// Parse na borda (ARQ-48): o JSON de `entry.data` vira `Entry`.
+/// Parse at the boundary (ARQ-48): the JSON in `entry.data` becomes `Entry`.
 Entry parseEntry(String data) {
   final m = jsonDecode(data) as Map<String, dynamic>;
   List<String> strs(String k) => [for (final x in (m[k] as List?) ?? const []) x as String];
@@ -483,9 +483,9 @@ Entry parseEntry(String data) {
   );
 }
 
-// ---------------------------------------------------------------- dict: busca
+// ---------------------------------------------------------------- dict: search
 
-/// Minúscula e sem acento (ARQ-63), igual à coluna `*_norm` do pipeline.
+/// Lowercase and accent-free (ARQ-63), same as the pipeline's `*_norm` column.
 String normalize(String s) {
   final b = StringBuffer();
   for (final r in s.runes) {
@@ -508,13 +508,13 @@ String normalize(String s) {
 
 const searchLimit = 30;
 
-/// Sugestões da busca (DIC-11, ARQ-63..65): lemas e formas, sem acento nem
-/// maiúscula, com `?` e `*`. Ordem: igual ao digitado, faixa do NVdB, alfabética.
+/// Search suggestions (DIC-11, ARQ-63..65): lemmas and forms, accent- and
+/// case-insensitive, with `?` and `*`. Order: exact match, NVdB band, alphabetical.
 Future<List<SearchHit>> dbSearch(String query) => _run((d) {
       final q = normalize(query.trim());
       if (q.isEmpty) return const <SearchHit>[];
       final wild = q.contains('?') || q.contains('*');
-      // GLOB: escapa os metacaracteres que o aluno não digitou como curinga.
+      // GLOB: escapes the metacharacters the learner didn't type as wildcards.
       final pattern = wild ? q.replaceAll('[', '[[]') : '${q.replaceAll('[', '[[]').replaceAll('*', '[*]').replaceAll('?', '[?]')}*';
       final rs = d.dict.select('''
         SELECT word, pos, data, band, MIN(exact) AS exact FROM (
@@ -532,7 +532,7 @@ Future<List<SearchHit>> dbSearch(String query) => _run((d) {
       ];
     }, const []);
 
-/// "Você quis dizer" (ARQ-66): lemas a até 2 edições (OSA), por distância e faixa.
+/// "Did you mean" (ARQ-66): lemmas within 2 edits (OSA), by distance and band.
 Future<List<EntryRef>> dbDidYouMean(String query) => _run((d) {
       final q = normalize(query.trim());
       if (q.isEmpty) return const <EntryRef>[];

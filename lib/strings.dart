@@ -1,8 +1,8 @@
-// Textos de interface, uma classe por área da Imersão que tem texto (ARQ-46).
-// Ao mudar a Imersão, o app troca os globais e então notifica os Settings.
-// A área Glosas não tem texto: só decide se a glosa aparece.
+// UI text, one class per Immersion area that has text (ARQ-46).
+// When Immersion changes, the app swaps the globals and then notifies Settings.
+// The Glosses area has no text: it only decides whether the gloss shows.
 
-/// Navegação: abas e títulos de página.
+/// Navigation: tabs and page titles.
 abstract class NavStrings {
   String get library;
   String get dictionary;
@@ -42,7 +42,7 @@ class NavItalian implements NavStrings {
   String get about => 'Informazioni';
 }
 
-/// Rótulos e botões: tudo que não é aba, título nem seção do verbete.
+/// Labels and buttons: everything that is not a tab, title or entry section.
 abstract class UiStrings {
   String get back;
   String backTo(String place);
@@ -494,7 +494,7 @@ class UiItalian implements UiStrings {
   String get contentFailed => 'Impossibile preparare il dizionario.';
 }
 
-/// Dicionário: rótulos das seções do verbete (DIC-02).
+/// Dictionary: labels of the entry sections (DIC-02).
 abstract class DictStrings {
   String get meanings;
   String get inTheStory;

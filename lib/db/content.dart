@@ -1,7 +1,7 @@
-// Conteúdo embutido (OFF-10, OFF-11): na primeira abertura, cada pacote
-// `assets/content/<nome>.db.gz` é descompactado em `<suporte>/content/` e o
-// sha256 do `.db` é conferido. O arquivo só ganha o nome final depois de
-// conferido, então um `.db` presente está sempre inteiro.
+// Bundled content (OFF-10, OFF-11): on first launch, each package
+// `assets/content/<name>.db.gz` is decompressed into `<support>/content/` and the
+// `.db`'s sha256 is checked. The file only gets its final name after being
+// checked, so a `.db` that is present is always complete.
 import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
@@ -20,12 +20,12 @@ class ContentPackage {
   String fileName() => '$name-$version.db';
 }
 
-/// O que a abertura precisa saber: onde estão os bancos, ou por que não estão.
+/// What startup needs to know: where the databases are, or why they aren't.
 class ContentState {
   const ContentState({this.dictPath = '', this.storiesPath = '', this.missingBytes = 0, this.failed = false});
   final String dictPath;
   final String storiesPath;
-  final int missingBytes; // > 0: faltou espaço (OFF-12)
+  final int missingBytes; // > 0: ran out of space (OFF-12)
   final bool failed;
   bool get ready => dictPath.isNotEmpty && storiesPath.isNotEmpty;
 }
@@ -38,11 +38,11 @@ Future<List<ContentPackage>> loadLock(AssetBundle bundle) async {
   ];
 }
 
-/// Pacotes que ainda não estão descompactados em `dir`.
+/// Packages not yet decompressed in `dir`.
 List<ContentPackage> missingPackages(Directory dir, List<ContentPackage> lock) =>
     [for (final p in lock) if (!File('${dir.path}/${p.fileName()}').existsSync()) p];
 
-/// Descompacta o que falta e apaga versões antigas. Roda fora do isolate da UI.
+/// Decompresses what is missing and deletes old versions. Runs off the UI isolate.
 Future<ContentState> prepareContent(AssetBundle bundle, Directory dir, List<ContentPackage> lock) async {
   dir.createSync(recursive: true);
   for (final p in missingPackages(dir, lock)) {
@@ -53,7 +53,7 @@ Future<ContentState> prepareContent(AssetBundle bundle, Directory dir, List<Cont
     if (result == _Inflate.noSpace) return ContentState(missingBytes: p.dbSize);
     if (result == _Inflate.failed) return const ContentState(failed: true);
   }
-  // Versões anteriores do mesmo pacote saem na hora (ARQ-24).
+  // Previous versions of the same package are removed right away (ARQ-24).
   final keep = {for (final p in lock) p.fileName()};
   for (final f in dir.listSync().whereType<File>()) {
     final name = f.uri.pathSegments.last;
@@ -61,7 +61,7 @@ Future<ContentState> prepareContent(AssetBundle bundle, Directory dir, List<Cont
       try {
         f.deleteSync();
       } catch (e) {
-        appLog('content: não apagou $name: $e');
+        appLog('content: failed to delete $name: $e');
       }
     }
   }
@@ -87,7 +87,7 @@ _Inflate _inflate(TransferableTypedData gz, String target, String sha) {
     conv.close();
     out.closeSync();
     if (digest.value.toString() != sha) {
-      appLog('content: sha256 de $target não confere');
+      appLog('content: sha256 mismatch for $target');
       part.deleteSync();
       return _Inflate.failed;
     }
@@ -98,7 +98,7 @@ _Inflate _inflate(TransferableTypedData gz, String target, String sha) {
     try {
       if (part.existsSync()) part.deleteSync();
     } catch (_) {}
-    // ENOSPC: 28 no Linux/Android, 28 no Darwin.
+    // ENOSPC: 28 on Linux/Android, 28 on Darwin.
     return e.osError?.errorCode == 28 ? _Inflate.noSpace : _Inflate.failed;
   } catch (e) {
     appLog('content: $e');

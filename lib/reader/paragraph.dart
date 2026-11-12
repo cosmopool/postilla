@@ -1,7 +1,7 @@
-// Um parágrafo do Leitor (ARQ-51): um RenderBox com um TextPainter. Faz o
-// layout, guarda o retângulo de cada palavra, resolve toque e arrasto pelo
-// retângulo mais próximo, pinta grifo, frase marcada e alças da expressão, e
-// cria um nó de semântica por palavra (ACE-03).
+// One Reader paragraph (ARQ-51): a RenderBox with a TextPainter. Does the
+// layout, keeps each word's rect, resolves tap and drag by the
+// nearest rect, paints highlight, marked sentence and expression handles, and
+// creates one semantics node per word (ACE-03).
 import 'dart:ui' as ui;
 
 import 'package:flutter/gestures.dart';
@@ -10,7 +10,7 @@ import 'package:flutter/widgets.dart';
 
 import '../db/db.dart' show Span;
 
-/// O que o parágrafo pinta. Índices de palavra e de frase; -1 = nenhum.
+/// What the paragraph paints. Word and sentence indices; -1 = none.
 class ParagraphMarks {
   const ParagraphMarks({
     this.selStart = -1,
@@ -22,13 +22,13 @@ class ParagraphMarks {
     this.focusWord = -1,
     this.gutter = false,
   });
-  final int selStart, selEnd; // grifo (palavra ou expressão)
-  final bool handles; // alças da expressão durante a pressão longa
+  final int selStart, selEnd; // highlight (word or expression)
+  final bool handles; // expression handles during long press
   final int pressedWord;
-  final int sentence; // frase ativa (tela dividida)
+  final int sentence; // active sentence (split screen)
   final int pressedSentence;
-  final int focusWord; // foco do teclado
-  final bool gutter; // régua do parágrafo em foco (tela dividida)
+  final int focusWord; // keyboard focus
+  final bool gutter; // focused paragraph's gutter rule (split screen)
 
   @override
   bool operator ==(Object other) =>
@@ -86,7 +86,7 @@ class ParagraphText extends LeafRenderObjectWidget {
   final ParagraphMarks marks;
   final ParagraphColors colors;
   final Locale locale;
-  final ValueChanged<int>? onActivateWord; // ação de toque do leitor de tela
+  final ValueChanged<int>? onActivateWord; // screen reader tap action
 
   @override
   RenderParagraphBox createRenderObject(BuildContext context) => RenderParagraphBox(
@@ -144,7 +144,7 @@ class RenderParagraphBox extends RenderBox {
   ValueChanged<int>? onActivateWord;
   final TextPainter _tp = TextPainter(textDirection: TextDirection.ltr);
 
-  /// Retângulos de cada palavra (uma palavra quebrada em duas linhas tem dois).
+  /// Rects of each word (a word broken across two lines has two).
   List<List<Rect>> _wordRects = const [];
 
   void setText(String text, TextStyle style, List<Span> words, List<Span> sentences, Locale locale, TextScaler scaler) {
@@ -189,13 +189,13 @@ class RenderParagraphBox extends RenderBox {
     _wordRects = [for (final w in _words) _boxes(w.start, w.end)];
   }
 
-  /// Caixas da linha inteira (alvo de toque, rolagem).
+  /// Full-line boxes (tap target, scrolling).
   List<Rect> _boxes(int start, int end) => [
         for (final b in _tp.getBoxesForSelection(TextSelection(baseOffset: start, extentOffset: end), boxHeightStyle: ui.BoxHeightStyle.max))
           b.toRect(),
       ];
 
-  /// Caixas só do desenho das letras, para pintar grifo e frase.
+  /// Boxes of just the glyphs, to paint highlight and sentence.
   List<Rect> _inkBoxes(int start, int end) => [
         for (final b in _tp.getBoxesForSelection(TextSelection(baseOffset: start, extentOffset: end)))
           b.toRect(),
@@ -213,12 +213,12 @@ class RenderParagraphBox extends RenderBox {
   @override
   bool hitTestSelf(Offset position) => true;
 
-  // ---------------------------------------------------------------- consultas
+  // ---------------------------------------------------------------- queries
 
   int get wordCount => _words.length;
 
-  /// Palavra sob o ponto: a palavra inteira mais metade do vão até as vizinhas,
-  /// e no mínimo 44 de largura (alvo das palavras curtas, ACE-06). -1 fora.
+  /// Word under the point: the whole word plus half the gap to its neighbors,
+  /// and at least 44 wide (short-word target, ACE-06). -1 outside.
   int wordAt(Offset p, {bool exact = false}) {
     var best = -1;
     var bestDist = double.infinity;
@@ -242,7 +242,7 @@ class RenderParagraphBox extends RenderBox {
     return best;
   }
 
-  /// Palavra mais próxima na mesma linha (ou na linha mais próxima): para o arrasto.
+  /// Nearest word on the same line (or the nearest line): for dragging.
   int nearestWord(Offset p) {
     var best = -1;
     var bestScore = double.infinity;
@@ -260,7 +260,7 @@ class RenderParagraphBox extends RenderBox {
     return best;
   }
 
-  /// Frase sob o ponto (mais próxima no parágrafo). -1 se não há frases.
+  /// Sentence under the point (nearest in the paragraph). -1 if there are no sentences.
   int sentenceAt(Offset p) {
     if (_sentences.isEmpty) return -1;
     final pos = _tp.getPositionForOffset(p).offset;
@@ -286,13 +286,13 @@ class RenderParagraphBox extends RenderBox {
     return -1;
   }
 
-  /// Retângulo (no parágrafo) de uma frase ou de uma palavra, para rolar até ela.
+  /// Rect (in the paragraph) of a sentence or a word, to scroll to it.
   Rect sentenceRect(int i) => i < 0 || i >= _sentences.length ? Rect.zero : _union(_boxes(_sentences[i].start, _sentences[i].end));
   Rect wordRect(int i) => i < 0 || i >= _wordRects.length ? Rect.zero : _union(_wordRects[i]);
 
   Rect _union(List<Rect> rs) => rs.isEmpty ? Rect.zero : rs.reduce((a, b) => a.expandToInclude(b));
 
-  // ---------------------------------------------------------------- pintura
+  // ---------------------------------------------------------------- painting
 
   @override
   void paint(PaintingContext context, Offset offset) {
@@ -301,7 +301,7 @@ class RenderParagraphBox extends RenderBox {
     final em = _style.fontSize ?? 20;
     final fill = Paint();
 
-    // Régua do parágrafo em foco: 2 px, 12 px à esquerda do texto, recuada 4 px.
+    // Focused paragraph's rule: 2 px, 12 px left of the text, inset 4 px.
     if (m.gutter) {
       canvas.drawRRect(
         RRect.fromRectAndRadius(Rect.fromLTWH(offset.dx - 12, offset.dy + 4, 2, size.height - 8), const Radius.circular(1)),
@@ -342,7 +342,7 @@ class RenderParagraphBox extends RenderBox {
         final first = rs.first.shift(offset), last = rs.last.shift(offset);
         final h = em * 1.5;
         final k = Paint()..color = _colors.selectedLine;
-        // Início: haste para cima com a bola em cima; fim: para baixo com a bola embaixo.
+        // Start: stem up with the ball on top; end: down with the ball at the bottom.
         canvas.drawRect(Rect.fromLTWH(first.left - 1, first.bottom - h, 2, h), k);
         canvas.drawCircle(Offset(first.left, first.bottom - h), 5, k);
         canvas.drawRect(Rect.fromLTWH(last.right - 1, last.top, 2, h), k);
@@ -360,7 +360,7 @@ class RenderParagraphBox extends RenderBox {
       }
     }
 
-    // A frase ativa passa a tinta cheia (no português, que repousa em tinta suave).
+    // The active sentence switches to full ink (in Portuguese, which rests in soft ink).
     if (m.sentence >= 0 && m.sentence < _sentences.length && _colors.sentenceInk != _colors.ink) {
       final sp = _sentences[m.sentence];
       _tp.text = TextSpan(style: _style.copyWith(color: _colors.ink, locale: _locale), children: [
@@ -385,7 +385,7 @@ class RenderParagraphBox extends RenderBox {
     return r.bottom;
   }
 
-  // ---------------------------------------------------------------- semântica
+  // ---------------------------------------------------------------- semantics
 
   @override
   void describeSemanticsConfiguration(SemanticsConfiguration config) {
@@ -436,12 +436,12 @@ class RenderParagraphBox extends RenderBox {
 }
 
 extension on Rect {
-  /// Caixa com folga, como o `padding` + margem negativa do CSS (o texto não anda).
+  /// Box with slack, like CSS `padding` + negative margin (the text doesn't move).
   Rect inflateXY(double padX, double padY) => Rect.fromLTRB(left - padX, top - padY, right + padX, bottom + padY);
 }
 
-/// Gestos do parágrafo: toque, pressão (para o fundo de "pressionado") e
-/// pressão longa de 500 ms com arrasto (LEI-03). Coordenadas locais ao parágrafo.
+/// Paragraph gestures: tap, press (for the "pressed" background) and
+/// 500 ms long press with drag (LEI-03). Coordinates local to the paragraph.
 class ParagraphGestures extends StatelessWidget {
   const ParagraphGestures({
     super.key,

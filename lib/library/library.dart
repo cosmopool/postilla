@@ -1,6 +1,6 @@
-// Biblioteca (BIB-01, BIB-04..10): catálogo na ordem fixa, busca sem acento,
-// filtros por Nível e Gênero ("ou" no grupo, "e" entre grupos). Tocar num
-// card abre o Leitor no início.
+// Library (BIB-01, BIB-04..10): catalog in fixed order, accent-insensitive search,
+// filters by Level and Genre ("or" within a group, "and" across groups). Tapping a
+// card opens the Reader at the start.
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 
@@ -13,7 +13,7 @@ import '../ui/icons.dart';
 import '../ui/theme.dart';
 import '../ui/widgets.dart';
 
-/// Filtra o catálogo (já na ordem do BIB-04). Função pura, testada à parte.
+/// Filters the catalog (already in BIB-04 order). Pure function, tested separately.
 List<Story> filterStories(
   List<Story> all,
   Map<GenreId, Genre> genres,
@@ -75,7 +75,7 @@ class _LibraryPageState extends State<LibraryPage> {
   Future<void> _load() async {
     final stories = await dbStories();
     final genres = await dbGenres();
-    // Gêneros na ordem em que aparecem no catálogo.
+    // Genres in the order they appear in the catalog.
     final order = <Genre>[];
     final byId = {for (final g in genres) g.id: g};
     for (final s in stories) {
@@ -122,7 +122,7 @@ class _LibraryPageState extends State<LibraryPage> {
 
     return Column(
       children: [
-        // App bar grande: o título pequeno aparece quando o grande sai da tela.
+        // Large app bar: the small title shows when the large one leaves the screen.
         Container(
           height: 56,
           padding: const EdgeInsets.only(left: 20),
@@ -257,7 +257,7 @@ class StoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tk;
-    // O fundo de pressão sangra 12 px além do texto; a hairline fica recuada 12 px.
+    // The pressed background bleeds 12 px past the text; the hairline is inset 12 px.
     return Column(
       children: [
         if (!first) Container(height: 1, margin: const EdgeInsets.symmetric(horizontal: 12), color: t.rule),

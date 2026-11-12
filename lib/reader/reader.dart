@@ -1,7 +1,7 @@
-// Leitor (LEI-01..12) e Leitor com tradução (TRA-01..09). Todos os parágrafos
-// fazem layout ao abrir (ARQ-52); as formas da história são resolvidas em lote
-// para lemas (ARQ-53). A tela dividida sincroniza a rolagem por parágrafo,
-// liderada pela última metade tocada (TRA-07, ARQ-56).
+// Reader (LEI-01..12) and Reader with translation (TRA-01..09). Every paragraph
+// is laid out on open (ARQ-52); the story's forms are resolved in batch
+// to lemmas (ARQ-53). The split screen syncs scrolling by paragraph,
+// led by the last half touched (TRA-07, ARQ-56).
 import 'dart:async';
 import 'dart:math';
 
@@ -19,7 +19,7 @@ import '../ui/theme.dart';
 import '../ui/widgets.dart';
 import 'paragraph.dart';
 
-/// Abre o Leitor em tela cheia, sem barra de abas (NAV-02), sempre no início.
+/// Opens the Reader full screen, without the tab bar (NAV-02), always at the start.
 void openReader(BuildContext context, Story story, List<Story> catalog, Map<GenreId, Genre> genres) {
   Navigator.of(context, rootNavigator: true).push(
     PushRoute(
@@ -29,8 +29,8 @@ void openReader(BuildContext context, Story story, List<Story> catalog, Map<Genr
   );
 }
 
-/// Próxima história (LEI-10): continuação da obra; senão a seguinte do mesmo
-/// nível na ordem do catálogo; senão a primeira do nível seguinte (nunca dois acima).
+/// Next story (LEI-10): continuation of the work; else the next one at the same
+/// level in catalog order; else the first of the next level (never two above).
 Story nextStory(Story s, List<Story> catalog) {
   if (s.work.isNotEmpty) {
     for (final c in catalog) {
@@ -47,10 +47,10 @@ Story nextStory(Story s, List<Story> catalog) {
   return Story.nil;
 }
 
-/// Palavra do Leitor: parágrafo e índice da palavra nele.
+/// Reader word: paragraph and index of the word in it.
 typedef WordPos = ({int p, int w});
 
-/// Linha de leitura da tela dividida: 24 px do topo de cada metade.
+/// Split screen reading line: 24 px from the top of each half.
 const _readingLine = 24.0;
 
 class ReaderPage extends StatefulWidget {
@@ -68,20 +68,20 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
   Map<String, List<EntryRef>> _lemmas = const {};
   bool _loaded = false;
 
-  // Grifo: parágrafo, palavra inicial e final (-1 = nenhum).
+  // Highlight: paragraph, start and end word (-1 = none).
   int _selP = -1, _selS = -1, _selE = -1, _anchor = -1;
   bool _handles = false;
   WordPos? _pressed;
-  WordPos? _focusWord; // teclado (LEI-12)
+  WordPos? _focusWord; // keyboard (LEI-12)
 
-  // Tela dividida
+  // Split screen
   late final AnimationController _open = AnimationController(vsync: this, duration: Motion.slow, reverseDuration: Motion.base);
   late final AnimationController _snap = AnimationController(vsync: this, duration: Motion.base);
-  double _ratio = 0.5; // parte do italiano
+  double _ratio = 0.5; // Italian's share
   bool _dragging = false;
-  int _actP = -1, _actS = -1; // frase ativa
+  int _actP = -1, _actS = -1; // active sentence
   ({int p, int s, bool pt})? _pressedSentence;
-  int _leader = 0; // 0 italiano · 1 português
+  int _leader = 0; // 0 Italian · 1 Portuguese
   bool _syncing = false;
   int _focusPara = 0;
 
@@ -122,7 +122,7 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
       _ptKeys = [for (final _ in paras) GlobalKey()];
       _loaded = true;
     });
-    // A dica de primeira leitura aparece uma vez (LEI-11).
+    // The first-read hint shows once (LEI-11).
     WidgetsBinding.instance.addPostFrameCallback((_) => markHintSeen('reader'));
   }
 
@@ -138,7 +138,7 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
 
   bool get _split => _open.value > 0 || _open.isAnimating;
 
-  // ---------------------------------------------------------------- rolagem e sincronia
+  // ---------------------------------------------------------------- scroll and sync
 
   void _onItScroll() {
     final title = _titleKey.currentContext?.findRenderObject() as RenderBox?;
@@ -152,7 +152,7 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
     }
   }
 
-  /// Topo e altura de cada parágrafo no conteúdo rolável de uma metade.
+  /// Top and height of each paragraph in a half's scrollable content.
   List<(double, double)> _tops(GlobalKey col, List<GlobalKey> keys) {
     final colBox = col.currentContext?.findRenderObject() as RenderBox?;
     if (colBox == null) return const [];
@@ -176,8 +176,8 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
     return i;
   }
 
-  /// A metade que lidera informa o parágrafo na linha de leitura e a fração já
-  /// rolada; a outra vai para o mesmo parágrafo e a mesma fração (ARQ-56).
+  /// The leading half reports the paragraph on the reading line and the fraction
+  /// already scrolled; the other goes to the same paragraph and fraction (ARQ-56).
   void _sync(int from) {
     if (!_split || _syncing) return;
     final (srcSc, srcCol, srcKeys) = from == 0 ? (_itScroll, _itCol, _itKeys) : (_ptScroll, _ptCol, _ptKeys);
@@ -198,7 +198,7 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
   }
 
   bool _onScroll(int pane, ScrollNotification n) {
-    // A primeira rolagem do usuário apaga o grifo (LEI-06).
+    // The user's first scroll clears the highlight (LEI-06).
     if (n is ScrollStartNotification && n.dragDetails != null && _selP >= 0 && !_handles) {
       setState(() => _selP = _selS = _selE = -1);
     }
@@ -206,7 +206,7 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
     return false;
   }
 
-  // ---------------------------------------------------------------- toque e expressão
+  // ---------------------------------------------------------------- tap and expression
 
   RenderParagraphBox? _box(List<GlobalKey> keys, int p) =>
       keys.length > p ? keys[p].currentContext?.findRenderObject() as RenderParagraphBox? : null;
@@ -246,8 +246,8 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
     _toggleSentence(p, box.sentenceAt(pos), fromPt: true);
   }
 
-  /// Uma frase ativa por vez; tocar de novo desmarca (TRA-05). O par fora da
-  /// vista faz a outra metade rolar o mínimo.
+  /// One active sentence at a time; tapping again deselects (TRA-05). If the pair is
+  /// out of view, the other half scrolls the minimum.
   void _toggleSentence(int p, int s, {required bool fromPt}) {
     if (s < 0) return;
     if (p == _actP && s == _actS) {
@@ -309,7 +309,7 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
     if (box == null || _selP != p) return;
     var w = box.nearestWord(pos);
     if (w < 0) return;
-    // Na tela dividida, a expressão fica dentro da frase (TRA-06).
+    // In split screen, the expression stays inside the sentence (TRA-06).
     if (_split) {
       final s = box.sentenceOfWord(_anchor);
       while (w > _anchor && box.sentenceOfWord(w) != s) {
@@ -331,7 +331,7 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
     _openWord(_selP, _selS, _selE);
   }
 
-  /// Grifa e, depois de 150 ms, empilha o verbete, a página de escolha ou o aviso.
+  /// Highlights and, after 150 ms, pushes the entry, the choice page or the notice.
   Future<void> _openWord(int p, int s, int e) async {
     final para = _paras[p];
     setState(() {
@@ -344,7 +344,7 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
     final grifo = Motion.of(context, Motion.fast);
     var refs = s == e ? (_lemmas[text] ?? const <EntryRef>[]) : await dbLemmas(text);
     if (refs.isEmpty && s != e) {
-      // Expressão sem verbete próprio: uma linha por palavra que tem verbete (DIC-07).
+      // Expression without its own entry: one row per word that has an entry (DIC-07).
       final all = <EntryRef>[];
       for (var i = s; i <= e; i++) {
         for (final r in _lemmas[para.it.substring(para.words[i].start, para.words[i].end)] ?? const <EntryRef>[]) {
@@ -368,7 +368,7 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
     );
     await openLookup(context, refs: refs, backLabel: ui.backToStory, story: story, root: true);
     if (!mounted) return;
-    // De volta: na tela dividida, a frase da palavra fica ativa nas duas metades.
+    // Back: in split screen, the word's sentence becomes active in both halves.
     if (_split && sIdx >= 0 && refs.isNotEmpty) {
       setState(() {
         _actP = p;
@@ -377,7 +377,7 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
     }
   }
 
-  // ---------------------------------------------------------------- tradução
+  // ---------------------------------------------------------------- translation
 
   void _toggleTranslation() {
     final opening = !_split || _open.status == AnimationStatus.reverse;
@@ -390,7 +390,7 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
       _open.duration = Motion.of(context, Motion.slow);
       _open.forward().whenComplete(() => _sync(0));
       if (!settings.value.hints.contains('split')) WidgetsBinding.instance.addPostFrameCallback((_) => markHintSeen('split'));
-      // A metade de baixo chega já alinhada ao parágrafo em foco.
+      // The bottom half arrives already aligned to the focused paragraph.
       WidgetsBinding.instance.addPostFrameCallback((_) => _sync(0));
     } else {
       _open.reverseDuration = Motion.of(context, Motion.base);
@@ -403,7 +403,7 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
     setState(() {
       _dragging = true;
       var r = _ratio + d.delta.dy / height;
-      // Abaixo de 50% o divisor resiste (30% do movimento).
+      // Below 50% the divider resists (30% of the movement).
       if (r < 0.5) r = _ratio + d.delta.dy / height * 0.3;
       _ratio = r.clamp(0.42, 1.0);
     });
@@ -413,7 +413,7 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
   void _dropDivider() {
     _dragging = false;
     if (_ratio > 0.82) {
-      // Soltar com o italiano acima de 82% fecha a tradução (TRA-03).
+      // Releasing with the Italian above 82% closes the translation (TRA-03).
       _ratio = settings.value.split / 100;
       _toggleTranslation();
       return;
@@ -439,7 +439,7 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
     setSplit((target * 100).round());
   }
 
-  // ---------------------------------------------------------------- teclado (LEI-12)
+  // ---------------------------------------------------------------- keyboard (LEI-12)
 
   KeyEventResult _key(FocusNode node, KeyEvent e) {
     if (e is! KeyDownEvent && e is! KeyRepeatEvent) return KeyEventResult.ignored;
@@ -473,7 +473,7 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
     return KeyEventResult.handled;
   }
 
-  // ---------------------------------------------------------------- folha Aa
+  // ---------------------------------------------------------------- Aa sheet
 
   Future<void> _readingSheet() async {
     final t = context.tk;
@@ -609,7 +609,7 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
     final colors = _colors(t);
     return Column(
       children: [
-        // Cabeçalho da metade: só com a tradução aberta.
+        // Half header: only with the translation open.
         if (split)
           SizeTransition(
             sizeFactor: _open,
@@ -720,7 +720,7 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
                             ),
                           ),
                         _end(t, s),
-                        // Espaço para o último parágrafo chegar à linha de leitura.
+                        // Room for the last paragraph to reach the reading line.
                         if (split) const SizedBox(height: 240),
                       ],
                     ),
@@ -734,7 +734,7 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
     );
   }
 
-  /// Se a dica já tinha sido vista antes de abrir esta história.
+  /// Whether the hint had already been seen before opening this story.
   late final bool _hintSeenAtOpen = settings.value.hints.contains('reader');
 
   Widget _divider(Tokens t, double height) {

@@ -1,6 +1,6 @@
-// Postilla: abertura (conteúdo embutido, OFF-11), tema, Imersão e o shell com
-// as três abas da v1 (Biblioteca · Dicionário · Ajustes). Navegação à mão
-// (ARQ-44): um Navigator por aba num IndexedStack, e o raiz para o Leitor.
+// Postilla: startup (bundled content, OFF-11), theme, Immersion and the shell with
+// the three v1 tabs (Library · Dictionary · Settings). Hand-rolled navigation
+// (ARQ-44): one Navigator per tab in an IndexedStack, and the root one for the Reader.
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -25,7 +25,7 @@ void main() {
 class PostillaApp extends StatelessWidget {
   const PostillaApp({super.key, this.home});
 
-  /// Para testes: pula a abertura quando os bancos já estão abertos.
+  /// For tests: skips startup when the databases are already open.
   final Widget? home;
 
   @override
@@ -45,7 +45,7 @@ class PostillaApp extends StatelessWidget {
   }
 }
 
-// ---------------------------------------------------------------- abertura
+// ---------------------------------------------------------------- startup
 
 class _Boot extends StatefulWidget {
   const _Boot();
@@ -54,7 +54,7 @@ class _Boot extends StatefulWidget {
 }
 
 class _BootState extends State<_Boot> {
-  ContentState? _state; // null: preparando
+  ContentState? _state; // null: preparing
   bool _ready = false;
 
   @override
@@ -110,7 +110,7 @@ class _BootState extends State<_Boot> {
 
 enum AppTab { library, dictionary, settings }
 
-/// Toque de novo na aba ativa: a aba escuta e rola ao topo ou volta à raiz (NAV-06).
+/// Tapping the active tab again: the tab listens and scrolls to top or pops to root (NAV-06).
 final tabReselected = ValueNotifier<(AppTab, int)>((AppTab.library, 0));
 
 class Shell extends StatefulWidget {

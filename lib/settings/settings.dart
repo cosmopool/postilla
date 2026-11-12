@@ -1,6 +1,6 @@
-// Ajustes que valem para o app todo (ARQ-42): um struct imutável num
-// ValueNotifier na raiz. Mudar um ajuste grava no `user` e troca o valor.
-// Telas: Ajustes (raiz), Leitura, Imersão e Sobre.
+// App-wide settings (ARQ-42): an immutable struct in a
+// ValueNotifier at the root. Changing a setting writes to `user` and swaps the value.
+// Screens: Settings (root), Reading, Immersion and About.
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 
@@ -24,11 +24,11 @@ class Settings {
   });
 
   final int textSize; // 0…4 (LEI-08)
-  final int leading; // 0 compacta · 1 padrão · 2 ampla
+  final int leading; // 0 compact · 1 standard · 2 loose
   final ThemeMode theme;
-  final bool navIt, uiIt, dictIt, glossIt; // Imersão (AJU-02)
-  final int split; // 50 ou 65 (TRA-02)
-  final Set<String> hints; // dicas de primeiro uso já vistas (LEI-11)
+  final bool navIt, uiIt, dictIt, glossIt; // Immersion (AJU-02)
+  final int split; // 50 or 65 (TRA-02)
+  final Set<String> hints; // first-use hints already seen (LEI-11)
 
   Settings copyWith({
     int? textSize,
@@ -71,7 +71,7 @@ class Settings {
   }
 }
 
-/// Predefinições da Imersão (AJU-03): navegação, rótulos, dicionário, glosas.
+/// Immersion presets (AJU-03): navigation, labels, dictionary, glosses.
 enum Preset {
   beginner(false, false, false, false),
   intermediate(false, false, true, false),
@@ -90,8 +90,8 @@ enum Preset {
 
 final settings = ValueNotifier<Settings>(const Settings());
 
-/// Exposição dos ajustes na árvore (ARQ-42): quem chama `watchSettings`
-/// reconstrói quando um ajuste (inclusive a Imersão) muda.
+/// Exposes settings in the tree (ARQ-42): whoever calls `watchSettings`
+/// rebuilds when a setting (Immersion included) changes.
 class SettingsScope extends InheritedNotifier<ValueNotifier<Settings>> {
   SettingsScope({super.key, required super.child}) : super(notifier: settings);
 }
@@ -101,7 +101,7 @@ Settings watchSettings(BuildContext context) {
   return settings.value;
 }
 
-/// Troca os textos pela Imersão e só então notifica (ARQ-46).
+/// Swaps the texts for Immersion and only then notifies (ARQ-46).
 void applySettings(Settings s) {
   nav = s.navIt ? NavItalian() : NavPortuguese();
   ui = s.uiIt ? UiItalian() : UiPortuguese();
@@ -140,9 +140,9 @@ void markHintSeen(String hint) {
   dbSettingSet('hints', s.hints.toList());
 }
 
-// ---------------------------------------------------------------- controles de leitura
+// ---------------------------------------------------------------- reading controls
 
-/// Tamanho, entrelinha e tema: os mesmos na folha Aa do Leitor e em Ajustes › Leitura.
+/// Size, line spacing and theme: the same in the Reader's Aa sheet and in Settings › Reading.
 class ReadingControls extends StatelessWidget {
   const ReadingControls({super.key});
 
@@ -234,9 +234,9 @@ class ReadingControls extends StatelessWidget {
   }
 }
 
-// ---------------------------------------------------------------- telas
+// ---------------------------------------------------------------- screens
 
-/// Raiz da aba Ajustes: Leitura · Imersão · Sobre.
+/// Root of the Settings tab: Reading · Immersion · About.
 class SettingsRoot extends StatelessWidget {
   const SettingsRoot({super.key});
 

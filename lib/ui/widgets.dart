@@ -1,5 +1,5 @@
-// Componentes do design system (docs/design/components-shared.md) usados por
-// mais de uma tela.
+// Design system components (docs/design/components-shared.md) used by
+// more than one screen.
 import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
@@ -9,7 +9,7 @@ import '../strings.dart';
 import 'icons.dart';
 import 'theme.dart';
 
-/// Toque com fundo de pressão e anel de foco, sem splash. Base de todos os botões.
+/// Tap with pressed background and focus ring, no splash. Base of every button.
 class Pressable extends StatefulWidget {
   const Pressable({
     super.key,
@@ -104,7 +104,7 @@ class _FocusRing extends CustomPainter {
   bool shouldRepaint(_FocusRing old) => old.color != color;
 }
 
-/// Botão de ícone 44×44 (glifo 24). `selected` pinta o disco de tinta.
+/// 44×44 icon button (24 glyph). `selected` paints the ink disc.
 class IconBtn extends StatelessWidget {
   const IconBtn(this.glyph, {super.key, required this.label, this.onTap, this.selected = false, this.filled = false, this.child});
   final Glyphs glyph;
@@ -182,7 +182,7 @@ class Btn extends StatelessWidget {
       ),
     );
     return Padding(
-      // Alvo de toque de 44 nos botões pequenos.
+      // 44 tap target on small buttons.
       padding: EdgeInsets.symmetric(vertical: small ? 4 : 0),
       child: Pressable(
         onTap: onTap,
@@ -196,7 +196,7 @@ class Btn extends StatelessWidget {
   }
 }
 
-/// Chip de filtro (32 de altura, alvo de 44). Selecionado: tinta.
+/// Filter chip (32 tall, 44 target). Selected: ink.
 class FilterChipBtn extends StatelessWidget {
   const FilterChipBtn(this.text, {super.key, required this.selected, required this.onTap});
   final String text;
@@ -263,7 +263,7 @@ class MicroLabel extends StatelessWidget {
   );
 }
 
-/// Controle segmentado: grupo com rótulo, cada opção é um toggle selecionado.
+/// Segmented control: labeled group, each option is a selected toggle.
 class Segmented extends StatelessWidget {
   const Segmented({super.key, required this.label, required this.options, required this.selected, required this.onSelect});
   final String label;
@@ -321,7 +321,7 @@ class Segmented extends StatelessWidget {
   }
 }
 
-/// Campo de busca em pílula, com lupa e "Limpar busca" quando há texto.
+/// Pill search field, with magnifier and "Clear search" when there is text.
 class SearchField extends StatefulWidget {
   const SearchField({
     super.key,
@@ -416,7 +416,7 @@ class _SearchFieldState extends State<SearchField> {
   }
 }
 
-/// Cabeçalho de seção: rótulo + contagem, com ação opcional à direita.
+/// Section header: label + count, with optional action on the right.
 class SectionHeader extends StatelessWidget {
   const SectionHeader(this.label, {super.key, this.count, this.action});
   final String label;
@@ -448,7 +448,7 @@ class SectionHeader extends StatelessWidget {
   }
 }
 
-/// Linha de lista (compacta: 44; normal: 64).
+/// List row (compact: 44; normal: 64).
 class ListRow extends StatelessWidget {
   const ListRow({
     super.key,
@@ -558,7 +558,7 @@ class EmptyState extends StatelessWidget {
   }
 }
 
-/// App bar compacta (56): voltar · título · ações. Hairline quando rolada.
+/// Compact app bar (56): back · title · actions. Hairline when scrolled.
 class CompactBar extends StatelessWidget {
   const CompactBar({
     super.key,
@@ -616,7 +616,7 @@ class CompactBar extends StatelessWidget {
   }
 }
 
-/// Toast: aviso rápido, 2,6 s, anunciado sem mover o foco.
+/// Toast: quick notice, 2.6 s, announced without moving focus.
 void showToast(BuildContext context, String text) {
   final overlay = Overlay.of(context, rootOverlay: true);
   SemanticsService.sendAnnouncement(View.of(context), text, Directionality.of(context));
@@ -684,9 +684,9 @@ class _ToastState extends State<_Toast> {
   }
 }
 
-/// Push: a página nova entra da direita e a de baixo recua um terço e continua
-/// montada (guarda a rolagem). Sobre a rota do Cupertino para ganhar o gesto de
-/// borda nas duas plataformas, com a duração do design (`--dur-base`).
+/// Push: the new page comes in from the right and the one below recedes a third and stays
+/// mounted (keeps its scroll). On top of the Cupertino route to get the edge
+/// gesture on both platforms, with the design's duration (`--dur-base`).
 class PushRoute<R> extends CupertinoPageRoute<R> {
   PushRoute(Widget page, {super.settings}) : super(builder: (_) => page);
 
@@ -700,7 +700,7 @@ class PushRoute<R> extends CupertinoPageRoute<R> {
   }
 }
 
-/// Copia texto para a área de transferência e avisa.
+/// Copies text to the clipboard and notifies.
 Future<void> copyText(BuildContext context, String text) async {
   await Clipboard.setData(ClipboardData(text: text));
   if (context.mounted) showToast(context, ui.copied);

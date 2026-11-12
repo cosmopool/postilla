@@ -24,6 +24,7 @@ Every branch a caller must handle multiplies codepaths; give callers one.
 - Errors go to a log side-channel (`configLog`), not errno-style slots.
 
 # Rules
+- English only, everywhere: code, comments, logs, tests, docs, specs, commit messages. Exceptions: localization (user-facing Portuguese/Italian strings) and mocks.
 - After changing C code, run `make test` and fix every failure.
 - Always follow `.agents/rules/testing.md` when writing/editing/reviewing tests.
 

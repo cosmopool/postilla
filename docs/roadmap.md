@@ -38,16 +38,23 @@ How to read:
 | Narration ships in v1: Play/Pause in the dock, sentence marking, tap a sentence to jump (LEI-14, LEI-15). The audio downloads when the story opens, and Play appears once it's ready; seeded stories embed theirs. Playback through an own `audio` platform channel. | 2026-11-13 |
 | Target and native language picker in Settings › Languages (AJU-08), from `GET /languages`. A switch resyncs from `since=0` and keeps the old language's files. | 2026-11-13 |
 | Genre and tag names follow Immersion › Navigation (native or target column), not always native (BIB-06). | 2026-11-13 |
-| The card shows tags, author and narration length; tags join search and get a third chip group; chip groups list only values present; an unknown genre shows as "Outros" (BIB-01, BIB-05, BIB-06, BIB-11). | 2026-11-13 |
+| The card shows tags, author and narration length; tags join search; filters list only values present; an unknown genre shows as "Outros" (BIB-01, BIB-05, BIB-06, BIB-11). The third chip group became the Tema facet the same day (below). | 2026-11-13 |
 | Vocabulary coverage: one combined share at the story's start, not on the card (LEI-13). | 2026-11-13 |
-| Story credit (author · adaptado · license) at the story's start, the license as plain text in v1 (LEI-13). | 2026-11-13 |
+| Story credit (author · adaptado · license) at the story's start, the license as plain text in v1 (LEI-13). Coverage and credit now sit in the title page's colophon (below). | 2026-11-13 |
 | Sync on every Library visit, one at a time; updates (stories and dictionary) apply live (OFF-20, OFF-23). | 2026-11-13 |
 | Story index: a writable local `stories` database plus `.tilla` and `.opus` files named by sha (ARQ-23). | 2026-11-13 |
 | Base URLs `api.postilla.kaiodelphino.com` and `content.postilla.kaiodelphino.com`, built in; no manifest (ARQ-06). | 2026-11-13 |
-| Unknown format: a quiet "update the app" banner in the Library (OFF-26). | 2026-11-13 |
+| Unknown format: a quiet "update the app" notice in the Library (OFF-26). It moved from a banner into the status line the same day (below). | 2026-11-13 |
 | Story without a native translation: "Sem tradução" note on the card, "Mostrar tradução" disabled (TRA-10). | 2026-11-13 |
 | The dictionary credits stay hard-coded; `meta.license` and `meta.attribution` are not shown (AJU-04). | 2026-11-13 |
 | About shows the story count and the stored cursor instead of a stories version (OFF-13). | 2026-11-13 |
+| Design direction from the mock round in `docs/design/mocks/` (free-2, reader-1, library-2): the Library's status line is the one place where syncing speaks, with no toast and no banner; new stories carry "Chegou agora" until opened; the seed's stories never count as new (OFF-24, OFF-26, BIB-13, §11 #34). | 2026-11-13 |
+| Library filter: facets Nível · Gênero · Tema under the search, each opening a sheet with a searchable checklist, story counts that apply the other facets, and zero values disabled, not hidden. Replaces the chip groups (BIB-05, BIB-08, BIB-14). | 2026-11-13 |
+| Reader: the story opens on a title page with a colophon (credit, reading and narration, coverage, missing translation) (LEI-13). | 2026-11-13 |
+| Narration transport in the dock: "Frase anterior" · Play/Pause · "Ouvir de novo"; the mark stays on pause; no "next sentence" (LEI-15). | 2026-11-13 |
+| Translation button: the `languages` icon and its label, no outline; disabled per TRA-10, which is unchanged (design system). | 2026-11-13 |
+| After a language switch, a story still downloading opens the Reader with a wait in place of the text; the "Baixando…" dialog is dropped (BIB-12). | 2026-11-13 |
+| Settings opens with Idiomas ("Aprendo", "Traduções em") and About ends with the app's colophon (AJU-04, AJU-08). | 2026-11-13 |
 
 ## Versions
 
@@ -69,7 +76,7 @@ How to read:
 |---|---|
 | Offline | OFF-01..05, OFF-10..13, OFF-20..27, OFF-30, OFF-31, OFF-33, OFF-34 |
 | Navigation | NAV-01..06 |
-| Library | BIB-01, BIB-04..12 |
+| Library | BIB-01, BIB-04..14 |
 | Reader | LEI-01..06, LEI-08, LEI-10..15 |
 | Reader with translation | TRA-01..10 |
 | Dictionary | DIC-01..11 |
@@ -86,11 +93,12 @@ How to read:
 | OFF-34 | Three databases: `user`, `stories` (the index) and `dict`. `log` ships in v1.1 (ARQ-70), and there is no Export or Import. |
 | NAV-01 | Three tabs: Library · Dictionary · Settings. |
 | NAV-06 | Tapping the active tab again: in Library, scrolls to the top; in Dictionary, goes back to the root. |
-| BIB-01 | The card has no state: title, subtitle, level, genre, tags, author, reading time, narration length and the "Sem tradução" note. |
+| OFF-26 | The notice has no "Atualizar na loja" link: opening a URL needs a platform channel, which comes in v1.1 (ARQ-73). |
+| BIB-01 | The card has no reading state: title, subtitle, level, genre, tags, author, reading time, narration length, "Chegou agora" and the "Sem tradução" note. |
 | BIB-04 | Fixed order by level, from A1 to C2, and within the same level from shortest to longest. No Continue reading and no finished stories at the end. |
 | BIB-07 | "Resultados" follows the BIB-04 order. |
 | BIB-09 | Every story opens at the beginning. |
-| LEI-01 | App bar with back, title and Aa, without More options. Dock with Play/Pause (once the narration is ready) and "Mostrar tradução", without a progress line or "N% lido". |
+| LEI-01 | App bar with back, title and Aa, without More options. Dock with the transport (once the narration is ready, LEI-15) and the translation button, without a progress line or "N% lido". |
 | LEI-04 | Nothing saves: no gesture in the story, and the entry has no bookmark (DIC-08). |
 | LEI-06 | The highlight stays the same. No dotted underline. |
 | LEI-10 | End of the story with the "Próxima história" card and "Voltar à biblioteca", without a saved count or a link to Saved. The next one is the first candidate in this order: 1) the continuation of the work; 2) the next one at the same level, in BIB-04 order; 3) the first one at the next level (never two above). With no candidate, the card disappears. |

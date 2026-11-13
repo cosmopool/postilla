@@ -1,147 +1,147 @@
-# Postilla: spec de arquitetura
+# Postilla: architecture spec
 
-Como o app e o pipeline de conteúdo são construídos. O comportamento está na [spec funcional](functional-spec.md), e esta spec só diz como implementá-lo. Cada decisão tem um id (`ARQ-03`) e um motivo curto.
+How the app and the content pipeline are built. Behavior is in the [functional spec](functional-spec.md), and this spec only says how to implement it. Each decision has an id (`ARQ-03`) and a short reason.
 
-Documentos relacionados:
-- [functional-spec.md](functional-spec.md): o que o app faz.
-- [dictionary.md](dictionary.md): campos do verbete e transformações.
-- [dictionary-pipeline.md](dictionary-pipeline.md): como o dicionário é gerado.
+Related documents:
+- [functional-spec.md](functional-spec.md): what the app does.
+- [dictionary.md](dictionary.md): entry fields and transformations.
+- [dictionary-pipeline.md](dictionary-pipeline.md): how the dictionary is generated.
 
 ---
 
-## 1. Visão geral
+## 1. Overview
 
-| Id | Decisão | Motivo |
+| Id | Decision | Reason |
 |---|---|---|
-| ARQ-01 | O app é feito em Flutter, para iOS e Android. | Uma base de código para as duas plataformas que a spec funcional pede. |
-| ARQ-02 | O pipeline de conteúdo é escrito em Zig 0.17. As dependências vêm pelo package manager do Zig (`build.zig.zon`). | O pipeline lê o JSONL do kaikki.org já extraído e não roda o wiktextract, então não precisa de Python. O package manager fixa cada dependência por hash, sem outra ferramenta. Fecha a D23. |
-| ARQ-03 | Dois repositórios: `postilla` (app Flutter e docs do app) e `postilla-content` (pipeline e fontes das histórias). | App e conteúdo têm ciclos de release separados. O app recebe conteúdo novo sem versão nova na loja. |
-| ARQ-04 | `postilla-content` é público. | Os pacotes ficam nas Releases dele, e o app baixa sem token. |
-| ARQ-05 | Os pacotes de conteúdo são publicados como GitHub Releases de `postilla-content`. | Sem custo e no mesmo lugar do código que gera os pacotes. |
-| ARQ-06 | A URL do manifesto embutida no app é `https://postilla.kaiodelphino.com/content/manifest.json`. O manifesto é servido pelo GitHub Pages de `postilla-content`, com esse domínio configurado, e as URLs dos pacotes dentro dele apontam direto para as Releases. | Trocar de host não exige versão nova do app: só a URL do manifesto fica embutida. Um domínio não aponta por CNAME para um arquivo de Release, então o manifesto fica no Pages. O `/content` deixa a raiz livre para um site do app. |
-| ARQ-07 | `postilla-content` define o contrato entre os repositórios: esquema dos bancos de conteúdo e formato do manifesto. O app segue esse contrato. | Quem gera o dado documenta o formato. |
-| ARQ-08 | [dictionary.md](dictionary.md) e [dictionary-pipeline.md](dictionary-pipeline.md) mudam para `postilla-content`. | A doc fica junto do código que ela descreve. |
+| ARQ-01 | The app is built in Flutter, for iOS and Android. | One codebase for the two platforms the functional spec asks for. |
+| ARQ-02 | The content pipeline is written in Zig 0.17. Dependencies come through Zig's package manager (`build.zig.zon`). | The pipeline reads the already-extracted kaikki.org JSONL and does not run wiktextract, so it does not need Python. The package manager pins each dependency by hash, with no other tool. Closes D23. |
+| ARQ-03 | Two repositories: `postilla` (Flutter app and app docs) and `postilla-content` (pipeline and story sources). | App and content have separate release cycles. The app gets new content without a new store version. |
+| ARQ-04 | `postilla-content` is public. | The packages live in its Releases, and the app downloads them without a token. |
+| ARQ-05 | Content packages are published as GitHub Releases of `postilla-content`. | No cost, and in the same place as the code that builds the packages. |
+| ARQ-06 | The manifest URL bundled in the app is `https://postilla.kaiodelphino.com/content/manifest.json`. The manifest is served by the GitHub Pages of `postilla-content`, with that domain configured, and the package URLs inside it point straight to the Releases. | Changing host does not require a new app version: only the manifest URL is bundled. A domain cannot point by CNAME to a Release file, so the manifest lives on Pages. The `/content` leaves the root free for an app website. |
+| ARQ-07 | `postilla-content` defines the contract between the repositories: schema of the content databases and manifest format. The app follows that contract. | Whoever produces the data documents the format. |
+| ARQ-08 | [dictionary.md](dictionary.md) and [dictionary-pipeline.md](dictionary-pipeline.md) move to `postilla-content`. | The doc stays next to the code it describes. |
 
 ```
-postilla-content (público)                     postilla
+postilla-content (public)                      postilla
   pipeline (Zig)                                 app (Flutter)
-  fontes das histórias          Releases           conteúdo embutido
-  contrato (esquema, manifesto) ─────────► manifesto ─► atualização (seção 3)
-                                     domínio próprio
+  story sources                 Releases           bundled content
+  contract (schema, manifest)   ─────────► manifest ─► update (section 3)
+                                     custom domain
 ```
 
-## 2. Pacotes de conteúdo
+## 2. Content packages
 
-| Id | Decisão | Motivo |
+| Id | Decision | Reason |
 |---|---|---|
-| ARQ-10 | Dois pacotes, com versões independentes: `dict` (dicionário) e `stories` (histórias e traduções). | Uma história nova não baixa os ~15 MB do dicionário. |
-| ARQ-11 | Cada pacote é um único arquivo SQLite comprimido com zstd -19 (`dict-2.1.0.db.zst`). Versão, fontes e licenças ficam na tabela `meta` do próprio banco. Na v1, o pacote embutido usa gzip -9 (`dict-2.1.0.db.gz`, ~21 MB); o zstd volta na v1.2 ([roadmap](roadmap.md)). | zstd tem o melhor equilíbrio entre tamanho (~15 MB) e velocidade de descompressão. Um arquivo só simplifica download e verificação. Na v1, o `dart:io` já descomprime gzip, sem pacote. |
-| ARQ-12 | A versão de cada pacote é SemVer: major muda quando o esquema fica incompatível com apps antigos; minor, quando entra conteúdo novo (dump novo, histórias novas); patch, em correções pontuais (glosa errada, erro no texto). | O major diz ao app se ele consegue ler o pacote. |
-| ARQ-13 | Cada build do app aceita um único major por pacote (ex.: `dict` 2.x, `stories` 1.x). Um pacote de outro major é ignorado, e o app continua com a versão que tem. | Regra simples, verificada sem consultar nada além da versão. |
-| ARQ-14 | A versão inicial embutida (OFF-10) não fica no git. Um arquivo de lock no repo do app fixa versão e sha256 de cada pacote, e um script baixa os arquivos das Releases antes do `flutter build`. Na v1, nada é publicado: o lock aponta para `../postilla-content/out`, e o script copia os arquivos de lá. | Sem binários grandes no repositório do app. O lock deixa o build reproduzível. |
-| ARQ-15 | Ajustes › Sobre (OFF-13) mostra a versão dos dois pacotes e a data do dump do Wiktionary, lida da `meta` do `dict`. | A data diz ao usuário de quando é o dicionário; o SemVer identifica o pacote num relato de erro. |
+| ARQ-10 | Two packages, with independent versions: `dict` (dictionary) and `stories` (stories and translations). | A new story does not download the ~15 MB of the dictionary. |
+| ARQ-11 | Each package is a single SQLite file compressed with zstd -19 (`dict-2.1.0.db.zst`). Version, sources and licenses live in the database's own `meta` table. In v1, the bundled package uses gzip -9 (`dict-2.1.0.db.gz`, ~21 MB); zstd comes back in v1.2 ([roadmap](roadmap.md)). | zstd has the best balance between size (~15 MB) and decompression speed. A single file simplifies download and verification. In v1, `dart:io` already decompresses gzip, with no package. |
+| ARQ-12 | Each package version is SemVer: major changes when the schema becomes incompatible with old apps; minor, when new content comes in (new dump, new stories); patch, for one-off fixes (wrong gloss, error in the text). | The major tells the app whether it can read the package. |
+| ARQ-13 | Each app build accepts a single major per package (e.g. `dict` 2.x, `stories` 1.x). A package of another major is ignored, and the app keeps the version it has. | Simple rule, checked without looking at anything but the version. |
+| ARQ-14 | The initial bundled version (OFF-10) is not in git. A lock file in the app repo pins the version and sha256 of each package, and a script downloads the files from the Releases before `flutter build`. In v1, nothing is published: the lock points to `../postilla-content/out`, and the script copies the files from there. | No large binaries in the app repository. The lock makes the build reproducible. |
+| ARQ-15 | Settings › About (OFF-13) shows the version of both packages and the date of the Wiktionary dump, read from the `meta` of `dict`. | The date tells the user when the dictionary is from; the SemVer identifies the package in an error report. |
 
-## 3. Atualização de conteúdo
+## 3. Content updates
 
-Comportamento em OFF-20..24. Fluxo:
+Behavior in OFF-20..24. Flow:
 
 ```
-abrir o app ─► manifesto (≤ 1×/dia) ─► versão nova do major aceito? ─► baixar .zst (com retomada)
-  ─► sha256 do .zst ─► descomprimir em preparação ─► sha256 do .db ─► pronto
-próxima abertura ─► troca o ponteiro para a versão pronta ─► apaga a anterior
+open the app ─► manifest (≤ 1×/day) ─► new version of the accepted major? ─► download .zst (resumable)
+  ─► sha256 of the .zst ─► decompress into staging ─► sha256 of the .db ─► ready
+next launch ─► swap the pointer to the ready version ─► delete the previous one
 ```
 
-| Id | Decisão | Motivo |
+| Id | Decision | Reason |
 |---|---|---|
-| ARQ-20 | O manifesto é um JSON com só a última versão de cada pacote: versão, URL, tamanho, sha256 do `.zst` e sha256 do `.db`. | Formato mínimo. Um app de major antigo deixa de receber conteúdo até ser atualizado na loja (ARQ-13). |
-| ARQ-21 | O manifesto não é assinado. A integridade vem do HTTPS e dos sha256. | O sha256 pega download corrompido. Proteger contra um manifesto trocado ficou fora da v1. |
-| ARQ-22 | O download acontece só com o app aberto. Se for interrompido, a próxima abertura retoma de onde parou (HTTP Range). | Sem código nativo de download em segundo plano. A retomada evita baixar de novo os ~15 MB. |
-| ARQ-23 | Logo após o download e a conferência do `.zst`, o app descomprime o pacote numa pasta de preparação e confere o sha256 do `.db`. Só então o pacote fica pronto. | A próxima abertura só troca um ponteiro, sem esperar descompressão. Custa ~90 MB a mais até a troca. |
-| ARQ-24 | A troca (OFF-22, OFF-23) acontece na abertura seguinte, antes de abrir qualquer banco de conteúdo: o app aponta para a versão pronta e apaga a anterior na hora. | A troca é atômica e nunca acontece com história ou verbete aberto. Sem rollback. |
-| ARQ-25 | Entre o conteúdo embutido numa versão nova do app e o já baixado, vale a maior versão do major que o app aceita. Se o app mudou de major, o baixado é apagado e vale o embutido. | Atualizar o app pela loja nunca faz o conteúdo voltar para uma versão mais antiga. |
-| ARQ-26 | A `meta` do `stories` lista as histórias adicionadas em cada versão. Na troca, o app soma as adicionadas desde a versão que tinha e guarda o número para o aviso da Biblioteca (OFF-24). | O pacote diz o que é novo, sem o app guardar a lista de ids da versão anterior. |
+| ARQ-20 | The manifest is a JSON with only the latest version of each package: version, URL, size, sha256 of the `.zst` and sha256 of the `.db`. | Minimal format. An app on an old major stops getting content until it is updated from the store (ARQ-13). |
+| ARQ-21 | The manifest is not signed. Integrity comes from HTTPS and the sha256s. | The sha256 catches a corrupted download. Protecting against a swapped manifest was left out of v1. |
+| ARQ-22 | The download happens only while the app is open. If it is interrupted, the next launch resumes where it stopped (HTTP Range). | No native background download code. Resuming avoids downloading the ~15 MB again. |
+| ARQ-23 | Right after downloading and checking the `.zst`, the app decompresses the package into a staging folder and checks the sha256 of the `.db`. Only then is the package ready. | The next launch only swaps a pointer, without waiting for decompression. It costs ~90 MB extra until the swap. |
+| ARQ-24 | The swap (OFF-22, OFF-23) happens on the following launch, before opening any content database: the app points to the ready version and deletes the previous one right away. | The swap is atomic and never happens with a story or entry open. No rollback. |
+| ARQ-25 | Between the content bundled in a new app version and the content already downloaded, the higher version of the major the app accepts wins. If the app changed major, the downloaded content is deleted and the bundled one wins. | Updating the app from the store never takes the content back to an older version. |
+| ARQ-26 | The `meta` of `stories` lists the stories added in each version. On the swap, the app adds up the stories added since the version it had and stores the number for the Library notice (OFF-24). | The package says what is new, without the app keeping the list of ids of the previous version. |
 
-## 4. Bancos no aparelho
+## 4. On-device databases
 
-Os bancos de OFF-34: `user` (dados do usuário), `stories`, `dict` e `log` (ARQ-70). O esquema de `stories` e `dict` é definido em `postilla-content` (ARQ-07).
+The databases of OFF-34: `user` (user data), `stories`, `dict` and `log` (ARQ-70). The schema of `stories` and `dict` is defined in `postilla-content` (ARQ-07).
 
-| Id | Decisão | Motivo |
+| Id | Decision | Reason |
 |---|---|---|
-| ARQ-30 | O app acessa o SQLite pelo pacote `sqlite3` (FFI), com SQL escrito à mão. | Sem geração de código e sem camada entre o app e o SQL. |
-| ARQ-31 | Todas as consultas, em todos os bancos, rodam num isolate dedicado. A UI recebe os resultados por mensagem. | O `sqlite3` é síncrono. Fora do isolate da UI, uma consulta lenta não trava a tela. |
-| ARQ-32 | O esquema do `user` evolui por scripts SQL numerados (`001.sql`, `002.sql`…). `PRAGMA user_version` guarda o último aplicado, e cada script roda numa transação. Só para frente. | Migração explícita e fácil de revisar. |
-| ARQ-33 | Todo registro do `user` tem `id` UUID v7, `created_at`, `updated_at` e `deleted_at`. As datas são inteiros em ms desde a epoch, em UTC. A `answer` tem as mesmas colunas, mas só recebe inserções: nela `updated_at` é sempre igual a `created_at`, e `deleted_at` é sempre 0 (ARQ-80). O dia local (`answer.day`, `history.day`) não é data em ms: é o `localDay` do ARQ-84. | Ids únicos entre aparelhos e datas comparáveis permitem sync futuro sem migração de modelo (OFF-31). |
-| ARQ-34 | Remover uma palavra salva ou limpar o histórico preenche `deleted_at`, e as listas filtram essas linhas. Nenhum dos dois toca em `answer`: a palavra removida sai da Revisão pelo filtro do ARQ-83, e as respostas dela ficam no log (REV-03). | O sync futuro sabe o que foi removido. Remover não apaga o que o aluno já respondeu. |
-| ARQ-35 | O `user` nunca aponta para o `entry.id`. Uma palavra salva é pelo lema, como texto (`"serranda"`), e guarda também a classe do verbete onde foi salva (`saved.pos`), que só decide quais cartões a salva gera (D12). O histórico aponta para o verbete por lema + classe (`"binario"`, `"sostantivo"`). As respostas apontam para lema + classe e para o `rule.id` (ARQ-86). | O `entry.id` muda a cada build do `dict`, e o lema sobrevive às versões. Fora do Leitor o app não conhece a forma tocada, então a salva é pelo lema. Salvar "binario" marca como salvos os dois verbetes de "binario" (substantivo e adjetivo), mas só a classe salva vira cartão (P05). O histórico tem uma linha por verbete (SAL-01), então guarda a classe. Um verbete que saiu do `dict` cai no OFF-32. |
-| ARQ-36 | Cada história tem um UUID escrito na fonte, que nunca muda. Progresso, salvas e histórico apontam para esse UUID. | Renomear ou corrigir a história não quebra o vínculo. |
-| ARQ-37 | O progresso aponta para o parágrafo pela posição. Se a história encolher, o progresso vai para o último parágrafo que existe (OFF-32). O deslocamento dentro do parágrafo (LEI-07) é o índice do primeiro caractere visível. | Posição é o mais simples. O índice de caractere sobrevive a mudanças de tamanho do texto e rotação. Uma edição no meio da história desloca o progresso, e isso foi aceito. |
-| ARQ-38 | Os ajustes ficam numa tabela chave-valor do `user`. Os temas tirados da Revisão também são ajuste, não coluna de cartão (ARQ-83). | Entram no Exportar/Importar (AJU-05) e no sync futuro. |
-| ARQ-39 | `dict` e `stories` são abertos só para leitura (`mode=ro&immutable=1`). | Sem WAL nem lock, e nenhuma escrita acidental no conteúdo. |
+| ARQ-30 | The app accesses SQLite through the `sqlite3` package (FFI), with hand-written SQL. | No code generation and no layer between the app and the SQL. |
+| ARQ-31 | All queries, in all databases, run in a dedicated isolate. The UI receives the results by message. | `sqlite3` is synchronous. Outside the UI isolate, a slow query does not freeze the screen. |
+| ARQ-32 | The `user` schema evolves through numbered SQL scripts (`001.sql`, `002.sql`…). `PRAGMA user_version` stores the last one applied, and each script runs in a transaction. Forward only. | Explicit migration, easy to review. |
+| ARQ-33 | Every `user` record has a UUID v7 `id`, `created_at`, `updated_at` and `deleted_at`. Dates are integers in ms since the epoch, in UTC. `answer` has the same columns, but only receives inserts: there `updated_at` always equals `created_at`, and `deleted_at` is always 0 (ARQ-80). The local day (`answer.day`, `history.day`) is not a date in ms: it is the `localDay` of ARQ-84. | Ids unique across devices and comparable dates allow future sync without a model migration (OFF-31). |
+| ARQ-34 | Removing a saved word or clearing the history fills `deleted_at`, and the lists filter those rows out. Neither touches `answer`: the removed word leaves Review through the ARQ-83 filter, and its answers stay in the log (REV-03). | Future sync knows what was removed. Removing does not erase what the learner already answered. |
+| ARQ-35 | `user` never points to `entry.id`. A saved word is by lemma, as text (`"serranda"`), and also stores the part of speech of the entry where it was saved (`saved.pos`), which only decides which cards the saved word generates (D12). The history points to the entry by lemma + part of speech (`"binario"`, `"sostantivo"`). Answers point to lemma + part of speech and to the `rule.id` (ARQ-86). | `entry.id` changes with every `dict` build, and the lemma survives across versions. Outside the Reader the app does not know the tapped form, so the saved word is by lemma. Saving "binario" marks both "binario" entries (noun and adjective) as saved, but only the saved part of speech becomes a card (P05). The history has one row per entry (SAL-01), so it stores the part of speech. An entry that left `dict` falls under OFF-32. |
+| ARQ-36 | Each story has a UUID written in the source, which never changes. Progress, saved words and history point to that UUID. | Renaming or fixing the story does not break the link. |
+| ARQ-37 | Progress points to the paragraph by position. If the story shrinks, progress goes to the last paragraph that exists (OFF-32). The offset within the paragraph (LEI-07) is the index of the first visible character. | Position is the simplest. The character index survives changes in text size and rotation. An edit in the middle of the story shifts the progress, and that was accepted. |
+| ARQ-38 | Settings live in a key-value table in `user`. Topics taken out of Review are also a setting, not a card column (ARQ-83). | They go into Export/Import (AJU-05) and future sync. |
+| ARQ-39 | `dict` and `stories` are opened read-only (`mode=ro&immutable=1`). | No WAL or lock, and no accidental writes to the content. |
 
-Tabelas do `user` (além das colunas do ARQ-33):
+Tables of `user` (in addition to the ARQ-33 columns):
 
-| Tabela | Campos | Requisitos |
+| Table | Fields | Requirements |
 |---|---|---|
-| `progress` | `story_id`, `paragraph` (posição), `offset` (caractere), `status` (andamento \| lida), `last_opened_at`. Sem linha, a história é nova. | BIB-02, BIB-03, LEI-07 |
-| `history` | `day` (`localDay`, virada às 4h, ARQ-84), `lemma`, `pos`, `story_id` (`''` fora de história), `origin` (0 história ou busca · 1 Revisão; em aberto, seção 12). Única por `day` + `lemma` + `pos`. | SAL-01, D29, D30 |
-| `saved` | `lemma` (texto, chave única), `pos` (classe do verbete onde salvou: só ela gera cartões, D12), resumo (classe, história de origem), `story_id`, `paragraph` e `sentence` (posições da frase de origem; também abrem a página do trecho, D22), `form` (forma tocada; `''` = sem frase de origem, como na salva pela busca). | SAL-02, OFF-32, LEI-10, REV-03 |
-| `answer` | O log de respostas da Revisão e do Treino, só de inserções (ARQ-80). Colunas na tabela abaixo. | REV-17, TRE-05 |
-| `setting` | `key`, `value` (JSON): leitura, Imersão, proporção da tradução, ordenação das Salvas, dicas vistas, aviso de histórias novas, Ajustes › Revisão (palavras novas por dia, origem) e temas tirados da Revisão. | OFF-30, ARQ-26, AJU-07 |
+| `progress` | `story_id`, `paragraph` (position), `offset` (character), `status` (in progress \| read), `last_opened_at`. With no row, the story is new. | BIB-02, BIB-03, LEI-07 |
+| `history` | `day` (`localDay`, rollover at 4 a.m., ARQ-84), `lemma`, `pos`, `story_id` (`''` outside a story), `origin` (0 story or search · 1 Review; open, section 12). Unique on `day` + `lemma` + `pos`. | SAL-01, D29, D30 |
+| `saved` | `lemma` (text, unique key), `pos` (part of speech of the entry where it was saved: only it generates cards, D12), summary (part of speech, source story), `story_id`, `paragraph` and `sentence` (positions of the source sentence; they also open the excerpt page, D22), `form` (tapped form; `''` = no source sentence, as when saved from search). | SAL-02, OFF-32, LEI-10, REV-03 |
+| `answer` | The insert-only log of Review and Practice answers (ARQ-80). Columns in the table below. | REV-17, TRE-05 |
+| `setting` | `key`, `value` (JSON): reading, Immersion, translation ratio, Saved sort order, hints seen, new stories notice, Settings › Review (new words per day, origin) and topics taken out of Review. | OFF-30, ARQ-26, AJU-07 |
 
-Colunas de `answer`, além das do ARQ-33. Toda coluna é `NOT NULL`, e o zero (`0` ou `''`) quer dizer "não há".
+Columns of `answer`, in addition to those of ARQ-33. Every column is `NOT NULL`, and zero (`0` or `''`) means "none".
 
-| Coluna | O que guarda |
+| Column | What it stores |
 |---|---|
-| `at` | Instante da resposta (ms, UTC), o que vale para o FSRS. Uma linha com `replaces` herda o `at` da substituída (seção 12) |
-| `day` | `localDay` da resposta (ARQ-84): `20261016` |
-| `replaces` | Id da linha que esta substitui (ARQ-80) |
-| `kind` | 0 cartão de palavra · 1 cartão de padrão |
-| `rule` | `kind` 1: o cartão; `kind` 0: o padrão do membro; `''` na Palavra |
-| `lemma`, `pos` | `kind` 0: a palavra do cartão; `kind` 1: a palavra da vez |
-| `skill`, `tense`, `person` | Enums fixos do ARQ-86. `tense`: 1 presente · 2 passato_prossimo · 3 imperfetto · 4 futuro · 5 imperativo |
-| `cue` | Item curado: a pergunta da linha do `drill` (`le chiavi ___`) |
-| `format` | 0 digitado · 1 escolha |
+| `at` | Instant of the answer (ms, UTC), the one that counts for FSRS. A row with `replaces` inherits the `at` of the replaced row (section 12) |
+| `day` | `localDay` of the answer (ARQ-84): `20261016` |
+| `replaces` | Id of the row this one replaces (ARQ-80) |
+| `kind` | 0 word card · 1 pattern card |
+| `rule` | `kind` 1: the card; `kind` 0: the member's pattern; `''` in Word |
+| `lemma`, `pos` | `kind` 0: the card's word; `kind` 1: the current word |
+| `skill`, `tense`, `person` | Fixed enums of ARQ-86. `tense`: 1 presente · 2 passato_prossimo · 3 imperfetto · 4 futuro · 5 imperativo |
+| `cue` | Curated item: the question of the `drill` row (`le chiavi ___`) |
+| `format` | 0 typed · 1 choice |
 | `verdict` | 1 intro · 2 known · 3 void · 4 wrong · 5 dontKnow · 6 almost · 7 ok |
-| `reason`, `hinted` | Motivo do aviso, do Quase ou do Errado; se usou a dica |
-| `mode` | 1 Revisão · 2 Treino. Só para as cotas e para auditoria: nenhuma regra do FSRS olha a porta |
-| `origin` | Só na `intro` de palavra: 1 salvas · 2 NVdB |
-| `typed`, `elapsed_ms` | O que foi digitado (até 64 caracteres) e o tempo até responder |
+| `reason`, `hinted` | Reason for the notice, the Almost or the Wrong; whether the hint was used |
+| `mode` | 1 Review · 2 Practice. Only for the quotas and for auditing: no FSRS rule looks at the door |
+| `origin` | Only on a word `intro`: 1 saved · 2 NVdB |
+| `typed`, `elapsed_ms` | What was typed (up to 64 characters) and the time until answering |
 
-- **Chave do cartão:** `kind` 1 → `rule`; `kind` 0 → `lemma·pos·skill·tense`. Em Dart, um `extension type CardKey` (ARQ-47). O `cue` não entra na chave.
-- **Índices:** `(kind, rule, lemma, pos, skill, tense, at)` para a dobra por cartão, `(day)` para as cotas e `(replaces)` parcial, só onde não é `''`.
-- **Tamanho:** com 100 respostas por dia, ~36 mil linhas e ~3,5 MB por ano (seção 12).
-- O book da Revisão previa `review_card`, `review_log`, `known_word` e `word_image`. Nenhuma entra: o estado sai do log (ARQ-81), "Já sei" é uma linha `known` e as imagens ficaram para depois da v1 (D24).
+- **Card key:** `kind` 1 → `rule`; `kind` 0 → `lemma·pos·skill·tense`. In Dart, an `extension type CardKey` (ARQ-47). The `cue` is not part of the key.
+- **Indexes:** `(kind, rule, lemma, pos, skill, tense, at)` for the per-card fold, `(day)` for the quotas and a partial `(replaces)`, only where it is not `''`.
+- **Size:** with 100 answers a day, ~36 thousand rows and ~3.5 MB a year (section 12).
+- The Review book planned `review_card`, `review_log`, `known_word` and `word_image`. None of them is used: the state comes from the log (ARQ-81), "Já sei" is a `known` row and images were left for after v1 (D24).
 
-## 5. App Flutter
+## 5. Flutter app
 
-O código do app e do pipeline segue os Core Principles do [AGENTS.md](../AGENTS.md). As convenções de nome de lá não valem aqui (ARQ-95). As decisões abaixo dizem como alguns deles viram escolhas concretas.
+The app and pipeline code follows the Core Principles of [AGENTS.md](../AGENTS.md). The naming conventions there do not apply here (ARQ-95). The decisions below say how some of them become concrete choices.
 
-| Id | Decisão | Motivo |
+| Id | Decision | Reason |
 |---|---|---|
-| ARQ-40 | Não há camadas entre a tela e o SQL. O módulo `db` tem uma função por consulta (`dbSavedList`, `dbProgressSet`…), que manda o SQL ao isolate (ARQ-31) e devolve structs. A tela chama essas funções direto. Não há repository, use case nem interface. | Menos código e menos conceitos. Dá para seguir uma ação da tela até o SQL no debugger. |
-| ARQ-41 | O estado de cada tela fica no `State` do próprio `StatefulWidget`. Uma classe de estado separada só aparece onde dividir estado entre telas for necessário, caso a caso. | O Flutter já dá o `State`, então nenhum conceito novo por tela. |
-| ARQ-42 | Os ajustes que valem para o app todo (tema, leitura, Imersão) ficam num struct imutável `Settings`, num `ValueNotifier<Settings>` na raiz, exposto por `InheritedNotifier`. Mudar um ajuste grava no `db` e troca o valor. | Um estado global só, com o que o Flutter já tem. Tema e Imersão mudam na hora (LEI-08, AJU-03). |
-| ARQ-43 | Depois de desempilhar uma tela, a tela que ficou embaixo relê as salvas (`await` do push). Não há conjunto de salvas global. | Uma consulta indexada resolve o SAL-05, sem estado compartilhado para manter igual ao banco. |
-| ARQ-44 | A navegação é feita à mão: um `IndexedStack` com um `Navigator` por aba, e o `Navigator` raiz para o Leitor, o verbete do Leitor e a sessão de Revisão ou Treino em tela cheia. O voltar do Android passa pelo `NavigatorPopHandler`. | Sem pacote e sem tabela de rotas. O push leva direto ao widget, com argumentos tipados. O app não tem deep links. |
-| ARQ-45 | Uma pasta por tela (`library/`, `reader/`, `dictionary/`, `review/`, `settings/`), mais `db/` e `ui/` (componentes do design system). A Revisão e o Treino dividem `review/`, porque usam o mesmo gerador e a mesma correção. | Quem mexe numa tela acha tudo dela numa pasta só. |
-| ARQ-46 | Os textos de interface seguem o padrão abstract class + uma classe por língua + global trocável, com uma classe por área da Imersão que tem texto: `NavStrings nav`, `UiStrings ui` e `DictStrings dict`, cada uma com versão `Portuguese` e `Italian`. Quando a Imersão muda, o app troca os globais e então notifica o `ValueNotifier<Settings>`. A área Glosas não tem texto: ela só decide se a glosa aparece. Nomes e textos das regras não são classe: vêm do `dict` em PT e IT (`rule.name_*`, `rule.text_*`), e o app escolhe a coluna pela área Rótulos e botões (D14). | Sem geração de código. O compilador impede usar um texto da área errada. |
-| ARQ-47 | Ids e unidades têm tipos distintos, feitos com `extension type` (`StoryId`, `ParagraphIndex`, `CharOffset`, `WordKey`…). | O compilador impede misturar um `StoryId` com uma `String` qualquer, sem alocação em runtime. |
-| ARQ-48 | A linha do SQLite e o JSON do verbete (`entry.data`) viram struct no isolate do banco, que manda os structs prontos para a UI. | Parse na borda: a UI nunca vê linha crua nem JSON, e o parse do verbete não pesa no isolate da UI. |
-| ARQ-49 | Uma função do `db` nunca devolve `null` nem lança exceção. Se não acha nada ou falha, devolve o valor zero: um sentinela const (`Story.nil`, `Entry.nil`) ou uma lista vazia. A falha vai para o log (ARQ-70). | Quem chama tem um caminho só, sem `if (x == null)` nem `try/catch` na tela. |
+| ARQ-40 | There are no layers between the screen and the SQL. The `db` module has one function per query (`dbSavedList`, `dbProgressSet`…), which sends the SQL to the isolate (ARQ-31) and returns structs. The screen calls those functions directly. There is no repository, use case or interface. | Less code and fewer concepts. You can follow a screen action down to the SQL in the debugger. |
+| ARQ-41 | Each screen's state lives in the `State` of its own `StatefulWidget`. A separate state class only appears where sharing state between screens is needed, case by case. | Flutter already provides `State`, so no new concept per screen. |
+| ARQ-42 | Settings that apply to the whole app (theme, reading, Immersion) live in an immutable `Settings` struct, in a `ValueNotifier<Settings>` at the root, exposed through `InheritedNotifier`. Changing a setting writes to `db` and swaps the value. | A single global state, with what Flutter already has. Theme and Immersion change right away (LEI-08, AJU-03). |
+| ARQ-43 | After popping a screen, the screen left underneath rereads the saved words (`await` of the push). There is no global set of saved words. | One indexed query solves SAL-05, with no shared state to keep in sync with the database. |
+| ARQ-44 | Navigation is done by hand: an `IndexedStack` with one `Navigator` per tab, and the root `Navigator` for the Reader, the Reader's entry and the full-screen Review or Practice session. Android back goes through `NavigatorPopHandler`. | No package and no route table. The push goes straight to the widget, with typed arguments. The app has no deep links. |
+| ARQ-45 | One folder per screen (`library/`, `reader/`, `dictionary/`, `review/`, `settings/`), plus `db/` and `ui/` (design system components). Review and Practice share `review/`, because they use the same generator and the same grading. | Whoever works on a screen finds everything for it in a single folder. |
+| ARQ-46 | Interface texts follow the pattern abstract class + one class per language + swappable global, with one class per Immersion area that has text: `NavStrings nav`, `UiStrings ui` and `DictStrings dict`, each with a `Portuguese` and an `Italian` version. When Immersion changes, the app swaps the globals and then notifies the `ValueNotifier<Settings>`. The Glosses area has no text: it only decides whether the gloss appears. Rule names and texts are not a class: they come from `dict` in PT and IT (`rule.name_*`, `rule.text_*`), and the app picks the column by the Labels and buttons area (D14). | No code generation. The compiler prevents using a text from the wrong area. |
+| ARQ-47 | Ids and units have distinct types, made with `extension type` (`StoryId`, `ParagraphIndex`, `CharOffset`, `WordKey`…). | The compiler prevents mixing a `StoryId` with any `String`, with no runtime allocation. |
+| ARQ-48 | The SQLite row and the entry JSON (`entry.data`) become a struct in the database isolate, which sends the finished structs to the UI. | Parse at the boundary: the UI never sees a raw row or JSON, and parsing the entry does not weigh on the UI isolate. |
+| ARQ-49 | A `db` function never returns `null` or throws an exception. If it finds nothing or fails, it returns the zero value: a const sentinel (`Story.nil`, `Entry.nil`) or an empty list. The failure goes to the log (ARQ-70). | The caller has a single path, with no `if (x == null)` or `try/catch` in the screen. |
 
 ```
-Navigator raiz
- ├─ Shell: IndexedStack + barra de abas
- │   ├─ Navigator Biblioteca
- │   ├─ Navigator Dicionário   (verbetes da aba, até 20, DIC-06)
- │   ├─ Navigator Revisão      (raiz → tema → regra, D5)
- │   └─ Navigator Ajustes
- ├─ Leitor                     (push no raiz, sem barra)
- ├─ Verbete do Leitor          (push no raiz, sem barra)
- └─ Sessão (Revisão ou Treino) (push no raiz, sem barra)
-     ├─ Verbete da sessão      (entra no Histórico com origem Revisão, D29)
-     ├─ Regra da sessão        (sem "Treinar")
-     └─ Trecho da história     (só o parágrafo, sem o Leitor; não grava progresso, D22)
+Root Navigator
+ ├─ Shell: IndexedStack + tab bar
+ │   ├─ Library Navigator
+ │   ├─ Dictionary Navigator   (tab entries, up to 20, DIC-06)
+ │   ├─ Review Navigator       (root → topic → rule, D5)
+ │   └─ Settings Navigator
+ ├─ Reader                     (push on root, no bar)
+ ├─ Reader entry               (push on root, no bar)
+ └─ Session (Review or Practice) (push on root, no bar)
+     ├─ Session entry          (goes into History with origin Review, D29)
+     ├─ Session rule           (no "Treinar")
+     └─ Story excerpt          (paragraph only, no Reader; does not save progress, D22)
 ```
 
 ```dart
@@ -153,157 +153,157 @@ Text(nav.library)
 Text(dict.synonyms)   // Sinonimi | Sinônimos
 ```
 
-## 6. Leitor
+## 6. Reader
 
-| Id | Decisão | Motivo |
+| Id | Decision | Reason |
 |---|---|---|
-| ARQ-50 | O pipeline divide o texto em palavras e frases e grava no `stories`, por parágrafo, o início e o fim de cada palavra e de cada frase, em italiano e em português. Elisões (l'aria, c'è) são uma palavra só. O app só lê esses spans. | Um tokenizador só, no pipeline, testado no build. As contagens de palavras do LEI-07 e os pares de frase do TRA-08 saem prontos. |
-| ARQ-51 | Cada parágrafo é um `RenderBox` próprio com um `TextPainter`. Ele faz o layout, guarda o retângulo de cada palavra num array, resolve o toque e o arrasto da seleção pelo retângulo mais próximo (caixa ampliada), pinta grifo, frase marcada e pontilhado, e cria um nó de semântica por palavra. | O Leitor é o centro do app: o que importa fica grande e num lugar só. Sem widget nem recognizer por palavra, e a semântica fica sob controle (ACE-03, ACE-04). |
-| ARQ-52 | Todos os parágrafos fazem layout ao abrir a história, numa coluna não preguiçosa. O topo de cada parágrafo fica num array. | Com histórias de até ~2.000 palavras, o custo é aceitável. Progresso (LEI-07), restaurar a posição (ARQ-37) e sincronizar a tela dividida (TRA-07) viram busca binária nesse array. |
-| ARQ-53 | Ao abrir a história, o app resolve em lote forma → lema: uma consulta no `dict` com as formas distintas da história. Os lemas ficam num array paralelo aos spans de palavra e servem ao toque (LEI-02) e ao pontilhado (SAL-05). | Uma consulta só por história. O `stories` não depende da versão do `dict`, e o conteúdo continua sem anotação de lema (LEI-02). |
-| ARQ-54 | Uma palavra ganha pontilhado quando qualquer um dos lemas da forma está salvo. Com "serranda" salva, "serrande" é pontilhada. Com "portare" salvo, todo "porta" do texto é pontilhado, mesmo quando é o substantivo. | Sem anotação de lema, o app não sabe o sentido da palavra no texto. A regra nunca deixa de pontilhar uma palavra salva, e aceita pontilhar a mais nas formas ambíguas. |
-| ARQ-55 | O progresso é gravado quando a rolagem para, ao empilhar um verbete e quando o app vai para segundo plano. | Poucas escritas e nenhuma durante o gesto. Cobre o LEI-07, inclusive o sistema encerrar o app com um verbete aberto. |
-| ARQ-56 | Na tela dividida (TRA-07), a metade que lidera informa o parágrafo do topo e a fração dele já rolada. A outra metade rola para o mesmo parágrafo e a mesma fração. | Acompanha suave dentro do parágrafo, mesmo com italiano e português de alturas diferentes. |
+| ARQ-50 | The pipeline splits the text into words and sentences and writes to `stories`, per paragraph, the start and end of each word and each sentence, in Italian and in Portuguese. Elisions (l'aria, c'è) are a single word. The app only reads those spans. | A single tokenizer, in the pipeline, tested at build time. The word counts of LEI-07 and the sentence pairs of TRA-08 come out ready. |
+| ARQ-51 | Each paragraph is its own `RenderBox` with a `TextPainter`. It does the layout, keeps each word's rectangle in an array, resolves tap and selection drag by the nearest rectangle (enlarged box), paints the highlight, the marked sentence and the dotted underline, and creates one semantics node per word. | The Reader is the center of the app: what matters stays big and in one place. No widget or recognizer per word, and semantics stays under control (ACE-03, ACE-04). |
+| ARQ-52 | All paragraphs are laid out when the story opens, in a non-lazy column. The top of each paragraph is kept in an array. | With stories of up to ~2,000 words, the cost is acceptable. Progress (LEI-07), restoring the position (ARQ-37) and syncing the split screen (TRA-07) become a binary search on that array. |
+| ARQ-53 | When the story opens, the app resolves form → lemma in a batch: one query on `dict` with the distinct forms of the story. The lemmas live in an array parallel to the word spans and serve tapping (LEI-02) and the dotted underline (SAL-05). | A single query per story. `stories` does not depend on the `dict` version, and the content stays without lemma annotation (LEI-02). |
+| ARQ-54 | A word gets a dotted underline when any of the form's lemmas is saved. With "serranda" saved, "serrande" is underlined. With "portare" saved, every "porta" in the text is underlined, even when it is the noun. | Without lemma annotation, the app does not know the sense of the word in the text. The rule never fails to underline a saved word, and accepts underlining too much in ambiguous forms. |
+| ARQ-55 | Progress is saved when scrolling stops, when pushing an entry and when the app goes to the background. | Few writes and none during the gesture. Covers LEI-07, including the system killing the app with an entry open. |
+| ARQ-56 | In split screen (TRA-07), the leading half reports the top paragraph and the fraction of it already scrolled. The other half scrolls to the same paragraph and the same fraction. | Follows smoothly within the paragraph, even with Italian and Portuguese at different heights. |
 
-## 7. Dicionário
+## 7. Dictionary
 
-| Id | Decisão | Motivo |
+| Id | Decision | Reason |
 |---|---|---|
-| ARQ-60 | O toque procura só a palavra tocada. Em "si siede", tocar em "siede" abre *sedere*. *sedersi* abre pela expressão (pressionar e arrastar sobre "si siede", LEI-03) ou pela busca. | Uma regra só para o toque, sem olhar a palavra vizinha. |
-| ARQ-61 | Uma elisão é procurada primeiro inteira e depois só a parte após o apóstrofo. "c'è" acha a locução, se o `dict` tiver, e senão vai para "è" → *essere*. "l'aria" não existe inteira e vai para "aria". | Acha locuções com elisão quando existem e cai na palavra principal quando não. Tudo no lote do ARQ-53. |
-| ARQ-62 | Uma forma é procurada como está escrita e, sem resultado, em minúsculas. "Bologna" acha o nome próprio, e "Il" no início da frase vai para "il". Se as duas existirem ("Rosa" e "rosa"), vale a escrita exata. | Nomes próprios do `dict` têm maiúscula, e a palavra no início da frase também. |
-| ARQ-63 | A busca (DIC-11) ignora acento e maiúscula: "citta" acha "città". O `dict` tem uma coluna normalizada (minúscula, sem acento), com índice, em `entry.word` e em `form.form`. A busca consulta as duas tabelas e junta os resultados. | O teclado em português nem sempre tem à e ù à mão. |
-| ARQ-64 | As sugestões vêm nesta ordem: igual ao digitado, depois por frequência (NVdB: fondamentale → alto uso → alta disponibilità → resto), depois alfabética. O `dict` grava em cada `entry` esse rank e a faixa do NVdB (0 fora · 1 fondamentale · 2 alto uso · 3 alta disponibilità). | "casa" e "caso" sobem antes de "casella". A Revisão usa a faixa para saber o que é "das mais comuns" e o rank para a ordem das palavras novas do NVdB (D26); o Treino, para as palavras de fora do aluno. O rank sozinho não diz onde o NVdB acaba. |
-| ARQ-65 | Os curingas (`?` uma letra, `*` várias) viram um `GLOB` sobre a coluna normalizada. | O `GLOB` do SQLite já usa esses dois curingas. |
-| ARQ-66 | O "Você quis dizer" usa uma trie dos lemas normalizados, percorrida com as linhas da distância OSA (`osa()`, ARQ-85: Levenshtein em que trocar duas letras vizinhas conta 1 edição) e podada acima de 2 edições. A OSA guarda a linha anterior e a de antes dela. Os candidatos são ordenados por distância e depois pelo rank do ARQ-64. A trie é montada no isolate do banco no primeiro uso e fica em memória até o app fechar. | Sem dado novo no `dict` e sem extensão no SQLite. Pega até dois erros em qualquer posição, e *finsetrino* para *finestrino* conta um erro só. Uma distância só no app, a mesma da correção. Abrir o app não paga a montagem. |
+| ARQ-60 | A tap looks up only the tapped word. In "si siede", tapping "siede" opens *sedere*. *sedersi* opens through the expression (press and drag over "si siede", LEI-03) or through search. | A single rule for tapping, without looking at the neighboring word. |
+| ARQ-61 | An elision is looked up first whole and then only the part after the apostrophe. "c'è" finds the phrase, if `dict` has it, and otherwise goes to "è" → *essere*. "l'aria" does not exist whole and goes to "aria". | Finds phrases with elision when they exist and falls back to the main word when they don't. All in the ARQ-53 batch. |
+| ARQ-62 | A form is looked up as written and, with no result, in lowercase. "Bologna" finds the proper noun, and "Il" at the start of the sentence goes to "il". If both exist ("Rosa" and "rosa"), the exact spelling wins. | Proper nouns in `dict` are capitalized, and so is the word at the start of a sentence. |
+| ARQ-63 | Search (DIC-11) ignores accents and case: "citta" finds "città". `dict` has a normalized column (lowercase, no accents), indexed, on `entry.word` and on `form.form`. Search queries both tables and merges the results. | The Portuguese keyboard does not always have à and ù at hand. |
+| ARQ-64 | Suggestions come in this order: equal to what was typed, then by frequency (NVdB: fondamentale → alto uso → alta disponibilità → rest), then alphabetical. `dict` stores in each `entry` this rank and the NVdB band (0 outside · 1 fondamentale · 2 alto uso · 3 alta disponibilità). | "casa" and "caso" come before "casella". Review uses the band to know what is "among the most common" and the rank for the order of new NVdB words (D26); Practice, for the words outside the learner's own. The rank alone does not say where the NVdB ends. |
+| ARQ-65 | Wildcards (`?` one letter, `*` several) become a `GLOB` over the normalized column. | SQLite's `GLOB` already uses those two wildcards. |
+| ARQ-66 | "Você quis dizer" uses a trie of the normalized lemmas, walked with the rows of the OSA distance (`osa()`, ARQ-85: Levenshtein where swapping two adjacent letters counts as 1 edit) and pruned above 2 edits. OSA keeps the previous row and the one before it. Candidates are sorted by distance and then by the ARQ-64 rank. The trie is built in the database isolate on first use and stays in memory until the app closes. | No new data in `dict` and no SQLite extension. Catches up to two errors in any position, and *finsetrino* for *finestrino* counts as a single error. A single distance in the app, the same as in grading. Opening the app does not pay for the build. |
 
-O `dict` atual não tem a coluna normalizada (ARQ-63), o rank e a faixa do NVdB (ARQ-64), os traços de treino em `entry.data` nem as tabelas `rule` e `drill` (ARQ-86, ARQ-87). Todos são pedidos de mudança no contrato de `postilla-content` (ARQ-07), listados na seção 10.
+The current `dict` does not have the normalized column (ARQ-63), the NVdB rank and band (ARQ-64), the practice features in `entry.data`, or the `rule` and `drill` tables (ARQ-86, ARQ-87). All of them are change requests to the `postilla-content` contract (ARQ-07), listed in section 10.
 
-## 8. Integrações do sistema
+## 8. System integrations
 
-### Diagnóstico
+### Diagnostics
 
-| Id | Decisão | Motivo |
+| Id | Decision | Reason |
 |---|---|---|
-| ARQ-70 | O log do app (`appLog`) é gravado num quarto banco, `log`, separado do `user`. Ele não entra no Exportar/Importar (AJU-05) nem no backup do sistema. Na v1, o `appLog` só escreve no console; o banco `log` entra na v1.1, com o Enviar diagnóstico. | Um `user` corrompido não leva o log junto, e o log não se mistura aos dados do usuário. |
-| ARQ-71 | O `log` guarda os últimos 30 dias. As linhas mais antigas são apagadas ao gravar. | Cobre o intervalo comum entre um problema e o usuário decidir relatar. |
-| ARQ-72 | O log só sai do aparelho se o usuário enviar: Ajustes › Sobre › Enviar diagnóstico (AJU-06) abre o e-mail do sistema com o `log` anexado. | Sem telemetria (OFF-03). O usuário vê o e-mail antes de enviar. |
+| ARQ-70 | The app log (`appLog`) is written to a fourth database, `log`, separate from `user`. It is not part of Export/Import (AJU-05) or of the system backup. In v1, `appLog` only writes to the console; the `log` database comes in v1.1, with Send diagnostics. | A corrupted `user` does not take the log down with it, and the log does not mix with the user data. |
+| ARQ-71 | `log` keeps the last 30 days. Older rows are deleted on write. | Covers the usual gap between a problem and the user deciding to report it. |
+| ARQ-72 | The log only leaves the device if the user sends it: Settings › About › Send diagnostics (AJU-06) opens the system email with the `log` attached. | No telemetry (OFF-03). The user sees the email before sending it. |
 
-### Sistema
+### System
 
-| Id | Decisão | Motivo |
+| Id | Decision | Reason |
 |---|---|---|
-| ARQ-73 | Tudo que o app pede ao sistema passa por um platform channel próprio, em Swift e Kotlin: TTS, e-mail, folha de compartilhar e seletor de arquivos. Sem pacotes de plugin. | Um mecanismo só para o sistema, sem dependências, e cada chamada nativa fica visível no código. |
-| ARQ-74 | A pronúncia (OFF-40) usa `AVSpeechSynthesizer` no iOS e `TextToSpeech` no Android, com voz `it-IT`. O canal lista as vozes com a marca de offline de cada sistema. Sem voz italiana offline, o botão fica desativado (OFF-41). | A voz do sistema funciona sem rede. |
-| ARQ-75 | O e-mail do Relatar erro (LEI-09) e do Enviar diagnóstico (AJU-06) abre pelo canal: `MFMailComposeViewController` no iOS e `Intent.ACTION_SEND` com anexo por `FileProvider` no Android. No iOS sem conta no app Mail, o app avisa que precisa de um app de e-mail configurado. | Um link `mailto:` não anexa arquivo, e o diagnóstico precisa do anexo. Um mecanismo só para os dois e-mails. |
-| ARQ-76 | O arquivo exportado (AJU-05) e o anexo do diagnóstico (ARQ-72) são gerados com `VACUUM INTO` num arquivo temporário, apagado depois de compartilhar. | Cópia consistente e compacta com o banco aberto, sem WAL pendente nem linhas apagadas. |
-| ARQ-77 | O `user` grava um `PRAGMA application_id` fixo do Postilla. Ao importar, o app abre o arquivo só para leitura, confere o id, aceita `user_version` menor ou igual ao seu e roda as migrações que faltam (ARQ-32). Um arquivo de um app mais novo é recusado com aviso. | Recusa qualquer SQLite que não seja do Postilla e aceita exportações de versões antigas. |
-| ARQ-78 | Antes de importar, o app guarda uma cópia do `user` atual (`VACUUM INTO`) na pasta do app. Fica só a última, substituída a cada importação. Desfazer troca o `user` por ela. | Cobre o desfazer do AJU-05 sem o espaço crescer. |
-| ARQ-79 | Só o `user` entra no backup do sistema (OFF-33). `dict`, `stories`, a pasta de preparação, o `log` e a cópia de desfazer ficam fora (`NSURLIsExcludedFromBackupKey` no iOS, regras de backup no Android). | O conteúdo volta do pacote embutido, e o iCloud do usuário não recebe ~90 MB. O Auto Backup do Android tem limite de 25 MB. |
+| ARQ-73 | Everything the app asks of the system goes through its own platform channel, in Swift and Kotlin: TTS, email, share sheet and file picker. No plugin packages. | A single mechanism for the system, with no dependencies, and each native call stays visible in the code. |
+| ARQ-74 | Pronunciation (OFF-40) uses `AVSpeechSynthesizer` on iOS and `TextToSpeech` on Android, with an `it-IT` voice. The channel lists the voices with each system's offline flag. With no offline Italian voice, the button is disabled (OFF-41). | The system voice works without a network. |
+| ARQ-75 | The email of Report error (LEI-09) and Send diagnostics (AJU-06) opens through the channel: `MFMailComposeViewController` on iOS and `Intent.ACTION_SEND` with an attachment through `FileProvider` on Android. On iOS with no account in the Mail app, the app warns that it needs a configured email app. | A `mailto:` link does not attach a file, and diagnostics need the attachment. A single mechanism for both emails. |
+| ARQ-76 | The exported file (AJU-05) and the diagnostics attachment (ARQ-72) are generated with `VACUUM INTO` into a temporary file, deleted after sharing. | A consistent, compact copy with the database open, with no pending WAL or deleted rows. |
+| ARQ-77 | `user` writes a fixed Postilla `PRAGMA application_id`. On import, the app opens the file read-only, checks the id, accepts a `user_version` lower than or equal to its own and runs the missing migrations (ARQ-32). A file from a newer app is refused with a notice. | Refuses any SQLite that is not Postilla's and accepts exports from old versions. |
+| ARQ-78 | Before importing, the app keeps a copy of the current `user` (`VACUUM INTO`) in the app folder. Only the latest one stays, replaced on each import. Undo swaps `user` for it. | Covers the AJU-05 undo without the space growing. |
+| ARQ-79 | Only `user` goes into the system backup (OFF-33). `dict`, `stories`, the staging folder, `log` and the undo copy stay out (`NSURLIsExcludedFromBackupKey` on iOS, backup rules on Android). | Content comes back from the bundled package, and the user's iCloud does not get ~90 MB. Android Auto Backup has a 25 MB limit. |
 
-## 9. Revisão e Treino
+## 9. Review and Practice
 
-Comportamento nos requisitos `REV-` e `TRE-` da spec funcional, a partir da [proposta de Revisão e Treino](propostas/revisao-treino.md) e das [decisões](propostas/revisao-treino-decisoes.md) (citadas como **Dn**). Um log, uma dobra, um gerador, uma correção e duas portas: na Revisão o app escolhe os cartões; no Treino, o aluno escolhe o tema.
+Behavior in the `REV-` and `TRE-` requirements of the functional spec, based on the [Review and Practice proposal](propostas/revisao-treino.md) and the [decisions](propostas/revisao-treino-decisoes.md) (cited as **Dn**). One log, one fold, one generator, one grading and two doors: in Review the app picks the cards; in Practice, the learner picks the topic.
 
 ```
-dict (só leitura)                       user
-  entry.data: artigo, plural, conj        saved ── lema + classe + frase de origem
-  rule: catálogo de padrões               answer ── log só de inserções
-  drill: membros e itens curados             │
+dict (read-only)                        user
+  entry.data: article, plural, conj       saved ── lemma + pos + source sentence
+  rule: pattern catalog                   answer ── insert-only log
+  drill: members and curated items           │
      │                                       ▼
-     └──► gerador de exercício ◄──── dobra do log no isolate (FSRS, fraqueza, cotas, voltas)
+     └──► exercise generator ◄──── log fold in the isolate (FSRS, weakness, quotas, repeats)
                   │
-        porta Revisão · porta Treino
+        Review door · Practice door
                   │
-            grade() ─► INSERT em answer
+            grade() ─► INSERT into answer
 ```
 
-| Id | Decisão | Motivo |
+| Id | Decision | Reason |
 |---|---|---|
-| ARQ-80 | As respostas ficam na tabela `answer` do `user`, só de inserções: nenhuma linha muda nem é apagada. "Contar como certa" grava `ok`, "Desfazer" grava `void` e "Já sei" grava `known` (desfeito por um `void`). A linha que corrige ou desfaz outra aponta para ela em `replaces` e herda o `at` e o `day` dela (seção 12). Uma linha é efetiva quando nenhuma linha efetiva a substitui: lido do mais novo para o mais antigo, um `void` anula a linha que substitui, e a anterior volta a valer. Pular e Ambíguo (G5) não gravam nada. | P08, P09. O log é a fonte da verdade, e o sync futuro só soma linhas, sem conflito de linha editada (OFF-31). Desfazer é um caso só: mais uma linha. |
-| ARQ-81 | O estado é uma dobra do log, feita no isolate do banco (ARQ-31) e mantida em memória: estado FSRS de cada cartão (S, D, lapsos, vencimento), fraqueza de cada padrão (ARQ-89), cotas do dia, fila de voltas, palavras apresentadas e "Já sei". A dobra lê as linhas efetivas em ordem `(at, id)` ao abrir a Revisão ou o Treino. Uma resposta nova é aplicada só ao cartão dela; uma que substitui outra refaz o cartão a partir das linhas dele. Nada da dobra é gravado. | P08. Sem coluna mutável para manter igual ao log. Mudar o algoritmo ou a tabela de notas recalcula tudo, sem migração. A fila de voltas sai do log e sobrevive ao encerramento do app. Custo estimado em dezenas de ms, ~0,3 s com 5 anos de uso, a medir (seção 12). |
-| ARQ-82 | O agendamento é o FSRS-6 (21 parâmetros) como no Anki. Toda resposta efetiva no formato do próprio cartão, de qualquer porta (Revisão, voltas, reforço, Treino), atualiza S e D: a primeira do dia é uma revisão normal, com os dias reais desde a anterior (antecipada, se o cartão não estava vencido); as outras do mesmo dia usam a fórmula de curto prazo do FSRS-6. A primeira resposta contada cria o cartão, com S e D iniciais (D9). O contador de lapsos sobe só no primeiro Again do dia de um cartão em revisão. O formato do cartão sai do `skill` (escolha no `genere`, digitado nos outros); a escolha de forma do Treino não entra (D2b), nem `intro`, `known` e `void`. A nota sai de `(verdict, reason, hinted, format)` por uma tabela no código. O intervalo é em dias inteiros, no mínimo 1, com o fuzz do Anki numa semente fixa (ARQ-88). | D2, D2b. Uma regra só, sem `if` por porta. Igual ao Anki, o comportamento é conhecido e dá para conferir contra a implementação de referência. A nota não é gravada, então mudar a tabela não pede migração. |
-| ARQ-83 | Cartão ativo é um filtro, nunca uma coluna. Um cartão é ativo quando a fonte existe (palavra salva com `deleted_at = 0` e o `pos` do cartão, ou palavra do NVdB apresentada pela Revisão; padrão com alguma resposta e `rule.retired = 0`), o cartão existe no `dict` (`entry` ou linha de `drill`), o lema não está em "Já sei", o tema não foi tirado da Revisão (`setting`) e, só na porta Revisão, o cartão está desbloqueado. O `user` anexa o `dict` só para leitura (`ATTACH 'file:…?mode=ro&immutable=1'`) para juntar `saved` e `drill` numa consulta; o resto vem da dobra. | Suspender, remover e tirar tema não editam nem apagam resposta (OFF-34, REV-03). Um verbete ou padrão que sai do `dict` some da Revisão sozinho, como no OFF-32. Uma palavra do NVdB respondida só no Treino não passa na fonte e nunca vence na Revisão (D9). |
-| ARQ-84 | Um dia só, o `localDay`: a data local do aparelho com a virada às 4h, como inteiro `AAAAMMDD` (`20261016`). Vale para `answer.day`, `history.day`, as cotas, o "mesmo dia" do FSRS e o vencimento (vencido = `due ≤ hoje`). É gravado no momento da linha e nunca recalculado: mudar de fuso não move respostas antigas. | D30. É a virada padrão do Anki: quem revisa à meia-noite não ganha um dia novo no meio da sessão. Um conceito de dia, não dois. |
-| ARQ-85 | A correção é uma função só, `grade()`, nas duas portas: recebe o exercício e o que foi digitado ou tocado e devolve `verdict` e `reason`, pelas regras G1–G9 e pela tabela por skill da proposta. Ela roda no isolate do banco, porque o G2 e o G5 procuram o digitado no `dict` (forma → lema → glosa) e o G4 compara pela coluna normalizada (ARQ-63). A "uma letra diferente" do G6 é medida por `osa()`, a distância OSA, que o ARQ-66 também passa a usar. | Um gerador e uma correção para Revisão e Treino. Uma distância só no app: *finsetrino* é um erro, não dois. |
-| ARQ-86 | O catálogo de padrões é a tabela `rule` do `dict`, gerada de `rules.toml` em `postilla-content` (D14). O `rule.id` (`pl.co_go`) é a chave do cartão de padrão: só de acréscimo, nunca renomeado nem removido. Um padrão que sai ganha `retired = 1`; um padrão dividido ganha ids novos, e o histórico recomeça neles. `position` é a ordem do *Dai! 1* em que a Revisão apresenta os padrões (D4) e a ordem dentro do tema. Os enums `skill`, `tense` (com o imperativo como 5) e `person` têm valores fixos depois da v1, com nomes em italiano, e só ganham acréscimos. | D1: renomear um id apagaria o histórico do aluno. O texto de uma regra se corrige num patch de conteúdo, sem versão nova do app e sem `switch` por padrão no código. |
-| ARQ-87 | O `drill` é o índice de pertinência: uma linha por substantivo × skill (`genere`, `articolo`, `plurale`, `preposizione`), por verbo × tempo (mais uma de `imper.neg`) e por item curado, cada uma com o seu `rule`. Nos itens curados (`accordo`, `possessivo`, `piacere`), a linha traz a pergunta (`cue`) e a resposta (`answer`); nos outros, a resposta sai de `entry.data` (`plural`, `article*`, `conj`). O `user` nunca guarda `drill.entry_id` (ARQ-35): o cartão é `lemma·pos·skill·tense` ou o `rule.id`. | O gerador tem um caso por skill e lê os curados da própria linha. O app não decide quem é membro de qual padrão: o pipeline classifica uma vez, no build (seção 10). |
-| ARQ-88 | Nenhuma escolha da seleção ou do gerador usa `Random`. Desempates do lote, palavra da vez, pessoa pedida, ordem das opções nas escolhas e sorteio ponderado do Treino saem de `fnv1a32` sobre a chave do cartão e o `localDay` (mais a posição do item, no Treino). O fuzz do FSRS usa `fnv1a32(cartão + reps)`. | O estado e o lote são função do log e do dia: o mesmo log no mesmo dia dá sempre o mesmo lote. Os testes (ARQ-90, ARQ-93) ficam reproduzíveis sem semente injetada. |
-| ARQ-89 | A fraqueza de cada padrão é calculada na mesma dobra, pela fórmula abaixo. O alvo de um padrão são as respostas do cartão de padrão (`regra`) ou dos cartões dos membros (`lista`), de qualquer porta, inclusive a escolha de forma, com peso 0,5 (D2b). Vocabulário não tem fraqueza na v1 (D25). | A retenção do FSRS diz se o aluno lembra agora; a fraqueza diz quanto ele acerta. Um padrão revisado ontem tem retenção alta mesmo errando metade. Os limiares são premissas, a ajustar depois da simulação (seção 12). |
+| ARQ-80 | Answers live in the `answer` table of `user`, insert-only: no row changes or is deleted. "Contar como certa" writes `ok`, "Desfazer" writes `void` and "Já sei" writes `known` (undone by a `void`). The row that corrects or undoes another points to it in `replaces` and inherits its `at` and `day` (section 12). A row is effective when no effective row replaces it: read from newest to oldest, a `void` cancels the row it replaces, and the previous one counts again. Skip and Ambiguous (G5) write nothing. | P08, P09. The log is the source of truth, and future sync only adds rows, with no edited-row conflict (OFF-31). Undo is a single case: one more row. |
+| ARQ-81 | State is a fold of the log, done in the database isolate (ARQ-31) and kept in memory: FSRS state of each card (S, D, lapses, due date), weakness of each pattern (ARQ-89), the day's quotas, the repeats queue, introduced words and "Já sei". The fold reads the effective rows in `(at, id)` order when Review or Practice opens. A new answer is applied only to its card; one that replaces another rebuilds the card from its rows. Nothing from the fold is stored. | P08. No mutable column to keep in sync with the log. Changing the algorithm or the grade table recomputes everything, with no migration. The repeats queue comes from the log and survives the app being killed. Estimated cost in the tens of ms, ~0.3 s with 5 years of use, to be measured (section 12). |
+| ARQ-82 | Scheduling is FSRS-6 (21 parameters) as in Anki. Every effective answer in the card's own format, from any door (Review, repeats, reinforcement, Practice), updates S and D: the first of the day is a normal review, with the real days since the previous one (early, if the card was not due); the others on the same day use the FSRS-6 short-term formula. The first counted answer creates the card, with initial S and D (D9). The lapse counter goes up only on the first Again of the day of a card in review. The card's format comes from `skill` (choice in `genere`, typed in the others); Practice's form choice does not count (D2b), nor do `intro`, `known` and `void`. The grade comes from `(verdict, reason, hinted, format)` through a table in the code. The interval is in whole days, at least 1, with Anki's fuzz on a fixed seed (ARQ-88). | D2, D2b. A single rule, with no `if` per door. As in Anki, the behavior is known and can be checked against the reference implementation. The grade is not stored, so changing the table needs no migration. |
+| ARQ-83 | An active card is a filter, never a column. A card is active when the source exists (saved word with `deleted_at = 0` and the card's `pos`, or NVdB word introduced by Review; pattern with some answer and `rule.retired = 0`), the card exists in `dict` (`entry` or `drill` row), the lemma is not in "Já sei", the topic was not taken out of Review (`setting`) and, only at the Review door, the card is unlocked. `user` attaches `dict` read-only (`ATTACH 'file:…?mode=ro&immutable=1'`) to join `saved` and `drill` in one query; the rest comes from the fold. | Suspending, removing and taking out a topic do not edit or delete any answer (OFF-34, REV-03). An entry or pattern that leaves `dict` disappears from Review on its own, as in OFF-32. An NVdB word answered only in Practice does not pass the source check and never becomes due in Review (D9). |
+| ARQ-84 | A single day, the `localDay`: the device's local date with the rollover at 4 a.m., as an integer `AAAAMMDD` (`20261016`). It applies to `answer.day`, `history.day`, the quotas, the FSRS "same day" and the due date (due = `due ≤ today`). It is written at the time of the row and never recomputed: changing time zone does not move old answers. | D30. It is Anki's default rollover: someone reviewing at midnight does not get a new day in the middle of the session. One day concept, not two. |
+| ARQ-85 | Grading is a single function, `grade()`, at both doors: it takes the exercise and what was typed or tapped and returns `verdict` and `reason`, by rules G1–G9 and the per-skill table of the proposal. It runs in the database isolate, because G2 and G5 look up what was typed in `dict` (form → lemma → gloss) and G4 compares by the normalized column (ARQ-63). G6's "one letter different" is measured by `osa()`, the OSA distance, which ARQ-66 now also uses. | One generator and one grading for Review and Practice. A single distance in the app: *finsetrino* is one error, not two. |
+| ARQ-86 | The pattern catalog is the `rule` table of `dict`, generated from `rules.toml` in `postilla-content` (D14). The `rule.id` (`pl.co_go`) is the pattern card key: append-only, never renamed or removed. A pattern that is dropped gets `retired = 1`; a pattern that is split gets new ids, and the history starts over on them. `position` is the *Dai! 1* order in which Review introduces the patterns (D4) and the order within the topic. The enums `skill`, `tense` (with the imperative as 5) and `person` have fixed values after v1, with Italian names, and only get additions. | D1: renaming an id would erase the learner's history. A rule's text is fixed in a content patch, with no new app version and no per-pattern `switch` in the code. |
+| ARQ-87 | `drill` is the membership index: one row per noun × skill (`genere`, `articolo`, `plurale`, `preposizione`), per verb × tense (plus one for `imper.neg`) and per curated item, each with its own `rule`. In the curated items (`accordo`, `possessivo`, `piacere`), the row carries the question (`cue`) and the answer (`answer`); in the others, the answer comes from `entry.data` (`plural`, `article*`, `conj`). `user` never stores `drill.entry_id` (ARQ-35): the card is `lemma·pos·skill·tense` or the `rule.id`. | The generator has one case per skill and reads the curated items from their own row. The app does not decide who is a member of which pattern: the pipeline classifies once, at build time (section 10). |
+| ARQ-88 | No choice in selection or in the generator uses `Random`. Batch tie-breaks, current word, person asked, order of the options in choices and Practice's weighted draw come from `fnv1a32` over the card key and the `localDay` (plus the item position, in Practice). The FSRS fuzz uses `fnv1a32(card + reps)`. | State and batch are a function of the log and the day: the same log on the same day always gives the same batch. Tests (ARQ-90, ARQ-93) stay reproducible with no injected seed. |
+| ARQ-89 | Each pattern's weakness is computed in the same fold, by the formula below. A pattern's target is the answers of the pattern card (`regra`) or of the member cards (`lista`), from any door, including form choice, with weight 0.5 (D2b). Vocabulary has no weakness in v1 (D25). | FSRS retention says whether the learner remembers now; weakness says how much they get right. A pattern reviewed yesterday has high retention even when half the answers are wrong. The thresholds are assumptions, to be tuned after the simulation (section 12). |
 
 ```
-para cada resposta efetiva com nota cujo alvo é o padrão p:
-  w   = 0,5 ^ (idade_dias / 30)              -- idade em localDay; meia-vida de 30 dias
-        × (0,5 se for escolha, 1 se for digitada)
-  bad += w   se Again (Errado, Não sei)
-  ok  += w   se Good ou Hard
+for each effective graded answer whose target is pattern p:
+  w   = 0.5 ^ (age_days / 30)                -- age in localDay; 30-day half-life
+        × (0.5 if choice, 1 if typed)
+  bad += w   if Again (Wrong, Don't know)
+  ok  += w   if Good or Hard
   n   += 1
 
-fraqueza(p) = (bad + 1) / (ok + bad + 4)      -- prior Beta(1, 3): 25% de erro sem dado
-fraco(p)    = n >= 5  e  fraqueza(p) >= 0,35
-mais fraco  = o fraco de maior fraqueza; desempate pela menor retenção do FSRS, depois pelo id
+weakness(p) = (bad + 1) / (ok + bad + 4)      -- Beta(1, 3) prior: 25% error with no data
+weak(p)     = n >= 5  and  weakness(p) >= 0.35
+weakest     = the weak one with the highest weakness; tie-break by lowest FSRS retention, then by id
 ```
 
 ## 10. Pipeline
 
-O pipeline, o formato-fonte das histórias e o contrato ficam em `postilla-content` (ARQ-07, ARQ-08). Esta seção só lista o que o app exige do conteúdo, com a decisão que pede cada item.
+The pipeline, the story source format and the contract live in `postilla-content` (ARQ-07, ARQ-08). This section only lists what the app requires from the content, with the decision that asks for each item.
 
-| Onde | O app exige | Pedido por |
+| Where | The app requires | Requested by |
 |---|---|---|
-| Pacotes | Um arquivo SQLite por pacote, comprimido com zstd -19 (gzip -9 na v1) | ARQ-11 |
-| Pacotes | Versão SemVer, com major = esquema incompatível | ARQ-12 |
-| Manifesto | JSON com a última versão de cada pacote: versão, URL, tamanho, sha256 do `.zst` e sha256 do `.db` | ARQ-20 |
-| `stories` | UUID fixo por história | ARQ-36 |
-| `stories` | Título, subtítulo, nível, gênero, duração, obra e posição na obra | BIB-01, LEI-10 |
-| `stories` | Nome de cada gênero em português e em italiano. O card, os filtros e a busca da Biblioteca (BIB-06) usam a língua da área Navegação da Imersão | AJU-02, BIB-05 |
-| `stories` | Por parágrafo: texto em italiano e em português, spans de palavra e de frase nos dois, frases alinhadas 1:1 | ARQ-50, TRA-08 |
-| `stories` | Contagem de palavras por parágrafo | ARQ-50, LEI-07 |
-| `stories` | `meta` com as histórias adicionadas em cada versão | ARQ-26 |
-| `dict` | `meta` com versão e data do dump do Wiktionary | ARQ-15 |
-| `dict` | `entry.word` e `form.form` com a grafia original (maiúsculas e acentos) | ARQ-62 |
-| `dict` | Coluna normalizada (minúscula, sem acento), com índice, em `entry.word` e em `form.form` | ARQ-63 |
-| `dict` | Rank de frequência por `entry` (NVdB) | ARQ-64 |
-| `dict` | Formas com clítico em `form` ("si siede" → *sedersi*) | ARQ-60, DIC-01 |
-| `dict` | Faixa do NVdB por `entry` (0 fora · 1 fondamentale · 2 alto uso · 3 alta disponibilità) | ARQ-64, REV-02 |
-| `dict` | Em `entry.data` dos substantivos: `gender`, `article`, `article_indef`, `article_pl`, `plural` (lista; invariável = a própria palavra) e `plural_src` (`wikt` · `enwikt` · `morphit`). Nada gerado por regra: sem fonte, o campo fica vazio. O artigo sai do gênero e do som inicial, com arquivo de exceções | ARQ-87, D15, D19 |
-| `dict` | Em `entry.data` dos verbos: `conj_class` (`group`, `isc`, `pronominal`, `aux`) e `conj` plano (`tense`, `person`, `forms`), com o imperativo como `tense` 5 | ARQ-87, D11e |
-| `dict` | Tabela `rule`, gerada de `rules.toml`: `id` só de acréscimo, `skill`, `type` (regra · lista), `level`, `position`, `neighbor`, `name_pt/it`, `text_pt/it`, `examples` (linhas "lema certo errado") e `retired` | ARQ-86, D1, D14 |
-| `dict` | Tabela `drill`: `entry_id`, `skill`, `tense`, `rule`, e `cue` e `answer` nos itens curados. Membros cortados pelas listas A1 do `rules.toml` | ARQ-87, D11c |
-| `dict` | Itens curados de `accordo`, `possessivo` e `piacere` e a lista de parentesco do `poss.famiglia`, escritos em `rules.toml` e conferidos contra o dicionário (gênero, número, forma do adjetivo) | ARQ-87, D11e |
-| `dict` | `meta` com licença e atribuição das fontes novas (en.wiktionary para os traços; Morph-it!, se entrar) | AJU-04, D19 |
-| Pipeline | Relatório de divergências entre as fontes a cada build, fora do pacote, para revisão à mão | D19 |
-| Pipeline | O build falha se um `rule.id` da versão publicada anterior sumir do `rules.toml` | ARQ-86 |
+| Packages | One SQLite file per package, compressed with zstd -19 (gzip -9 in v1) | ARQ-11 |
+| Packages | SemVer version, with major = incompatible schema | ARQ-12 |
+| Manifest | JSON with the latest version of each package: version, URL, size, sha256 of the `.zst` and sha256 of the `.db` | ARQ-20 |
+| `stories` | Fixed UUID per story | ARQ-36 |
+| `stories` | Title, subtitle, level, genre, duration, work and position in the work | BIB-01, LEI-10 |
+| `stories` | Name of each genre in Portuguese and in Italian. The Library card, filters and search (BIB-06) use the language of the Immersion Navigation area | AJU-02, BIB-05 |
+| `stories` | Per paragraph: text in Italian and in Portuguese, word and sentence spans in both, sentences aligned 1:1 | ARQ-50, TRA-08 |
+| `stories` | Word count per paragraph | ARQ-50, LEI-07 |
+| `stories` | `meta` with the stories added in each version | ARQ-26 |
+| `dict` | `meta` with the version and date of the Wiktionary dump | ARQ-15 |
+| `dict` | `entry.word` and `form.form` with the original spelling (capitals and accents) | ARQ-62 |
+| `dict` | Normalized column (lowercase, no accents), indexed, on `entry.word` and on `form.form` | ARQ-63 |
+| `dict` | Frequency rank per `entry` (NVdB) | ARQ-64 |
+| `dict` | Forms with clitic in `form` ("si siede" → *sedersi*) | ARQ-60, DIC-01 |
+| `dict` | NVdB band per `entry` (0 outside · 1 fondamentale · 2 alto uso · 3 alta disponibilità) | ARQ-64, REV-02 |
+| `dict` | In `entry.data` of nouns: `gender`, `article`, `article_indef`, `article_pl`, `plural` (list; invariable = the word itself) and `plural_src` (`wikt` · `enwikt` · `morphit`). Nothing generated by rule: with no source, the field stays empty. The article comes from the gender and the initial sound, with an exceptions file | ARQ-87, D15, D19 |
+| `dict` | In `entry.data` of verbs: `conj_class` (`group`, `isc`, `pronominal`, `aux`) and flat `conj` (`tense`, `person`, `forms`), with the imperative as `tense` 5 | ARQ-87, D11e |
+| `dict` | `rule` table, generated from `rules.toml`: append-only `id`, `skill`, `type` (regra · lista), `level`, `position`, `neighbor`, `name_pt/it`, `text_pt/it`, `examples` ("lemma right wrong" lines) and `retired` | ARQ-86, D1, D14 |
+| `dict` | `drill` table: `entry_id`, `skill`, `tense`, `rule`, and `cue` and `answer` in the curated items. Members cut by the A1 lists of `rules.toml` | ARQ-87, D11c |
+| `dict` | Curated items of `accordo`, `possessivo` and `piacere` and the kinship list of `poss.famiglia`, written in `rules.toml` and checked against the dictionary (gender, number, adjective form) | ARQ-87, D11e |
+| `dict` | `meta` with license and attribution of the new sources (en.wiktionary for the features; Morph-it!, if it comes in) | AJU-04, D19 |
+| Pipeline | Report of disagreements between the sources on each build, outside the package, for manual review | D19 |
+| Pipeline | The build fails if a `rule.id` of the previous published version disappears from `rules.toml` | ARQ-86 |
 
-## 11. Build, CI e testes
+## 11. Build, CI and tests
 
-| Id | Decisão | Motivo |
+| Id | Decision | Reason |
 |---|---|---|
-| ARQ-90 | Os testes são de integração: começam pela UI (`flutter_test`, dirigindo os widgets) e usam SQLite real, um arquivo temporário por teste. Só as chamadas HTTP e os erros de IO são simulados. | Testa o app como ele roda, sem mock de camada interna, já que não há camadas (ARQ-40). |
-| ARQ-91 | Teste unitário só para lógica pesada (ordenação da Biblioteca, trie do ARQ-66, `grade()` e `osa()`, FSRS-6 e a dobra do log, e afins). Cada uma também ganha um teste de integração que passa por ela. | O unitário cobre os casos difíceis da lógica. O de integração confere que ela funciona ligada ao resto. |
-| ARQ-92 | Por enquanto não há teste ponta a ponta no aparelho (`integration_test`). | Rodar emulador ou aparelho no CI é lento e caro para a v1. |
-| ARQ-93 | Os testes usam os mesmos `dict` e `stories` de produção, nas versões fixadas pelo lock do build (ARQ-14). Não há banco de conteúdo de teste. Atualizar o lock roda os testes contra o conteúdo novo, e o bump só entra com os testes passando. | Mockar o mínimo possível. O teste vê exatamente o dado que o usuário vê. |
-| ARQ-94 | O CI do app roda no GitHub Actions, em Linux, a cada push e PR: baixa os pacotes do lock, roda `dart analyze` e `flutter test`. Build de loja fica fora do CI por enquanto. Na v1 não há CI: `dart analyze` e `flutter test` rodam na máquina. O CI entra na v1.2. | Pega erro de análise e teste antes do merge, sem runner macOS. |
-| ARQ-95 | O analisador usa o `flutter_lints` padrão, sem ajustes. Os nomes seguem o estilo Dart. | Sem regras próprias para manter. |
+| ARQ-90 | Tests are integration tests: they start from the UI (`flutter_test`, driving the widgets) and use real SQLite, one temporary file per test. Only HTTP calls and IO errors are simulated. | Tests the app as it runs, with no mock of an internal layer, since there are no layers (ARQ-40). |
+| ARQ-91 | Unit tests only for heavy logic (Library sorting, the ARQ-66 trie, `grade()` and `osa()`, FSRS-6 and the log fold, and the like). Each one also gets an integration test that goes through it. | The unit test covers the hard cases of the logic. The integration test checks that it works wired to the rest. |
+| ARQ-92 | For now there is no on-device end-to-end test (`integration_test`). | Running an emulator or device in CI is slow and expensive for v1. |
+| ARQ-93 | Tests use the same production `dict` and `stories`, at the versions pinned by the build lock (ARQ-14). There is no test content database. Updating the lock runs the tests against the new content, and the bump only goes in with the tests passing. | Mock as little as possible. The test sees exactly the data the user sees. |
+| ARQ-94 | The app CI runs on GitHub Actions, on Linux, on every push and PR: it downloads the lock packages, runs `dart analyze` and `flutter test`. Store builds stay out of CI for now. In v1 there is no CI: `dart analyze` and `flutter test` run on the machine. CI comes in v1.2. | Catches analysis and test errors before the merge, with no macOS runner. |
+| ARQ-95 | The analyzer uses the default `flutter_lints`, with no tweaks. Names follow Dart style. | No custom rules to maintain. |
 
-## 12. Decisões em aberto
+## 12. Open decisions
 
-A Revisão saiu daqui: a arquitetura dela está na seção 9 (ARQ-80…89). Ficam as pendências técnicas dela, da seção 12.2 da [proposta](propostas/revisao-treino.md), e as que apareceram ao escrever a seção 9. As pendências do conteúdo (fontes, divergências, licença do Morph-it!) estão nas decisões em aberto do [dictionary-pipeline.md](dictionary-pipeline.md#decisões-em-aberto).
+Review left this section: its architecture is in section 9 (ARQ-80…89). What remains are its technical open items, from section 12.2 of the [proposal](propostas/revisao-treino.md), and the ones that came up while writing section 9. The content open items (sources, disagreements, Morph-it! license) are in the open decisions of [dictionary-pipeline.md](dictionary-pipeline.md#decisões-em-aberto).
 
-| Tema | O que falta | Recomendação |
+| Topic | What is missing | Recommendation |
 |---|---|---|
-| Semântica do Leitor | O ACE-03 pede leitura por parágrafo e cada palavra como botão. Como o RenderBox (ARQ-51) monta os nós de semântica para atender os dois só se valida no aparelho, com VoiceOver e TalkBack. | — |
-| Pedidos ao `postilla-content` | Os itens da seção 10 que o `dict` e o `stories` ainda não têm precisam ser aceitos lá: coluna normalizada (ARQ-63), rank e faixa do NVdB (ARQ-64), nomes de gênero em português e italiano, spans de palavra e frase (ARQ-50), histórias adicionadas por versão (ARQ-26), traços de treino em `entry.data`, `rule` e `drill` (ARQ-86, ARQ-87). | — |
-| Números da carga e da fraqueza (D7) | Lote de 20, cotas 5 · 2 · 1, freio a 60, 2 voltas e os limiares do ARQ-89 (30 dias, Beta(1, 3), n ≥ 5, 0,35, peso 0,5) vêm de premissas. A simulação antiga era FSRS-4.5 com outro desenho e não vale. | Constantes num lugar só do código; fechar os números depois da simulação em FSRS-6 da proposta (9.3). |
-| Parâmetros do FSRS-6 | "Igual ao Anki" (D2) não diz se os 21 parâmetros são os padrão ou otimizados por aluno, nem a retenção desejada. Opções: (a) parâmetros padrão e retenção 0,9 fixos; (b) otimizador no aparelho, a partir do log, depois de N respostas. | (a) na v1. O log guarda tudo, então o otimizador pode entrar depois e recalcular a dobra sem migração. |
-| Passos de aprendizado do Anki | O Anki usa passos em minutos para cartão novo e para lapso. Aqui, as voltas da sessão (D21) fazem esse papel. Opções: (a) sem passos: intervalo em dias inteiros, mínimo 1, vencimento por `localDay`; (b) imitar os passos do Anki em minutos. | (a): é o que o ARQ-82 e o ARQ-84 descrevem, e a D21 já manda o cartão para amanhã depois de 2 voltas. |
-| Conferir o "igual ao Anki" | Sem teste, o FSRS do app pode divergir do do Anki sem ninguém notar. | Teste unitário (ARQ-91) com vetores gerados pela implementação de referência (fsrs-rs ou py-fsrs): mesma sequência de notas e datas, mesmos S, D e intervalo. |
-| Custo da dobra (ARQ-81) | Estimado, não medido. Opções se ficar lento: (a) aceitar; (b) cache derivado num arquivo à parte, descartável e fora do backup, como o `log`; (c) instantâneos do estado no `user`, o que volta ao P08. | Medir num Android simples com um log sintético de 5 anos. Se a abertura passar de ~200 ms, (b). |
-| Tamanho do `answer` × backup | ~3,5 MB por ano com 100 respostas por dia. O Auto Backup do Android tem 25 MB (ARQ-79): um aluno assíduo passa do limite em ~6 anos. | Aceitar na v1. Se chegar perto, encurtar o `typed` ou compactar linhas antigas num arquivo à parte. |
-| `at` da linha que substitui (ARQ-80) | A proposta tem `at` e `created_at`, mas não diz que valor o `at` de "Contar como certa" recebe. Opções: (a) herda o `at` e o `day` da linha substituída; (b) o instante da correção. | (a): a correção não muda quando o aluno respondeu, e é só por isso que `at` e `created_at` existem separados. |
-| Cadeia de substituições (ARQ-80) | A proposta diz "efetiva é a linha que nenhuma outra substitui". Ao pé da letra, Errado ← Contar como certa ← Desfazer deixaria o Errado sem valer. | Efetiva é a linha que nenhuma linha **efetiva** substitui, lida da mais nova para a mais antiga. É o que o ARQ-80 descreve. |
-| Retomar o lote interrompido | "Continuar revisão · 9 de 20 · +1" pede saber quais cartões eram do lote, e o log não diz isso. Opções: (a) o lote em andamento numa chave do `setting`, apagada no fim; (b) coluna `session` em `answer`; (c) remontar o lote pela dobra até o instante em que ele começou. | (a): é estado de tela, como o progresso do Leitor, e não pede coluna nova no log. |
-| Virada das 4h no meio da sessão | Uma sessão que atravessa as 4h: de que dia são as cotas e as respostas? | Cada resposta grava o `localDay` do momento em que aconteceu. O lote montado continua igual; as cotas do dia novo valem a partir do próximo lote. |
-| Filtro de nível (D4, D32) | Na v1 todo o catálogo é A1, e o filtro "nível ≤ nível de leitura" não corta nada (proposta 12.2, item 8). | Não implementar na v1: um codepath a menos. Entra junto com o conteúdo A2. |
-| Trecho por posição (D22) | `saved.paragraph` e `saved.sentence` são posições, como o progresso (ARQ-37). Uma edição da história desloca o trecho. | A mesma regra do ARQ-37: sem o parágrafo, vale o último que existe. Se a `form` não está mais na frase, o parágrafo aparece sem grifo. |
-| Origem "Revisão" no Histórico (D29) | O `history` só tem `story_id`. Opções: (a) coluna `history.origin` (0 história ou busca · 1 Revisão); (b) um `story_id` reservado. | (a): o `story_id` é um tipo próprio (ARQ-47) e não deve carregar valor especial. |
-| Acento que muda a palavra (G4b) | *e* × *è*, *da* × *dà*, *la* × *là*. Opções: (a) lista fixa no código; (b) o digitado sem acento existe no `dict` como forma de outro lema. | (b), restrito às formas do NVdB, para *pero* (pereira, raro) não fazer *però* sem acento virar Errado. |
+| Reader semantics | ACE-03 asks for reading by paragraph and each word as a button. How the RenderBox (ARQ-51) builds the semantics nodes to meet both can only be validated on a device, with VoiceOver and TalkBack. | — |
+| Requests to `postilla-content` | The section 10 items that `dict` and `stories` do not have yet need to be accepted there: normalized column (ARQ-63), NVdB rank and band (ARQ-64), genre names in Portuguese and Italian, word and sentence spans (ARQ-50), stories added per version (ARQ-26), practice features in `entry.data`, `rule` and `drill` (ARQ-86, ARQ-87). | — |
+| Load and weakness numbers (D7) | Batch of 20, quotas 5 · 2 · 1, brake at 60, 2 repeats and the ARQ-89 thresholds (30 days, Beta(1, 3), n ≥ 5, 0.35, weight 0.5) come from assumptions. The old simulation was FSRS-4.5 with a different design and does not hold. | Constants in a single place in the code; settle the numbers after the proposal's FSRS-6 simulation (9.3). |
+| FSRS-6 parameters | "Same as Anki" (D2) does not say whether the 21 parameters are the defaults or optimized per learner, nor the desired retention. Options: (a) default parameters and retention 0.9, fixed; (b) on-device optimizer, from the log, after N answers. | (a) in v1. The log keeps everything, so the optimizer can come in later and recompute the fold with no migration. |
+| Anki learning steps | Anki uses steps in minutes for new cards and for lapses. Here, the session repeats (D21) play that role. Options: (a) no steps: interval in whole days, minimum 1, due date by `localDay`; (b) imitate Anki's steps in minutes. | (a): it is what ARQ-82 and ARQ-84 describe, and D21 already sends the card to tomorrow after 2 repeats. |
+| Checking "same as Anki" | Without a test, the app's FSRS can diverge from Anki's without anyone noticing. | Unit test (ARQ-91) with vectors generated by the reference implementation (fsrs-rs or py-fsrs): same sequence of grades and dates, same S, D and interval. |
+| Fold cost (ARQ-81) | Estimated, not measured. Options if it gets slow: (a) accept it; (b) a derived cache in a separate file, disposable and out of the backup, like `log`; (c) state snapshots in `user`, which goes back to P08. | Measure on a basic Android device with a synthetic 5-year log. If opening goes over ~200 ms, (b). |
+| `answer` size × backup | ~3.5 MB a year with 100 answers a day. Android Auto Backup has 25 MB (ARQ-79): a diligent learner goes over the limit in ~6 years. | Accept in v1. If it gets close, shorten `typed` or compact old rows into a separate file. |
+| `at` of the replacing row (ARQ-80) | The proposal has `at` and `created_at`, but does not say what value the `at` of "Contar como certa" gets. Options: (a) it inherits the `at` and `day` of the replaced row; (b) the instant of the correction. | (a): the correction does not change when the learner answered, and that is the only reason `at` and `created_at` exist separately. |
+| Replacement chain (ARQ-80) | The proposal says "effective is the row that no other replaces". Taken literally, Wrong ← Count as right ← Undo would leave the Wrong not counting. | Effective is the row that no **effective** row replaces, read from newest to oldest. It is what ARQ-80 describes. |
+| Resuming an interrupted batch | "Continuar revisão · 9 de 20 · +1" requires knowing which cards were in the batch, and the log does not say. Options: (a) the batch in progress in a `setting` key, deleted at the end; (b) a `session` column in `answer`; (c) rebuild the batch through the fold up to the instant it started. | (a): it is screen state, like the Reader progress, and does not need a new column in the log. |
+| 4 a.m. rollover mid-session | A session that crosses 4 a.m.: which day do the quotas and answers belong to? | Each answer stores the `localDay` of the moment it happened. The batch already built stays the same; the quotas of the new day apply from the next batch. |
+| Level filter (D4, D32) | In v1 the whole catalog is A1, and the "level ≤ reading level" filter cuts nothing (proposal 12.2, item 8). | Do not implement in v1: one codepath fewer. It comes in with the A2 content. |
+| Excerpt by position (D22) | `saved.paragraph` and `saved.sentence` are positions, like progress (ARQ-37). An edit to the story shifts the excerpt. | The same rule as ARQ-37: without the paragraph, the last one that exists is used. If the `form` is no longer in the sentence, the paragraph shows with no highlight. |
+| "Review" origin in History (D29) | `history` only has `story_id`. Options: (a) a `history.origin` column (0 story or search · 1 Review); (b) a reserved `story_id`. | (a): `story_id` is its own type (ARQ-47) and should not carry a special value. |
+| Accent that changes the word (G4b) | *e* × *è*, *da* × *dà*, *la* × *là*. Options: (a) a fixed list in the code; (b) the typed word without the accent exists in `dict` as a form of another lemma. | (b), restricted to NVdB forms, so that *pero* (pear tree, rare) does not turn *però* without the accent into Wrong. |

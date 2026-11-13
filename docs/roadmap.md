@@ -1,180 +1,180 @@
 # Postilla: roadmap
 
-Em que versão entra cada requisito. As specs ([functional-spec.md](functional-spec.md), [architecture.md](architecture.md), [dictionary.md](dictionary.md), [dictionary-pipeline.md](dictionary-pipeline.md)) continuam descrevendo o produto inteiro. Este documento diz a versão de cada id e como um requisito fica numa versão em que ainda falta parte do que ele cita.
+Which version each requirement ships in. The specs ([functional-spec.md](functional-spec.md), [architecture.md](architecture.md), [dictionary.md](dictionary.md), [dictionary-pipeline.md](dictionary-pipeline.md)) still describe the whole product. This document gives the version of each id and how a requirement looks in a version that still lacks part of what it cites.
 
-Como ler:
-- Um id listado numa versão entra como a spec o descreve, salvo a nota da tabela "Como fica".
-- Quando a spec, a arquitetura ou uma decisão **Dn** diz "v1" ou "v1.1" sobre a Revisão e o Treino, a versão é a da Revisão, que agora é a v2. O "v1.1" do §10 da spec (índice de ocorrências, pré-ensino, link do verbete para o Treino) fica em [Depois](#depois).
+How to read:
+- An id listed in a version ships as the spec describes it, except for the note in the "How it looks" table.
+- When the spec, the architecture or a decision **Dn** says "v1" or "v1.1" about Review and Practice, the version is Review's, which is now v2. The "v1.1" in spec §10 (occurrence index, pre-teaching, link from the entry to Practice) goes to [Later](#later).
 
 ---
 
-## Decisões da v1
+## v1 decisions
 
-| Decisão | Data |
+| Decision | Date |
 |---|---|
-| A v1 tem Biblioteca, Leitor, Leitor com tradução, Dicionário e Ajustes, tudo offline. | 2026-10-26 |
-| Saem da v1: Revisão e Treino (§7A, §7B); Histórico e Salvas (§7) e o pontilhado; progresso de leitura (LEI-07, BIB-02, BIB-03, Continuar lendo, estados da história); atualização de conteúdo pela rede (OFF-20..24, ARQ-20..26, manifesto); Relatar erro (LEI-09) e Enviar diagnóstico (AJU-06); pronúncia por TTS (OFF-40, OFF-41); Exportar e Importar (AJU-05); Compartilhar do verbete (DIC-08). | 2026-10-26 |
-| Nenhum platform channel próprio na v1 (ARQ-73): nada do que fica pede o sistema. Exceção: o pacote `path_provider`, só para achar a pasta de suporte do app onde ficam os bancos. | 2026-10-27 |
-| Barra com 3 abas: Biblioteca · Dicionário · Ajustes. | 2026-10-26 |
-| O pipeline é escrito em Zig 0.17, com as dependências pelo package manager do Zig (ARQ-02). Fecha a D23. | 2026-10-26 |
-| A etapa 5b do pipeline (traços de treino, `rule`, `drill`, `rules.toml`, Morph-it!) sai inteira até a v2. | 2026-10-26 |
-| Frequência pelo NVdB (ARQ-64), só a faixa (1 fondamentale · 2 alto uso · 3 alta disponibilità): a lista não tem rank por palavra. A lista não tem licença de reuso (o PDF da Internazionale diz "Tutti i diritti riservati"); o dono decidiu usar assim mesmo. As faixas foram extraídas uma vez do PDF para `nvdb.tsv` no `postilla-content`. | 2026-10-27 |
-| Glosa PT: WikDict it-pt + pivô pelo en.wiktionary (etapa 4 do pipeline). | 2026-10-26 |
-| Um arquivo de correções só, lema + classe + campo → valor. | 2026-10-26 |
-| `entry.data` em JSON. | 2026-10-26 |
-| O Imperativo é o 5º tempo da Conjugação do verbete (DIC-05). | 2026-10-26 |
-| Créditos em Ajustes › Sobre: Wikizionario, en.wiktionary, WikDict e NVdB (AJU-04). | 2026-10-26 |
-| Linha de fonte fixa em todo verbete: "Fonte: Wikizionario, Wiktionary, WikDict · CC BY-SA" (DIC-09). | 2026-10-27 |
-| O pacote embutido é comprimido com gzip -9 (ARQ-11). O zstd volta na v1.2. | 2026-10-26 |
-| O lock do app aponta para `../postilla-content/out` (ARQ-14). Nada é publicado. | 2026-10-26 |
-| Sem CI na v1: `dart analyze` e `flutter test` rodam na máquina (ARQ-94). | 2026-10-26 |
-| O `appLog` só escreve no console (ARQ-70). O banco `log` volta com o Enviar diagnóstico. | 2026-10-26 |
-| Cada história é um `.txt`: cabeçalho `chave: valor`, um bloco IT e um bloco PT, uma frase por linha, alinhadas entre os blocos. | 2026-10-26 |
-| O Compartilhar do verbete entra na v1.1, com o Exportar: os dois usam a folha de compartilhar (ARQ-73). | 2026-10-27 |
-| Duração da história (BIB-01) calculada pelas palavras, por nível: A1 60, A2 80, B1 100, B2 120 palavras/min, para cima. | 2026-10-27 |
-| Ícones: os paths do Lucide (ISC) desenhados à mão com traço 1,5, sem pacote de ícones. | 2026-10-27 |
-| O que os books não desenham: Leitor sem Mais opções; doca só com "Mostrar tradução", à direita; raiz do Dicionário com a busca e as duas dicas; "Sem verbete no dicionário" no toast padrão; página de escolha de lema como lista compacta (lema + classe); Mais opções do verbete numa folha (Copiar · Voltar à história · Fonte); Ajustes com Leitura, Imersão e Sobre. Num conflito entre books, vale o book da própria tela. | 2026-10-27 |
+| v1 has Library, Reader, Reader with translation, Dictionary and Settings, all offline. | 2026-10-26 |
+| Out of v1: Review and Practice (§7A, §7B); History and Saved (§7) and the dotted underline; reading progress (LEI-07, BIB-02, BIB-03, Continue reading, story states); content updates over the network (OFF-20..24, ARQ-20..26, manifest); Report error (LEI-09) and Send diagnostics (AJU-06); TTS pronunciation (OFF-40, OFF-41); Export and Import (AJU-05); Share from the entry (DIC-08). | 2026-10-26 |
+| No custom platform channel in v1 (ARQ-73): nothing that stays needs the system. Exception: the `path_provider` package, only to find the app support folder where the databases live. | 2026-10-27 |
+| Tab bar with 3 tabs: Library · Dictionary · Settings. | 2026-10-26 |
+| The pipeline is written in Zig 0.17, with dependencies through the Zig package manager (ARQ-02). Closes D23. | 2026-10-26 |
+| Pipeline stage 5b (practice features, `rule`, `drill`, `rules.toml`, Morph-it!) is out entirely until v2. | 2026-10-26 |
+| Frequency from NVdB (ARQ-64), band only (1 fondamentale · 2 alto uso · 3 alta disponibilità): the list has no per-word rank. The list has no reuse license (the Internazionale PDF says "Tutti i diritti riservati"); the owner decided to use it anyway. The bands were extracted once from the PDF into `nvdb.tsv` in `postilla-content`. | 2026-10-27 |
+| PT gloss: WikDict it-pt + pivot through en.wiktionary (pipeline stage 4). | 2026-10-26 |
+| A single corrections file, lemma + class + field → value. | 2026-10-26 |
+| `entry.data` in JSON. | 2026-10-26 |
+| The Imperative is the 5th tense of the entry's Conjugation (DIC-05). | 2026-10-26 |
+| Credits in Settings › About: Wikizionario, en.wiktionary, WikDict and NVdB (AJU-04). | 2026-10-26 |
+| Fixed source line on every entry: "Fonte: Wikizionario, Wiktionary, WikDict · CC BY-SA" (DIC-09). | 2026-10-27 |
+| The bundled package is compressed with gzip -9 (ARQ-11). zstd comes back in v1.2. | 2026-10-26 |
+| The app lock points to `../postilla-content/out` (ARQ-14). Nothing is published. | 2026-10-26 |
+| No CI in v1: `dart analyze` and `flutter test` run on the machine (ARQ-94). | 2026-10-26 |
+| `appLog` only writes to the console (ARQ-70). The `log` database comes back with Send diagnostics. | 2026-10-26 |
+| Each story is a `.txt`: a `chave: valor` header, an IT block and a PT block, one sentence per line, aligned across the blocks. | 2026-10-26 |
+| Share from the entry ships in v1.1, with Export: both use the share sheet (ARQ-73). | 2026-10-27 |
+| Story duration (BIB-01) computed from the words, by level: A1 60, A2 80, B1 100, B2 120 words/min, rounded up. | 2026-10-27 |
+| Icons: Lucide paths (ISC) drawn by hand with a 1.5 stroke, no icon package. | 2026-10-27 |
+| What the books don't draw: Reader without More options; dock with only "Mostrar tradução", on the right; Dictionary root with the search and the two tips; "Sem verbete no dicionário" in the standard toast; lemma choice page as a compact list (lemma + class); entry More options in a sheet (Copy · Back to story · Source); Settings with Reading, Immersion and About. In a conflict between books, the screen's own book wins. | 2026-10-27 |
 
-## Versões
+## Versions
 
-| Versão | O que entra |
+| Version | What goes in |
 |---|---|
-| v1 | Biblioteca, Leitor, Leitor com tradução, Dicionário (busca e verbete) e Ajustes (Leitura, Imersão, Sobre). Offline, com o conteúdo embutido. |
-| v1.1 | Histórico e Salvas, pontilhado, progresso de leitura, Exportar e Importar, pronúncia (TTS), Relatar erro, Enviar diagnóstico e o banco `log`, Compartilhar do verbete, exclusão do backup (ARQ-79). Entram os platform channels. |
-| v1.2 | Atualização de conteúdo pela rede, Releases, manifesto, zstd e CI. |
-| v2 | Revisão e Treino, com a etapa 5b do pipeline. |
-| Depois | O que a spec já adia da Revisão e do Treino (§10). |
+| v1 | Library, Reader, Reader with translation, Dictionary (search and entry) and Settings (Reading, Immersion, About). Offline, with bundled content. |
+| v1.1 | History and Saved, dotted underline, reading progress, Export and Import, pronunciation (TTS), Report error, Send diagnostics and the `log` database, Share from the entry, backup exclusion (ARQ-79). Platform channels come in. |
+| v1.2 | Content updates over the network, Releases, manifest, zstd and CI. |
+| v2 | Review and Practice, with pipeline stage 5b. |
+| Later | What the spec already defers from Review and Practice (§10). |
 
 ---
 
 ## v1
 
-### Spec funcional
+### Functional spec
 
-| Área | Ids |
+| Area | Ids |
 |---|---|
 | Offline | OFF-01..04, OFF-10..13, OFF-30, OFF-31, OFF-33, OFF-34 |
-| Navegação | NAV-01..06 |
-| Biblioteca | BIB-01, BIB-04..10 |
-| Leitor | LEI-01..06, LEI-08, LEI-10..12 |
-| Leitor com tradução | TRA-01..09 |
-| Dicionário | DIC-01..11 |
-| Ajustes | AJU-01..04 |
-| Acessibilidade | ACE-01..06 |
+| Navigation | NAV-01..06 |
+| Library | BIB-01, BIB-04..10 |
+| Reader | LEI-01..06, LEI-08, LEI-10..12 |
+| Reader with translation | TRA-01..09 |
+| Dictionary | DIC-01..11 |
+| Settings | AJU-01..04 |
+| Accessibility | ACE-01..06 |
 
-### Como fica na v1
+### How it looks in v1
 
-| Id | Na v1 |
+| Id | In v1 |
 |---|---|
-| OFF-04 | As únicas escritas são os ajustes e as dicas já vistas. |
-| OFF-10 | Com gzip -9, o pacote tem ~21 MB, e não ~15 MB (ARQ-11). |
-| OFF-30 | Só ajustes de leitura, Imersão, proporção da tradução e dicas de primeiro uso já vistas. |
-| OFF-34 | Três bancos: `user`, `stories` e `dict`. O `log` entra na v1.1 (ARQ-70), e não há Exportar nem Importar. |
-| NAV-01 | Três abas: Biblioteca · Dicionário · Ajustes. |
-| NAV-06 | Tocar de novo na aba ativa: na Biblioteca, rola ao topo; no Dicionário, volta à raiz. |
-| BIB-01 | O card não tem estado: título, subtítulo, nível, gênero e duração. |
-| BIB-04 | Ordem fixa por nível, de A1 a B2, e no mesmo nível da mais curta para a mais longa. Sem Continuar lendo e sem concluídas no fim. |
-| BIB-07 | "Resultados" segue a ordem do BIB-04. |
-| BIB-09 | Toda história abre no início. |
-| LEI-01 | App bar com voltar, título e Aa, sem Mais opções. Doca só com "Mostrar tradução", sem linha de progresso nem "N% lido". |
-| LEI-04 | Nada salva: nenhum gesto na história, e o verbete não tem marcador (DIC-08). |
-| LEI-06 | O grifo fica igual. Sem pontilhado. |
-| LEI-10 | Fim da história com o card "Próxima história" e "Voltar à biblioteca", sem contagem de salvas nem link para Salvas. A próxima é a primeira candidata desta ordem: 1) a continuação da obra; 2) a próxima do mesmo nível, na ordem do BIB-04; 3) a primeira do nível seguinte (nunca dois acima). Sem candidata, o card some. |
-| DIC-08 | App bar do verbete: voltar e Mais opções (Copiar · Voltar à história · Fonte). Sem marcador e sem Ouvir pronúncia. |
-| DIC-10 | Raiz da aba só com a busca: sem `Histórico \| Salvas` e sem Mais opções. |
-| ACE-02 | Sem a exceção da sessão: ao empilhar, o foco vai sempre para o voltar da página nova. |
+| OFF-04 | The only writes are the settings and the tips already seen. |
+| OFF-10 | With gzip -9, the package is ~21 MB, not ~15 MB (ARQ-11). |
+| OFF-30 | Only reading settings, Immersion, translation ratio and first-use tips already seen. |
+| OFF-34 | Three databases: `user`, `stories` and `dict`. `log` ships in v1.1 (ARQ-70), and there is no Export or Import. |
+| NAV-01 | Three tabs: Library · Dictionary · Settings. |
+| NAV-06 | Tapping the active tab again: in Library, scrolls to the top; in Dictionary, goes back to the root. |
+| BIB-01 | The card has no state: title, subtitle, level, genre and duration. |
+| BIB-04 | Fixed order by level, from A1 to B2, and within the same level from shortest to longest. No Continue reading and no finished stories at the end. |
+| BIB-07 | "Resultados" follows the BIB-04 order. |
+| BIB-09 | Every story opens at the beginning. |
+| LEI-01 | App bar with back, title and Aa, without More options. Dock with only "Mostrar tradução", without a progress line or "N% lido". |
+| LEI-04 | Nothing saves: no gesture in the story, and the entry has no bookmark (DIC-08). |
+| LEI-06 | The highlight stays the same. No dotted underline. |
+| LEI-10 | End of the story with the "Próxima história" card and "Voltar à biblioteca", without a saved count or a link to Saved. The next one is the first candidate in this order: 1) the continuation of the work; 2) the next one at the same level, in BIB-04 order; 3) the first one at the next level (never two above). With no candidate, the card disappears. |
+| DIC-08 | Entry app bar: back and More options (Copy · Back to story · Source). No bookmark and no Listen to pronunciation. |
+| DIC-10 | Tab root with the search only: no `Histórico \| Salvas` and no More options. |
+| ACE-02 | Without the session exception: when pushing, focus always goes to the back button of the new page. |
 
-### Arquitetura
+### Architecture
 
-| Área | Ids |
+| Area | Ids |
 |---|---|
-| Visão geral | ARQ-01..03, ARQ-07, ARQ-08 |
-| Pacotes | ARQ-10..12, ARQ-14, ARQ-15 |
-| Bancos | ARQ-30..33, ARQ-36, ARQ-38, ARQ-39 |
+| Overview | ARQ-01..03, ARQ-07, ARQ-08 |
+| Packages | ARQ-10..12, ARQ-14, ARQ-15 |
+| Databases | ARQ-30..33, ARQ-36, ARQ-38, ARQ-39 |
 | App | ARQ-40..42, ARQ-44..49 |
-| Leitor | ARQ-50..53, ARQ-56 |
-| Dicionário | ARQ-60..66 |
-| Diagnóstico | ARQ-70 |
-| Testes | ARQ-90..93, ARQ-95 |
+| Reader | ARQ-50..53, ARQ-56 |
+| Dictionary | ARQ-60..66 |
+| Diagnostics | ARQ-70 |
+| Tests | ARQ-90..93, ARQ-95 |
 
-| Id | Na v1 |
+| Id | In v1 |
 |---|---|
-| ARQ-11 | O pacote embutido é `dict-<versão>.db.gz` e `stories-<versão>.db.gz`, com gzip -9. |
-| ARQ-14 | O lock fixa versão e sha256 dos arquivos em `../postilla-content/out`, e o script copia de lá. |
-| ARQ-33, tabelas do `user` | O `user` só tem `setting`: leitura, Imersão, proporção da tradução e dicas vistas. `progress`, `history` e `saved` entram na v1.1; `answer`, na v2. |
-| ARQ-38 | Sem temas tirados da Revisão. |
-| ARQ-44 | Três `Navigator` de aba. O raiz só empilha o Leitor e o verbete do Leitor. |
-| ARQ-45 | Sem a pasta `review/`. |
-| ARQ-49, ARQ-70 | A falha vai para o console. Sem o banco `log`. |
-| ARQ-51, ARQ-53 | Sem pontilhado. Os lemas do lote servem só ao toque. |
-| ARQ-64 | Só a faixa do NVdB, para as sugestões da busca e o "Você quis dizer". Sem rank dentro da faixa. |
-| ARQ-93 | Os pacotes dos testes vêm do lock local (ARQ-14). |
-| ARQ-94 | Sem CI. `dart analyze` e `flutter test` rodam na máquina. |
+| ARQ-11 | The bundled package is `dict-<versão>.db.gz` and `stories-<versão>.db.gz`, with gzip -9. |
+| ARQ-14 | The lock pins the version and sha256 of the files in `../postilla-content/out`, and the script copies from there. |
+| ARQ-33, `user` tables | `user` only has `setting`: reading, Immersion, translation ratio and tips seen. `progress`, `history` and `saved` ship in v1.1; `answer`, in v2. |
+| ARQ-38 | No topics taken out of Review. |
+| ARQ-44 | Three tab `Navigator`s. The root one only pushes the Reader and the Reader's entry. |
+| ARQ-45 | No `review/` folder. |
+| ARQ-49, ARQ-70 | Failures go to the console. No `log` database. |
+| ARQ-51, ARQ-53 | No dotted underline. The batch's lemmas only serve taps. |
+| ARQ-64 | Only the NVdB band, for search suggestions and "Você quis dizer". No rank within the band. |
+| ARQ-93 | Test packages come from the local lock (ARQ-14). |
+| ARQ-94 | No CI. `dart analyze` and `flutter test` run on the machine. |
 
 ### Pipeline
 
-- Etapas 1 a 7 do [dictionary-pipeline.md](dictionary-pipeline.md), sem a 5b.
-- Fontes: kaikki.org do it.wiktionary, dump do it.wiktionary, WikDict it-pt e en-pt, kaikki.org do en.wiktionary (só o pivô da glosa) e NVdB.
-- Arquivos escritos à mão: só o de correções.
-- Saída em `out/`, comprimida com gzip -9. Nada é publicado.
-- Da seção 10 da arquitetura, entra tudo, menos o que está na v1.2 e na v2 abaixo.
+- Stages 1 to 7 of [dictionary-pipeline.md](dictionary-pipeline.md), without 5b.
+- Sources: kaikki.org for it.wiktionary, the it.wiktionary dump, WikDict it-pt and en-pt, kaikki.org for en.wiktionary (gloss pivot only) and NVdB.
+- Hand-written files: only the corrections file.
+- Output in `out/`, compressed with gzip -9. Nothing is published.
+- From architecture section 10, everything goes in, except what is in v1.2 and v2 below.
 
 ---
 
 ## v1.1
 
-| Id | O que entra |
+| Id | What goes in |
 |---|---|
-| OFF-32 | Salvas e progresso sobrevivem à atualização de conteúdo. |
-| OFF-34 | O banco `log` e o Exportar e Importar do `user`. |
-| OFF-40, OFF-41 | Ouvir pronúncia (TTS). |
-| BIB-02, BIB-03 | Estados da história e Continuar lendo. |
-| BIB-04, BIB-07, BIB-09 | A ordem com Continuar lendo e concluídas no fim; "Resultados" por estado; abrir no último parágrafo lido. |
-| LEI-01 | Doca com progresso e "N% lido"; Mais opções. |
-| LEI-04, LEI-06 | Salvar pelo marcador do verbete; pontilhado. |
-| LEI-07 | Progresso de leitura. |
-| LEI-09 | Recomeçar do início e Relatar erro no texto. |
-| LEI-10 | Contagem de salvas e link para Salvas. A próxima história pula as concluídas. |
-| DIC-08 | Marcador, Ouvir pronúncia e Compartilhar. |
-| DIC-10 | Seletor `Histórico \| Salvas` e Mais opções. |
-| SAL-01..05 | Histórico e Salvas, sem a origem "Revisão" (D29, v2). |
-| AJU-05 | Exportar e Importar. |
-| AJU-06 | Enviar diagnóstico. |
-| ARQ-34, ARQ-35 | `saved` e `history`, sem a parte de `answer`. |
+| OFF-32 | Saved and progress survive content updates. |
+| OFF-34 | The `log` database and Export and Import of `user`. |
+| OFF-40, OFF-41 | Listen to pronunciation (TTS). |
+| BIB-02, BIB-03 | Story states and Continue reading. |
+| BIB-04, BIB-07, BIB-09 | The order with Continue reading and finished stories at the end; "Resultados" by state; opening at the last paragraph read. |
+| LEI-01 | Dock with progress and "N% lido"; More options. |
+| LEI-04, LEI-06 | Saving through the entry bookmark; dotted underline. |
+| LEI-07 | Reading progress. |
+| LEI-09 | Restart from the beginning and Report error in the text. |
+| LEI-10 | Saved count and link to Saved. The next story skips finished ones. |
+| DIC-08 | Bookmark, Listen to pronunciation and Share. |
+| DIC-10 | `Histórico \| Salvas` selector and More options. |
+| SAL-01..05 | History and Saved, without the "Revisão" origin (D29, v2). |
+| AJU-05 | Export and Import. |
+| AJU-06 | Send diagnostics. |
+| ARQ-34, ARQ-35 | `saved` and `history`, without the `answer` part. |
 | ARQ-37, ARQ-55 | `progress`. |
-| ARQ-43, ARQ-54 | Releitura das salvas e pontilhado. |
-| ARQ-70..72 | Banco `log` e diagnóstico. |
-| ARQ-73..78 | Platform channel: TTS, e-mail, folha de compartilhar, seletor de arquivos; Exportar e Importar. |
-| ARQ-79 | `dict`, `stories` e `log` fora do backup do sistema. |
-| ARQ-84 | Só o `history.day`, com a virada às 4h (D30). |
+| ARQ-43, ARQ-54 | Rereading saved items and dotted underline. |
+| ARQ-70..72 | `log` database and diagnostics. |
+| ARQ-73..78 | Platform channel: TTS, e-mail, share sheet, file picker; Export and Import. |
+| ARQ-79 | `dict`, `stories` and `log` out of the system backup. |
+| ARQ-84 | Only `history.day`, with the rollover at 4 a.m. (D30). |
 
-O `setting` ganha a ordenação das Salvas.
+`setting` gains the Saved sort order.
 
 ## v1.2
 
-| Id | O que entra |
+| Id | What goes in |
 |---|---|
-| OFF-05, OFF-20..24 | Atualização de conteúdo pela rede e o aviso de histórias novas. |
-| ARQ-04..06 | `postilla-content` público, Releases e manifesto no domínio próprio. |
-| ARQ-11 | zstd -19 no lugar do gzip -9. |
-| ARQ-13 | Um major aceito por pacote. |
-| ARQ-14 | O lock aponta para as Releases. |
-| ARQ-20..26 | Manifesto, download, preparação e troca. |
-| ARQ-94 | CI no GitHub Actions. |
+| OFF-05, OFF-20..24 | Content updates over the network and the new-stories notice. |
+| ARQ-04..06 | Public `postilla-content`, Releases and manifest on our own domain. |
+| ARQ-11 | zstd -19 instead of gzip -9. |
+| ARQ-13 | One accepted major per package. |
+| ARQ-14 | The lock points to the Releases. |
+| ARQ-20..26 | Manifest, download, preparation and swap. |
+| ARQ-94 | CI on GitHub Actions. |
 
-Na seção 10 da arquitetura: o manifesto e a `meta` do `stories` com as histórias adicionadas. O `setting` ganha o aviso de histórias novas.
+In architecture section 10: the manifest and the `stories` `meta` with the added stories. `setting` gains the new-stories notice.
 
 ## v2
 
-| Onde | O que entra |
+| Where | What goes in |
 |---|---|
-| Spec funcional | §7A (REV-*) e §7B (TRE-*); NAV-01 com a 4ª aba; NAV-06 na aba Revisão; NAV-07; a origem "Revisão" do SAL-01 (D29); os cartões do SAL-02 (REV-03); as respostas no OFF-30 e no OFF-32; AJU-07; a exceção da sessão no ACE-02; ACE-07. |
-| Arquitetura | ARQ-80..89; a parte de `answer` do ARQ-35; os temas tirados do ARQ-38; o resto do ARQ-84; a tabela `answer`; as pendências da Revisão na seção 12. |
-| Pipeline | A etapa 5b: traços de treino, `rule`, `drill`, `rules.toml`, exceções de artigo, Morph-it! e relatório de divergências. Na seção 10 da arquitetura, as linhas de `entry.data`, `rule`, `drill`, itens curados, fontes novas, relatório e `rule.id`. As decisões em aberto da 5b no [dictionary-pipeline.md](dictionary-pipeline.md#decisões-em-aberto). |
-| Decisões | D1–D10, D11, D11b–D11d, D12–D17, D19–D22, D25, D27, D29, D32–D36. Da D11e, só o Treino: o Imperativo no verbete já está na v1. |
-| Em aberto | Os itens #12 a #23 e #25 a #29 do §11 da spec. |
+| Functional spec | §7A (REV-*) and §7B (TRE-*); NAV-01 with the 4th tab; NAV-06 on the Review tab; NAV-07; the "Revisão" origin of SAL-01 (D29); the SAL-02 cards (REV-03); the answers in OFF-30 and OFF-32; AJU-07; the session exception in ACE-02; ACE-07. |
+| Architecture | ARQ-80..89; the `answer` part of ARQ-35; the ARQ-38 topics taken out of Review; the rest of ARQ-84; the `answer` table; the Review open items in section 12. |
+| Pipeline | Stage 5b: practice features, `rule`, `drill`, `rules.toml`, article exceptions, Morph-it! and the divergence report. In architecture section 10, the rows for `entry.data`, `rule`, `drill`, curated items, new sources, report and `rule.id`. The open decisions for 5b in [dictionary-pipeline.md](dictionary-pipeline.md#decisões-em-aberto). |
+| Decisions | D1–D10, D11, D11b–D11d, D12–D17, D19–D22, D25, D27, D29, D32–D36. From D11e, only Practice: the Imperative in the entry is already in v1. |
+| Open | Items #12 to #23 and #25 to #29 of spec §11. |
 
-## Depois
+## Later
 
-- O que o §10 da spec adia da Revisão e do Treino: imagens no cartão (D24); índice de ocorrências (D18, D31); pré-ensino da próxima história (D26); link do verbete para o Treino; conteúdo acima do A1 (D11, D28, D32); tratamento próprio da palavra que cai em Again repetidamente (D25).
-- O resto do §10 continua fora de escopo, sem versão.
+- What spec §10 defers from Review and Practice: images on the card (D24); occurrence index (D18, D31); pre-teaching of the next story (D26); link from the entry to Practice; content above A1 (D11, D28, D32); dedicated handling for a word that falls into Again repeatedly (D25).
+- The rest of §10 stays out of scope, with no version.

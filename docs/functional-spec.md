@@ -7,19 +7,22 @@ Related documents:
 - [dictionary-pipeline.md](dictionary-pipeline.md): how the dictionary is generated and published.
 - [design/content.md](design/content.md): sample texts (catalog, story, entries).
 - [propostas/revisao-treino.md](propostas/revisao-treino.md) and [propostas/revisao-treino-decisoes.md](propostas/revisao-treino-decisoes.md): full design of Review and Practice (pattern catalog, grading rules, load) and the decisions that closed it.
+- [postilla-backend/docs/app-handoff.md](../../postilla-backend/docs/app-handoff.md): what the backend expects the app to do with what it serves (feed, `.tilla`, narration, lists, `dict.db`). The requirements below that come from it cite it as "handoff §n".
+
+**Target and native language.** The learner reads stories in a **target** language (the one they learn) with translations in a **native** language (AJU-08). The only pair today is target Italian, native Brazilian Portuguese (`it`, `pt-BR`). Where this spec says "Italian" about the story text, the Reader or the dictionary, it means the target language; where it says "Portuguese" about the translation or the interface, it means the native language. The dictionary, word lookup and narration exist only for a target language.
 
 ---
 
 ## 1. Offline-first
 
-The app's first requirement. Every feature works without a connection, always, including on first launch. The network only serves to receive new versions of the content, and the app never depends on it.
+The app's first requirement. Every feature works without a connection, always, including on first launch. The network only serves to receive new and updated stories, a new dictionary and story narration, and the app never depends on it.
 
 ### Principles
 
 | Id | Requirement |
 |---|---|
-| OFF-01 | No screen, action or state depends on the network. The app has no "Sem conexão" state. |
-| OFF-02 | All content (stories, translations, dictionary) is bundled with the app and stays on the device. |
+| OFF-01 | No screen, action or state depends on the network. The app has no "Sem conexão" state. The one thing that waits for the network is the narration of a story whose audio is not on the device yet: the story is read without it, and the player appears once the audio is downloaded (LEI-14). |
+| OFF-02 | All content (stories, translations, dictionary) stays on the device. The app ships a seed of it (OFF-10), and syncing (OFF-20) only adds to it and updates it. |
 | OFF-03 | All user data stays only on the device. There is no account, login or user server in v1. |
 | OFF-04 | Writes are local and immediate: saving a word, moving forward in reading or changing a setting is written right away, with no queue and no "sincroniza depois". |
 | OFF-05 | Lack of network never shows up as an error. An update that fails is retried later, silently. |
@@ -28,20 +31,25 @@ The app's first requirement. Every feature works without a connection, always, i
 
 | Id | Requirement |
 |---|---|
-| OFF-10 | The app package ships an initial version of the content, compressed (~15 MB, almost all of it the dictionary). |
-| OFF-11 | On first launch, the app unpacks the content into local storage (~90 MB). This happens without network and shows a "Preparando o dicionário" state while it lasts. |
+| OFF-10 | The app package ships a seed, fixed at build time (ARQ-14): the dictionary, every published story in the default target and native languages, the narration of every narrated story in it, the genre, tag, author and language lists, and the feed cursor the seed corresponds to. Compressed, it is ~21 MB with gzip (almost all of it the dictionary), plus ~0.5 MB per 4 minutes of narration. |
+| OFF-11 | On first launch, the app unpacks the seed into local storage (~90 MB). This happens without network and shows a "Preparando o dicionário" state while it lasts. The first sync (OFF-20) starts from the seed's cursor. |
 | OFF-12 | If there is not enough space to unpack, the app says how much space is needed and tries again when the user asks. |
-| OFF-13 | Dictionary and stories have their own versions (SemVer, ARQ-12). Settings › About shows both and the date of the Wiktionary dump: "Dicionário 2.1.0 (Wikizionario de 01/10/2026) · Histórias 1.4.2". |
+| OFF-13 | The dictionary has its own version (SemVer, ARQ-12). Stories have no package version: their state is the number of stories on the device and the stored feed cursor (OFF-20). Settings › About shows both and the date of the Wiktionary dump: "Dicionário 2.1.0 (Wikizionario de 01/10/2026) · Histórias: 8 · sync 42". The same text goes into the emails of LEI-09 and AJU-06. |
 
 ### Content updates
 
+Stories, their translations and narration come from the backend's feed and its public bucket; the dictionary comes from the same bucket (handoff §2, §8). The app has no story catalog: a story is whatever its files on the device say.
+
 | Id | Requirement |
 |---|---|
-| OFF-20 | When the app opens with network, it checks the content manifest, at most once a day. |
-| OFF-21 | If there is a new version, it is downloaded in the background, over any network (Wi‑Fi or cellular), and the app checks the sha256. |
-| OFF-22 | The new version is applied atomically: either it goes in whole, or the app keeps the previous one. An interrupted or corrupted download is discarded. |
-| OFF-23 | The swap never happens with a story or entry open. The new version takes effect from the next app launch. |
-| OFF-24 | The update does not ask for confirmation. When the applied version brings new stories, the first time the Library opens it shows a one-time notice that goes away on its own ("3 histórias novas"). New stories have no badge or section of their own and enter the BIB-04 order. Without new stories, no notice appears. |
+| OFF-20 | The app syncs every time the Library becomes visible: cold start, back from the Reader, switching to the Library tab and returning to the foreground on the Library. Only one sync runs at a time: a trigger while one is running is ignored. A sync asks the feed for what changed since the stored cursor in the chosen target and native languages, applies it, then checks the dictionary pointer, then refetches the genre, tag, author and language lists if the feed returned at least one record. It runs in the background, over any network (Wi‑Fi or cellular), and never blocks a screen. |
+| OFF-21 | Every downloaded file is checked against its sha256 (and its size, for the dictionary and the narration) before it is used. A file that fails is discarded, and the next sync tries again. |
+| OFF-22 | A story is applied atomically: every translation of it that a sync brings goes in together, or none does, and until then the learner keeps the previous version. A story never shows a new translation next to an old one. A story that keeps failing holds back the stored cursor but does not block other stories (ARQ-22). |
+| OFF-23 | Updates take effect live, without a restart. A story's card appears or changes as soon as the story is applied. A story open in the Reader keeps the version it was opened with until it is closed. A new dictionary replaces the old one as soon as it is verified; an entry already open keeps what it shows. Reopening the story or entry shows the new version. |
+| OFF-24 | The update does not ask for confirmation. When a sync applies stories that were not on the device, the Library shows a toast that goes away on its own ("3 histórias novas"): right away if it is visible, otherwise the next time it becomes visible. Updated and removed stories do not count. New stories have no badge or section of their own and enter the BIB-04 order. Without new stories, no toast appears. |
+| OFF-25 | A story removed on the backend is removed from the device: its card goes away and its files are deleted. A story open in the Reader stays open until it is closed. User data that points to it stays (OFF-32). |
+| OFF-26 | When a sync meets a format version the app does not read (the feed, a list, a `.tilla`), it stops, keeps everything it has and never guesses at the layout (handoff §9). While that holds, the Library shows a quiet banner at its top: "Há histórias novas para esta versão do app. Atualize o Postilla na loja." It has no button and is not an error state (OFF-05). It goes away once an app version that reads the format has synced. |
+| OFF-27 | When the backend answers 429 with `Retry-After`, the app makes no request to it before that many seconds have passed, silently (OFF-05). A sync triggered sooner skips the backend calls. |
 
 ### User data
 
@@ -51,10 +59,10 @@ The app's first requirement. Every feature works without a connection, always, i
 | OFF-31 | Each record has a stable id and creation and modification dates, to allow sync in a future version without a model migration. |
 | OFF-32 | User data is never lost because of a content update: |
 | | • a saved word keeps its own summary (lemma, part of speech, source story) and stays on the list even if the entry changes or leaves the dictionary. If the entry leaves, tapping the word opens search with the lemma and "Você quis dizer" (DIC-11); |
-| | • progress points to story + paragraph. If the story text changes, progress moves to the nearest paragraph that still exists; |
+| | • progress points to story + paragraph, and a saved word's source sentence to story + paragraph + sentence. A republished story can change its paragraph and sentence counts (an edit can split a sentence): a position that no longer exists is clamped to the last paragraph or sentence that does. A removed story (OFF-25) keeps the saved words' summaries; its progress is simply never shown; |
 | | • Review and Practice answers point to the lemma and to the pattern id, which never changes (ARQ-86). An entry or pattern that leaves the content takes its cards out of Review, and the answers stay (REV-18). |
 | OFF-33 | Deleting the app deletes the data. The system backup (iCloud/Google) may restore it, but the app does not depend on it. |
-| OFF-34 | There are four separate databases on the device: user data, stories, dictionary and app log (ARQ-70). Only the user database is exported and imported (AJU-05). Updating content never touches the user database. |
+| OFF-34 | There are four separate databases on the device: user data, the story index (with the story and narration files beside it, ARQ-23), dictionary and app log (ARQ-70). Only the user database is exported and imported (AJU-05). Updating content never touches the user database. |
 
 ### Pronunciation
 
@@ -85,23 +93,25 @@ The books were designed with an online dictionary. The corrections are in [12. W
 
 | Id | Requirement |
 |---|---|
-| BIB-01 | Story catalog with title and subtitle (always in Italian, never translated), level (A1–B2), genre, duration and state. |
+| BIB-01 | List of the stories on the device, one card each, drawn from the story's target-language file (handoff §3). The card shows title and subtitle (always in Italian, never translated), level (A1–C2), genre, tags, author (only when the story has one), reading time, narration length (only for a narrated story), state and the "Sem tradução" note (TRA-10). Reading time is the words ÷ the level's reading speed, rounded up: A1 60, A2 80, B1 100, B2 120, C1 140, C2 160 words per minute ("12 min"). Narration length is shown as minutes and seconds ("4:12"). |
 | BIB-02 | Story states: new, in progress (with progress line and %) or completed ("Lida"). A story is completed when the end block (LEI-10) comes on screen. There is no "Marcar como lida" button. Reopening a completed story from the card keeps "Lida". Only "Recomeçar do início" (LEI-09) moves the story back to in progress, at 0%. |
 | BIB-03 | "Continuar lendo" card with the last opened story that is still in progress. A completed story never takes the card. With no story in progress, the card goes away. It also goes away when there is a search or filter. |
-| BIB-04 | Fixed order: Continue reading → all stories (by level from A1 to B2; within a level, from shortest to longest) → completed at the end. There is no manual sorting. |
-| BIB-05 | Filters as chips, in two groups (Level and Genre): "or" within a group, "and" between groups. "Limpar filtros" in the list header. |
-| BIB-06 | Search looks in title, subtitle and genre, ignoring accents and case, and the result updates with each letter. Search and filters combine. The genre is shown and searched in the language of Immersion › Navigation (AJU-02). |
+| BIB-04 | Fixed order: Continue reading → all stories (by level from A1 to C2; within a level, from shortest to longest) → completed at the end. There is no manual sorting. |
+| BIB-05 | Filters as chips, in three groups (Level, Genre and Tags): "or" within a group, "and" between groups. Each group lists only values that at least one story on the device has: levels in order A1 → C2, genres and tags in the order they first appear in the BIB-04 order, and "Outros" last in Genre when some story has an unknown genre (BIB-11). "Limpar filtros" in the list header. |
+| BIB-06 | Search looks in title, subtitle, genre, tag names and author name, ignoring accents and case, and the result updates with each letter. Search and filters combine. Genre and tag names are shown and searched in the language of Immersion › Navigation (AJU-02): the native language's name, or the target language's with Navigation in the target language. |
 | BIB-07 | With a search or filter, a single list appears, "Resultados", in the order in progress → new → completed. |
 | BIB-08 | Empty states: a search with no result offers "Limpar busca"; filters with no result offer "Limpar filtros". The result count is announced. |
 | BIB-09 | Tapping a card opens the Reader. A story in progress opens at the last paragraph read; new and completed ones open at the beginning. |
 | BIB-10 | No long press on the card: no preview, no context menu, no swipe to delete. |
+| BIB-11 | A list never hides a story (handoff §7). A genre the app's cached list does not know shows as "Outros" (IT "Altro"), and the Genre chip group gets an "Outros" chip that collects those stories. A tag it does not know is not shown or offered as a chip. An author it does not know is left off the card until the next list refetch brings it. |
+| BIB-12 | Tapping a story whose files in the chosen languages are still downloading (after a language switch, AJU-08) shows a "Baixando…" dialog, which opens the story once its files are applied. The dialog also offers "Abrir sem tradução" when the target file is already there (see §11). |
 
 ## 4. Reader
 
 | Id | Requirement |
 |---|---|
-| LEI-01 | Text only in Italian, with a compact app bar (back, title, Aa, More options) and dock (progress line, "N% lido", "Mostrar tradução"). |
-| LEI-02 | Tapping a word highlights the word and pushes the lemma's entry. Elisions (l'aria, c'è) are a single target. Punctuation does not respond. A word with no entry (proper noun, word outside the dictionary) is highlighted and shows a toast: "Sem verbete no dicionário". If the form leads to more than one lemma or part of speech ("porta": porta sostantivo or portare), it pushes a short choice page, with one row per lemma and part of speech. There is no lemma annotation in the content. |
+| LEI-01 | Text only in Italian, with a compact app bar (back, title, Aa, More options) and dock (Play/Pause on a narrated story, LEI-14; progress line, "N% lido", "Mostrar tradução"). A paragraph is its sentences joined by a space. |
+| LEI-02 | Tapping a word highlights the word and pushes the lemma's entry. Elisions (l'aria, c'è) are a single target. Punctuation does not respond. A word with no entry (proper noun, word outside the dictionary) is highlighted and shows a toast: "Sem verbete no dicionário". If the form leads to more than one lemma or part of speech ("porta": *porta* sostantivo, *portare*, *porgere*), it pushes a short choice page, with one row per lemma and part of speech: every lemma the form leads to (handoff §5). There is no lemma annotation in the content. |
 | LEI-03 | A long press (500 ms) selects an expression. The user drags to extend the selection word by word, within the paragraph, and on release the expression opens in the dictionary. |
 | LEI-04 | No gesture in the story saves. Saving happens only through the entry's bookmark. |
 | LEI-05 | A tap outside the words, pinch and double tap have no effect of their own (the double tap counts as one tap). |
@@ -112,6 +122,12 @@ The books were designed with an online dictionary. The corrections are in [12. W
 | LEI-10 | End of story: count of words saved in it (the line goes away if it is zero), link to Saved, "Próxima história" card and "Voltar à biblioteca". No celebration. The next one is the first candidate in this order: 1) the continuation of the work, when the story is part of a split work; 2) the first not completed of the same level, in BIB-04 order; 3) the first not completed of the next level (never two above). Stories in progress also count. With no candidate, the card goes away. |
 | LEI-11 | First-reading hint, shown once: "Toque numa palavra para abrir o dicionário." |
 | LEI-12 | Keyboard: ← → move through words, Enter opens the entry, Esc goes back. |
+| LEI-13 | The story's start, above the first paragraph, has up to two lines: |
+| | • coverage, only for a story whose `band_words` are not all 0 (Italian only): "92% das palavras são do vocabulário de base", the words in NVdB bands 1–3 ÷ all words, rounded down, in the language of Immersion › Labels and buttons; |
+| | • credit, only when the story's license is not `LicenseRef-Postilla`: author · "adaptado" (when the story is adapted) · license name ("Carlo Collodi · adaptado · CC BY-SA 4.0"). The license name comes from a table of SPDX ids in the app; `public-domain` is "Domínio público", and an id the table lacks shows as is. The name is plain text, not a link (v1.1, ARQ-73). |
+| | Both lines appear in the single and the split view (TRA-01). |
+| LEI-14 | Narration (handoff §6). A story is narrated when its target file has narration (`audio_ms` > 0). Opening a narrated story whose audio is not on the device starts downloading it in the background; it is checked against its size and sha256 and kept. Reading never waits for it. Play/Pause appears in the dock only once the audio is ready; until then the dock has no trace of it. A failed download is silent and is retried the next time the story opens. A story updated with a new narration downloads it again on the next open, and Play stays hidden until the new audio is ready. Seeded stories have their narration from the first launch (OFF-10). |
+| LEI-15 | Playback. Play starts at the first sentence of the paragraph at the top of the screen. The sentence being read is marked with the TRA-05 look, in both halves of the split view, between its start and end times, and the text scrolls to keep it in view. A manual scroll stops the following until the next Play. While playing, a tap outside a word jumps to that sentence; in the split view this is the same tap that marks the sentence pair (TRA-04). A tap on a word pauses and opens the entry. Leaving the Reader stops playback, and sending the app to the background pauses it (see §11). There is no speed control, scrubber or time display. |
 
 ## 5. Reader with translation
 
@@ -124,8 +140,9 @@ The books were designed with an online dictionary. The corrections are in [12. W
 | TRA-05 | One active sentence at a time. Tapping it again unmarks it. If the pair is out of view, the other half scrolls the minimum to show it. |
 | TRA-06 | A long press selects an expression limited to the sentence. |
 | TRA-07 | Scrolling of the two halves is synced by paragraph, led by the last half that received a tap. Sync is recalculated when moving the divider, changing the text size or rotating the device. |
-| TRA-08 | Sentences and paragraphs are aligned 1:1 between Italian and Portuguese (a requirement for the content). |
-| TRA-09 | The translation is always in Portuguese and always available, whatever the Immersion. The Glosses area (AJU-02) applies only to the entry's gloss. |
+| TRA-08 | Sentences and paragraphs are aligned 1:1 between Italian and Portuguese (a requirement for the content): paragraph *p*, sentence *s* is the same sentence in every translation, and the app pairs the two files by index (handoff §3). |
+| TRA-09 | The translation is always in the native language, whatever the Immersion, and available whenever the story has one (TRA-10). The Glosses area (AJU-02) applies only to the entry's gloss. |
+| TRA-10 | A story published before the native language was added has no translation in it (handoff §3). It opens target-only, and word lookup and narration still work. Its card has the note "Sem tradução", in the language of Immersion › Navigation. In the Reader, "Mostrar tradução" stays visible but disabled, with the accessible hint "Esta história ainda não tem tradução em português". The note goes away when a later sync brings the translation. |
 
 ## 6. Dictionary
 
@@ -271,12 +288,13 @@ The Settings book does not exist yet (`book-ajustes.html` is planned). For now, 
 | Id | Requirement |
 |---|---|
 | AJU-01 | **Reading:** text size, line spacing and theme (the same as the Reader's Aa sheet). |
-| AJU-02 | **Immersion:** four areas, each in Portuguese or Italian: Navigation, Labels and buttons, Dictionary, Glosses. Each area applies to the whole app, with no exception: the app bar, buttons and notices of the Dictionary follow "Labels and buttons". |
-| AJU-03 | Immersion presets: Beginner (everything in Portuguese, default), Intermediate (dictionary in Italian), Full immersion (everything in Italian). Any other combination is Custom. Immediate effect. There is no onboarding: the app starts in Beginner without asking, and the user changes it in Settings › Immersion. |
-| AJU-04 | **About:** app version, content version (OFF-13) and credits (Wikizionario, en.wiktionary and WikDict, CC BY-SA; NVdB, De Mauro 2016; wiktextract and kaikki). Morph-it! enters the credits if it enters the pipeline (§11). |
+| AJU-02 | **Immersion:** four areas, each in the native or the target language (today Portuguese or Italian): Navigation, Labels and buttons, Dictionary, Glosses. Each area applies to the whole app, with no exception: the app bar, buttons and notices of the Dictionary follow "Labels and buttons". |
+| AJU-03 | Immersion presets: Beginner (everything in the native language, default), Intermediate (dictionary in the target language), Full immersion (everything in the target language). Any other combination is Custom. Immediate effect. There is no onboarding: the app starts in Beginner without asking, and the user changes it in Settings › Immersion. |
+| AJU-04 | **About:** app version, content version (OFF-13) and credits (Wikizionario, en.wiktionary and WikDict, CC BY-SA; NVdB, De Mauro 2016; wiktextract and kaikki), written in the app. The dictionary's `meta.license` and `meta.attribution` are not shown (decided 2026-11-13). Morph-it! enters the credits if it enters the pipeline (§11). |
 | AJU-05 | **Data:** Export and Import the user database as a file, through the share sheet and the system file picker. The file does not include stories or dictionary. Import replaces the current data: the app asks for confirmation and first keeps an automatic copy of the current data, so it can be undone. |
 | AJU-06 | **About › Send diagnostics:** opens the system email app with recipient (postilla@kaiodelphino.com), subject, filled-in body (app and content versions) and the log of the last 30 days attached (ARQ-70..72). Nothing leaves the device unless the user sends the email. |
 | AJU-07 | **Review:** three items (D34). New words per day: 0 · 3 · 5 · 10, default 5 (REV-20). Source: Saved only · Saved and most common, default Saved and most common (REV-02). Words I know: the words removed with "Já sei" (REV-05), and each one can go back to Review. There is no setting per exercise, per tense, for production or for audio. A topic leaves Review only through the topic page (TRE-08). |
+| AJU-08 | **Languages** (handoff §1): two rows, the target language ("Aprendo") and the native language ("Leio traduções em"), each picked from the cached language list by its own name (`Italiano`, `Português`). The target list offers only languages that can be learned; the native list offers only languages stories are translated into, minus the chosen target. Defaults: Italian and Brazilian Portuguese. A stored choice never becomes invalid: a language the backend stops offering as a target stays chosen for a learner who already has it. Switching either language syncs again from the start with the new pair, to get the new language's files for the stories already on the device (BIB-12); the files of the language left behind stay on the device. The Immersion areas (AJU-02) follow the new pair. |
 
 ## 9. Accessibility
 
@@ -285,7 +303,7 @@ The Settings book does not exist yet (`book-ajustes.html` is planned). For now, 
 | ACE-01 | With reduced motion, transitions become instant and state changes remain. |
 | ACE-02 | Focus: on push, it goes to the new page's back, except in the Review and Practice session (REV-19). On pop, it returns to the source element. |
 | ACE-03 | In the Reader, the screen reader reads by paragraph. Each word is a button, navigable with the words rotor. |
-| ACE-04 | Each half of the split screen declares its language (`it` / `pt-BR`), so the screen reader voice switches language. |
+| ACE-04 | Each half of the split screen declares its language (the target and native ids, today `it` / `pt-BR`), so the screen reader voice switches language. |
 | ACE-05 | Counts, states and changes are announced. No state depends on color alone. |
 | ACE-06 | Touch targets of 44pt, with the documented exception of the words in the reading column (34pt lines). |
 | ACE-07 | Large text: in Review and Practice, the answer field has a minimum height of 44pt and grows with the text. Verdicts and results wrap, without ellipses, and words are not broken. |
@@ -294,7 +312,8 @@ The Settings book does not exist yet (`book-ajustes.html` is planned). For now, 
 
 - Account, login, sync between devices and any user server (v1).
 - Gamification: day streaks, XP, trophies, goals and celebrations.
-- Story audio (narration).
+- In narration (LEI-14, LEI-15): speed control, scrubber, time display, playback in the background or on the lock screen, and narration in the native language.
+- Vocabulary coverage on the card or as a filter (LEI-13 shows it only at the story's start).
 - Dictionary search in Portuguese (reverse search PT → IT).
 - Pinch zoom, manual Library sorting, preview or context menu on cards.
 - Chapters and pages. Each story is one continuous text. A long work becomes several stories in the catalog ("Pinocchio, capitolo primo", "capitolo secondo"…).
@@ -332,6 +351,10 @@ Conflicts between the design books and missing definitions. When the spec alread
 | 27 | Topic out of Review (TRE-08) | How does the Practice list show that a topic was removed from Review? Options: the text "Fora da Revisão" on the topic row, in place of the examples; nothing, only the More options item. **Recommendation:** the text on the row. It is an exception, like those in D10. |
 | 28 | More options at the Review tab root | The proposal's design puts "⋯" at the tab root, without saying what is in it. Options: a shortcut to Settings › Review; no More options. **Recommendation:** no More options at the root. |
 | 29 | Toast with Undo in Saved (SAL-02) | The toast with an action from "Já sei" (REV-05) would also serve for "Removida das Salvas. Desfazer" (request 2 from the proposal to the design system). **Recommendation:** yes, with the same component and the same 6 s timer. |
+| 30 | "Baixando…" without network (BIB-12) | After a language switch offline, the dialog would wait forever. Options: "Abrir sem tradução" in the dialog when the target file is there; a dialog with only "Cancelar"; no dialog, the story opens target-only (TRA-10). **Recommendation:** "Abrir sem tradução", plus "Cancelar". The spec is already like that. |
+| 31 | Narration in the background (LEI-15) | The handoff does not say what happens when the app leaves the foreground mid-playback. Options: pause; keep playing (needs a background audio session on iOS and a foreground service on Android). **Recommendation:** pause in v1. Background playback is out of scope (§10). The spec is already like that. |
+| 32 | Native language without UI strings (AJU-02, AJU-08) | The interface strings exist only in Portuguese and Italian (ARQ-46). A native language the backend adds later (an Italian learning Portuguese, `pt-BR` as target) has no strings. Options: the native list offers only languages the app has strings for; the Immersion areas fall back to Portuguese. **Recommendation:** offer only languages with strings; adding one is an app release. Today the list has only `pt-BR`, so nothing changes. |
+| 33 | Banner wording (OFF-26) | "Há histórias novas para esta versão do app. Atualize o Postilla na loja." may be wrong when the unknown format is a list, not a story. **Recommendation:** keep one text for every case: the learner's action is the same. |
 
 ## 12. What changes in the books
 
@@ -340,7 +363,7 @@ Differences between the design books and this spec. The spec wins. The books wil
 ### All books
 
 - **Offline (OFF-01, OFF-41):** the "Sem conexão", "sincroniza depois" and "desativado offline" states and the messages that mention a connection are removed.
-- **New states:** "Preparando o dicionário" (OFF-11), not enough space (OFF-12), missing Italian voice (OFF-41), new-stories notice (OFF-24).
+- **New states:** "Preparando o dicionário" (OFF-11), not enough space (OFF-12), missing Italian voice (OFF-41), new-stories toast (OFF-24), "update the app" banner (OFF-26), "Baixando…" dialog (BIB-12), "Sem tradução" note (TRA-10).
 - **Tab bar (NAV-01):** four tabs, Library · Dictionary · Review · Settings, with a new icon for Review (not in the current list in `components-shared.md`). This applies to every book that draws the bar: book-biblioteca, book-dicionario, book-revisao and identity.
 
 ### book-leitor.html
@@ -352,10 +375,13 @@ Differences between the design books and this spec. The spec wins. The books wil
 - **Next story (LEI-10):** the rule becomes continuation → same level → next level, and the card goes away when there is no candidate.
 - **Word with no entry and ambiguous lemma (LEI-02):** the "Sem verbete no dicionário" toast and the choice page are missing.
 - **Reading error:** "Verifique a conexão…" becomes a local error. The translation's "Carregando" is removed.
+- **Story start (LEI-13):** the coverage line and the credit line above the first paragraph.
+- **Narration (LEI-14, LEI-15):** Play/Pause in the dock, left of "Mostrar tradução", only once the audio is ready; the sentence being read marked with the TRA-05 look; tap outside a word jumps to that sentence while playing.
+- **No translation (TRA-10):** "Mostrar tradução" disabled.
 
 ### book-leitor-traducao.html
 
-- **Translation (TRA-09):** always in Portuguese, whatever the Immersion.
+- **Translation (TRA-09):** always in the native language, whatever the Immersion.
 - The "sincroniza" is removed.
 
 ### book-dicionario.html
@@ -373,6 +399,9 @@ Differences between the design books and this spec. The spec wins. The books wil
 
 - **Immersion (AJU-02):** the "Glosses and translation" area becomes "Glosses". The "Open" note about the split translation is removed.
 - **Continue reading (BIB-03):** shows the last story in progress, never a completed one.
+- **Card (BIB-01):** tags, author, narration length ("4:12") and the "Sem tradução" note. Levels go up to C2.
+- **Filters (BIB-05, BIB-11):** a third chip group, Tags; every group lists only values present; "Outros" last in Genre.
+- **Banner and dialog (OFF-26, BIB-12):** the "update the app" banner at the top of the list and the "Baixando…" dialog.
 
 ### book-revisao.html
 
@@ -404,4 +433,5 @@ Differences between the design books and this spec. The spec wins. The books wil
 
 - Include Data: Export and Import (AJU-05). Immersion without onboarding (AJU-03).
 - Include Review, with the three AJU-07 items, and the en.wiktionary credits in About (AJU-04).
+- Include Languages, with the two rows of AJU-08, and the story state in About (OFF-13).
 

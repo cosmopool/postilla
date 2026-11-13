@@ -13,8 +13,8 @@ How to read:
 | Decision | Date |
 |---|---|
 | v1 has Library, Reader, Reader with translation, Dictionary and Settings, all offline. | 2026-10-26 |
-| Out of v1: Review and Practice (§7A, §7B); History and Saved (§7) and the dotted underline; reading progress (LEI-07, BIB-02, BIB-03, Continue reading, story states); content updates over the network (OFF-20..24, ARQ-20..26, manifest); Report error (LEI-09) and Send diagnostics (AJU-06); TTS pronunciation (OFF-40, OFF-41); Export and Import (AJU-05); Share from the entry (DIC-08). | 2026-10-26 |
-| No custom platform channel in v1 (ARQ-73): nothing that stays needs the system. Exception: the `path_provider` package, only to find the app support folder where the databases live. | 2026-10-27 |
+| Out of v1: Review and Practice (§7A, §7B); History and Saved (§7) and the dotted underline; reading progress (LEI-07, BIB-02, BIB-03, Continue reading, story states); Report error (LEI-09) and Send diagnostics (AJU-06); TTS pronunciation (OFF-40, OFF-41); Export and Import (AJU-05); Share from the entry (DIC-08). | 2026-10-26 |
+| No custom platform channel in v1 (ARQ-73), except the `audio` channel for narration (2026-11-13). Exception: the `path_provider` package, only to find the app support folder where the databases live. | 2026-10-27 |
 | Tab bar with 3 tabs: Library · Dictionary · Settings. | 2026-10-26 |
 | The pipeline is written in Zig 0.17, with dependencies through the Zig package manager (ARQ-02). Closes D23. | 2026-10-26 |
 | Pipeline stage 5b (practice features, `rule`, `drill`, `rules.toml`, Morph-it!) is out entirely until v2. | 2026-10-26 |
@@ -25,23 +25,37 @@ How to read:
 | The Imperative is the 5th tense of the entry's Conjugation (DIC-05). | 2026-10-26 |
 | Credits in Settings › About: Wikizionario, en.wiktionary, WikDict and NVdB (AJU-04). | 2026-10-26 |
 | Fixed source line on every entry: "Fonte: Wikizionario, Wiktionary, WikDict · CC BY-SA" (DIC-09). | 2026-10-27 |
-| The bundled package is compressed with gzip -9 (ARQ-11). zstd comes back in v1.2. | 2026-10-26 |
-| The app lock points to `../postilla-content/out` (ARQ-14). Nothing is published. | 2026-10-26 |
+| The bundled package is compressed with gzip -9 (ARQ-11). zstd is now a `postilla-content` contract question (architecture section 12). | 2026-10-26 |
+| The app lock pins the seed from the public bucket (ARQ-14). Replaces "the lock points to `../postilla-content/out`, nothing is published" (2026-10-26). | 2026-11-13 |
 | No CI in v1: `dart analyze` and `flutter test` run on the machine (ARQ-94). | 2026-10-26 |
 | `appLog` only writes to the console (ARQ-70). The `log` database comes back with Send diagnostics. | 2026-10-26 |
-| Each story is a `.txt`: a `chave: valor` header, an IT block and a PT block, one sentence per line, aligned across the blocks. | 2026-10-26 |
+| Stories are drafts on `postilla-backend`, published as one `.tilla` per translation (ARQ-03, ARQ-50). Replaces the `.txt` source with a `chave: valor` header and IT and PT blocks (2026-10-26). | 2026-11-13 |
 | Share from the entry ships in v1.1, with Export: both use the share sheet (ARQ-73). | 2026-10-27 |
-| Story duration (BIB-01) computed from the words, by level: A1 60, A2 80, B1 100, B2 120 words/min, rounded up. | 2026-10-27 |
+| Story duration (BIB-01) computed from the words, by level: A1 60, A2 80, B1 100, B2 120, C1 140, C2 160 words/min, rounded up. C1 and C2 added 2026-11-13. | 2026-10-27 |
 | Icons: Lucide paths (ISC) drawn by hand with a 1.5 stroke, no icon package. | 2026-10-27 |
 | What the books don't draw: Reader without More options; dock with only "Mostrar tradução", on the right; Dictionary root with the search and the two tips; "Sem verbete no dicionário" in the standard toast; lemma choice page as a compact list (lemma + class); entry More options in a sheet (Copy · Back to story · Source); Settings with Reading, Immersion and About. In a conflict between books, the screen's own book wins. | 2026-10-27 |
+| Stories, the dictionary and narration come from the backend's feed and the public R2 bucket (handoff in `postilla-backend/docs/app-handoff.md`). v1 ships an embedded seed and syncs from its cursor (OFF-10, OFF-20..27, ARQ-20..29). Content updates over the network move from v1.2 into v1. | 2026-11-13 |
+| Narration ships in v1: Play/Pause in the dock, sentence marking, tap a sentence to jump (LEI-14, LEI-15). The audio downloads when the story opens, and Play appears once it's ready; seeded stories embed theirs. Playback through an own `audio` platform channel. | 2026-11-13 |
+| Target and native language picker in Settings › Languages (AJU-08), from `GET /languages`. A switch resyncs from `since=0` and keeps the old language's files. | 2026-11-13 |
+| Genre and tag names follow Immersion › Navigation (native or target column), not always native (BIB-06). | 2026-11-13 |
+| The card shows tags, author and narration length; tags join search and get a third chip group; chip groups list only values present; an unknown genre shows as "Outros" (BIB-01, BIB-05, BIB-06, BIB-11). | 2026-11-13 |
+| Vocabulary coverage: one combined share at the story's start, not on the card (LEI-13). | 2026-11-13 |
+| Story credit (author · adaptado · license) at the story's start, the license as plain text in v1 (LEI-13). | 2026-11-13 |
+| Sync on every Library visit, one at a time; updates (stories and dictionary) apply live (OFF-20, OFF-23). | 2026-11-13 |
+| Story index: a writable local `stories` database plus `.tilla` and `.opus` files named by sha (ARQ-23). | 2026-11-13 |
+| Base URLs `api.postilla.kaiodelphino.com` and `content.postilla.kaiodelphino.com`, built in; no manifest (ARQ-06). | 2026-11-13 |
+| Unknown format: a quiet "update the app" banner in the Library (OFF-26). | 2026-11-13 |
+| Story without a native translation: "Sem tradução" note on the card, "Mostrar tradução" disabled (TRA-10). | 2026-11-13 |
+| The dictionary credits stay hard-coded; `meta.license` and `meta.attribution` are not shown (AJU-04). | 2026-11-13 |
+| About shows the story count and the stored cursor instead of a stories version (OFF-13). | 2026-11-13 |
 
 ## Versions
 
 | Version | What goes in |
 |---|---|
-| v1 | Library, Reader, Reader with translation, Dictionary (search and entry) and Settings (Reading, Immersion, About). Offline, with bundled content. |
+| v1 | Library, Reader, Reader with translation with narration, Dictionary (search and entry) and Settings (Reading, Immersion, Languages, About). Offline first, with an embedded seed, and synced from the backend. |
 | v1.1 | History and Saved, dotted underline, reading progress, Export and Import, pronunciation (TTS), Report error, Send diagnostics and the `log` database, Share from the entry, backup exclusion (ARQ-79). Platform channels come in. |
-| v1.2 | Content updates over the network, Releases, manifest, zstd and CI. |
+| v1.2 | CI. |
 | v2 | Review and Practice, with pipeline stage 5b. |
 | Later | What the spec already defers from Review and Practice (§10). |
 
@@ -53,13 +67,13 @@ How to read:
 
 | Area | Ids |
 |---|---|
-| Offline | OFF-01..04, OFF-10..13, OFF-30, OFF-31, OFF-33, OFF-34 |
+| Offline | OFF-01..05, OFF-10..13, OFF-20..27, OFF-30, OFF-31, OFF-33, OFF-34 |
 | Navigation | NAV-01..06 |
-| Library | BIB-01, BIB-04..10 |
-| Reader | LEI-01..06, LEI-08, LEI-10..12 |
-| Reader with translation | TRA-01..09 |
+| Library | BIB-01, BIB-04..12 |
+| Reader | LEI-01..06, LEI-08, LEI-10..15 |
+| Reader with translation | TRA-01..10 |
 | Dictionary | DIC-01..11 |
-| Settings | AJU-01..04 |
+| Settings | AJU-01..04, AJU-08 |
 | Accessibility | ACE-01..06 |
 
 ### How it looks in v1
@@ -67,16 +81,16 @@ How to read:
 | Id | In v1 |
 |---|---|
 | OFF-04 | The only writes are the settings and the tips already seen. |
-| OFF-10 | With gzip -9, the package is ~21 MB, not ~15 MB (ARQ-11). |
-| OFF-30 | Only reading settings, Immersion, translation ratio and first-use tips already seen. |
-| OFF-34 | Three databases: `user`, `stories` and `dict`. `log` ships in v1.1 (ARQ-70), and there is no Export or Import. |
+| OFF-25 | No user data points to a story in v1, so removal only deletes its files. |
+| OFF-30 | Only reading settings, Immersion, translation ratio, the language pair and first-use tips already seen. |
+| OFF-34 | Three databases: `user`, `stories` (the index) and `dict`. `log` ships in v1.1 (ARQ-70), and there is no Export or Import. |
 | NAV-01 | Three tabs: Library · Dictionary · Settings. |
 | NAV-06 | Tapping the active tab again: in Library, scrolls to the top; in Dictionary, goes back to the root. |
-| BIB-01 | The card has no state: title, subtitle, level, genre and duration. |
-| BIB-04 | Fixed order by level, from A1 to B2, and within the same level from shortest to longest. No Continue reading and no finished stories at the end. |
+| BIB-01 | The card has no state: title, subtitle, level, genre, tags, author, reading time, narration length and the "Sem tradução" note. |
+| BIB-04 | Fixed order by level, from A1 to C2, and within the same level from shortest to longest. No Continue reading and no finished stories at the end. |
 | BIB-07 | "Resultados" follows the BIB-04 order. |
 | BIB-09 | Every story opens at the beginning. |
-| LEI-01 | App bar with back, title and Aa, without More options. Dock with only "Mostrar tradução", without a progress line or "N% lido". |
+| LEI-01 | App bar with back, title and Aa, without More options. Dock with Play/Pause (once the narration is ready) and "Mostrar tradução", without a progress line or "N% lido". |
 | LEI-04 | Nothing saves: no gesture in the story, and the entry has no bookmark (DIC-08). |
 | LEI-06 | The highlight stays the same. No dotted underline. |
 | LEI-10 | End of the story with the "Próxima história" card and "Voltar à biblioteca", without a saved count or a link to Saved. The next one is the first candidate in this order: 1) the continuation of the work; 2) the next one at the same level, in BIB-04 order; 3) the first one at the next level (never two above). With no candidate, the card disappears. |
@@ -88,27 +102,27 @@ How to read:
 
 | Area | Ids |
 |---|---|
-| Overview | ARQ-01..03, ARQ-07, ARQ-08 |
-| Packages | ARQ-10..12, ARQ-14, ARQ-15 |
+| Overview | ARQ-01..04, ARQ-06..08 |
+| Content | ARQ-10..15 |
+| Updates | ARQ-20..29 |
 | Databases | ARQ-30..33, ARQ-36, ARQ-38, ARQ-39 |
 | App | ARQ-40..42, ARQ-44..49 |
 | Reader | ARQ-50..53, ARQ-56 |
 | Dictionary | ARQ-60..66 |
 | Diagnostics | ARQ-70 |
+| System | ARQ-73 (the `audio` channel only) |
 | Tests | ARQ-90..93, ARQ-95 |
 
 | Id | In v1 |
 |---|---|
-| ARQ-11 | The bundled package is `dict-<versão>.db.gz` and `stories-<versão>.db.gz`, with gzip -9. |
-| ARQ-14 | The lock pins the version and sha256 of the files in `../postilla-content/out`, and the script copies from there. |
-| ARQ-33, `user` tables | `user` only has `setting`: reading, Immersion, translation ratio and tips seen. `progress`, `history` and `saved` ship in v1.1; `answer`, in v2. |
+| ARQ-33, `user` tables | `user` only has `setting`: reading, Immersion, translation ratio, language pair and tips seen. `progress`, `history` and `saved` ship in v1.1; `answer`, in v2. |
 | ARQ-38 | No topics taken out of Review. |
 | ARQ-44 | Three tab `Navigator`s. The root one only pushes the Reader and the Reader's entry. |
 | ARQ-45 | No `review/` folder. |
 | ARQ-49, ARQ-70 | Failures go to the console. No `log` database. |
 | ARQ-51, ARQ-53 | No dotted underline. The batch's lemmas only serve taps. |
 | ARQ-64 | Only the NVdB band, for search suggestions and "Você quis dizer". No rank within the band. |
-| ARQ-93 | Test packages come from the local lock (ARQ-14). |
+| ARQ-93 | Tests use the seed pinned by the lock (ARQ-14). |
 | ARQ-94 | No CI. `dart analyze` and `flutter test` run on the machine. |
 
 ### Pipeline
@@ -116,8 +130,9 @@ How to read:
 - Stages 1 to 7 of [dictionary-pipeline.md](dictionary-pipeline.md), without 5b.
 - Sources: kaikki.org for it.wiktionary, the it.wiktionary dump, WikDict it-pt and en-pt, kaikki.org for en.wiktionary (gloss pivot only) and NVdB.
 - Hand-written files: only the corrections file.
-- Output in `out/`, compressed with gzip -9. Nothing is published.
-- From architecture section 10, everything goes in, except what is in v1.2 and v2 below.
+- Output in `out/`, compressed with gzip -9, and published to the public bucket as `dict/<sha256>.db.gz` plus `dict/latest` (`postilla-content` CONTRACT.md).
+- From architecture section 10, everything goes in, except what is in v2 below.
+- Stories come from `postilla-backend`, not from the pipeline.
 
 ---
 
@@ -144,8 +159,9 @@ How to read:
 | ARQ-37, ARQ-55 | `progress`. |
 | ARQ-43, ARQ-54 | Rereading saved items and dotted underline. |
 | ARQ-70..72 | `log` database and diagnostics. |
-| ARQ-73..78 | Platform channel: TTS, e-mail, share sheet, file picker; Export and Import. |
-| ARQ-79 | `dict`, `stories` and `log` out of the system backup. |
+| LEI-13 | The license name becomes a link (ARQ-73). |
+| ARQ-73..78 | Platform channel: TTS, e-mail, share sheet, file picker, opening a URL; Export and Import. |
+| ARQ-79 | `dict`, `stories` with its story and audio folders, and `log` out of the system backup. |
 | ARQ-84 | Only `history.day`, with the rollover at 4 a.m. (D30). |
 
 `setting` gains the Saved sort order.
@@ -154,15 +170,7 @@ How to read:
 
 | Id | What goes in |
 |---|---|
-| OFF-05, OFF-20..24 | Content updates over the network and the new-stories notice. |
-| ARQ-04..06 | Public `postilla-content`, Releases and manifest on our own domain. |
-| ARQ-11 | zstd -19 instead of gzip -9. |
-| ARQ-13 | One accepted major per package. |
-| ARQ-14 | The lock points to the Releases. |
-| ARQ-20..26 | Manifest, download, preparation and swap. |
 | ARQ-94 | CI on GitHub Actions. |
-
-In architecture section 10: the manifest and the `stories` `meta` with the added stories. `setting` gains the new-stories notice.
 
 ## v2
 

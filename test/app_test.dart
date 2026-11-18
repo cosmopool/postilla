@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:postilla/db/db.dart';
 import 'package:postilla/dictionary/dictionary.dart';
 import 'package:postilla/library/library.dart';
+import 'package:postilla/library/card.dart';
 import 'package:postilla/main.dart';
 import 'package:postilla/reader/paragraph.dart';
 import 'package:postilla/reader/reader.dart';
@@ -82,7 +83,7 @@ void main() {
 
   test('próxima história: obra, mesmo nível, nível seguinte', () {
     Story s(String id, int level, {String work = '', int part = 0}) => Story(
-        id: StoryId(id), title: id, subtitle: '', level: Level(level), genre: const GenreId('g'), work: work, part: part, words: 1, minutes: 1);
+        id: StoryId(id), title: id, subtitle: '', level: Level(level), genre: const GenreId('g'), work: work, part: part, words: 1);
     final a1a = s('a1a', 1), a1b = s('a1b', 1), a2 = s('a2', 2), b1p1 = s('p1', 3, work: 'P', part: 1), b1x = s('b1x', 3);
     final b2 = s('b2', 4), b1p2 = s('p2', 4, work: 'P', part: 2);
     final cat = [a1a, a1b, a2, b1p1, b1x, b2, b1p2];
@@ -95,12 +96,17 @@ void main() {
 
   test('filtro: "ou" no grupo, "e" entre grupos, busca no gênero', () {
     Story s(String id, int level, String genre) =>
-        Story(id: StoryId(id), title: id, subtitle: '', level: Level(level), genre: GenreId(genre), work: '', part: 0, words: 1, minutes: 1);
-    final genres = {const GenreId('v'): const Genre(GenreId('v'), 'Viagem', 'Viaggio'), const GenreId('f'): const Genre(GenreId('f'), 'Família', 'Famiglia')};
+        Story(id: StoryId(id), title: id, subtitle: '', level: Level(level), genre: GenreId(genre), words: 1);
+    const lists = Lists(genres: {
+      GenreId('v'): {LangId('pt-BR'): 'Viagem', LangId('it'): 'Viaggio'},
+      GenreId('f'): {LangId('pt-BR'): 'Família', LangId('it'): 'Famiglia'},
+    });
+    String pt(GenreId id) => genreName(lists, IndexState.nil, id, false);
+    String it(GenreId id) => genreName(lists, IndexState.nil, id, true);
     final all = [s('a', 1, 'v'), s('b', 2, 'f'), s('c', 2, 'v')];
-    expect(filterStories(all, genres, '', {1, 2}, {}, false).length, 3);
-    expect(filterStories(all, genres, '', {2}, {const GenreId('v')}, false).map((x) => x.id.v), ['c']);
-    expect(filterStories(all, genres, 'familia', {}, {}, false).map((x) => x.id.v), ['b']);
-    expect(filterStories(all, genres, 'viaggio', {}, {}, true).length, 2);
+    expect(filterStories(all, pt, '', {1, 2}, {}).length, 3);
+    expect(filterStories(all, pt, '', {2}, {const GenreId('v')}).map((x) => x.id.v), ['c']);
+    expect(filterStories(all, pt, 'familia', {}, {}).map((x) => x.id.v), ['b']);
+    expect(filterStories(all, it, 'viaggio', {}, {}).length, 2);
   });
 }

@@ -20,10 +20,10 @@ import '../ui/widgets.dart';
 import 'paragraph.dart';
 
 /// Opens the Reader full screen, without the tab bar (NAV-02), always at the start.
-void openReader(BuildContext context, Story story, List<Story> catalog, Map<GenreId, Genre> genres) {
+void openReader(BuildContext context, Story story, List<Story> catalog, Lists lists, IndexState state) {
   Navigator.of(context, rootNavigator: true).push(
     PushRoute(
-      ReaderPage(story: story, catalog: catalog, genres: genres),
+      ReaderPage(story: story, catalog: catalog, lists: lists, state: state),
       settings: const RouteSettings(name: 'reader'),
     ),
   );
@@ -54,10 +54,11 @@ typedef WordPos = ({int p, int w});
 const _readingLine = 24.0;
 
 class ReaderPage extends StatefulWidget {
-  const ReaderPage({super.key, required this.story, required this.catalog, required this.genres});
+  const ReaderPage({super.key, required this.story, required this.catalog, required this.lists, required this.state});
   final Story story;
   final List<Story> catalog;
-  final Map<GenreId, Genre> genres;
+  final Lists lists;
+  final IndexState state;
 
   @override
   State<ReaderPage> createState() => _ReaderPageState();
@@ -604,7 +605,7 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
 
   Widget _itPane(Tokens t, Settings s, bool split) {
     final story = widget.story;
-    final genre = genreName(widget.genres[story.genre], s.navIt);
+    final genre = genreName(widget.lists, widget.state, story.genre, s.navIt);
     final style = T.reader(s.textSize, s.leading);
     final colors = _colors(t);
     return Column(
@@ -888,7 +889,7 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
                         LevelBadge(next.level.v, name: next.level.name),
                         const SizedBox(width: 8),
                         Text(
-                          '${genreName(widget.genres[next.genre], s.navIt)} · ${ui.minutes(next.minutes)}',
+                          '${genreName(widget.lists, widget.state, next.genre, s.navIt)} · ${ui.minutes(next.minutes)}',
                           style: T.meta.copyWith(color: t.inkMuted),
                         ),
                       ],
@@ -922,7 +923,7 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
   void _goTo(Story next) {
     Navigator.of(context).pushReplacement(
       PushRoute(
-        ReaderPage(story: next, catalog: widget.catalog, genres: widget.genres),
+        ReaderPage(story: next, catalog: widget.catalog, lists: widget.lists, state: widget.state),
         settings: const RouteSettings(name: 'reader'),
       ),
     );

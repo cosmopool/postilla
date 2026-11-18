@@ -12,15 +12,15 @@ import '../strings.dart';
 import '../ui/icons.dart';
 import '../ui/theme.dart';
 import '../ui/widgets.dart';
+import 'card.dart';
 
 /// Filters the catalog (already in BIB-04 order). Pure function, tested separately.
 List<Story> filterStories(
   List<Story> all,
-  Map<GenreId, Genre> genres,
+  String Function(GenreId) gName,
   String query,
   Set<int> levels,
   Set<GenreId> genreIds,
-  bool genreIt,
 ) {
   final q = normalize(query.trim());
   return [
@@ -30,12 +30,13 @@ List<Story> filterStories(
           (q.isEmpty ||
               normalize(s.title).contains(q) ||
               normalize(s.subtitle).contains(q) ||
-              normalize(genreName(genres[s.genre], genreIt)).contains(q)))
+              normalize(gName(s.genre)).contains(q)))
         s,
   ];
 }
 
-String genreName(Genre? g, bool italian) => g == null ? '' : (italian ? g.it : g.pt);
+/// Genre name in the Navigation language (BIB-06); '' for an unknown id (BIB-11).
+String genreName(Lists lists, IndexState st, GenreId id, bool navTarget) => lists.genre(id, st.nav(navTarget));
 
 class LibraryPage extends StatefulWidget {
   const LibraryPage({super.key});
@@ -45,8 +46,9 @@ class LibraryPage extends StatefulWidget {
 
 class _LibraryPageState extends State<LibraryPage> {
   List<Story> _stories = const [];
-  Map<GenreId, Genre> _genres = const {};
-  List<Genre> _genreOrder = const [];
+  Lists _lists = Lists.nil;
+  IndexState _state = IndexState.nil;
+  List<GenreId> _genreOrder = const [];
   final _query = TextEditingController();
   final _scroll = ScrollController();
   final Set<int> _levels = {};
@@ -74,18 +76,18 @@ class _LibraryPageState extends State<LibraryPage> {
 
   Future<void> _load() async {
     final stories = await dbStories();
-    final genres = await dbGenres();
+    final lists = await dbLists();
+    final state = await dbIndexState();
     // Genres in the order they appear in the catalog.
-    final order = <Genre>[];
-    final byId = {for (final g in genres) g.id: g};
+    final order = <GenreId>[];
     for (final s in stories) {
-      final g = byId[s.genre];
-      if (g != null && !order.contains(g)) order.add(g);
+      if (!order.contains(s.genre)) order.add(s.genre);
     }
     if (!mounted) return;
     setState(() {
       _stories = stories;
-      _genres = byId;
+      _lists = lists;
+      _state = state;
       _genreOrder = order;
     });
   }
@@ -108,7 +110,8 @@ class _LibraryPageState extends State<LibraryPage> {
     final s = watchSettings(context);
     final t = context.tk;
     final filtering = _query.text.trim().isNotEmpty || _levels.isNotEmpty || _genreIds.isNotEmpty;
-    final list = filterStories(_stories, _genres, _query.text, _levels, _genreIds, s.navIt);
+    String gName(GenreId id) => genreName(_lists, _state, id, s.navIt);
+    final list = filterStories(_stories, gName, _query.text, _levels, _genreIds);
     if (filtering && list.length != _lastCount) {
       _lastCount = list.length;
       WidgetsBinding.instance.addPostFrameCallback(
@@ -155,7 +158,7 @@ class _LibraryPageState extends State<LibraryPage> {
                   child: SearchField(controller: _query, hint: ui.searchStories),
                 ),
               ),
-              SliverToBoxAdapter(child: _filters(s.navIt)),
+              SliverToBoxAdapter(child: _filters(gName)),
               SliverToBoxAdapter(
                 child: SectionHeader(
                   filtering ? ui.results : ui.allStories,
@@ -188,9 +191,9 @@ class _LibraryPageState extends State<LibraryPage> {
                     itemCount: list.length,
                     itemBuilder: (context, i) => StoryCard(
                       story: list[i],
-                      genre: genreName(_genres[list[i].genre], s.navIt),
+                      genre: gName(list[i].genre),
                       first: i == 0,
-                      onTap: () => openReader(context, list[i], _stories, _genres),
+                      onTap: () => openReader(context, list[i], _stories, _lists, _state),
                     ),
                   ),
                 ),
@@ -201,7 +204,7 @@ class _LibraryPageState extends State<LibraryPage> {
     );
   }
 
-  Widget _filters(bool genreIt) {
+  Widget _filters(String Function(GenreId) gName) {
     final t = context.tk;
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -232,9 +235,9 @@ class _LibraryPageState extends State<LibraryPage> {
               children: [
                 for (final g in _genreOrder) ...[
                   FilterChipBtn(
-                    genreName(g, genreIt),
-                    selected: _genreIds.contains(g.id),
-                    onTap: () => setState(() => _genreIds.contains(g.id) ? _genreIds.remove(g.id) : _genreIds.add(g.id)),
+                    gName(g),
+                    selected: _genreIds.contains(g),
+                    onTap: () => setState(() => _genreIds.contains(g) ? _genreIds.remove(g) : _genreIds.add(g)),
                   ),
                   const SizedBox(width: 8),
                 ],
@@ -243,60 +246,6 @@ class _LibraryPageState extends State<LibraryPage> {
           ),
         ],
       ),
-    );
-  }
-}
-
-class StoryCard extends StatelessWidget {
-  const StoryCard({super.key, required this.story, required this.genre, required this.onTap, this.first = false});
-  final Story story;
-  final String genre;
-  final VoidCallback onTap;
-  final bool first;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tk;
-    // The pressed background bleeds 12 px past the text; the hairline is inset 12 px.
-    return Column(
-      children: [
-        if (!first) Container(height: 1, margin: const EdgeInsets.symmetric(horizontal: 12), color: t.rule),
-        Pressable(
-          onTap: onTap,
-          radius: 20,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  story.title,
-                  style: T.cardTitle.copyWith(color: t.ink),
-                  locale: const Locale('it'),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  story.subtitle,
-                  style: T.small.copyWith(color: t.inkMuted),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  locale: const Locale('it'),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    LevelBadge(story.level.v, name: story.level.name),
-                    const SizedBox(width: 8),
-                    Flexible(
-                      child: Text('$genre · ${ui.minutes(story.minutes)}', style: T.meta.copyWith(color: t.inkMuted)),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

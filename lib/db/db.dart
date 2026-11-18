@@ -20,20 +20,24 @@ void appLog(String msg) => debugPrint('[postilla] $msg');
 
 extension type const StoryId(String v) {}
 extension type const GenreId(String v) {}
+extension type const TagId(String v) {}
+extension type const AuthorId(String v) {}
 
-/// Level A1…B2 as 1…4.
+/// BCP 47 id exactly as `GET /languages` lists it (`it`, `pt-BR`).
+extension type const LangId(String v) {}
+
+/// Level A1…C2 as 1…6 (`.tilla` header).
 extension type const Level(int v) {
-  static const names = ['A1', 'A2', 'B1', 'B2'];
-  String get name => v >= 1 && v <= 4 ? names[v - 1] : '';
+  static const names = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+  static const wordsPerMinute = [60, 80, 100, 120, 140, 160];
+  String get name => v >= 1 && v <= 6 ? names[v - 1] : '';
+
+  /// Reading time (BIB-01): words ÷ the level's speed, rounded up.
+  int minutes(int words) => v >= 1 && v <= 6 ? (words + wordsPerMinute[v - 1] - 1) ~/ wordsPerMinute[v - 1] : 0;
 }
 
-class Genre {
-  const Genre(this.id, this.pt, this.it);
-  final GenreId id;
-  final String pt;
-  final String it;
-}
-
+/// One story as the Library and the Reader see it: the story-level fields plus
+/// the target translation's header (ARQ-23), for the language pair in `state`.
 class Story {
   const Story({
     required this.id,
@@ -41,23 +45,85 @@ class Story {
     required this.subtitle,
     required this.level,
     required this.genre,
-    required this.work,
-    required this.part,
+    this.tags = const [],
+    this.work = '',
+    this.part = 0,
+    this.author = const AuthorId(''),
+    this.adapted = false,
+    this.license = 'LicenseRef-Postilla',
     required this.words,
-    required this.minutes,
+    this.bandWords = const [0, 0, 0, 0],
+    this.audioMs = 0,
+    this.hasNative = true,
+    this.arrived = false,
   });
   final StoryId id;
-  final String title;
+  final String title; // target language, never translated
   final String subtitle;
   final Level level;
   final GenreId genre;
+  final List<TagId> tags; // feed order
   final String work; // '' outside a split work
   final int part;
+  final AuthorId author; // '' for a story written for Postilla
+  final bool adapted;
+  final String license; // SPDX id, `public-domain` or `LicenseRef-Postilla`
   final int words;
-  final int minutes;
+  final List<int> bandWords; // NVdB bands 0..3; all 0 outside Italian
+  final int audioMs; // 0: not narrated
+  final bool hasNative; // false: no translation in the native language (TRA-10)
+  final bool arrived; // "Chegou agora" (OFF-24, ARQ-26)
 
-  static const nil = Story(
-      id: StoryId(''), title: '', subtitle: '', level: Level(0), genre: GenreId(''), work: '', part: 0, words: 0, minutes: 0);
+  int get minutes => level.minutes(words);
+
+  static const nil = Story(id: StoryId(''), title: '', subtitle: '', level: Level(0), genre: GenreId(''), words: 0);
+}
+
+class Language {
+  const Language(this.id, this.name, {this.target = false, this.translate = false});
+  final LangId id;
+  final String name; // the language's own name
+  final bool target; // can be learned
+  final bool translate; // stories are translated into it
+}
+
+/// Cached lists (ARQ-27). A name lookup returns '' for an id the cache lacks:
+/// the caller applies BIB-11 (genre → "Outros", tag hidden, author left off).
+class Lists {
+  const Lists({this.genres = const {}, this.tags = const {}, this.authors = const {}, this.languages = const []});
+  final Map<GenreId, Map<LangId, String>> genres;
+  final Map<TagId, Map<LangId, String>> tags;
+  final Map<AuthorId, String> authors;
+  final List<Language> languages;
+
+  String genre(GenreId id, LangId lang) => genres[id]?[lang] ?? '';
+  String tag(TagId id, LangId lang) => tags[id]?[lang] ?? '';
+  String author(AuthorId id) => authors[id] ?? '';
+
+  static const nil = Lists();
+}
+
+/// The index's `state` table (ARQ-23).
+class IndexState {
+  const IndexState({
+    this.cursor = 0,
+    this.target = const LangId('it'),
+    this.native = const LangId('pt-BR'),
+    this.newCount = 0,
+    this.unknownFormat = false,
+    this.resync = false,
+  });
+  final int cursor;
+  final LangId target;
+  final LangId native;
+  final int newCount; // OFF-24
+  final bool unknownFormat; // OFF-26
+  final bool resync; // after a language switch (ARQ-22, BIB-12)
+
+  /// Language of genre and tag names: Immersion › Navigation (BIB-06).
+  LangId nav(bool navTarget) => navTarget ? target : native;
+
+  static const nil = IndexState();
 }
 
 /// Span in UTF-16 units of the paragraph text.
@@ -313,19 +379,15 @@ Future<bool> dbSettingSet(String key, Object? value) => _run((d) {
 
 // ---------------------------------------------------------------- stories
 
-Future<List<Genre>> dbGenres() => _run(
-      (d) => [
-        for (final r in d.stories.select('SELECT id, name_pt, name_it FROM genre'))
-          Genre(GenreId(r['id'] as String), r['name_pt'] as String, r['name_it'] as String),
-      ],
-      const [],
-    );
+// Contract for the UI slices. Until slice 1 builds the ARQ-23 index, these
+// read the bundled stories.db and map it onto the new types.
 
-/// Catalog in fixed BIB-04 order: level, then shortest to longest.
+/// Every story of the current language pair, in BIB-04 order: level, then
+/// shortest to longest, then title.
 Future<List<Story>> dbStories() => _run(
       (d) => [
         for (final r in d.stories.select(
-            'SELECT id, title, subtitle, level, genre, work, part, words, minutes FROM story ORDER BY level, words, title'))
+            'SELECT id, title, subtitle, level, genre, work, part, words FROM story ORDER BY level, words, title'))
           Story(
             id: StoryId(r['id'] as String),
             title: r['title'] as String,
@@ -335,11 +397,39 @@ Future<List<Story>> dbStories() => _run(
             work: r['work'] as String,
             part: r['part'] as int,
             words: r['words'] as int,
-            minutes: r['minutes'] as int,
           ),
       ],
       const [],
     );
+
+/// Genres, tags, authors and languages from the cache (ARQ-27).
+Future<Lists> dbLists() => _run(
+      (d) => Lists(
+        genres: {
+          for (final r in d.stories.select('SELECT id, name_pt, name_it FROM genre'))
+            GenreId(r['id'] as String): {
+              const LangId('pt-BR'): r['name_pt'] as String,
+              const LangId('it'): r['name_it'] as String,
+            },
+        },
+        languages: const [
+          Language(LangId('it'), 'Italiano', target: true),
+          Language(LangId('pt-BR'), 'Português brasileiro', translate: true),
+        ],
+      ),
+      Lists.nil,
+    );
+
+Future<IndexState> dbIndexState() => _run((d) => IndexState.nil, IndexState.nil);
+
+/// Opening a story deletes its `arrival` row (ARQ-26).
+Future<bool> dbArrivalOpened(StoryId id) => _run((d) => false, false);
+
+/// The Library zeroes the new-stories count when the learner leaves it (BIB-13).
+Future<bool> dbNewCountReset() => _run((d) => false, false);
+
+/// Language switch (AJU-08, ARQ-22): stores the pair, cursor 0, resync on.
+Future<bool> dbSetLanguages(LangId target, LangId native) => _run((d) => false, false);
 
 List<Span> _spans(Uint8List blob) {
   final bd = ByteData.sublistView(blob);

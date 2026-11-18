@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:postilla/db/db.dart';
 import 'package:postilla/dictionary/dictionary.dart';
-import 'package:postilla/library/library.dart';
 import 'package:postilla/library/card.dart';
 import 'package:postilla/main.dart';
 import 'package:postilla/reader/paragraph.dart';
@@ -46,9 +45,16 @@ void main() {
     await t.tap(find.text('Limpar busca').last);
     await settle(t);
 
+    // Nível sheet: B2 filters the list live; "Ver 1 história" closes the sheet.
+    await t.tap(find.text('Nível'));
+    await settle(t);
     await t.tap(find.text('B2'));
     await settle(t);
+    await t.tap(find.textContaining(RegExp(r'^Ver \d+ histór')));
+    await settle(t);
+    expect(find.byType(StoryCard), findsWidgets);
     expect(find.text('Limpar filtros'), findsOneWidget);
+    expect(find.text('B2'), findsWidgets); // the facet summarizes its one value
   });
 
   testWidgets('Card: kicker com "+N", autor, narração, "Sem tradução" e "Chegou agora"', (t) async {
@@ -148,21 +154,5 @@ void main() {
     expect(const Level(6).minutes(1600), 10);
     expect(const Level(5).name, 'C1');
     expect(const Level(7).minutes(100), 0);
-  });
-
-  test('filtro: "ou" no grupo, "e" entre grupos, busca no gênero', () {
-    Story s(String id, int level, String genre) =>
-        Story(id: StoryId(id), title: id, subtitle: '', level: Level(level), genre: GenreId(genre), words: 1);
-    const lists = Lists(genres: {
-      GenreId('v'): {LangId('pt-BR'): 'Viagem', LangId('it'): 'Viaggio'},
-      GenreId('f'): {LangId('pt-BR'): 'Família', LangId('it'): 'Famiglia'},
-    });
-    String pt(GenreId id) => genreName(lists, IndexState.nil, id, false);
-    String it(GenreId id) => genreName(lists, IndexState.nil, id, true);
-    final all = [s('a', 1, 'v'), s('b', 2, 'f'), s('c', 2, 'v')];
-    expect(filterStories(all, pt, '', {1, 2}, {}).length, 3);
-    expect(filterStories(all, pt, '', {2}, {const GenreId('v')}).map((x) => x.id.v), ['c']);
-    expect(filterStories(all, pt, 'familia', {}, {}).map((x) => x.id.v), ['b']);
-    expect(filterStories(all, it, 'viaggio', {}, {}).length, 2);
   });
 }

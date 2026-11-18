@@ -244,9 +244,9 @@ class LevelBadge extends StatelessWidget {
       constraints: const BoxConstraints(minWidth: 32),
       height: 22,
       padding: const EdgeInsets.symmetric(horizontal: 8),
-      alignment: Alignment.center,
       decoration: BoxDecoration(color: t.levelBg[i], borderRadius: BorderRadius.circular(999)),
-      child: Text(name, style: T.label.copyWith(color: t.levelInk[i], letterSpacing: 0.44)),
+      // widthFactor 1: centered, but as wide as the text (a Wrap would stretch it).
+      child: Align(widthFactor: 1, child: Text(name, style: T.label.copyWith(color: t.levelInk[i], letterSpacing: 0.44))),
     );
   }
 }

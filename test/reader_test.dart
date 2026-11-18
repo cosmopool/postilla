@@ -58,6 +58,16 @@ Future<void> openPage(WidgetTester t, Story story, {IndexState state = IndexStat
   await t.pumpWidget(PostillaApp(
     home: ReaderPage(story: story, catalog: [story], lists: lists, state: state, targetFile: targetFile, nativeFile: nativeFile),
   ));
+  // The database isolate answers in real time, which a loaded machine stretches:
+  // wait for an outcome (text, local error or wait) instead of a fixed time.
+  bool done() =>
+      find.byType(ParagraphText).evaluate().isNotEmpty ||
+      find.textContaining('Não foi possível').evaluate().isNotEmpty ||
+      find.textContaining('ainda está chegando').evaluate().isNotEmpty;
+  for (var i = 0; i < 100 && !done(); i++) {
+    await t.runAsync(() => Future.delayed(const Duration(milliseconds: 50)));
+    await t.pump(const Duration(milliseconds: 50));
+  }
   await settle(t);
 }
 

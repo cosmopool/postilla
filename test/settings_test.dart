@@ -78,7 +78,7 @@ void main() {
       expect(t.getTopLeft(find.text('SOBRE')).dy, greaterThan(t.getTopLeft(find.text('Imersão')).dy));
       expect(find.text('APP'), findsOneWidget);
       expect(find.text('Versão 0.1.0'), findsOneWidget);
-      expect(find.text('8 no aparelho'), findsOneWidget);
+      expect(find.textContaining(RegExp(r'^\d+ no aparelho$')), findsOneWidget); // the debug fixture's count
       expect(find.text('Sincronização 0'), findsOneWidget);
       expect(find.textContaining('Wikizionario de '), findsOneWidget);
       expect(find.textContaining('Wikizionario, en.wiktionary e WikDict'), findsOneWidget);

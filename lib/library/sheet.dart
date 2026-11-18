@@ -177,7 +177,7 @@ Future<void> openFacetSheet(
   return showModalBottomSheet<void>(
     context: context,
     useRootNavigator: true,
-    isScrollControlled: tall,
+    isScrollControlled: true, // the short sheet stays short, but may grow and scroll on a small screen
     backgroundColor: t.bg,
     barrierColor: t.scrim,
     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
@@ -373,17 +373,22 @@ class _FacetSheetState extends State<FacetSheet> {
     );
     final body = _body();
     if (!widget.tall) {
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [...head, ...body]),
-          ),
-          const SizedBox(height: 12),
-          foot,
-        ],
+      return ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: mq.size.height - mq.padding.top - 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Flexible(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [...head, ...body]),
+              ),
+            ),
+            const SizedBox(height: 12),
+            foot,
+          ],
+        ),
       );
     }
     return SizedBox(

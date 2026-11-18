@@ -7,7 +7,10 @@ import 'package:postilla/db/db.dart';
 String _inflate(String name, Directory dir) {
   final target = '${dir.path}/$name.db';
   if (!File(target).existsSync()) {
-    File(target).writeAsBytesSync(gzip.decode(File('assets/content/$name.db.gz').readAsBytesSync()));
+    // Test files run in parallel: write under a unique name and rename into place,
+    // so no run ever opens a half-written file.
+    final part = File('$target.$pid.part')..writeAsBytesSync(gzip.decode(File('assets/content/$name.db.gz').readAsBytesSync()));
+    part.renameSync(target);
   }
   return target;
 }

@@ -70,10 +70,11 @@ void main() {
     await t.enterText(find.byType(TextField), 'lettera da trieste');
     await settle(t);
     expect(find.text('Sem tradução'), findsOneWidget);
-    // La nonna e il basilico: genre + 2 of 3 tags, then "+1".
+    // La nonna e il basilico: genre + the first 2 of 3 tags by id (cucina,
+    // famiglia, nonna), then "+1".
     await t.enterText(find.byType(TextField), 'nonna e il basilico');
     await settle(t);
-    expect(find.text('FAMÍLIA · NONNA · COZINHA · +1'), findsOneWidget);
+    expect(find.text('FAMÍLIA · COZINHA · FAMÍLIA · +1'), findsOneWidget);
   });
 
   testWidgets('Leitor: tocar numa palavra abre o verbete do lema, com "Na história"', (t) async {

@@ -23,7 +23,7 @@ void main() {
     final treno = stories.firstWhere((s) => s.id.v == 'd0159518-99cc-46f0-bef2-b5b6f6f9a76d');
     expect(treno.title, 'Il treno per Bologna');
     expect(treno.minutes, 2);
-    expect(treno.tags.map((t) => t.v), ['treno', 'emilia-romagna']);
+    expect(treno.tags.map((t) => t.v), ['emilia-romagna', 'treno']); // by id
     expect(treno.audioMs, 252000);
     expect(treno.bandWords.reduce((a, b) => a + b), treno.words);
     expect(await dbParagraphs(treno.id), isNotEmpty);

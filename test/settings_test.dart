@@ -32,14 +32,16 @@ void main() {
       expect(targetChoices(_langs, const LangId('en')).map((l) => l.id.v), ['en', 'it', 'es']);
     });
 
-    test('native lists translated languages with UI strings, minus the target', () {
-      expect(nativeChoices(_langs, const LangId('it')).map((l) => l.id.v), ['pt-BR']);
-      expect(nativeChoices(_langs, const LangId('pt-BR')), isEmpty);
+    test('native lists every translated language, minus the target (§11 #32)', () {
+      expect(nativeChoices(_langs, const LangId('it')).map((l) => l.id.v), ['pt-BR', 'pt-PT', 'es']);
+      expect(nativeChoices(_langs, const LangId('es')).map((l) => l.id.v), ['pt-BR', 'pt-PT']);
     });
 
     test('picking a target keeps the native while it is still a choice', () {
       expect(pairAfterTarget(_langs, const LangId('es'), const LangId('pt-BR')), (const LangId('es'), const LangId('pt-BR')));
-      expect(pairAfterTarget(_langs, const LangId('it'), const LangId('es')), (const LangId('it'), const LangId('pt-BR')));
+      expect(pairAfterTarget(_langs, const LangId('it'), const LangId('es')), (const LangId('it'), const LangId('es')));
+      // The native can't equal the target: it moves to the first native choice.
+      expect(pairAfterTarget(_langs, const LangId('es'), const LangId('es')), (const LangId('es'), const LangId('pt-BR')));
     });
 
     test('a language shows by its own name, or its id when unknown', () {

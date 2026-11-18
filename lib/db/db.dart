@@ -256,10 +256,11 @@ class ContentInfo {
 
 /// What lives on the database isolate.
 class Dbs {
-  Dbs(this.user, this.stories, this.dict);
+  Dbs(this.user, this.stories, this.dict, this.index);
   final Database user;
-  final Database stories;
+  final Database stories; // bundled package: paragraph text until the .tilla reader
   final Database dict;
+  final Database index; // story index (ARQ-23), read-write
   Trie? trie; // "Did you mean", built on first use (ARQ-66)
 }
 
@@ -271,21 +272,29 @@ class _Request {
 
 SendPort? _port;
 
-/// Opens the three databases on the isolate. `dir` has `user.db`; `dictPath` and
-/// `storiesPath` are the already-decompressed packages.
-Future<void> dbOpen({required String userPath, required String dictPath, required String storiesPath}) async {
+/// Opens the databases on the isolate: `user.db` and the story index
+/// (`indexPath`, created on first open), plus the already-decompressed
+/// packages `dictPath` and `storiesPath`.
+Future<void> dbOpen({
+  required String userPath,
+  required String dictPath,
+  required String storiesPath,
+  required String indexPath,
+}) async {
   final ready = ReceivePort();
-  await Isolate.spawn(_main, (ready.sendPort, userPath, dictPath, storiesPath), debugName: 'db');
+  await Isolate.spawn(_main, (ready.sendPort, userPath, dictPath, storiesPath, indexPath), debugName: 'db');
   _port = await ready.first as SendPort;
 }
 
-void _main((SendPort, String, String, String) args) {
-  final (ready, userPath, dictPath, storiesPath) = args;
+void _main((SendPort, String, String, String, String) args) {
+  final (ready, userPath, dictPath, storiesPath, indexPath) = args;
   final user = sqlite3.open(userPath);
-  _migrate(user);
+  _migrate(user, _migrations);
+  final index = sqlite3.open(indexPath);
+  _migrate(index, _indexMigrations);
   final stories = sqlite3.open('file:$storiesPath?mode=ro&immutable=1', uri: true, mode: OpenMode.readOnly);
   final dict = sqlite3.open('file:$dictPath?mode=ro&immutable=1', uri: true, mode: OpenMode.readOnly);
-  final dbs = Dbs(user, stories, dict);
+  final dbs = Dbs(user, stories, dict, index);
   final requests = ReceivePort();
   ready.send(requests.sendPort);
   requests.listen((msg) {
@@ -330,12 +339,61 @@ const _migrations = [
   ''',
 ];
 
-void _migrate(Database db) {
+/// Story index (ARQ-23), written only by sync and, in debug builds, by the
+/// fixture. Same forward-only scripts as `user` (ARQ-32).
+const _indexMigrations = [
+  '''
+  CREATE TABLE translation (
+    story_id TEXT NOT NULL,
+    lang TEXT NOT NULL,
+    sha256 TEXT NOT NULL,
+    file TEXT NOT NULL,
+    title TEXT NOT NULL,
+    subtitle TEXT NOT NULL,
+    level INTEGER NOT NULL,
+    genre TEXT NOT NULL,
+    work TEXT NOT NULL,
+    part INTEGER NOT NULL,
+    author TEXT NOT NULL,
+    adapted INTEGER NOT NULL,
+    license TEXT NOT NULL,
+    words INTEGER NOT NULL,
+    band0 INTEGER NOT NULL,
+    band1 INTEGER NOT NULL,
+    band2 INTEGER NOT NULL,
+    band3 INTEGER NOT NULL,
+    audio_ms INTEGER NOT NULL,
+    opus_sha256 TEXT NOT NULL,
+    opus_size INTEGER NOT NULL,
+    PRIMARY KEY (story_id, lang)
+  ) WITHOUT ROWID;
+  CREATE INDEX translation_lang ON translation (lang, level, words);
+  CREATE TABLE translation_tag (
+    story_id TEXT NOT NULL,
+    pos INTEGER NOT NULL, -- feed order
+    tag TEXT NOT NULL,
+    PRIMARY KEY (story_id, pos)
+  ) WITHOUT ROWID;
+  CREATE TABLE list (
+    kind TEXT NOT NULL, -- genre · tag · author · language
+    id TEXT NOT NULL,
+    lang TEXT NOT NULL, -- '' for author and language
+    name TEXT NOT NULL,
+    target INTEGER NOT NULL DEFAULT 0,
+    translate INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY (kind, id, lang)
+  ) WITHOUT ROWID;
+  CREATE TABLE state (key TEXT PRIMARY KEY, value TEXT NOT NULL) WITHOUT ROWID;
+  CREATE TABLE arrival (story_id TEXT PRIMARY KEY) WITHOUT ROWID;
+  ''',
+];
+
+void _migrate(Database db, List<String> migrations) {
   db.execute('PRAGMA journal_mode = WAL');
   db.execute('PRAGMA application_id = $_appId');
-  for (var v = db.userVersion; v < _migrations.length; v++) {
+  for (var v = db.userVersion; v < migrations.length; v++) {
     db.execute('BEGIN');
-    db.execute(_migrations[v]);
+    db.execute(migrations[v]);
     db.userVersion = v + 1;
     db.execute('COMMIT');
   }
@@ -379,57 +437,167 @@ Future<bool> dbSettingSet(String key, Object? value) => _run((d) {
 
 // ---------------------------------------------------------------- stories
 
-// Contract for the UI slices. Until slice 1 builds the ARQ-23 index, these
-// read the bundled stories.db and map it onto the new types.
+// The Library and the Reader read stories from the index (ARQ-23); paragraph
+// text still comes from the bundled stories.db until the .tilla reader exists.
+
+/// `state` keys.
+const _stCursor = 'cursor', _stTarget = 'target', _stNative = 'native';
+const _stNewCount = 'new_count', _stUnknownFormat = 'unknown_format', _stResync = 'resync';
+
+IndexState _indexState(Database index) {
+  final m = {for (final r in index.select('SELECT key, value FROM state')) r['key'] as String: r['value'] as String};
+  int n(String k) => int.tryParse(m[k] ?? '') ?? 0;
+  return IndexState(
+    cursor: n(_stCursor),
+    target: LangId(m[_stTarget] ?? IndexState.nil.target.v),
+    native: LangId(m[_stNative] ?? IndexState.nil.native.v),
+    newCount: n(_stNewCount),
+    unknownFormat: n(_stUnknownFormat) == 1,
+    resync: n(_stResync) == 1,
+  );
+}
+
+void _setState(Database index, String key, Object value) => index.execute(
+    'INSERT INTO state (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value', [key, '$value']);
 
 /// Every story of the current language pair, in BIB-04 order: level, then
-/// shortest to longest, then title.
-Future<List<Story>> dbStories() => _run(
-      (d) => [
-        for (final r in d.stories.select(
-            'SELECT id, title, subtitle, level, genre, work, part, words FROM story ORDER BY level, words, title'))
+/// shortest to longest, then title. A story is listed by its target-language
+/// translation; one without it can't be read and is left out.
+Future<List<Story>> dbStories() => _run((d) {
+      final st = _indexState(d.index);
+      final tags = <String, List<TagId>>{};
+      for (final r in d.index.select('SELECT story_id, tag FROM translation_tag ORDER BY story_id, pos')) {
+        (tags[r['story_id'] as String] ??= []).add(TagId(r['tag'] as String));
+      }
+      return [
+        for (final r in d.index.select('''
+          SELECT t.*,
+            EXISTS (SELECT 1 FROM translation n WHERE n.story_id = t.story_id AND n.lang = ?2) AS has_native,
+            EXISTS (SELECT 1 FROM arrival a WHERE a.story_id = t.story_id) AS arrived
+          FROM translation t WHERE t.lang = ?1
+          ORDER BY t.level, t.words, t.title''', [st.target.v, st.native.v]))
           Story(
-            id: StoryId(r['id'] as String),
+            id: StoryId(r['story_id'] as String),
             title: r['title'] as String,
             subtitle: r['subtitle'] as String,
             level: Level(r['level'] as int),
             genre: GenreId(r['genre'] as String),
+            tags: tags[r['story_id'] as String] ?? const [],
             work: r['work'] as String,
             part: r['part'] as int,
+            author: AuthorId(r['author'] as String),
+            adapted: r['adapted'] == 1,
+            license: r['license'] as String,
             words: r['words'] as int,
+            bandWords: [r['band0'] as int, r['band1'] as int, r['band2'] as int, r['band3'] as int],
+            audioMs: r['audio_ms'] as int,
+            hasNative: r['has_native'] == 1,
+            arrived: r['arrived'] == 1,
           ),
-      ],
-      const [],
-    );
+      ];
+    }, const []);
 
 /// Genres, tags, authors and languages from the cache (ARQ-27).
-Future<Lists> dbLists() => _run(
-      (d) => Lists(
-        genres: {
-          for (final r in d.stories.select('SELECT id, name_pt, name_it FROM genre'))
-            GenreId(r['id'] as String): {
-              const LangId('pt-BR'): r['name_pt'] as String,
-              const LangId('it'): r['name_it'] as String,
-            },
-        },
-        languages: const [
-          Language(LangId('it'), 'Italiano', target: true),
-          Language(LangId('pt-BR'), 'Português brasileiro', translate: true),
-        ],
-      ),
-      Lists.nil,
-    );
+Future<Lists> dbLists() => _run((d) {
+      final genres = <GenreId, Map<LangId, String>>{};
+      final tags = <TagId, Map<LangId, String>>{};
+      final authors = <AuthorId, String>{};
+      final languages = <Language>[];
+      for (final r in d.index.select('SELECT kind, id, lang, name, target, translate FROM list ORDER BY kind, id, lang')) {
+        final id = r['id'] as String, lang = LangId(r['lang'] as String), name = r['name'] as String;
+        switch (r['kind']) {
+          case 'genre':
+            (genres[GenreId(id)] ??= {})[lang] = name;
+          case 'tag':
+            (tags[TagId(id)] ??= {})[lang] = name;
+          case 'author':
+            authors[AuthorId(id)] = name;
+          case 'language':
+            languages.add(Language(LangId(id), name, target: r['target'] == 1, translate: r['translate'] == 1));
+        }
+      }
+      return Lists(genres: genres, tags: tags, authors: authors, languages: languages);
+    }, Lists.nil);
 
-Future<IndexState> dbIndexState() => _run((d) => IndexState.nil, IndexState.nil);
+Future<IndexState> dbIndexState() => _run((d) => _indexState(d.index), IndexState.nil);
 
 /// Opening a story deletes its `arrival` row (ARQ-26).
-Future<bool> dbArrivalOpened(StoryId id) => _run((d) => false, false);
+Future<bool> dbArrivalOpened(StoryId id) => _run((d) {
+      d.index.execute('DELETE FROM arrival WHERE story_id = ?', [id.v]);
+      return true;
+    }, false);
 
 /// The Library zeroes the new-stories count when the learner leaves it (BIB-13).
-Future<bool> dbNewCountReset() => _run((d) => false, false);
+Future<bool> dbNewCountReset() => _run((d) {
+      _setState(d.index, _stNewCount, 0);
+      return true;
+    }, false);
 
 /// Language switch (AJU-08, ARQ-22): stores the pair, cursor 0, resync on.
-Future<bool> dbSetLanguages(LangId target, LangId native) => _run((d) => false, false);
+/// Files of the language left behind stay in the index.
+Future<bool> dbSetLanguages(LangId target, LangId native) => _run((d) {
+      d.index.execute('BEGIN');
+      _setState(d.index, _stTarget, target.v);
+      _setState(d.index, _stNative, native.v);
+      _setState(d.index, _stCursor, 0);
+      _setState(d.index, _stResync, 1);
+      d.index.execute('COMMIT');
+      return true;
+    }, false);
+
+/// Debug builds only: fills an empty index from `assets/dev/index_fixture.json`
+/// (written by `tool/make_index_fixture.dart`). Does nothing once the index
+/// has a story, so sync and the fixture never mix. Returns whether it loaded.
+Future<bool> dbLoadIndexFixture(String json) => _run((d) => _loadIndexFixture(d.index, json), false);
+
+bool _loadIndexFixture(Database index, String json) {
+  if (index.select('SELECT 1 FROM translation LIMIT 1').isNotEmpty) return false;
+  final m = jsonDecode(json) as Map<String, dynamic>;
+  index.execute('BEGIN');
+  try {
+    for (final MapEntry(:key, :value) in (m['state'] as Map<String, dynamic>).entries) {
+      _setState(index, key, value as Object);
+    }
+    final list = index.prepare('INSERT OR REPLACE INTO list (kind, id, lang, name, target, translate) VALUES (?, ?, ?, ?, ?, ?)');
+    for (final r in m['lists'] as List) {
+      final row = r as List;
+      list.execute([row[0], row[1], row[2], row[3], row.length > 4 ? row[4] : 0, row.length > 5 ? row[5] : 0]);
+    }
+    list.close();
+    final tr = index.prepare(
+        "INSERT OR REPLACE INTO translation VALUES (?, ?, ?, '', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    final tag = index.prepare('INSERT OR REPLACE INTO translation_tag (story_id, pos, tag) VALUES (?, ?, ?)');
+    for (final x in m['stories'] as List) {
+      final s = x as Map<String, dynamic>;
+      final id = s['id'] as String;
+      final tags = s['tags'] as List;
+      for (var i = 0; i < tags.length; i++) {
+        tag.execute([id, i, tags[i]]);
+      }
+      for (final y in s['translations'] as List) {
+        final t = y as Map<String, dynamic>;
+        final b = t['band_words'] as List;
+        tr.execute([
+          id, t['lang'], t['sha256'], t['title'], t['subtitle'], s['level'], s['genre'], s['work'], s['part'], //
+          s['author'], s['adapted'], s['license'], t['words'], b[0], b[1], b[2], b[3], //
+          t['audio_ms'], t['opus_sha256'], t['opus_size'],
+        ]);
+      }
+    }
+    tr.close();
+    tag.close();
+    final arrival = index.prepare('INSERT OR IGNORE INTO arrival (story_id) VALUES (?)');
+    for (final id in m['arrivals'] as List) {
+      arrival.execute([id]);
+    }
+    arrival.close();
+    index.execute('COMMIT');
+    return true;
+  } catch (_) {
+    index.execute('ROLLBACK');
+    rethrow;
+  }
+}
 
 List<Span> _spans(Uint8List blob) {
   final bd = ByteData.sublistView(blob);

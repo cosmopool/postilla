@@ -31,16 +31,16 @@ void main() {
   testWidgets('Biblioteca: catálogo, busca sem acento e filtro de nível', (t) async {
     await t.pumpWidget(const PostillaApp(home: Shell()));
     await settle(t);
-    expect(find.text('Il treno per Bologna'), findsOneWidget);
+    expect(find.byType(StoryCard), findsWidgets);
     expect(find.text('Todas as histórias'.toUpperCase()), findsOneWidget);
 
-    await t.enterText(find.byType(TextField), 'caffe');
+    await t.enterText(find.byType(TextField), 'caffe al banco');
     await settle(t);
     expect(find.text('Un caffè al banco'), findsOneWidget);
     expect(find.text('Il treno per Bologna'), findsNothing);
     expect(find.text('Resultados'.toUpperCase()), findsOneWidget);
 
-    await t.enterText(find.byType(TextField), 'venezia');
+    await t.enterText(find.byType(TextField), 'xyzzy');
     await settle(t);
     expect(find.text('Nenhuma história encontrada'), findsOneWidget);
     await t.tap(find.text('Limpar busca').last);
@@ -48,8 +48,26 @@ void main() {
 
     await t.tap(find.text('B2'));
     await settle(t);
-    expect(find.byType(StoryCard), findsOneWidget);
     expect(find.text('Limpar filtros'), findsOneWidget);
+  });
+
+  testWidgets('Card: kicker com "+N", autor, narração, "Sem tradução" e "Chegou agora"', (t) async {
+    await t.pumpWidget(const PostillaApp(home: Shell()));
+    await settle(t);
+    // Pinocchio (seed fixture): author, narration 8:05, arrived through a sync.
+    await t.enterText(find.byType(TextField), 'capitolo primo');
+    await settle(t);
+    expect(find.text('Carlo Collodi'), findsOneWidget);
+    expect(find.text('8:05'), findsOneWidget);
+    expect(find.text('Chegou agora'), findsWidgets);
+    // Lettera da Trieste: no Portuguese translation (TRA-10).
+    await t.enterText(find.byType(TextField), 'lettera da trieste');
+    await settle(t);
+    expect(find.text('Sem tradução'), findsOneWidget);
+    // La nonna e il basilico: genre + 2 of 3 tags, then "+1".
+    await t.enterText(find.byType(TextField), 'nonna e il basilico');
+    await settle(t);
+    expect(find.text('FAMÍLIA · NONNA · COZINHA · +1'), findsOneWidget);
   });
 
   testWidgets('Leitor: tocar numa palavra abre o verbete do lema, com "Na história"', (t) async {
@@ -57,6 +75,8 @@ void main() {
     t.view.devicePixelRatio = 3;
     addTearDown(t.view.reset);
     await t.pumpWidget(const PostillaApp(home: Shell()));
+    await settle(t);
+    await t.enterText(find.byType(TextField), 'treno per bologna');
     await settle(t);
     await t.tap(find.text('Il treno per Bologna'));
     await settle(t);
@@ -92,6 +112,42 @@ void main() {
     expect(nextStory(b1p1, cat).id, b1p2.id);
     expect(nextStory(b2, cat).id, b1p2.id);
     expect(nextStory(b1p2, cat).id.v, '');
+  });
+
+  test('card kicker: genre + 2 tags in feed order + "+N"; unknown genre "Outros", unknown tag hidden', () {
+    const lists = Lists(
+      genres: {GenreId('viaggio'): {LangId('pt-BR'): 'Viagem', LangId('it'): 'Viaggio'}},
+      tags: {
+        TagId('treno'): {LangId('pt-BR'): 'Trem', LangId('it'): 'Treno'},
+        TagId('roma'): {LangId('pt-BR'): 'Roma', LangId('it'): 'Roma'},
+        TagId('mare'): {LangId('pt-BR'): 'Mar', LangId('it'): 'Mare'},
+        TagId('notte'): {LangId('pt-BR'): 'Noite', LangId('it'): 'Notte'},
+      },
+    );
+    Story s(String genre, List<String> tags) => Story(
+        id: const StoryId('x'),
+        title: '',
+        subtitle: '',
+        level: const Level(1),
+        genre: GenreId(genre),
+        tags: [for (final t in tags) TagId(t)],
+        words: 1);
+    const pt = LangId('pt-BR'), it = LangId('it');
+    expect(cardKicker(s('viaggio', []), lists, pt, 'Outros'), (text: 'Viagem', more: 0));
+    expect(cardKicker(s('viaggio', ['treno', 'roma']), lists, it, 'Altro'), (text: 'Viaggio · Treno · Roma', more: 0));
+    expect(cardKicker(s('viaggio', ['treno', 'roma', 'mare', 'notte']), lists, pt, 'Outros'),
+        (text: 'Viagem · Trem · Roma', more: 2));
+    expect(cardKicker(s('nuovo', ['ignoto', 'mare']), lists, pt, 'Outros'), (text: 'Outros · Mar', more: 0));
+    expect(clock(485000), '8:05');
+  });
+
+  test('reading time: words ÷ the level\'s speed, rounded up (A1 60 … C2 160)', () {
+    expect(const Level(1).minutes(60), 1);
+    expect(const Level(1).minutes(61), 2);
+    expect(const Level(2).minutes(149), 2);
+    expect(const Level(6).minutes(1600), 10);
+    expect(const Level(5).name, 'C1');
+    expect(const Level(7).minutes(100), 0);
   });
 
   test('filtro: "ou" no grupo, "e" entre grupos, busca no gênero', () {

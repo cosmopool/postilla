@@ -1,0 +1,9402 @@
+{
+ "state": {
+  "target": "it",
+  "native": "pt-BR",
+  "cursor": 0,
+  "new_count": 3
+ },
+ "lists": [
+  [
+   "genre",
+   "favola",
+   "it",
+   "Favola"
+  ],
+  [
+   "genre",
+   "favola",
+   "pt-BR",
+   "Fábula"
+  ],
+  [
+   "genre",
+   "favola",
+   "en",
+   "Fable"
+  ],
+  [
+   "genre",
+   "dialogo",
+   "it",
+   "Dialogo"
+  ],
+  [
+   "genre",
+   "dialogo",
+   "pt-BR",
+   "Diálogo"
+  ],
+  [
+   "genre",
+   "dialogo",
+   "en",
+   "Dialogue"
+  ],
+  [
+   "genre",
+   "quotidiano",
+   "it",
+   "Quotidiano"
+  ],
+  [
+   "genre",
+   "quotidiano",
+   "pt-BR",
+   "Cotidiano"
+  ],
+  [
+   "genre",
+   "quotidiano",
+   "en",
+   "Everyday life"
+  ],
+  [
+   "genre",
+   "racconto",
+   "it",
+   "Racconto"
+  ],
+  [
+   "genre",
+   "racconto",
+   "pt-BR",
+   "Conto"
+  ],
+  [
+   "genre",
+   "racconto",
+   "en",
+   "Short story"
+  ],
+  [
+   "genre",
+   "cronaca",
+   "it",
+   "Cronaca"
+  ],
+  [
+   "genre",
+   "cronaca",
+   "pt-BR",
+   "Crônica"
+  ],
+  [
+   "genre",
+   "cronaca",
+   "en",
+   "Chronicle"
+  ],
+  [
+   "genre",
+   "leggenda",
+   "it",
+   "Leggenda"
+  ],
+  [
+   "genre",
+   "leggenda",
+   "pt-BR",
+   "Lenda"
+  ],
+  [
+   "genre",
+   "leggenda",
+   "en",
+   "Legend"
+  ],
+  [
+   "genre",
+   "viaggio",
+   "it",
+   "Viaggio"
+  ],
+  [
+   "genre",
+   "viaggio",
+   "pt-BR",
+   "Viagem"
+  ],
+  [
+   "genre",
+   "viaggio",
+   "en",
+   "Travel"
+  ],
+  [
+   "genre",
+   "lettere",
+   "it",
+   "Lettere"
+  ],
+  [
+   "genre",
+   "lettere",
+   "pt-BR",
+   "Cartas"
+  ],
+  [
+   "genre",
+   "lettere",
+   "en",
+   "Letters"
+  ],
+  [
+   "genre",
+   "mistero",
+   "it",
+   "Mistero"
+  ],
+  [
+   "genre",
+   "mistero",
+   "pt-BR",
+   "Mistério"
+  ],
+  [
+   "genre",
+   "mistero",
+   "en",
+   "Mystery"
+  ],
+  [
+   "genre",
+   "poesia-in-prosa",
+   "it",
+   "Poesia in prosa"
+  ],
+  [
+   "genre",
+   "poesia-in-prosa",
+   "pt-BR",
+   "Poesia em prosa"
+  ],
+  [
+   "genre",
+   "poesia-in-prosa",
+   "en",
+   "Prose poetry"
+  ],
+  [
+   "genre",
+   "teatro",
+   "it",
+   "Teatro"
+  ],
+  [
+   "genre",
+   "teatro",
+   "pt-BR",
+   "Teatro"
+  ],
+  [
+   "genre",
+   "teatro",
+   "en",
+   "Theatre"
+  ],
+  [
+   "genre",
+   "biografia",
+   "it",
+   "Biografia"
+  ],
+  [
+   "genre",
+   "biografia",
+   "pt-BR",
+   "Biografia"
+  ],
+  [
+   "genre",
+   "biografia",
+   "en",
+   "Biography"
+  ],
+  [
+   "genre",
+   "notizia",
+   "it",
+   "Notizia adattata"
+  ],
+  [
+   "genre",
+   "notizia",
+   "pt-BR",
+   "Notícia adaptada"
+  ],
+  [
+   "genre",
+   "notizia",
+   "en",
+   "Adapted news"
+  ],
+  [
+   "genre",
+   "classici",
+   "it",
+   "Classici"
+  ],
+  [
+   "genre",
+   "classici",
+   "pt-BR",
+   "Clássicos"
+  ],
+  [
+   "genre",
+   "classici",
+   "en",
+   "Classics"
+  ],
+  [
+   "genre",
+   "fantascienza",
+   "it",
+   "Fantascienza"
+  ],
+  [
+   "genre",
+   "fantascienza",
+   "pt-BR",
+   "Ficção científica"
+  ],
+  [
+   "genre",
+   "fantascienza",
+   "en",
+   "Science fiction"
+  ],
+  [
+   "genre",
+   "romanzo",
+   "it",
+   "Romanzo (capitolo)"
+  ],
+  [
+   "genre",
+   "romanzo",
+   "pt-BR",
+   "Romance (capítulo)"
+  ],
+  [
+   "genre",
+   "romanzo",
+   "en",
+   "Novel (chapter)"
+  ],
+  [
+   "genre",
+   "saggio",
+   "it",
+   "Saggio breve"
+  ],
+  [
+   "genre",
+   "saggio",
+   "pt-BR",
+   "Ensaio curto"
+  ],
+  [
+   "genre",
+   "saggio",
+   "en",
+   "Short essay"
+  ],
+  [
+   "genre",
+   "famiglia",
+   "it",
+   "Famiglia"
+  ],
+  [
+   "genre",
+   "famiglia",
+   "pt-BR",
+   "Família"
+  ],
+  [
+   "genre",
+   "famiglia",
+   "en",
+   "Family"
+  ],
+  [
+   "tag",
+   "famiglia",
+   "it",
+   "Famiglia"
+  ],
+  [
+   "tag",
+   "famiglia",
+   "pt-BR",
+   "Família"
+  ],
+  [
+   "tag",
+   "famiglia",
+   "en",
+   "Family"
+  ],
+  [
+   "tag",
+   "cibo",
+   "it",
+   "Cibo"
+  ],
+  [
+   "tag",
+   "cibo",
+   "pt-BR",
+   "Comida"
+  ],
+  [
+   "tag",
+   "cibo",
+   "en",
+   "Food"
+  ],
+  [
+   "tag",
+   "mare",
+   "it",
+   "Mare"
+  ],
+  [
+   "tag",
+   "mare",
+   "pt-BR",
+   "Mar"
+  ],
+  [
+   "tag",
+   "mare",
+   "en",
+   "Sea"
+  ],
+  [
+   "tag",
+   "citta",
+   "it",
+   "Città"
+  ],
+  [
+   "tag",
+   "citta",
+   "pt-BR",
+   "Cidade"
+  ],
+  [
+   "tag",
+   "citta",
+   "en",
+   "City"
+  ],
+  [
+   "tag",
+   "animali",
+   "it",
+   "Animali"
+  ],
+  [
+   "tag",
+   "animali",
+   "pt-BR",
+   "Animais"
+  ],
+  [
+   "tag",
+   "animali",
+   "en",
+   "Animals"
+  ],
+  [
+   "tag",
+   "roma",
+   "it",
+   "Roma"
+  ],
+  [
+   "tag",
+   "roma",
+   "pt-BR",
+   "Roma"
+  ],
+  [
+   "tag",
+   "roma",
+   "en",
+   "Rome"
+  ],
+  [
+   "tag",
+   "lavoro",
+   "it",
+   "Lavoro"
+  ],
+  [
+   "tag",
+   "lavoro",
+   "pt-BR",
+   "Trabalho"
+  ],
+  [
+   "tag",
+   "lavoro",
+   "en",
+   "Work"
+  ],
+  [
+   "tag",
+   "sicilia",
+   "it",
+   "Sicilia"
+  ],
+  [
+   "tag",
+   "sicilia",
+   "pt-BR",
+   "Sicília"
+  ],
+  [
+   "tag",
+   "sicilia",
+   "en",
+   "Sicily"
+  ],
+  [
+   "tag",
+   "campagna",
+   "it",
+   "Campagna"
+  ],
+  [
+   "tag",
+   "campagna",
+   "pt-BR",
+   "Campo"
+  ],
+  [
+   "tag",
+   "campagna",
+   "en",
+   "Countryside"
+  ],
+  [
+   "tag",
+   "amicizia",
+   "it",
+   "Amicizia"
+  ],
+  [
+   "tag",
+   "amicizia",
+   "pt-BR",
+   "Amizade"
+  ],
+  [
+   "tag",
+   "amicizia",
+   "en",
+   "Friendship"
+  ],
+  [
+   "tag",
+   "segreto",
+   "it",
+   "Segreto"
+  ],
+  [
+   "tag",
+   "segreto",
+   "pt-BR",
+   "Segredo"
+  ],
+  [
+   "tag",
+   "segreto",
+   "en",
+   "Secret"
+  ],
+  [
+   "tag",
+   "treno",
+   "it",
+   "Treno"
+  ],
+  [
+   "tag",
+   "treno",
+   "pt-BR",
+   "Trem"
+  ],
+  [
+   "tag",
+   "treno",
+   "en",
+   "Train"
+  ],
+  [
+   "tag",
+   "infanzia",
+   "it",
+   "Infanzia"
+  ],
+  [
+   "tag",
+   "infanzia",
+   "pt-BR",
+   "Infância"
+  ],
+  [
+   "tag",
+   "infanzia",
+   "en",
+   "Childhood"
+  ],
+  [
+   "tag",
+   "napoli",
+   "it",
+   "Napoli"
+  ],
+  [
+   "tag",
+   "napoli",
+   "pt-BR",
+   "Nápoles"
+  ],
+  [
+   "tag",
+   "napoli",
+   "en",
+   "Naples"
+  ],
+  [
+   "tag",
+   "memoria",
+   "it",
+   "Memoria"
+  ],
+  [
+   "tag",
+   "memoria",
+   "pt-BR",
+   "Memória"
+  ],
+  [
+   "tag",
+   "memoria",
+   "en",
+   "Memory"
+  ],
+  [
+   "tag",
+   "mercato",
+   "it",
+   "Mercato"
+  ],
+  [
+   "tag",
+   "mercato",
+   "pt-BR",
+   "Mercado"
+  ],
+  [
+   "tag",
+   "mercato",
+   "en",
+   "Market"
+  ],
+  [
+   "tag",
+   "caffe",
+   "it",
+   "Caffè"
+  ],
+  [
+   "tag",
+   "caffe",
+   "pt-BR",
+   "Café"
+  ],
+  [
+   "tag",
+   "caffe",
+   "en",
+   "Coffee"
+  ],
+  [
+   "tag",
+   "casa",
+   "it",
+   "Casa"
+  ],
+  [
+   "tag",
+   "casa",
+   "pt-BR",
+   "Casa"
+  ],
+  [
+   "tag",
+   "casa",
+   "en",
+   "Home"
+  ],
+  [
+   "tag",
+   "nonna",
+   "it",
+   "Nonna"
+  ],
+  [
+   "tag",
+   "nonna",
+   "pt-BR",
+   "Nonna"
+  ],
+  [
+   "tag",
+   "nonna",
+   "en",
+   "Grandma"
+  ],
+  [
+   "tag",
+   "scuola",
+   "it",
+   "Scuola"
+  ],
+  [
+   "tag",
+   "scuola",
+   "pt-BR",
+   "Escola"
+  ],
+  [
+   "tag",
+   "scuola",
+   "en",
+   "School"
+  ],
+  [
+   "tag",
+   "turismo",
+   "it",
+   "Turismo"
+  ],
+  [
+   "tag",
+   "turismo",
+   "pt-BR",
+   "Turismo"
+  ],
+  [
+   "tag",
+   "turismo",
+   "en",
+   "Tourism"
+  ],
+  [
+   "tag",
+   "estate",
+   "it",
+   "Estate"
+  ],
+  [
+   "tag",
+   "estate",
+   "pt-BR",
+   "Verão"
+  ],
+  [
+   "tag",
+   "estate",
+   "en",
+   "Summer"
+  ],
+  [
+   "tag",
+   "natale",
+   "it",
+   "Natale"
+  ],
+  [
+   "tag",
+   "natale",
+   "pt-BR",
+   "Natal"
+  ],
+  [
+   "tag",
+   "natale",
+   "en",
+   "Christmas"
+  ],
+  [
+   "tag",
+   "venezia",
+   "it",
+   "Venezia"
+  ],
+  [
+   "tag",
+   "venezia",
+   "pt-BR",
+   "Veneza"
+  ],
+  [
+   "tag",
+   "venezia",
+   "en",
+   "Venice"
+  ],
+  [
+   "tag",
+   "notte",
+   "it",
+   "Notte"
+  ],
+  [
+   "tag",
+   "notte",
+   "pt-BR",
+   "Noite"
+  ],
+  [
+   "tag",
+   "notte",
+   "en",
+   "Night"
+  ],
+  [
+   "tag",
+   "arte",
+   "it",
+   "Arte"
+  ],
+  [
+   "tag",
+   "arte",
+   "pt-BR",
+   "Arte"
+  ],
+  [
+   "tag",
+   "arte",
+   "en",
+   "Art"
+  ],
+  [
+   "tag",
+   "firenze",
+   "it",
+   "Firenze"
+  ],
+  [
+   "tag",
+   "firenze",
+   "pt-BR",
+   "Florença"
+  ],
+  [
+   "tag",
+   "firenze",
+   "en",
+   "Florence"
+  ],
+  [
+   "tag",
+   "cucina",
+   "it",
+   "Cucina"
+  ],
+  [
+   "tag",
+   "cucina",
+   "pt-BR",
+   "Cozinha"
+  ],
+  [
+   "tag",
+   "cucina",
+   "en",
+   "Cooking"
+  ],
+  [
+   "tag",
+   "emilia-romagna",
+   "it",
+   "Emilia-Romagna"
+  ],
+  [
+   "tag",
+   "emilia-romagna",
+   "pt-BR",
+   "Emília-Romanha"
+  ],
+  [
+   "tag",
+   "emilia-romagna",
+   "en",
+   "Emilia-Romagna"
+  ],
+  [
+   "tag",
+   "montagna",
+   "it",
+   "Montagna"
+  ],
+  [
+   "tag",
+   "montagna",
+   "pt-BR",
+   "Montanha"
+  ],
+  [
+   "tag",
+   "montagna",
+   "en",
+   "Mountains"
+  ],
+  [
+   "tag",
+   "vicini",
+   "it",
+   "Vicini"
+  ],
+  [
+   "tag",
+   "vicini",
+   "pt-BR",
+   "Vizinhos"
+  ],
+  [
+   "tag",
+   "vicini",
+   "en",
+   "Neighbours"
+  ],
+  [
+   "tag",
+   "musica",
+   "it",
+   "Musica"
+  ],
+  [
+   "tag",
+   "musica",
+   "pt-BR",
+   "Música"
+  ],
+  [
+   "tag",
+   "musica",
+   "en",
+   "Music"
+  ],
+  [
+   "tag",
+   "milano",
+   "it",
+   "Milano"
+  ],
+  [
+   "tag",
+   "milano",
+   "pt-BR",
+   "Milão"
+  ],
+  [
+   "tag",
+   "milano",
+   "en",
+   "Milan"
+  ],
+  [
+   "tag",
+   "scienza",
+   "it",
+   "Scienza"
+  ],
+  [
+   "tag",
+   "scienza",
+   "pt-BR",
+   "Ciência"
+  ],
+  [
+   "tag",
+   "scienza",
+   "en",
+   "Science"
+  ],
+  [
+   "tag",
+   "guerra",
+   "it",
+   "Guerra"
+  ],
+  [
+   "tag",
+   "guerra",
+   "pt-BR",
+   "Guerra"
+  ],
+  [
+   "tag",
+   "guerra",
+   "en",
+   "War"
+  ],
+  [
+   "tag",
+   "magia",
+   "it",
+   "Magia"
+  ],
+  [
+   "tag",
+   "magia",
+   "pt-BR",
+   "Magia"
+  ],
+  [
+   "tag",
+   "magia",
+   "en",
+   "Magic"
+  ],
+  [
+   "tag",
+   "polizia",
+   "it",
+   "Polizia"
+  ],
+  [
+   "tag",
+   "polizia",
+   "pt-BR",
+   "Polícia"
+  ],
+  [
+   "tag",
+   "polizia",
+   "en",
+   "Police"
+  ],
+  [
+   "tag",
+   "lingua",
+   "it",
+   "Lingua"
+  ],
+  [
+   "tag",
+   "lingua",
+   "pt-BR",
+   "Língua"
+  ],
+  [
+   "tag",
+   "lingua",
+   "en",
+   "Language"
+  ],
+  [
+   "tag",
+   "futuro",
+   "it",
+   "Futuro"
+  ],
+  [
+   "tag",
+   "futuro",
+   "pt-BR",
+   "Futuro"
+  ],
+  [
+   "tag",
+   "futuro",
+   "en",
+   "Future"
+  ],
+  [
+   "tag",
+   "amore",
+   "it",
+   "Amore"
+  ],
+  [
+   "tag",
+   "amore",
+   "pt-BR",
+   "Amor"
+  ],
+  [
+   "tag",
+   "amore",
+   "en",
+   "Love"
+  ],
+  [
+   "tag",
+   "calcio",
+   "it",
+   "Calcio"
+  ],
+  [
+   "tag",
+   "calcio",
+   "pt-BR",
+   "Futebol"
+  ],
+  [
+   "tag",
+   "calcio",
+   "en",
+   "Football"
+  ],
+  [
+   "tag",
+   "nonno",
+   "it",
+   "Nonno"
+  ],
+  [
+   "tag",
+   "nonno",
+   "pt-BR",
+   "Nonno"
+  ],
+  [
+   "tag",
+   "nonno",
+   "en",
+   "Grandpa"
+  ],
+  [
+   "tag",
+   "inverno",
+   "it",
+   "Inverno"
+  ],
+  [
+   "tag",
+   "inverno",
+   "pt-BR",
+   "Inverno"
+  ],
+  [
+   "tag",
+   "inverno",
+   "en",
+   "Winter"
+  ],
+  [
+   "tag",
+   "alpi",
+   "it",
+   "Alpi"
+  ],
+  [
+   "tag",
+   "alpi",
+   "pt-BR",
+   "Alpes"
+  ],
+  [
+   "tag",
+   "alpi",
+   "en",
+   "Alps"
+  ],
+  [
+   "tag",
+   "torino",
+   "it",
+   "Torino"
+  ],
+  [
+   "tag",
+   "torino",
+   "pt-BR",
+   "Turim"
+  ],
+  [
+   "tag",
+   "torino",
+   "en",
+   "Turin"
+  ],
+  [
+   "tag",
+   "feste",
+   "it",
+   "Feste"
+  ],
+  [
+   "tag",
+   "feste",
+   "pt-BR",
+   "Festas"
+  ],
+  [
+   "tag",
+   "feste",
+   "en",
+   "Holidays"
+  ],
+  [
+   "tag",
+   "bicicletta",
+   "it",
+   "Bicicletta"
+  ],
+  [
+   "tag",
+   "bicicletta",
+   "pt-BR",
+   "Bicicleta"
+  ],
+  [
+   "tag",
+   "bicicletta",
+   "en",
+   "Bicycle"
+  ],
+  [
+   "tag",
+   "puglia",
+   "it",
+   "Puglia"
+  ],
+  [
+   "tag",
+   "puglia",
+   "pt-BR",
+   "Puglia"
+  ],
+  [
+   "tag",
+   "puglia",
+   "en",
+   "Apulia"
+  ],
+  [
+   "tag",
+   "pioggia",
+   "it",
+   "Pioggia"
+  ],
+  [
+   "tag",
+   "pioggia",
+   "pt-BR",
+   "Chuva"
+  ],
+  [
+   "tag",
+   "pioggia",
+   "en",
+   "Rain"
+  ],
+  [
+   "tag",
+   "trieste",
+   "it",
+   "Trieste"
+  ],
+  [
+   "tag",
+   "trieste",
+   "pt-BR",
+   "Trieste"
+  ],
+  [
+   "tag",
+   "trieste",
+   "en",
+   "Trieste"
+  ],
+  [
+   "tag",
+   "sardegna",
+   "it",
+   "Sardegna"
+  ],
+  [
+   "tag",
+   "sardegna",
+   "pt-BR",
+   "Sardenha"
+  ],
+  [
+   "tag",
+   "sardegna",
+   "en",
+   "Sardinia"
+  ],
+  [
+   "tag",
+   "libri",
+   "it",
+   "Libri"
+  ],
+  [
+   "tag",
+   "libri",
+   "pt-BR",
+   "Livros"
+  ],
+  [
+   "tag",
+   "libri",
+   "en",
+   "Books"
+  ],
+  [
+   "tag",
+   "bologna",
+   "it",
+   "Bologna"
+  ],
+  [
+   "tag",
+   "bologna",
+   "pt-BR",
+   "Bolonha"
+  ],
+  [
+   "tag",
+   "bologna",
+   "en",
+   "Bologna"
+  ],
+  [
+   "tag",
+   "tecnologia",
+   "it",
+   "Tecnologia"
+  ],
+  [
+   "tag",
+   "tecnologia",
+   "pt-BR",
+   "Tecnologia"
+  ],
+  [
+   "tag",
+   "tecnologia",
+   "en",
+   "Technology"
+  ],
+  [
+   "tag",
+   "fotografia",
+   "it",
+   "Fotografia"
+  ],
+  [
+   "tag",
+   "fotografia",
+   "pt-BR",
+   "Fotografia"
+  ],
+  [
+   "tag",
+   "fotografia",
+   "en",
+   "Photography"
+  ],
+  [
+   "tag",
+   "albergo",
+   "it",
+   "Albergo"
+  ],
+  [
+   "tag",
+   "albergo",
+   "pt-BR",
+   "Hotel"
+  ],
+  [
+   "tag",
+   "albergo",
+   "en",
+   "Hotel"
+  ],
+  [
+   "tag",
+   "neve",
+   "it",
+   "Neve"
+  ],
+  [
+   "tag",
+   "neve",
+   "pt-BR",
+   "Neve"
+  ],
+  [
+   "tag",
+   "neve",
+   "en",
+   "Snow"
+  ],
+  [
+   "tag",
+   "toscana",
+   "it",
+   "Toscana"
+  ],
+  [
+   "tag",
+   "toscana",
+   "pt-BR",
+   "Toscana"
+  ],
+  [
+   "tag",
+   "toscana",
+   "en",
+   "Tuscany"
+  ],
+  [
+   "tag",
+   "genova",
+   "it",
+   "Genova"
+  ],
+  [
+   "tag",
+   "genova",
+   "pt-BR",
+   "Gênova"
+  ],
+  [
+   "tag",
+   "genova",
+   "en",
+   "Genoa"
+  ],
+  [
+   "tag",
+   "opera",
+   "it",
+   "Opera"
+  ],
+  [
+   "tag",
+   "opera",
+   "pt-BR",
+   "Ópera"
+  ],
+  [
+   "tag",
+   "opera",
+   "en",
+   "Opera"
+  ],
+  [
+   "tag",
+   "robot",
+   "it",
+   "Robot"
+  ],
+  [
+   "tag",
+   "robot",
+   "pt-BR",
+   "Robôs"
+  ],
+  [
+   "tag",
+   "robot",
+   "en",
+   "Robots"
+  ],
+  [
+   "tag",
+   "immigrazione",
+   "it",
+   "Immigrazione"
+  ],
+  [
+   "tag",
+   "immigrazione",
+   "pt-BR",
+   "Imigração"
+  ],
+  [
+   "tag",
+   "immigrazione",
+   "en",
+   "Immigration"
+  ],
+  [
+   "tag",
+   "olio",
+   "it",
+   "Olio d’oliva"
+  ],
+  [
+   "tag",
+   "olio",
+   "pt-BR",
+   "Azeite"
+  ],
+  [
+   "tag",
+   "olio",
+   "en",
+   "Olive oil"
+  ],
+  [
+   "tag",
+   "pesca",
+   "it",
+   "Pesca"
+  ],
+  [
+   "tag",
+   "pesca",
+   "pt-BR",
+   "Pesca"
+  ],
+  [
+   "tag",
+   "pesca",
+   "en",
+   "Fishing"
+  ],
+  [
+   "tag",
+   "cinema",
+   "it",
+   "Cinema"
+  ],
+  [
+   "tag",
+   "cinema",
+   "pt-BR",
+   "Cinema"
+  ],
+  [
+   "tag",
+   "cinema",
+   "en",
+   "Cinema"
+  ],
+  [
+   "tag",
+   "stelle",
+   "it",
+   "Stelle"
+  ],
+  [
+   "tag",
+   "stelle",
+   "pt-BR",
+   "Estrelas"
+  ],
+  [
+   "tag",
+   "stelle",
+   "en",
+   "Stars"
+  ],
+  [
+   "tag",
+   "ristorante",
+   "it",
+   "Ristorante"
+  ],
+  [
+   "tag",
+   "ristorante",
+   "pt-BR",
+   "Restaurante"
+  ],
+  [
+   "tag",
+   "ristorante",
+   "en",
+   "Restaurant"
+  ],
+  [
+   "tag",
+   "gelato",
+   "it",
+   "Gelato"
+  ],
+  [
+   "tag",
+   "gelato",
+   "pt-BR",
+   "Sorvete"
+  ],
+  [
+   "tag",
+   "gelato",
+   "en",
+   "Ice cream"
+  ],
+  [
+   "tag",
+   "pane",
+   "it",
+   "Pane"
+  ],
+  [
+   "tag",
+   "pane",
+   "pt-BR",
+   "Pão"
+  ],
+  [
+   "tag",
+   "pane",
+   "en",
+   "Bread"
+  ],
+  [
+   "tag",
+   "bosco",
+   "it",
+   "Bosco"
+  ],
+  [
+   "tag",
+   "bosco",
+   "pt-BR",
+   "Floresta"
+  ],
+  [
+   "tag",
+   "bosco",
+   "en",
+   "Forest"
+  ],
+  [
+   "tag",
+   "salute",
+   "it",
+   "Salute"
+  ],
+  [
+   "tag",
+   "salute",
+   "pt-BR",
+   "Saúde"
+  ],
+  [
+   "tag",
+   "salute",
+   "en",
+   "Health"
+  ],
+  [
+   "tag",
+   "fratelli",
+   "it",
+   "Fratelli"
+  ],
+  [
+   "tag",
+   "fratelli",
+   "pt-BR",
+   "Irmãos"
+  ],
+  [
+   "tag",
+   "fratelli",
+   "en",
+   "Siblings"
+  ],
+  [
+   "tag",
+   "compleanno",
+   "it",
+   "Compleanno"
+  ],
+  [
+   "tag",
+   "compleanno",
+   "pt-BR",
+   "Aniversário"
+  ],
+  [
+   "tag",
+   "compleanno",
+   "en",
+   "Birthday"
+  ],
+  [
+   "tag",
+   "cavallo",
+   "it",
+   "Cavallo"
+  ],
+  [
+   "tag",
+   "cavallo",
+   "pt-BR",
+   "Cavalo"
+  ],
+  [
+   "tag",
+   "cavallo",
+   "en",
+   "Horse"
+  ],
+  [
+   "tag",
+   "telefono",
+   "it",
+   "Telefono"
+  ],
+  [
+   "tag",
+   "telefono",
+   "pt-BR",
+   "Telefone"
+  ],
+  [
+   "tag",
+   "telefono",
+   "en",
+   "Telephone"
+  ],
+  [
+   "tag",
+   "liberta",
+   "it",
+   "Libertà"
+  ],
+  [
+   "tag",
+   "liberta",
+   "pt-BR",
+   "Liberdade"
+  ],
+  [
+   "tag",
+   "liberta",
+   "en",
+   "Freedom"
+  ],
+  [
+   "tag",
+   "posta",
+   "it",
+   "Posta"
+  ],
+  [
+   "tag",
+   "posta",
+   "pt-BR",
+   "Correio"
+  ],
+  [
+   "tag",
+   "posta",
+   "en",
+   "Post"
+  ],
+  [
+   "tag",
+   "vespa",
+   "it",
+   "Vespa"
+  ],
+  [
+   "tag",
+   "vespa",
+   "pt-BR",
+   "Vespa"
+  ],
+  [
+   "tag",
+   "vespa",
+   "en",
+   "Vespa"
+  ],
+  [
+   "tag",
+   "moda",
+   "it",
+   "Moda"
+  ],
+  [
+   "tag",
+   "moda",
+   "pt-BR",
+   "Moda"
+  ],
+  [
+   "tag",
+   "moda",
+   "en",
+   "Fashion"
+  ],
+  [
+   "tag",
+   "carnevale",
+   "it",
+   "Carnevale"
+  ],
+  [
+   "tag",
+   "carnevale",
+   "pt-BR",
+   "Carnaval"
+  ],
+  [
+   "tag",
+   "carnevale",
+   "en",
+   "Carnival"
+  ],
+  [
+   "tag",
+   "museo",
+   "it",
+   "Museo"
+  ],
+  [
+   "tag",
+   "museo",
+   "pt-BR",
+   "Museu"
+  ],
+  [
+   "tag",
+   "museo",
+   "en",
+   "Museum"
+  ],
+  [
+   "tag",
+   "isola",
+   "it",
+   "Isola"
+  ],
+  [
+   "tag",
+   "isola",
+   "pt-BR",
+   "Ilha"
+  ],
+  [
+   "tag",
+   "isola",
+   "en",
+   "Island"
+  ],
+  [
+   "tag",
+   "laghi",
+   "it",
+   "Laghi"
+  ],
+  [
+   "tag",
+   "laghi",
+   "pt-BR",
+   "Lagos"
+  ],
+  [
+   "tag",
+   "laghi",
+   "en",
+   "Lakes"
+  ],
+  [
+   "tag",
+   "gesti",
+   "it",
+   "Gesti"
+  ],
+  [
+   "tag",
+   "gesti",
+   "pt-BR",
+   "Gestos"
+  ],
+  [
+   "tag",
+   "gesti",
+   "en",
+   "Gestures"
+  ],
+  [
+   "tag",
+   "umorismo",
+   "it",
+   "Umorismo"
+  ],
+  [
+   "tag",
+   "umorismo",
+   "pt-BR",
+   "Humor"
+  ],
+  [
+   "tag",
+   "umorismo",
+   "en",
+   "Humour"
+  ],
+  [
+   "tag",
+   "radio",
+   "it",
+   "Radio"
+  ],
+  [
+   "tag",
+   "radio",
+   "pt-BR",
+   "Rádio"
+  ],
+  [
+   "tag",
+   "radio",
+   "en",
+   "Radio"
+  ],
+  [
+   "tag",
+   "giornale",
+   "it",
+   "Giornale"
+  ],
+  [
+   "tag",
+   "giornale",
+   "pt-BR",
+   "Jornal"
+  ],
+  [
+   "tag",
+   "giornale",
+   "en",
+   "Newspaper"
+  ],
+  [
+   "tag",
+   "dialetto",
+   "it",
+   "Dialetto"
+  ],
+  [
+   "tag",
+   "dialetto",
+   "pt-BR",
+   "Dialeto"
+  ],
+  [
+   "tag",
+   "dialetto",
+   "en",
+   "Dialect"
+  ],
+  [
+   "tag",
+   "matrimonio",
+   "it",
+   "Matrimonio"
+  ],
+  [
+   "tag",
+   "matrimonio",
+   "pt-BR",
+   "Casamento"
+  ],
+  [
+   "tag",
+   "matrimonio",
+   "en",
+   "Wedding"
+  ],
+  [
+   "tag",
+   "luna",
+   "it",
+   "Luna"
+  ],
+  [
+   "tag",
+   "luna",
+   "pt-BR",
+   "Lua"
+  ],
+  [
+   "tag",
+   "luna",
+   "en",
+   "Moon"
+  ],
+  [
+   "tag",
+   "barca",
+   "it",
+   "Barca"
+  ],
+  [
+   "tag",
+   "barca",
+   "pt-BR",
+   "Barco"
+  ],
+  [
+   "tag",
+   "barca",
+   "en",
+   "Boat"
+  ],
+  [
+   "tag",
+   "fabbrica",
+   "it",
+   "Fabbrica"
+  ],
+  [
+   "tag",
+   "fabbrica",
+   "pt-BR",
+   "Fábrica"
+  ],
+  [
+   "tag",
+   "fabbrica",
+   "en",
+   "Factory"
+  ],
+  [
+   "language",
+   "it",
+   "",
+   "Italiano",
+   1,
+   0
+  ],
+  [
+   "language",
+   "pt-BR",
+   "",
+   "Português brasileiro",
+   0,
+   1
+  ],
+  [
+   "language",
+   "en",
+   "",
+   "English",
+   0,
+   0
+  ],
+  [
+   "author",
+   "edmondo-de-amicis",
+   "",
+   "Edmondo De Amicis"
+  ],
+  [
+   "author",
+   "carlo-collodi",
+   "",
+   "Carlo Collodi"
+  ],
+  [
+   "author",
+   "grazia-deledda",
+   "",
+   "Grazia Deledda"
+  ],
+  [
+   "author",
+   "giovanni-verga",
+   "",
+   "Giovanni Verga"
+  ],
+  [
+   "author",
+   "luigi-pirandello",
+   "",
+   "Luigi Pirandello"
+  ],
+  [
+   "author",
+   "giovanni-boccaccio",
+   "",
+   "Giovanni Boccaccio"
+  ],
+  [
+   "author",
+   "carlo-goldoni",
+   "",
+   "Carlo Goldoni"
+  ],
+  [
+   "author",
+   "italo-svevo",
+   "",
+   "Italo Svevo"
+  ],
+  [
+   "author",
+   "emilio-salgari",
+   "",
+   "Emilio Salgari"
+  ]
+ ],
+ "stories": [
+  {
+   "id": "88638f0e-9d2a-4d0c-9ca2-1fce994fdc35",
+   "level": 1,
+   "genre": "favola",
+   "tags": [
+    "animali",
+    "famiglia"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "c9021e980a420620cd7e69ae393df2c53997250271e39b82d381f4dfb6fb67bd",
+     "title": "Il gatto di Marco",
+     "subtitle": "Un gatto arancione che non vuole uscire.",
+     "words": 82,
+     "band_words": [
+      8,
+      55,
+      12,
+      7
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "44dbcde584a85d2f4acb514777a837afdb0fba8bd0d4a0ff6f41011767a3f67b",
+     "title": "Il gatto di Marco",
+     "subtitle": "Un gatto arancione che non vuole uscire.",
+     "words": 89,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "eca3fc38-282e-4a65-84ea-9293fdd309d6",
+   "level": 1,
+   "genre": "dialogo",
+   "tags": [
+    "mercato",
+    "cibo"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "663097fcee8ebe1aaf674e2573041c650c7fc21acc356a619b5ea91ec8ed4342",
+     "title": "Al mercato",
+     "subtitle": "Quanto costano le pesche oggi?",
+     "words": 107,
+     "band_words": [
+      8,
+      74,
+      16,
+      9
+     ],
+     "audio_ms": 108000,
+     "opus_sha256": "534761061ccc7d4f8047f84c04b736c646d01925e3ae474655f372b388dd54cf",
+     "opus_size": 324000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "69a6b03abb3f96a7bd72bf8e7e88687682baeed46a22c2dbd4760fcecf80f525",
+     "title": "Al mercato",
+     "subtitle": "Quanto costano le pesche oggi?",
+     "words": 116,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "63b68640-460f-4641-92e7-2c7d9618d488",
+   "level": 1,
+   "genre": "dialogo",
+   "tags": [
+    "caffe",
+    "amicizia"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "d14b275cc8cdf2795722ee8d4c393eb48d291bc022e24de58869d3b24bfa52f8",
+     "title": "Un cappuccino, per favore",
+     "subtitle": "Due amiche, un tavolino e una brioche.",
+     "words": 81,
+     "band_words": [
+      7,
+      55,
+      12,
+      7
+     ],
+     "audio_ms": 115000,
+     "opus_sha256": "70c4c0ee7b0a2ebe4a560ab741b6ba01c03cc4d8b5862656cb0bc4778f8a6400",
+     "opus_size": 345000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "1616357e2c42d2815778f2c37e768a14a05f6b74d9458d29ddb76844939bbc3e",
+     "title": "Un cappuccino, per favore",
+     "subtitle": "Due amiche, un tavolino e una brioche.",
+     "words": 87,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "72966426-a8d8-45a6-807b-4b870d92789c",
+   "level": 1,
+   "genre": "quotidiano",
+   "tags": [
+    "casa",
+    "famiglia"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "27888fca31ec2b5cf3bdf6c06adfc3b92a1645a38637c1f5c9e0e32e8285c54d",
+     "title": "La mattina di Luca",
+     "subtitle": "Sveglia, doccia, colazione e via.",
+     "words": 87,
+     "band_words": [
+      6,
+      60,
+      13,
+      8
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "cf8e152c47acc273eec89b09a13405d8878d667e88c94775d61a49b57b9c55bb",
+     "title": "La mattina di Luca",
+     "subtitle": "Sveglia, doccia, colazione e via.",
+     "words": 94,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "13d3b8f8-56d2-4376-9f96-810c88bf4b8d",
+   "level": 1,
+   "genre": "dialogo",
+   "tags": [
+    "treno",
+    "roma"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "826728a188e99a7b423e6a3b3fce5a78369e8a611dd0582e0599675182e8e5eb",
+     "title": "Un biglietto per Roma",
+     "subtitle": "Andata e ritorno, binario tre.",
+     "words": 84,
+     "band_words": [
+      6,
+      58,
+      13,
+      7
+     ],
+     "audio_ms": 110000,
+     "opus_sha256": "2d7545fbd8b0b4e7388540043c2f6c4fab6a8e77e17c183face0f8d1e0dc519c",
+     "opus_size": 330000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "44c15055d0015b46f99018d7b8d641058582212afff8bfaf6c865d7359422040",
+     "title": "Un biglietto per Roma",
+     "subtitle": "Andata e ritorno, binario tre.",
+     "words": 91,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "e4d76866-ca23-471e-bf7d-59db8ec5053f",
+   "level": 1,
+   "genre": "quotidiano",
+   "tags": [
+    "famiglia",
+    "fotografia",
+    "etichetta-nuova"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "e7f677ed1bf05307df8684958db3cd19ca517c3eb5e782b98ef771c232321de3",
+     "title": "La foto sul frigorifero",
+     "subtitle": "Chi sono queste persone al mare?",
+     "words": 97,
+     "band_words": [
+      7,
+      67,
+      15,
+      8
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "aa091b29d50109cd200cc1b99935c55666b97781f316be8ec5d18fdb90e66545",
+     "title": "La foto sul frigorifero",
+     "subtitle": "Chi sono queste persone al mare?",
+     "words": 105,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "edb652ff-3c82-490a-96c2-a5c24eebd9f9",
+   "level": 1,
+   "genre": "quotidiano",
+   "tags": [
+    "caffe",
+    "citta"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "beb1d074537b8b5582e104f068e991a2b9437994fa1cd0969b7490ae0464873e",
+     "title": "Un caffè al banco",
+     "subtitle": "Come si ordina un caffè in un bar italiano.",
+     "words": 310,
+     "band_words": [
+      25,
+      213,
+      48,
+      24
+     ],
+     "audio_ms": 171000,
+     "opus_sha256": "6ee1ad87c3aa829667c90f94759e4771741b0335aec7d5bfbdb18378d3506f66",
+     "opus_size": 513000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "dc379aa0cf8a0ef5369e649965c45f739ed84dde83fd49a3575d43d6b8542f41",
+     "title": "Un caffè al banco",
+     "subtitle": "Come si ordina un caffè in un bar italiano.",
+     "words": 335,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "4558fb9a-f088-4302-a289-dfeefcfb71f3",
+   "level": 1,
+   "genre": "famiglia",
+   "tags": [
+    "nonna",
+    "cucina",
+    "famiglia"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "a3f6a969e08fef5b56ec99369707fc9a902a5e3224fd24e54e77319bba5d7e47",
+     "title": "La nonna e il basilico",
+     "subtitle": "Un vaso sul balcone e una ricetta di famiglia.",
+     "words": 282,
+     "band_words": [
+      17,
+      198,
+      45,
+      22
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "a4e875e7809c2d72e48e8ba6805e2ad35f2e7c7f5a6eb1293cac87b5c5d6d74a",
+     "title": "La nonna e il basilico",
+     "subtitle": "Un vaso sul balcone e una ricetta di famiglia.",
+     "words": 305,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "f4ec7c57-7304-4d5c-b6c9-da231f179bcf",
+   "level": 1,
+   "genre": "cronaca",
+   "tags": [
+    "scuola",
+    "infanzia"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "f2f193b7954071e364dc61a22b781db5c1789113697d1ef1fc469caf66496cd7",
+     "title": "Il primo giorno di scuola",
+     "subtitle": "Uno zaino nuovo e troppe domande.",
+     "words": 138,
+     "band_words": [
+      10,
+      96,
+      21,
+      11
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "505caad623d17218ecb7fed6e4c0d30456526e70e03e5dae86e62df9e7623705",
+     "title": "Il primo giorno di scuola",
+     "subtitle": "Uno zaino nuovo e troppe domande.",
+     "words": 149,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "e3660b6d-09ff-4fd6-b4ec-40902941412c",
+   "level": 1,
+   "genre": "favola",
+   "tags": [
+    "animali",
+    "campagna",
+    "citta"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "f87d78a3f487c5dc5fbd931f935c1e4a5006cf4ce59a90ee5fd7a95573e2ddc9",
+     "title": "Il topo di campagna e il topo di città",
+     "subtitle": "Due cugini, due case, due modi di vivere.",
+     "words": 147,
+     "band_words": [
+      9,
+      103,
+      23,
+      12
+     ],
+     "audio_ms": 160000,
+     "opus_sha256": "26b67ab52d1ef018f5953ad93a6e3698d3549c71d2cb2025ef7e6a70f1596393",
+     "opus_size": 480000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "e6f8ad93c192da740d67daff1226b0ce692d88a166b4c2ef4005666b1445519e",
+     "title": "Il topo di campagna e il topo di città",
+     "subtitle": "Due cugini, due case, due modi di vivere.",
+     "words": 159,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "0fa04066-0aae-4512-b9a4-dfb3922222fd",
+   "level": 1,
+   "genre": "quotidiano",
+   "tags": [
+    "cibo",
+    "famiglia"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "160f6a1da6acae14d75e04add5e039e882b489541a512f671f5c668276c49c7c",
+     "title": "La pizza del sabato",
+     "subtitle": "Ogni sabato, la stessa pizzeria sotto casa.",
+     "words": 175,
+     "band_words": [
+      11,
+      123,
+      27,
+      14
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "48bd2a849353679451cdf3884a1545a3c27b6652bf979b43b2669c815b48d775",
+     "title": "La pizza del sabato",
+     "subtitle": "Ogni sabato, la stessa pizzeria sotto casa.",
+     "words": 189,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "1d18a2a6-3a7c-4812-8c12-964d0b027b63",
+   "level": 1,
+   "genre": "dialogo",
+   "tags": [
+    "citta",
+    "turismo"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "a7223fc208a1072b7c207df3d45e38608c8d236724ebb1532101fa60fc7af76a",
+     "title": "Dov’è la stazione?",
+     "subtitle": "Una turista, una mappa e un vigile gentile.",
+     "words": 132,
+     "band_words": [
+      8,
+      93,
+      21,
+      10
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "97d95d4bdfc02f1cc11c5272152c02096eeba50a52e31817e3eea36a078fd3b9",
+     "title": "Dov’è la stazione?",
+     "subtitle": "Una turista, una mappa e un vigile gentile.",
+     "words": 143,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "3b35555c-69fb-411e-a714-61d4d649f0eb",
+   "level": 1,
+   "genre": "favola",
+   "tags": [
+    "animali"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "304e2321c13993928df9f5b780b8152605de0c3c40f73ca14def93caf617f3d3",
+     "title": "La lepre e la tartaruga",
+     "subtitle": "Chi va piano va sano e va lontano.",
+     "words": 164,
+     "band_words": [
+      15,
+      111,
+      25,
+      13
+     ],
+     "audio_ms": 178000,
+     "opus_sha256": "380d9e0d873d8132e48bd18deb391d306aba240cf6f4c547f982e8257897f36d",
+     "opus_size": 534000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "28145f1486b1eacb8135a59d84bad1ffac56fdbc5f7ca730becae6e8f7fd69d9",
+     "title": "La lepre e la tartaruga",
+     "subtitle": "Chi va piano va sano e va lontano.",
+     "words": 177,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "38cdc37f-56c1-4b6f-bf14-bbdafba8c693",
+   "level": 1,
+   "genre": "dialogo",
+   "tags": [
+    "cibo",
+    "ristorante"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "bb6395b318b8d456923e465011b5473c67302828ec00d3a1e3df5389804ab7c2",
+     "title": "Al ristorante",
+     "subtitle": "Che cosa prendete da bere?",
+     "words": 149,
+     "band_words": [
+      14,
+      101,
+      22,
+      12
+     ],
+     "audio_ms": 155000,
+     "opus_sha256": "1cd7f2b69d4c34a36c260b4c557fbb0321768cdde33ca0605ced15b6dfa14b24",
+     "opus_size": 465000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "4520daa7ec02af18164e3650dd2bb82725ef24cbe487f6930ed26fc854ddfda3",
+     "title": "Al ristorante",
+     "subtitle": "Che cosa prendete da bere?",
+     "words": 161,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "e21dec5a-1bad-4b09-9292-6e247bec446d",
+   "level": 1,
+   "genre": "quotidiano",
+   "tags": [
+    "animali",
+    "famiglia"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "67854842acf4aa6789aaa7095129794426a61a93a4be19d40a6cbd272ab1d77e",
+     "title": "Il cane di Giulia",
+     "subtitle": "Fido aspetta sempre davanti alla porta.",
+     "words": 139,
+     "band_words": [
+      9,
+      97,
+      22,
+      11
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "9d0f34c2c7b7c93587ccfb72dd5e19d5016af487cb78a3a08d211bd3db884f4f",
+     "title": "Il cane di Giulia",
+     "subtitle": "Fido aspetta sempre davanti alla porta.",
+     "words": 150,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "baf05fd2-d735-408f-9703-9ca27f7fa939",
+   "level": 1,
+   "genre": "dialogo",
+   "tags": [
+    "albergo",
+    "turismo"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "a499de6e4177cfcb91d485e7d3b66ea595bc9a5c18b11e154ee9ca43bbd4bc44",
+     "title": "In albergo",
+     "subtitle": "Ho una prenotazione a nome Rossi.",
+     "words": 166,
+     "band_words": [
+      10,
+      117,
+      26,
+      13
+     ],
+     "audio_ms": 150000,
+     "opus_sha256": "7701ae0e40a422cc94e5281440c8d99a488cafa3696f47e83325308a9684c394",
+     "opus_size": 450000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "c6a31fef97c0c1eacefb4a55ebf361c2a086e78b0877a511b3d4e4f86eb2991d",
+     "title": "In albergo",
+     "subtitle": "Ho una prenotazione a nome Rossi.",
+     "words": 179,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "2f082f6d-89a3-45ac-846f-a1a428d34c8e",
+   "level": 1,
+   "genre": "racconto",
+   "tags": [
+    "mare",
+    "estate",
+    "infanzia",
+    "gelato"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "7fa1aa354fe894f2cabf6c0196ef1d3173dc889e5ce48b4d1af751e722789929",
+     "title": "Una giornata al mare",
+     "subtitle": "Secchiello, ombrellone e un gelato che si scioglie.",
+     "words": 238,
+     "band_words": [
+      20,
+      163,
+      37,
+      18
+     ],
+     "audio_ms": 210000,
+     "opus_sha256": "1327731ecf357cf08e0bcbe651676444d3a4218c9fc9b5af24461f0dfa237ce4",
+     "opus_size": 630000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "60128e16898203fa37a49482a61e05b24375168663e0b44283bf916a77d8b39d",
+     "title": "Una giornata al mare",
+     "subtitle": "Secchiello, ombrellone e un gelato che si scioglie.",
+     "words": 257,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "df0fe1ac-93a8-407d-8d4e-8a7dc73914b4",
+   "level": 1,
+   "genre": "quotidiano",
+   "tags": [
+    "pane",
+    "lavoro"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "36ecda8c2e4ad92317ada4c208c4cd6c3468d70f081ded3186432639530e60e4",
+     "title": "Il fornaio di via Garibaldi",
+     "subtitle": "Il pane è pronto alle cinque del mattino.",
+     "words": 218,
+     "band_words": [
+      16,
+      151,
+      34,
+      17
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "9b47c44323874b047d6da84ad8da0e49ff711ba41ceb0efdc8452f02c04ea985",
+     "title": "Il fornaio di via Garibaldi",
+     "subtitle": "Il pane è pronto alle cinque del mattino.",
+     "words": 235,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "a5999791-6650-4fd3-ba7e-ec75167a181e",
+   "level": 1,
+   "genre": "cronaca",
+   "tags": [
+    "scuola",
+    "amicizia"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "0aec8547ec8d2bb34785b0e839601a84b21ae8083f93d8e256669009c0bbda39",
+     "title": "Il compagno di banco",
+     "subtitle": "Matteo parla poco, ma disegna benissimo.",
+     "words": 233,
+     "band_words": [
+      17,
+      162,
+      36,
+      18
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "3ae62454b096bf6240c99b5c1cbd8bcc8ff86a730d1346b1950c888bc56417c2",
+     "title": "Il compagno di banco",
+     "subtitle": "Matteo parla poco, ma disegna benissimo.",
+     "words": 252,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "5c1a0f7e-721e-4012-9320-a996a84250a2",
+   "level": 1,
+   "genre": "racconto",
+   "tags": [
+    "natale",
+    "neve",
+    "famiglia"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "7220bcc6ef1d447a2fa9e0392df3498785b16e9f641612d589ad0dcd0734b426",
+     "title": "La neve a Natale",
+     "subtitle": "Quest’anno la neve arriva davvero.",
+     "words": 181,
+     "band_words": [
+      11,
+      127,
+      28,
+      15
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "b11c70f5c869eabf3d196c292dcff9b863a25789edd1b5ec983ffcb0e689a2a8",
+     "title": "La neve a Natale",
+     "subtitle": "Quest’anno la neve arriva davvero.",
+     "words": 195,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "5d6aa56c-76bb-4906-90e4-05866daacb1d",
+   "level": 1,
+   "genre": "leggenda",
+   "tags": [
+    "mare",
+    "sicilia"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "f1ae134a831abc6d58983524216e6fa06f5e162203d9b65f0dbb5cabfd4970a5",
+     "title": "Colapesce",
+     "subtitle": "Un ragazzo che vive sotto il mare di Messina.",
+     "words": 210,
+     "band_words": [
+      15,
+      146,
+      33,
+      16
+     ],
+     "audio_ms": 224000,
+     "opus_sha256": "4f1d2fdb688178e0a5f30fbb0c8d46b3c3bf5961ddb12055be273fd15f6808d4",
+     "opus_size": 672000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "e0042b40b9ee82ab3f8b952ab00592343c1913ff436b0337fc0a663fa0477375",
+     "title": "Colapesce",
+     "subtitle": "Un ragazzo che vive sotto il mare di Messina.",
+     "words": 227,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "db9cd8a4-fe58-4ce6-959c-e4d67bc9ab06",
+   "level": 1,
+   "genre": "cronaca",
+   "tags": [
+    "calcio",
+    "famiglia",
+    "nonno"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "fe3f840ebea21c0e97e4a3800028cecb789c7265bb5552ac20dd514edc906673",
+     "title": "La partita della domenica",
+     "subtitle": "Tutti allo stadio, anche il nonno.",
+     "words": 203,
+     "band_words": [
+      17,
+      139,
+      31,
+      16
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "56c71078a5ad058c8e0141ca7a9ecf8eb930b7382109038e28e63c34dc2ded78",
+     "title": "La partita della domenica",
+     "subtitle": "Tutti allo stadio, anche il nonno.",
+     "words": 219,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "b74fe470-e721-4a97-9989-649cb44abcce",
+   "level": 1,
+   "genre": "favola",
+   "tags": [
+    "animali",
+    "estate",
+    "inverno"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "447e0b6aeca11a446c039a3df5a0029ae43b67289e2bd80d8a5b63ed4688970a",
+     "title": "La cicala e la formica",
+     "subtitle": "Un’estate di canzoni e un inverno di fame.",
+     "words": 232,
+     "band_words": [
+      19,
+      159,
+      36,
+      18
+     ],
+     "audio_ms": 200000,
+     "opus_sha256": "64eff0549a37c0e988486c7a468b6a311772c7eda5caeeaa8bdeea5c699a632c",
+     "opus_size": 600000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "cc5e778d763360b1a64a83241bbbc63e67cca7e6e4549d3e8726092ae0e26a47",
+     "title": "La cicala e la formica",
+     "subtitle": "Un’estate di canzoni e un inverno di fame.",
+     "words": 251,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "e22f0510-cfe7-49f7-9848-a1902fc2b0d5",
+   "level": 1,
+   "genre": "quotidiano",
+   "tags": [
+    "cibo",
+    "mercato"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "7e8932a821dafbf63594d879457cac8069c2a4d10cbe5817c8ab2c8c07c39adc",
+     "title": "La lista della spesa",
+     "subtitle": "Latte, pane, uova e qualcosa di dolce.",
+     "words": 225,
+     "band_words": [
+      21,
+      153,
+      34,
+      17
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "175070286a01fcaad463eaa1540da3fc48be9c1590422883c33faae1aca09a4b",
+     "title": "La lista della spesa",
+     "subtitle": "Latte, pane, uova e qualcosa di dolce.",
+     "words": 243,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "054cb67a-b8cc-4883-b3d2-bb3a9cbbb6eb",
+   "level": 2,
+   "genre": "favola",
+   "tags": [
+    "animali",
+    "cibo"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "2429caa9c8d1318a9f7b3bafc0e10d9a2cd6492435bd872b6017a5d9516b0e07",
+     "title": "La volpe e l’uva",
+     "subtitle": "Una volpe affamata e un grappolo troppo alto.",
+     "words": 186,
+     "band_words": [
+      21,
+      123,
+      28,
+      14
+     ],
+     "audio_ms": 125000,
+     "opus_sha256": "71a739e0867dd67f4eff8a30a6cebb8781900a7e7abf6d8bb6fd8bd1df854b7c",
+     "opus_size": 375000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "2121cb190818772742cf8400923aeb36afc22729916683caba33ef737702dec7",
+     "title": "La volpe e l’uva",
+     "subtitle": "Una volpe affamata e un grappolo troppo alto.",
+     "words": 201,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "90fa0d21-d359-43be-bc8a-390d6621b471",
+   "level": 2,
+   "genre": "favola",
+   "tags": [
+    "animali",
+    "cibo"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "fd29ee28dbf125b241616d7241e95407660875469a39525fc06e740dc60751c5",
+     "title": "Il lupo e la cicogna",
+     "subtitle": "Un osso in gola e una promessa.",
+     "words": 214,
+     "band_words": [
+      22,
+      144,
+      32,
+      16
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "6c816766859b172b7cdaa68b1dbc68ec3376e2bb34f6f67557c30aa435c3ed20",
+     "title": "Il lupo e la cicogna",
+     "subtitle": "Un osso in gola e una promessa.",
+     "words": 231,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "9dd7e9b6-81f6-466c-ac14-1940586c98f3",
+   "level": 2,
+   "genre": "favola",
+   "tags": [
+    "animali",
+    "amicizia"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "acbe18685bdf4938ad36ecb1b61911ae509db682d615ed90c78afa4509169bc0",
+     "title": "Il leone e il topo",
+     "subtitle": "Anche il più piccolo può aiutare il più forte.",
+     "words": 193,
+     "band_words": [
+      18,
+      131,
+      29,
+      15
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "1fe4f550734ccc109d30474cf4336abade0f5f626272dc9762c858c4eee5c296",
+     "title": "Il leone e il topo",
+     "subtitle": "Anche il più piccolo può aiutare il più forte.",
+     "words": 208,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "4b63777e-b1fc-444a-9789-c4cc9cf4cbd0",
+   "level": 2,
+   "genre": "quotidiano",
+   "tags": [
+    "caffe",
+    "casa"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "663602a7a662b775fcc4154867f2b1c73b210729fe8b7387fa6f07f17fb6de8a",
+     "title": "La moka",
+     "subtitle": "Il rumore del caffè che sale.",
+     "words": 186,
+     "band_words": [
+      23,
+      122,
+      27,
+      14
+     ],
+     "audio_ms": 164000,
+     "opus_sha256": "8239d0eb8008a70761e2ccb8e590cd3318f386b3acab2dfcd0db54801ed50787",
+     "opus_size": 492000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "951ac393bb900d7ba2b35b7f0f78e000041308fe1d85a659adabed231b5d4890",
+     "title": "La moka",
+     "subtitle": "Il rumore del caffè che sale.",
+     "words": 201,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "d0159518-99cc-46f0-bef2-b5b6f6f9a76d",
+   "level": 2,
+   "genre": "viaggio",
+   "tags": [
+    "treno",
+    "emilia-romagna"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "3c1f7219720009359b0259c620ab58c0f63c23e591fa498aa383a84fd80e9fbf",
+     "title": "Il treno per Bologna",
+     "subtitle": "Marta va a trovare la nonna dopo due anni.",
+     "words": 149,
+     "band_words": [
+      18,
+      98,
+      22,
+      11
+     ],
+     "audio_ms": 252000,
+     "opus_sha256": "a57cec57a1616372c9eba2804e71894b09c90daf94b2f409db4d9d4460c37da9",
+     "opus_size": 756000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "489b36a46f3b4cda6aff6a3e113f1ce706e53baf1644597d340eea292c5c1b3b",
+     "title": "Il treno per Bologna",
+     "subtitle": "Marta va a trovare la nonna dopo due anni.",
+     "words": 161,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "46ffc268-462f-487c-a095-afa0d0e86227",
+   "level": 2,
+   "genre": "racconto",
+   "tags": [
+    "nonna",
+    "cibo",
+    "famiglia"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "8b1443529d38a434e60a4c485c328d19ecab678718d2d7c807f498734de56537",
+     "title": "Domenica dalla nonna",
+     "subtitle": "Il ragù cuoce dalle sette del mattino.",
+     "words": 259,
+     "band_words": [
+      24,
+      176,
+      39,
+      20
+     ],
+     "audio_ms": 220000,
+     "opus_sha256": "79ebc98c95b968bc88c65c860e038fcd9f3874a147f2a8a55e5b5c7c7eff3519",
+     "opus_size": 660000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "6ade78e9ac292a464b8d115132d7d9dbc326ddad81859391183d7e29882be511",
+     "title": "Domenica dalla nonna",
+     "subtitle": "Il ragù cuoce dalle sette del mattino.",
+     "words": 280,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "2b2d3037-8880-4889-b261-e1e48bacb1d9",
+   "level": 2,
+   "genre": "leggenda",
+   "tags": [
+    "natale",
+    "famiglia"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "528f54db8ad85ce752b18fc30cf13a6168c1387ab37d1d1cec6bc71471a240d7",
+     "title": "La Befana viene di notte",
+     "subtitle": "Una scopa, un sacco e il camino di casa.",
+     "words": 259,
+     "band_words": [
+      29,
+      172,
+      39,
+      19
+     ],
+     "audio_ms": 202000,
+     "opus_sha256": "3326cdee6b85aa18751d10edc6de6caac9f2a9ff473c7f6aae42db530aa81940",
+     "opus_size": 606000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "48b13c3ce5f2d16e3e3584baf0c17b87091e383d4877cd88da3c569fe72fe5e6",
+     "title": "La Befana viene di notte",
+     "subtitle": "Una scopa, un sacco e il camino di casa.",
+     "words": 280,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "c8f638c5-c2b2-442f-839f-ba106be2c9a1",
+   "level": 2,
+   "genre": "racconto",
+   "tags": [
+    "nonna",
+    "famiglia",
+    "cucina"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "86fd49455c74b3f91dbf31b51f8a905c29b9a900e896627b86ffdde48ac04a95",
+     "title": "La nonna non sbaglia mai",
+     "subtitle": "Ogni ricetta ha un segreto, e lei non lo dice.",
+     "words": 267,
+     "band_words": [
+      30,
+      177,
+      40,
+      20
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "14e26b5194dd5c065856c5a0433a1bfac47b20e20c90cf9a98a4a01b05088c0f",
+     "title": "La nonna non sbaglia mai",
+     "subtitle": "Ogni ricetta ha un segreto, e lei non lo dice.",
+     "words": 288,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "901b77c5-92ac-463d-8427-dfb55a8f333f",
+   "level": 2,
+   "genre": "favola",
+   "tags": [
+    "animali",
+    "bosco"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "74462009500cbad02cf4338b3c56ccd09dfcc7afcae0287bd1535c4cf59ef4a9",
+     "title": "Il corvo e la volpe",
+     "subtitle": "Un pezzo di formaggio e troppi complimenti.",
+     "words": 263,
+     "band_words": [
+      24,
+      179,
+      40,
+      20
+     ],
+     "audio_ms": 195000,
+     "opus_sha256": "4b520b16e9214ad76c7bcb5a62e76c2158202b53ee7282cde4946819923553f8",
+     "opus_size": 585000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "866a05610183833b581e53d2217adf3ea6faee81d0db3eb438ffd1a2510ed10a",
+     "title": "Il corvo e la volpe",
+     "subtitle": "Un pezzo di formaggio e troppi complimenti.",
+     "words": 284,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "78ed2d2a-d2fc-4d1f-a1bb-d39ce0b69aa9",
+   "level": 2,
+   "genre": "favola",
+   "tags": [
+    "animali",
+    "infanzia",
+    "campagna"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "0e1a7c261b5e529bcfa1ba7043a9ddc5ac3f9bfebfdfb74f615bdd3a272748a8",
+     "title": "Il ragazzo che gridava al lupo",
+     "subtitle": "Una bugia, due bugie, e poi nessuno ci crede.",
+     "words": 280,
+     "band_words": [
+      26,
+      190,
+      43,
+      21
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "00d7c8c6e3603872d8bc863c779ba57dcf3db79b64906c4f611d62d380f91f66",
+     "title": "Il ragazzo che gridava al lupo",
+     "subtitle": "Una bugia, due bugie, e poi nessuno ci crede.",
+     "words": 302,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "1d3331d7-4984-4164-82f7-db60954a2d0a",
+   "level": 2,
+   "genre": "leggenda",
+   "tags": [
+    "montagna",
+    "alpi"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "00fa1038ef2bd219da4bddabc03d93f758271a3f5ae70a40dae5b5e087a59915",
+     "title": "La regina delle Dolomiti",
+     "subtitle": "Perché le montagne diventano rosa al tramonto.",
+     "words": 317,
+     "band_words": [
+      29,
+      216,
+      48,
+      24
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "c54bce42becd1c6397aa5e7dae62e1fb3394c710b05247c8b5e8f2e09216edce",
+     "title": "La regina delle Dolomiti",
+     "subtitle": "Perché le montagne diventano rosa al tramonto.",
+     "words": 342,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "75900077-9258-438d-b118-a5c29a0aa855",
+   "level": 2,
+   "genre": "racconto",
+   "tags": [
+    "vicini",
+    "musica",
+    "citta"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "60c686250baae62f12613b75ce6cad570f1fbf0b48473f0234dbb4ec0a710d75",
+     "title": "Il vicino del terzo piano",
+     "subtitle": "Ogni sera, alle nove, suona il violino.",
+     "words": 291,
+     "band_words": [
+      30,
+      195,
+      44,
+      22
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "1201b3edb655189a4aa870dabee293e158eb2a2f0bc907628583d0299fe1b183",
+     "title": "Il vicino del terzo piano",
+     "subtitle": "Ogni sera, alle nove, suona il violino.",
+     "words": 314,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "8e022c07-28ce-40f4-b750-8e1b63b7a9d6",
+   "level": 2,
+   "genre": "dialogo",
+   "tags": [
+    "lavoro"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "e5a7bc1627568f49a8ac9b616b1ef897655c188662f66fa9bbf934eb331d14c5",
+     "title": "Il colloquio di lavoro",
+     "subtitle": "Perché vuole lavorare con noi?",
+     "words": 284,
+     "band_words": [
+      32,
+      189,
+      42,
+      21
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "2e1465c381fa97110924dbdd1160a8db1ceaafbc2e4cc3f52b7fe1b9f5f71438",
+     "title": "Il colloquio di lavoro",
+     "subtitle": "Perché vuole lavorare con noi?",
+     "words": 307,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "17df3dbb-b470-47ce-bee2-4862333b201d",
+   "level": 2,
+   "genre": "lettere",
+   "tags": [
+    "famiglia",
+    "torino"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "a469966cf20da38714cbca10de333e2e05c6e56efa792fd710e99509dca00170",
+     "title": "Cartolina da Torino",
+     "subtitle": "Cari genitori, qui fa freddo ma sto bene.",
+     "words": 279,
+     "band_words": [
+      28,
+      188,
+      42,
+      21
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "a4747896fac904f908b683038368e3d759192205b681396cda95f423d52bd532",
+     "title": "Cartolina da Torino",
+     "subtitle": "Cari genitori, qui fa freddo ma sto bene.",
+     "words": 301,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "926ff41e-4ade-4834-9a5e-725d18352e0a",
+   "level": 2,
+   "genre": "dialogo",
+   "tags": [
+    "salute"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "6e99bab38a948c78cb22548bf555d36ee3489340965b9d66f29d4efe7835e153",
+     "title": "Dal medico",
+     "subtitle": "Da quanto tempo ha la febbre?",
+     "words": 282,
+     "band_words": [
+      34,
+      186,
+      42,
+      20
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "8cee47c2f139fdcf9ef3e464af720dc7466aa2c95f81b0afa9043320297b88dd",
+     "title": "Dal medico",
+     "subtitle": "Da quanto tempo ha la febbre?",
+     "words": 305,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "fb05e944-d217-4a78-8e56-b712363870bf",
+   "level": 2,
+   "genre": "racconto",
+   "tags": [
+    "nonna",
+    "cibo",
+    "natale"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "ccb0e38a44ed4e11b825a97f83fcc056c4f0c29a55ef2dd6ddcf03858183e636",
+     "title": "I tortellini della nonna",
+     "subtitle": "La vigilia di Natale in una cucina di Modena.",
+     "words": 359,
+     "band_words": [
+      40,
+      239,
+      54,
+      26
+     ],
+     "audio_ms": 270000,
+     "opus_sha256": "547ec5a930cd8a40001b462bcfee58609f8a1cdd403c0335b11b94adbdda8eb2",
+     "opus_size": 810000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "8bcc84d575aeba6aa0edcaed80ba7067cbbf73700576bbf6b2d2b3bf96ab13c2",
+     "title": "I tortellini della nonna",
+     "subtitle": "La vigilia di Natale in una cucina di Modena.",
+     "words": 388,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "603133de-616b-4457-8aaa-8edbe1bd29f2",
+   "level": 2,
+   "genre": "leggenda",
+   "tags": [
+    "natale",
+    "cibo",
+    "citta"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "affff51f1c73b7498f1cb2429821f7a8a9f75acd54d11fbd0d57593d7e9f3da4",
+     "title": "Il panettone di Milano",
+     "subtitle": "Un garzone, un dolce sbagliato, una città intera.",
+     "words": 358,
+     "band_words": [
+      33,
+      243,
+      55,
+      27
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "45feb2f5d39834f9e578b787100bf6fcd492882e9b23f4c2c21b27f7e03a85c3",
+     "title": "Il panettone di Milano",
+     "subtitle": "Un garzone, un dolce sbagliato, una città intera.",
+     "words": 387,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "5573426c-5ab2-425d-a594-8a41d615e0b6",
+   "level": 2,
+   "genre": "favola",
+   "tags": [
+    "animali",
+    "campagna"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "24fa19edefdb688cece19e9fbd4c83ad9eec312fe3f0467cb1a73042d1773ba1",
+     "title": "La gallina dalle uova d’oro",
+     "subtitle": "Un contadino che non sa aspettare.",
+     "words": 352,
+     "band_words": [
+      32,
+      240,
+      54,
+      26
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "5a796817515a3e7d7278a8887012da62c6e18fcfa45131b53e9f12d4ec96b871",
+     "title": "La gallina dalle uova d’oro",
+     "subtitle": "Un contadino che non sa aspettare.",
+     "words": 380,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "653a952a-cd88-4e8f-8b65-520ea86453d4",
+   "level": 2,
+   "genre": "leggenda",
+   "tags": [
+    "roma",
+    "citta",
+    "fratelli",
+    "etichetta-nuova"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "bf9c3b72bb5b86ea04140ac5a275bb441b79adda501c99e60af2778ca917f426",
+     "title": "Romolo e Remo",
+     "subtitle": "Due gemelli, una lupa e una città sul Tevere.",
+     "words": 337,
+     "band_words": [
+      34,
+      227,
+      51,
+      25
+     ],
+     "audio_ms": 280000,
+     "opus_sha256": "1f8cc670bfba4e94b8e06bcf273944d0c73bf0706cdc3b73dff8394e81bac723",
+     "opus_size": 840000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "9d7fda30fb1c856ce4cd3de42e08bacf6964f59bdab6d0ac2ce6595f383a43f9",
+     "title": "Romolo e Remo",
+     "subtitle": "Due gemelli, una lupa e una città sul Tevere.",
+     "words": 364,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "e8e2a0e7-2a28-45b1-8d3d-dc58ed7415f3",
+   "level": 2,
+   "genre": "leggenda",
+   "tags": [
+    "venezia",
+    "citta",
+    "mare"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "813ffda524e41cfea1e15027b41fdc6c8e38e1f025d5c618bf6389f3b61aad9b",
+     "title": "Il leone di San Marco",
+     "subtitle": "Perché Venezia ha un leone con le ali.",
+     "words": 386,
+     "band_words": [
+      39,
+      260,
+      58,
+      29
+     ],
+     "audio_ms": 258000,
+     "opus_sha256": "2dc24ae5f8f5099bce32518d89c2a3a20291031a21057c17074ea539b9ae18ad",
+     "opus_size": 774000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "fed8dd59c3a73672ceae90768c557229faf4c2fc002b4d6567b4f55b310c35d1",
+     "title": "Il leone di San Marco",
+     "subtitle": "Perché Venezia ha un leone con le ali.",
+     "words": 417,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "23a6f4d8-12e4-478d-8031-4c58ce8b5f00",
+   "level": 2,
+   "genre": "racconto",
+   "tags": [
+    "scuola",
+    "amicizia",
+    "segreto"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "6cf743dd8d8249862bd4b0d2ce35ba5ce0a78326b6d487472c4ecd3c5abb3b92",
+     "title": "Il segreto di Sara",
+     "subtitle": "Un quaderno rosso nascosto sotto il banco.",
+     "words": 362,
+     "band_words": [
+      37,
+      243,
+      55,
+      27
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "c0dfa330fdc2f46fb74b5db80cce77803b8404863cd9b589cb9383c5e7530055",
+     "title": "Il segreto di Sara",
+     "subtitle": "Un quaderno rosso nascosto sotto il banco.",
+     "words": 391,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "b8495ed6-3536-447a-b549-b230e277a8a1",
+   "level": 2,
+   "genre": "racconto",
+   "tags": [
+    "feste",
+    "compleanno",
+    "famiglia",
+    "infanzia"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "95244f2adeff82b30591729682bd77f665c7ab4f59fd045371d6691cf73ca261",
+     "title": "La festa di compleanno",
+     "subtitle": "Dieci candeline e un regalo misterioso.",
+     "words": 351,
+     "band_words": [
+      36,
+      236,
+      53,
+      26
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "18dad4e1201933f75abbf75499ca2cbf1e1ba741dd80f39fac3149e98e86dab0",
+     "title": "La festa di compleanno",
+     "subtitle": "Dieci candeline e un regalo misterioso.",
+     "words": 379,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "8ad3df89-1b62-4e80-aa9d-02df087c9ab8",
+   "level": 2,
+   "genre": "cronaca",
+   "tags": [
+    "bicicletta",
+    "citta",
+    "emilia-romagna"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "7b0ffa4c3a44798db092b0461b8cf87b851a559cb7a5b6f3e3219836b9db3e6d",
+     "title": "In bicicletta a Ferrara",
+     "subtitle": "La città dove tutti pedalano, anche i nonni.",
+     "words": 380,
+     "band_words": [
+      42,
+      253,
+      57,
+      28
+     ],
+     "audio_ms": 290000,
+     "opus_sha256": "3f53775ba4ed5f4134e70d0b0dce023fc938fcb7759763a8f39fad93fc970d33",
+     "opus_size": 870000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "bb1963ceea4814eae7f0e5f53fd8df7aba04fc61a5a1228dae6d3c796b4aa8bc",
+     "title": "In bicicletta a Ferrara",
+     "subtitle": "La città dove tutti pedalano, anche i nonni.",
+     "words": 410,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "8295c9a4-68e9-4164-83ba-62e426f4feb1",
+   "level": 2,
+   "genre": "viaggio",
+   "tags": [
+    "venezia",
+    "turismo",
+    "citta"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "49f499552c5d95dd9141c043ac93d3d0c1353a087f7d0ec9505bb3e56f94be44",
+     "title": "Un giorno a Venezia",
+     "subtitle": "Vaporetto, calli e un caffè troppo caro.",
+     "words": 340,
+     "band_words": [
+      38,
+      226,
+      51,
+      25
+     ],
+     "audio_ms": 275000,
+     "opus_sha256": "e0eeac1b17c5c5b2ec99533ffc8b9b26104d96cb839c39fd579010500e9d33b4",
+     "opus_size": 825000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "a0d5073f2fc3026f34f418d8a4f9eb4bcdd4cf29aabb712bc7cb97b197c0f1a7",
+     "title": "Un giorno a Venezia",
+     "subtitle": "Vaporetto, calli e un caffè troppo caro.",
+     "words": 367,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "9c0bca23-63be-4b3d-a6a5-8e1574901118",
+   "level": 2,
+   "genre": "cronaca",
+   "tags": [
+    "mercato",
+    "cibo",
+    "lavoro"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "5ce130030b454a09179be8264611ce6abd91fa3cf68f2a295a2951ad0d2fc62f",
+     "title": "Il mercato del giovedì",
+     "subtitle": "Il signor Enzo vende formaggi da quarant’anni.",
+     "words": 325,
+     "band_words": [
+      33,
+      219,
+      49,
+      24
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "3fa6c3e15210266c9d482a658091552048502e8d03606393207e10f7f7758872",
+     "title": "Il mercato del giovedì",
+     "subtitle": "Il signor Enzo vende formaggi da quarant’anni.",
+     "words": 351,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "8349377b-9df9-414d-96c1-45ec490dc6b7",
+   "level": 2,
+   "genre": "leggenda",
+   "tags": [
+    "cibo",
+    "napoli"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "902ae31dbe14d5e1901bf0b46409f9bbc1c15a1d0ce8d1e2efc646c2650f6fcd",
+     "title": "La pizza della regina",
+     "subtitle": "Napoli, 1889: una pizza con i colori d’Italia.",
+     "words": 433,
+     "band_words": [
+      52,
+      285,
+      64,
+      32
+     ],
+     "audio_ms": 312000,
+     "opus_sha256": "0268ce11c5b95e67ee517f4f1fe615559687eb10f6b26f212c8ea73dd2cafc64",
+     "opus_size": 936000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "f6e70363a796fd4eb5571ae62c5c940668873e543ea9553363394c1ee613a592",
+     "title": "La pizza della regina",
+     "subtitle": "Napoli, 1889: una pizza con i colori d’Italia.",
+     "words": 468,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "37453ee9-f50d-4d30-a283-fd8da7c9b984",
+   "level": 2,
+   "genre": "racconto",
+   "tags": [
+    "natale",
+    "famiglia",
+    "cibo"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "b153687105ee2ab45c0e043d41b328b54b02f6b751e062584ae13e63268d286a",
+     "title": "Una cena di Natale",
+     "subtitle": "Dodici persone, un tavolo, una sedia di troppo.",
+     "words": 452,
+     "band_words": [
+      50,
+      301,
+      68,
+      33
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "252e55a81c7165fc12a66092ad68802401368d6e70ba1615ea27b10a635c2a15",
+     "title": "Una cena di Natale",
+     "subtitle": "Dodici persone, un tavolo, una sedia di troppo.",
+     "words": 488,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "abe5de3d-8e16-44cd-b946-fbe26c00c1b5",
+   "level": 2,
+   "genre": "racconto",
+   "tags": [
+    "famiglia",
+    "mare",
+    "estate",
+    "puglia"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "e6648dcf1920468f68b2014a9f273bee0c5c9e45b0ed3a3d2522978b541d7533",
+     "title": "L’estate dei cugini",
+     "subtitle": "Tre settimane in Puglia, cinque cugini, una bicicletta sola.",
+     "words": 428,
+     "band_words": [
+      52,
+      282,
+      63,
+      31
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "b9c1383cc6131454140a3733b9bf0f424e7debe68f182fb6b7bcc5fbc35869b7",
+     "title": "L’estate dei cugini",
+     "subtitle": "Tre settimane in Puglia, cinque cugini, una bicicletta sola.",
+     "words": 462,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "82465a04-f509-498d-9fb8-3b7b42ed64dd",
+   "level": 2,
+   "genre": "leggenda",
+   "tags": [
+    "feste",
+    "toscana",
+    "cavallo"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "dc051ce492ffaa0c828cb4c2afdad55a66d8077877e034d9cc1cd62d5a36086b",
+     "title": "Il Palio di Siena",
+     "subtitle": "Dieci cavalli, una piazza, una corsa di novanta secondi.",
+     "words": 468,
+     "band_words": [
+      52,
+      312,
+      70,
+      34
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "079633de4ff0159e102814d17c9916b08938ea86203cb12a9077c6693fb1a277",
+     "title": "Il Palio di Siena",
+     "subtitle": "Dieci cavalli, una piazza, una corsa di novanta secondi.",
+     "words": 505,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "157dc248-aedd-4439-ae9f-eb53b3165a50",
+   "level": 2,
+   "genre": "mistero",
+   "tags": [
+    "vicini",
+    "casa",
+    "segreto"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "d7e8a83026ee183563e9918f674c154029f40ea2c9bb89205494314bc778e50d",
+     "title": "La chiave sotto il vaso",
+     "subtitle": "Una porta chiusa, un vicino curioso.",
+     "words": 577,
+     "band_words": [
+      58,
+      389,
+      88,
+      42
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "21682e240b02f91b713cc0721014ad1071fe7541d7cc0ee448219133444d06ca",
+     "title": "La chiave sotto il vaso",
+     "subtitle": "Una porta chiusa, un vicino curioso.",
+     "words": 623,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "9b6c002c-3724-4380-aaae-e66c1b1a5121",
+   "level": 2,
+   "genre": "mistero",
+   "tags": [
+    "treno",
+    "notte"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "a13b3f166fd97dc078e8a1006a450979d368f2876f1615e9ae5b2de19d0d4d74",
+     "title": "Il passeggero senza biglietto",
+     "subtitle": "Sul regionale delle 23:40 c’è un uomo che non parla.",
+     "words": 476,
+     "band_words": [
+      53,
+      317,
+      71,
+      35
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "28e0e2f98abac5983a307c05fe48f69f839cdf790c97a2b660448a2da8415de7",
+     "title": "Il passeggero senza biglietto",
+     "subtitle": "Sul regionale delle 23:40 c’è un uomo che non parla.",
+     "words": 514,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "5d06c74c-2dbf-47b1-b6be-96b3e3e100c8",
+   "level": 3,
+   "genre": "dialogo",
+   "tags": [
+    "famiglia",
+    "telefono"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "f8710d9d192cfebf8ca4a43a305b140834590945c98b96d30beb585fc75960e2",
+     "title": "Una telefonata alla mamma",
+     "subtitle": "Hai mangiato? Ti copri bene?",
+     "words": 451,
+     "band_words": [
+      64,
+      290,
+      65,
+      32
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "5ec919ee48256a33c1f7385a62b726a343c9cc2e284c0176978053897c14ed0e",
+     "title": "Una telefonata alla mamma",
+     "subtitle": "Hai mangiato? Ti copri bene?",
+     "words": 487,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "2a75b833-cc46-4279-9920-1208e0072bcf",
+   "level": 3,
+   "genre": "racconto",
+   "tags": [
+    "citta",
+    "notte",
+    "milano"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "3dc30a8ab4bbe02cac9594ae9343871b12945e1a84ca2ee717a7436f0b81bbe0",
+     "title": "L’ultimo tram",
+     "subtitle": "Una città vuota vista dal finestrino.",
+     "words": 588,
+     "band_words": [
+      89,
+      374,
+      84,
+      41
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "14a8af40e3c1605e1fbc209b8c860e07549f609384c61ebe57ada1545cb19a4e",
+     "title": "L’ultimo tram",
+     "subtitle": "Una città vuota vista dal finestrino.",
+     "words": 635,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "0008d777-6da9-496c-b596-7ce5d729242f",
+   "level": 3,
+   "genre": "dialogo",
+   "tags": [
+    "casa",
+    "citta",
+    "milano"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "95e0b4c02186bfcc66152c3a73e9aa2a96794e53a8aa76746a4989e5b8a4f9b3",
+     "title": "Cercasi appartamento",
+     "subtitle": "Due stanze, luminoso, vicino alla metro.",
+     "words": 547,
+     "band_words": [
+      83,
+      348,
+      78,
+      38
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "f55fb4c6b49f84ee6b53ac19bed472dd617f0b03f3c842a2ea090a5ecf067a30",
+     "title": "Cercasi appartamento",
+     "subtitle": "Due stanze, luminoso, vicino alla metro.",
+     "words": 591,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "ba141f6d-e067-49a0-82ad-919d8c0a80c1",
+   "level": 3,
+   "genre": "poesia-in-prosa",
+   "tags": [
+    "pioggia",
+    "genova",
+    "mare"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "8aad58372164922a470f9c5f4c0015e105094d98a38ae1d406ce8422d14febb9",
+     "title": "La pioggia su Genova",
+     "subtitle": "Ombrelli, vicoli e il mare grigio.",
+     "words": 545,
+     "band_words": [
+      66,
+      359,
+      81,
+      39
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "98f72d362b889237d01b483ae942b7a87da987b12995bb817d3b6bf695dd34b5",
+     "title": "La pioggia su Genova",
+     "subtitle": "Ombrelli, vicoli e il mare grigio.",
+     "words": 589,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "44dc6566-36e3-4ed0-a82d-3e23c16bf09c",
+   "level": 3,
+   "genre": "favola",
+   "tags": [
+    "animali",
+    "liberta"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "c5d2dfaa364ccfbd83dfb7cbb6e609881f110904277bc6bca8c1028b18d9f4c5",
+     "title": "Il cane e il lupo",
+     "subtitle": "La libertà ha un prezzo, e anche la catena.",
+     "words": 578,
+     "band_words": [
+      70,
+      381,
+      86,
+      41
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "2953e6a0d476e8167ae75f9cb34e4b3a997f45430e0c37bb18c23c0e216aedc4",
+     "title": "Il cane e il lupo",
+     "subtitle": "La libertà ha un prezzo, e anche la catena.",
+     "words": 624,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "f2fa0cba-34d3-497a-be8a-941b074d0a3c",
+   "level": 3,
+   "genre": "quotidiano",
+   "tags": [
+    "citta",
+    "posta"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "0928e5938f69e11cb942f29892d9b6864839208b9bd79e8f2b1439a52042abeb",
+     "title": "All’ufficio postale",
+     "subtitle": "Numero 47. Ancora venti persone prima di me.",
+     "words": 532,
+     "band_words": [
+      70,
+      346,
+      78,
+      38
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "cddae092ff849c7619e068172b92877750c403daac376f2dd5c7e2e193717df8",
+     "title": "All’ufficio postale",
+     "subtitle": "Numero 47. Ancora venti persone prima di me.",
+     "words": 575,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "0ed64b98-636b-49c4-ae38-b343e6ff3b2b",
+   "level": 3,
+   "genre": "teatro",
+   "tags": [
+    "famiglia",
+    "cucina"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "e5ad70209cbd60f79e9bb9478607476e24615170ed39ea957063507c24e92b21",
+     "title": "La cena delle cinque sorelle",
+     "subtitle": "Un atto unico in una cucina troppo piccola.",
+     "words": 534,
+     "band_words": [
+      81,
+      339,
+      77,
+      37
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "9604dfd490ef291abc49921ceec18c5a5fcd2cc3a342e2c157ffe2d521525719",
+     "title": "La cena delle cinque sorelle",
+     "subtitle": "Un atto unico in una cucina troppo piccola.",
+     "words": 577,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "1a28d377-a67c-4447-bbb5-1aa13498d13d",
+   "level": 3,
+   "genre": "viaggio",
+   "tags": [
+    "cibo",
+    "sicilia",
+    "mercato"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "968107f602e9cff2d934ef5623dc7a159b441496d2418754c1ad464d52f9ea99",
+     "title": "Il mercato di Ballarò",
+     "subtitle": "Colori, voci e odori di Palermo.",
+     "words": 600,
+     "band_words": [
+      90,
+      382,
+      86,
+      42
+     ],
+     "audio_ms": 400000,
+     "opus_sha256": "fe1680e399bf9f539e64f90fcdf94c0df7a187791607d62762bad3e26adb1d05",
+     "opus_size": 1200000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "ef9dbb12d6d81c667271af2eef98543a56525d1df6f4ffc385597efb939bec57",
+     "title": "Il mercato di Ballarò",
+     "subtitle": "Colori, voci e odori di Palermo.",
+     "words": 648,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "762e4e83-e80c-4b8f-9d16-783193b3fe78",
+   "level": 3,
+   "genre": "cronaca",
+   "tags": [
+    "caffe",
+    "roma",
+    "lavoro"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "f3ff7a45dd47f6b8d40d029bfe651257093541bd559e8027720677178c6f921c",
+     "title": "Il barista di piazza Navona",
+     "subtitle": "Trent’anni di caffè e di turisti.",
+     "words": 679,
+     "band_words": [
+      102,
+      432,
+      98,
+      47
+     ],
+     "audio_ms": 390000,
+     "opus_sha256": "90b48a18f18443f0f4926a697a193b94b0e87f9d68034eee9c6d9fd1d8d71e1e",
+     "opus_size": 1170000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "f3ad82abc7d36af202b4ae06a633424cfcc1e28712f2da31a615c671fb7c223d",
+     "title": "Il barista di piazza Navona",
+     "subtitle": "Trent’anni di caffè e di turisti.",
+     "words": 733,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "daa97b53-83ef-422f-836c-e1b6c6485ea8",
+   "level": 3,
+   "genre": "cronaca",
+   "tags": [
+    "calcio",
+    "roma",
+    "amicizia"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "f7740c74f77f620db4c1d87b5b286234a6d5d8518ed69aea298ec94a43cb29cc",
+     "title": "Il derby",
+     "subtitle": "Una città divisa in due per novanta minuti.",
+     "words": 631,
+     "band_words": [
+      83,
+      411,
+      93,
+      44
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "340b2aa9a02bd9be37909f1dd09089af28b02e25863b998f9b612d42e8bb496e",
+     "title": "Il derby",
+     "subtitle": "Una città divisa in due per novanta minuti.",
+     "words": 681,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "948bbe8f-fd39-4b43-8b5b-489a68a76db1",
+   "level": 3,
+   "genre": "quotidiano",
+   "tags": [
+    "vespa",
+    "roma",
+    "lavoro"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "5696ba12a7127e47c7d1c000fa1132d8bc0dfefa7aa3cf573485a32b93b526a9",
+     "title": "In motorino per Roma",
+     "subtitle": "Il traffico, i clacson e una consegna in ritardo.",
+     "words": 657,
+     "band_words": [
+      79,
+      433,
+      98,
+      47
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "2c2ed759ca5dee76b2c039ad213275c7034238c3eb3835eed9b0d1aa4fe04fab",
+     "title": "In motorino per Roma",
+     "subtitle": "Il traffico, i clacson e una consegna in ritardo.",
+     "words": 710,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "d69eb50f-6fc8-4a9b-9787-0af69376b229",
+   "level": 3,
+   "genre": "biografia",
+   "tags": [
+    "scienza",
+    "guerra"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "869412f668ee2e8d39171f817a03cfb2be7b4fe83ee8adf873580c5a9393c7ce",
+     "title": "Rita Levi-Montalcini",
+     "subtitle": "Una scienziata che studiava in camera da letto.",
+     "words": 621,
+     "band_words": [
+      94,
+      395,
+      89,
+      43
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "c6140e79cab18eed1656361a368f3d9690fde57761c08774ed18d9b3c271a49e",
+     "title": "Rita Levi-Montalcini",
+     "subtitle": "Una scienziata che studiava in camera da letto.",
+     "words": 671,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "a9f3fb41-b600-4be5-926c-f9a8582dc98c",
+   "level": 3,
+   "genre": "notizia",
+   "tags": [
+    "bicicletta",
+    "milano",
+    "citta"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "7f69b8efc1b9957d839eca3dc673053a880af4661855ec5d33a18b387d2e24de",
+     "title": "Milano in bicicletta",
+     "subtitle": "Nuove piste ciclabili, vecchie abitudini.",
+     "words": 700,
+     "band_words": [
+      84,
+      462,
+      104,
+      50
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "37eea074185ca32bcd39a1b6e53caf0d009249bff6929eb6e3aff2a4c5c66bcb",
+     "title": "Milano in bicicletta",
+     "subtitle": "Nuove piste ciclabili, vecchie abitudini.",
+     "words": 756,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "a56b27fa-6e3e-4c59-bc19-62137009d3b7",
+   "level": 3,
+   "genre": "racconto",
+   "tags": [
+    "inverno",
+    "amicizia",
+    "moda"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "3e8f036efb81bfca3f372b34c2c7fb1cb197cc3e9fc666d9fecbe74543a247df",
+     "title": "Il cappotto rosso",
+     "subtitle": "Un regalo che nessuno voleva, tranne Anna.",
+     "words": 679,
+     "band_words": [
+      102,
+      432,
+      98,
+      47
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "931bdf5faa869f737ec342a1621a4f1f780fe5c1617774de805a1f42ab9ea65c",
+     "title": "Il cappotto rosso",
+     "subtitle": "Un regalo che nessuno voleva, tranne Anna.",
+     "words": 733,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "143b78fb-0ae1-43cf-b13d-5dcbbccbd72a",
+   "level": 3,
+   "genre": "viaggio",
+   "tags": [
+    "venezia",
+    "carnevale",
+    "feste"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "70bb6c49c5663baeb07a945a77934f22604a5014a3070d97c177a1d550c80ef5",
+     "title": "Carnevale a Venezia",
+     "subtitle": "Maschere, costumi e una città che si traveste.",
+     "words": 652,
+     "band_words": [
+      79,
+      429,
+      97,
+      47
+     ],
+     "audio_ms": 405000,
+     "opus_sha256": "ddc1e681133712836ac609987b1904f047c2c79c750e0a91a182a1002df7b2c9",
+     "opus_size": 1215000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "26304cbe2a62d14dbce8fff863f07fd80d10855377c47872ce655f40558dea8c",
+     "title": "Carnevale a Venezia",
+     "subtitle": "Maschere, costumi e una città che si traveste.",
+     "words": 704,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "92bf590f-8a4d-4857-9701-68851b3e6e97",
+   "level": 3,
+   "genre": "lettere",
+   "tags": [
+    "famiglia",
+    "trieste"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "5b85f0cd113ab8f5515f87d2cb2a28a688961faa4759c369034ad66ebe751f77",
+     "title": "Lettera da Trieste",
+     "subtitle": "Una lettera al fratello, tra vento e caffè.",
+     "words": 671,
+     "band_words": [
+      88,
+      437,
+      99,
+      47
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "33440c47-cc58-45bc-9b86-5fe2f359ff60",
+   "level": 3,
+   "genre": "classici",
+   "tags": [
+    "scuola",
+    "infanzia"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "edmondo-de-amicis",
+   "adapted": 1,
+   "license": "public-domain",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "5f545d393373224592ed40dd95ed5d52116544f69ac57e37ac22d41b782f691f",
+     "title": "Il piccolo patriota padovano",
+     "subtitle": "Un ragazzo, tre stranieri e una manciata di monete.",
+     "words": 768,
+     "band_words": [
+      116,
+      489,
+      110,
+      53
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "e8f03d89c9e4627a96974a19a4f9aaeb41b516d8935fbf7c48ae9551c102a869",
+     "title": "Il piccolo patriota padovano",
+     "subtitle": "Un ragazzo, tre stranieri e una manciata di monete.",
+     "words": 829,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "76790552-5517-4ad6-bf00-5521a3b94348",
+   "level": 3,
+   "genre": "mistero",
+   "tags": [
+    "arte",
+    "museo",
+    "firenze"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "233b6691841853a4de8929505548c1c45a299d56e7ea0f614113ca1b2a8ff8ab",
+     "title": "Il quadro scomparso",
+     "subtitle": "Agli Uffizi manca un ritratto, e nessuno ha visto niente.",
+     "words": 800,
+     "band_words": [
+      112,
+      516,
+      116,
+      56
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "634c4ce743003c3b23125ba1e3f7c62b071bbd1d62390f91b24cc063f069c6a6",
+     "title": "Il quadro scomparso",
+     "subtitle": "Agli Uffizi manca un ritratto, e nessuno ha visto niente.",
+     "words": 864,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "ab350fd0-265f-45b7-a90c-b5508f6b2eb8",
+   "level": 3,
+   "genre": "racconto",
+   "tags": [
+    "lavoro",
+    "famiglia",
+    "memoria"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "f89dad4a98229248be8cfc45254eb1f15a97c161a241eb88435302f97d667cd5",
+     "title": "Il negozio di papà",
+     "subtitle": "Chiudere dopo cinquant’anni non è facile.",
+     "words": 768,
+     "band_words": [
+      116,
+      489,
+      110,
+      53
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "1d66edeeb7b2739f6203b89fee8786b79847a13310111680eb95698a2f3e4c26",
+     "title": "Il negozio di papà",
+     "subtitle": "Chiudere dopo cinquant’anni non è facile.",
+     "words": 829,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "524972bd-22c2-49d4-b0a4-a088a04bcbeb",
+   "level": 3,
+   "genre": "dialogo",
+   "tags": [
+    "scuola",
+    "famiglia"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "20d421abaf67f17074461194b32ce7bef42a835768364e736bec53ceb3ad1e03",
+     "title": "Il colloquio con i professori",
+     "subtitle": "Signora, suo figlio è bravo, ma parla troppo.",
+     "words": 746,
+     "band_words": [
+      90,
+      492,
+      111,
+      53
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "98435fdc5f718e1049c5826ce5108fc010554dfd27701796f0652d449209eda9",
+     "title": "Il colloquio con i professori",
+     "subtitle": "Signora, suo figlio è bravo, ma parla troppo.",
+     "words": 806,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "a2485bd9-6c89-481b-b255-e92f779ec11a",
+   "level": 3,
+   "genre": "cronaca",
+   "tags": [
+    "mercato",
+    "cibo",
+    "torino"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "7d1af6a2a7e59dd0f02820ab8f8307f56fa4665ba219cec31a74cbd862b8bdac",
+     "title": "Il mercato di Porta Palazzo",
+     "subtitle": "Il più grande mercato all’aperto d’Europa.",
+     "words": 762,
+     "band_words": [
+      100,
+      496,
+      112,
+      54
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "3595cfa4c3bab677bc9876a4e3a0a736f2572608a13fc9732c64f0cc37ce68ed",
+     "title": "Il mercato di Porta Palazzo",
+     "subtitle": "Il più grande mercato all’aperto d’Europa.",
+     "words": 823,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "9b581e35-5161-4fbf-8f63-62e41a4fa9eb",
+   "level": 3,
+   "genre": "leggenda",
+   "tags": [
+    "toscana",
+    "magia"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "74e50e6d38e75d247b52d08265e709c89f74a7234610e723a16dfb8acbb775f5",
+     "title": "Il ponte del diavolo",
+     "subtitle": "Un costruttore, un patto e un’anima da pagare.",
+     "words": 793,
+     "band_words": [
+      112,
+      510,
+      115,
+      56
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "99a4fb956f11dec8ee84b47900b1c8cf0f70e901e3d93444632c36abbcbaba90",
+     "title": "Il ponte del diavolo",
+     "subtitle": "Un costruttore, un patto e un’anima da pagare.",
+     "words": 856,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "6077364e-4efc-4363-9908-3a8a9a24e2ae",
+   "level": 3,
+   "genre": "biografia",
+   "tags": [
+    "musica",
+    "opera",
+    "emilia-romagna"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "f2d6940e38b40cc4dfa912a2f03429af86292222884ba7e0c9defdebe31b27e4",
+     "title": "Giuseppe Verdi a Busseto",
+     "subtitle": "Il ragazzo che suonava l’organo della chiesa.",
+     "words": 775,
+     "band_words": [
+      109,
+      499,
+      113,
+      54
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "3f47267c9c1ec2561fa4647e3209612b402b6d781a18683970ca585541f98618",
+     "title": "Giuseppe Verdi a Busseto",
+     "subtitle": "Il ragazzo che suonava l’organo della chiesa.",
+     "words": 837,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "f16c1a4c-fbf8-4434-8c2e-1fc10ccf99a5",
+   "level": 3,
+   "genre": "classici",
+   "tags": [],
+   "work": "Pinocchio",
+   "part": 1,
+   "author": "carlo-collodi",
+   "adapted": 1,
+   "license": "public-domain",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "da7387f8d2e341b9a09930c1fb1041b6bf39af1e319cf7c0b702c92d667d52fa",
+     "title": "Pinocchio, capitolo primo (adattato)",
+     "subtitle": "Mastro Ciliegia trova un pezzo di legno che parla.",
+     "words": 618,
+     "band_words": [
+      75,
+      407,
+      92,
+      44
+     ],
+     "audio_ms": 485000,
+     "opus_sha256": "2668e5df8ee6d3ad6678bd7bc5f4a4b408a2ebcfaec598a9448b0be7b47f0781",
+     "opus_size": 1455000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "1db27d006cdf9d044ebdcb6378e074740128fb94b32d911e5fcafc8a03550b2f",
+     "title": "Pinocchio, capitolo primo (adattato)",
+     "subtitle": "Mastro Ciliegia trova un pezzo di legno che parla.",
+     "words": 667,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "8698581a-48f7-4061-8cfd-8562ff40ea08",
+   "level": 3,
+   "genre": "classici",
+   "tags": [
+    "etichetta-nuova"
+   ],
+   "work": "Pinocchio",
+   "part": 2,
+   "author": "carlo-collodi",
+   "adapted": 1,
+   "license": "public-domain",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "0fa02260a857f3932a7f432625fe245d933e9c4f1697875cb5bb1bc58836967c",
+     "title": "Pinocchio, capitolo secondo",
+     "subtitle": "Mastro Ciliegia regala il pezzo di legno a Geppetto.",
+     "words": 838,
+     "band_words": [
+      109,
+      546,
+      123,
+      60
+     ],
+     "audio_ms": 500000,
+     "opus_sha256": "11bafa05333ceeeb9d80385512b4550cd12f669b3bf3188f0576781c9a381dfb",
+     "opus_size": 1500000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "4e4933e5ac52bf33c7852102d208f059f276ff0531f1422797804bfed1624a54",
+     "title": "Pinocchio, capitolo secondo",
+     "subtitle": "Mastro Ciliegia regala il pezzo di legno a Geppetto.",
+     "words": 905,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "8945ce16-1323-4611-8faa-d9d79be00f2f",
+   "level": 3,
+   "genre": "classici",
+   "tags": [
+    "guerra",
+    "sardegna"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "edmondo-de-amicis",
+   "adapted": 1,
+   "license": "public-domain",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "2fc775f40667917894da3b0b60df9129185d80a29c4a0ae33b043fbbc3b3bf3c",
+     "title": "Il tamburino sardo",
+     "subtitle": "Un ragazzo, una battaglia e un messaggio da portare.",
+     "words": 823,
+     "band_words": [
+      99,
+      543,
+      123,
+      58
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "0e502425-8da4-4aea-9305-5ab6fd0ec98e",
+   "level": 3,
+   "genre": "notizia",
+   "tags": [
+    "mare",
+    "animali",
+    "sicilia",
+    "isola"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "34ed78c3bfb96f0d5e9184a66348735806c3c36b9de74f818eb2178d0d840d4a",
+     "title": "Le tartarughe di Lampedusa",
+     "subtitle": "Ogni estate tornano sulla stessa spiaggia.",
+     "words": 813,
+     "band_words": [
+      106,
+      530,
+      120,
+      57
+     ],
+     "audio_ms": 490000,
+     "opus_sha256": "442d0f388d38ddda772ce4005004ec15d5ca89f7ccf902bacba06a5bd7528397",
+     "opus_size": 1470000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "a3f21ee597f5c38f484ad0f5cc53e704b3e4966335370b65e4ba9e5e58759c90",
+     "title": "Le tartarughe di Lampedusa",
+     "subtitle": "Ogni estate tornano sulla stessa spiaggia.",
+     "words": 878,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "1cd09ce0-7eb3-48a8-b81d-f4c38a6b0a39",
+   "level": 3,
+   "genre": "mistero",
+   "tags": [
+    "laghi",
+    "albergo",
+    "polizia"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "724a6ae13d294cf18bd7ce058fb6bcbdfba76e52f7f31167db6a63089ac89282",
+     "title": "Morte sul lago di Como",
+     "subtitle": "Un ospite dell’albergo non scende a colazione.",
+     "words": 802,
+     "band_words": [
+      97,
+      528,
+      119,
+      58
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "21e275f5d5073d3eb64b7b7fd0b38f55fce7cc68a9dae2f06623d0b8c26aa2cb",
+     "title": "Morte sul lago di Como",
+     "subtitle": "Un ospite dell’albergo non scende a colazione.",
+     "words": 866,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "e374e905-ee2c-4790-9809-195c3319fb67",
+   "level": 3,
+   "genre": "racconto",
+   "tags": [
+    "cucina",
+    "famiglia",
+    "cibo",
+    "segreto"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "9a80b316226a008703c57ebd3b730d787435a303f18be75494a8c518e40a6077",
+     "title": "La ricetta perduta",
+     "subtitle": "Nel quaderno della zia manca una pagina.",
+     "words": 868,
+     "band_words": [
+      122,
+      559,
+      126,
+      61
+     ],
+     "audio_ms": 520000,
+     "opus_sha256": "0dcf7295c688db5f879682dc42407e0191ec3de623d289333f141687dbd53176",
+     "opus_size": 1560000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "6bbd37f940531cb0b515b072ecd81a4480d04fe6e4efc6334ade950c72c80613",
+     "title": "La ricetta perduta",
+     "subtitle": "Nel quaderno della zia manca una pagina.",
+     "words": 937,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "34931d40-a007-410b-829e-ebddaa8247e0",
+   "level": 3,
+   "genre": "mistero",
+   "tags": [
+    "treno",
+    "libri"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "38251bcaa5d3d05e7a0dee86864868c92bdf7976933e35e0340b3b4862e3a4bc",
+     "title": "Il treno delle 6:15",
+     "subtitle": "Ogni mattina la stessa donna, ogni mattina un libro diverso.",
+     "words": 853,
+     "band_words": [
+      103,
+      562,
+      127,
+      61
+     ],
+     "audio_ms": 510000,
+     "opus_sha256": "05521fcb5e0177fd8a01ba986e21ffb4647600eaf67dad7964955dc6fd718dea",
+     "opus_size": 1530000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "90c2bfa40fe15ba13a55a22af1d100176ff0b9b26acf0712d755400dc21316fa",
+     "title": "Il treno delle 6:15",
+     "subtitle": "Ogni mattina la stessa donna, ogni mattina un libro diverso.",
+     "words": 921,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "a2370cb5-5950-4abd-8274-5c483310ce29",
+   "level": 3,
+   "genre": "classici",
+   "tags": [],
+   "work": "Pinocchio",
+   "part": 3,
+   "author": "carlo-collodi",
+   "adapted": 1,
+   "license": "public-domain",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "9973bb34b30c1dcd73bd5aa286df79840e84973e4389afd224c84ce5346de8be",
+     "title": "Pinocchio, capitolo terzo",
+     "subtitle": "Geppetto fabbrica il burattino e lo chiama Pinocchio.",
+     "words": 994,
+     "band_words": [
+      120,
+      655,
+      148,
+      71
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "088598f3dcbdccd680153231202531cc3b372636f8a9813e69a6ada07bbecb8c",
+     "title": "Pinocchio, capitolo terzo",
+     "subtitle": "Geppetto fabbrica il burattino e lo chiama Pinocchio.",
+     "words": 1074,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "e03c617b-e6d4-4253-89af-7dcf03fcd411",
+   "level": 3,
+   "genre": "viaggio",
+   "tags": [
+    "montagna",
+    "alpi",
+    "cibo"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "dcd3bcb0cf4b978a22f6f57ddba793458ad6939cc691803cebfa9632ad73b78b",
+     "title": "Il rifugio sopra le nuvole",
+     "subtitle": "Tre ore di sentiero e una polenta che vale la fatica.",
+     "words": 949,
+     "band_words": [
+      114,
+      626,
+      141,
+      68
+     ],
+     "audio_ms": 552000,
+     "opus_sha256": "936db05aa5959ee6c24a2cd0f1d2bc2e26fe2b8505289290b59f6356e0f10602",
+     "opus_size": 1656000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "70303bcb20292132a60605d4c20b0f848ab67f41c7bab1fda4e2ee6750deb6fd",
+     "title": "Il rifugio sopra le nuvole",
+     "subtitle": "Tre ore di sentiero e una polenta che vale la fatica.",
+     "words": 1025,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "badc0963-d6ef-4821-b8fe-a238c0eecd25",
+   "level": 3,
+   "genre": "fantascienza",
+   "tags": [
+    "robot",
+    "lingua",
+    "futuro"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "798b4c3affd701c5c275c4beef55450e78bee61061f0d5f1c0835c1a1ba43700",
+     "title": "Il robot che imparava l’italiano",
+     "subtitle": "Sa mille parole ma non capisce le battute.",
+     "words": 980,
+     "band_words": [
+      128,
+      639,
+      144,
+      69
+     ],
+     "audio_ms": 580000,
+     "opus_sha256": "92bb958a699939dacef4dc8fe184e5a4386801c4b9ec1980d03c591e2302253d",
+     "opus_size": 1740000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "8bc591dce3369c32c8061fb59efd051f7c1990c8c92b01445a7f14732fb8e996",
+     "title": "Il robot che imparava l’italiano",
+     "subtitle": "Sa mille parole ma non capisce le battute.",
+     "words": 1058,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "3284d4d5-2d0c-4cc6-a347-65a634c4fd1a",
+   "level": 3,
+   "genre": "leggenda",
+   "tags": [
+    "mare",
+    "napoli"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "b177ebe153386c48b9bcb9d24ab6f6077881ff5c2b58ddeed1daef9f739a8c02",
+     "title": "La sirena Partenope",
+     "subtitle": "Il canto che ha dato il nome a Napoli.",
+     "words": 1019,
+     "band_words": [
+      153,
+      649,
+      147,
+      70
+     ],
+     "audio_ms": 605000,
+     "opus_sha256": "fd71e0468c73579d14aafa5c5c2d91f3348e1b6037f7a3c47bef0d8e9f977792",
+     "opus_size": 1815000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "37162ab51b77d529a2f2df842224ee3120dbb9cdf21c42a25b81148590711e34",
+     "title": "La sirena Partenope",
+     "subtitle": "Il canto che ha dato il nome a Napoli.",
+     "words": 1101,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "e9db982c-957b-4cf4-a1ae-520c34b49836",
+   "level": 3,
+   "genre": "racconto",
+   "tags": [
+    "immigrazione",
+    "mare",
+    "napoli",
+    "famiglia"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "f648d1786ce784b1b5e6ac4f407540709102ee9754babbf5a37a494112277024",
+     "title": "La valigia di cartone",
+     "subtitle": "Partire da Napoli per l’America nel 1910.",
+     "words": 1087,
+     "band_words": [
+      142,
+      708,
+      160,
+      77
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "ad775099f0d3a18743cfdedaab864a3019accca31cedef2745b2580c3bded924",
+     "title": "La valigia di cartone",
+     "subtitle": "Partire da Napoli per l’America nel 1910.",
+     "words": 1174,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "a5ce3cf9-e6e3-44f9-9ba6-39cc60a07006",
+   "level": 3,
+   "genre": "romanzo",
+   "tags": [
+    "sardegna",
+    "campagna"
+   ],
+   "work": "Canne al vento",
+   "part": 1,
+   "author": "grazia-deledda",
+   "adapted": 1,
+   "license": "public-domain",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "cbe782d932a0e0653796e101d4813008a6a25fec03185f411549a50bfcf44c2c",
+     "title": "Canne al vento, capitolo primo",
+     "subtitle": "Efix guarda il podere delle sue padrone.",
+     "words": 1158,
+     "band_words": [
+      174,
+      738,
+      167,
+      79
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "01ffa768d37f39f38046c2f1cef724d2e050cfdef5d6a872e9a6203991028846",
+     "title": "Canne al vento, capitolo primo",
+     "subtitle": "Efix guarda il podere delle sue padrone.",
+     "words": 1251,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "914a10af-b5ab-498f-8821-a21c956504d1",
+   "level": 4,
+   "genre": "poesia-in-prosa",
+   "tags": [
+    "estate",
+    "mare"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "dc58110add55cf3aab50c1ce7d2e3275b9b06033f1c85936f71f1c4eec03f689",
+     "title": "Agosto",
+     "subtitle": "Il paese si svuota, il mare si riempie.",
+     "words": 724,
+     "band_words": [
+      131,
+      444,
+      100,
+      49
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "da85e1c39f5ebe992ef4251e3b2acb778bf10594bf847ca7a9b3526d262ddc20",
+     "title": "Agosto",
+     "subtitle": "Il paese si svuota, il mare si riempie.",
+     "words": 782,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "a888c0da-3911-4ba0-bd6e-4bdef18852fd",
+   "level": 4,
+   "genre": "cronaca",
+   "tags": [
+    "treno",
+    "lavoro",
+    "milano"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "38e883ad3983b1d20897ecab0cf600531a6edff2ec09371e65ac7536c1921157",
+     "title": "Pendolari",
+     "subtitle": "Due ore al giorno sul treno, da vent’anni.",
+     "words": 881,
+     "band_words": [
+      150,
+      548,
+      124,
+      59
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "25deac7d390a4e68c1eab53e9e3ba5d5eff08384866c833cb96d70e1d386477c",
+     "title": "Pendolari",
+     "subtitle": "Due ore al giorno sul treno, da vent’anni.",
+     "words": 951,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "81d622e5-8c4f-4eb4-a7b7-67570d0a2e9f",
+   "level": 4,
+   "genre": "cronaca",
+   "tags": [
+    "olio",
+    "puglia",
+    "campagna",
+    "cibo"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "2d13883b78850fc2530c27d2f135fb370df5da437b26238fbce2b4d9243bbe01",
+     "title": "La raccolta delle olive",
+     "subtitle": "Novembre in Puglia, reti e mani fredde.",
+     "words": 938,
+     "band_words": [
+      141,
+      597,
+      135,
+      65
+     ],
+     "audio_ms": 470000,
+     "opus_sha256": "2c275a2d016765a03e11f6ec57a269a0c933ec3c41903acd482e8c26c782dd53",
+     "opus_size": 1410000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "c0a4ca36635a676f937377119df2cc919e77bd1d0b60eb682bd6970e0a24fde2",
+     "title": "La raccolta delle olive",
+     "subtitle": "Novembre in Puglia, reti e mani fredde.",
+     "words": 1013,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "e18cb18f-7a70-4362-b530-78f67ae25bfa",
+   "level": 4,
+   "genre": "quotidiano",
+   "tags": [
+    "casa",
+    "famiglia",
+    "memoria"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "6cfa5c0a9b1706b760eb351de9fc20a85a04a53f6c1b5226dabddaa56c1e2c90",
+     "title": "Il trasloco",
+     "subtitle": "Trent’anni di cose in quaranta scatoloni.",
+     "words": 923,
+     "band_words": [
+      167,
+      567,
+      128,
+      61
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "c5e8ebe327c16a304687f13a0561fa654de79d4ed719f048197b88a775b3689d",
+     "title": "Il trasloco",
+     "subtitle": "Trent’anni di cose in quaranta scatoloni.",
+     "words": 997,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "8a95e053-916f-4fe2-aabc-7810d9470735",
+   "level": 4,
+   "genre": "cronaca",
+   "tags": [
+    "calcio",
+    "infanzia",
+    "amicizia"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "8bd8a976ef57902fa7b9a529eed13e6db8aa2b330797e7061ce7d7d32f90c7ce",
+     "title": "Il campetto",
+     "subtitle": "Due zaini per porta e nessun arbitro.",
+     "words": 908,
+     "band_words": [
+      146,
+      571,
+      129,
+      62
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "7115ad7c385696aa5a94556e2f7f3c1176d448ac9fad4384c411714e2c5e334b",
+     "title": "Il campetto",
+     "subtitle": "Due zaini per porta e nessun arbitro.",
+     "words": 981,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "5f300773-b98d-402e-acbd-0605d8618200",
+   "level": 4,
+   "genre": "classici",
+   "tags": [
+    "sicilia",
+    "famiglia"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "giovanni-verga",
+   "adapted": 1,
+   "license": "public-domain",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "08fc0952a7e9abf999e3204172c4481acf067ce998ec5fd55a537c7fc5d54c03",
+     "title": "La roba",
+     "subtitle": "Mazzarò e tutto quello che possiede.",
+     "words": 984,
+     "band_words": [
+      168,
+      612,
+      138,
+      66
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "d9a2d63d-1175-40d3-8c96-8b8a43396132",
+   "level": 4,
+   "genre": "saggio",
+   "tags": [
+    "gesti",
+    "lingua"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "70ef9b269a402156b0b4b3a7f132423978bf97eb6e14b33f212e820c9930d029",
+     "title": "Perché gli italiani parlano con le mani",
+     "subtitle": "Una piccola storia dei gesti.",
+     "words": 1042,
+     "band_words": [
+      167,
+      656,
+      148,
+      71
+     ],
+     "audio_ms": 510000,
+     "opus_sha256": "71f157daadf3d4c171b8384c02c9223a2b090959d3622582bbad98e9d4297579",
+     "opus_size": 1530000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "254e6ea678b62cb781924fdd096dbf4cae31d8be0b758e0c4ba42047c74e066b",
+     "title": "Perché gli italiani parlano con le mani",
+     "subtitle": "Una piccola storia dei gesti.",
+     "words": 1125,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "f26ceca1-8cb3-4982-80da-71430b2ebfab",
+   "level": 4,
+   "genre": "dialogo",
+   "tags": [
+    "lavoro",
+    "umorismo"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "3916f022c98aedb49459c8a07e27476990d6d790a6d957b9af5ada0dc6c61376",
+     "title": "La riunione",
+     "subtitle": "Il capo ha un’idea. Di nuovo.",
+     "words": 1076,
+     "band_words": [
+      194,
+      661,
+      149,
+      72
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "f0281b63e79a0d1c80c6b2410f68e7974c4e7089c87ab6482954569cbf47305d",
+     "title": "La riunione",
+     "subtitle": "Il capo ha un’idea. Di nuovo.",
+     "words": 1162,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "0fca2025-5026-4ca7-b93d-2273acdabe28",
+   "level": 4,
+   "genre": "notizia",
+   "tags": [
+    "napoli",
+    "lavoro"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "dd36b359457d460121d662ff6e306199916018a457cf1e26860d27599fcc3bfe",
+     "title": "I nuovi artigiani di Napoli",
+     "subtitle": "Giovani che riaprono le botteghe dei nonni.",
+     "words": 1080,
+     "band_words": [
+      184,
+      672,
+      152,
+      72
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "1055590f5ae39c24305953372cf4b12aeffe4b07146b399cc92cdb5ed0167240",
+     "title": "I nuovi artigiani di Napoli",
+     "subtitle": "Giovani che riaprono le botteghe dei nonni.",
+     "words": 1166,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "e528422a-24b6-46f8-8225-1b6af5f2d4c4",
+   "level": 4,
+   "genre": "mistero",
+   "tags": [
+    "libri",
+    "segreto"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "88dd3d211dec427f8351b5cef918bdcd202fc3fbcf63051b8b67bef7340b553b",
+     "title": "La biblioteca chiusa",
+     "subtitle": "Un libro restituito con quarant’anni di ritardo.",
+     "words": 1000,
+     "band_words": [
+      160,
+      630,
+      142,
+      68
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "a4701e4d81c03c1fceb83f981cd21e1fbf49a855e3577a80a367c4d3f01cd6c5",
+     "title": "La biblioteca chiusa",
+     "subtitle": "Un libro restituito con quarant’anni di ritardo.",
+     "words": 1080,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "2e639b8a-1d30-4b69-845e-a60d174577e2",
+   "level": 4,
+   "genre": "racconto",
+   "tags": [
+    "citta",
+    "notte"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "a150ad4dbfa1f0ce8ae82986ce56c29a9d3e6fcd360bfdb1f11e028f80b6ed0c",
+     "title": "L'ultimo autobus",
+     "subtitle": "Mezzanotte, una fermata vuota, un autista che aspetta.",
+     "words": 910,
+     "band_words": [
+      137,
+      579,
+      131,
+      63
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "b8bab1dd522da6dc5ab1ba184b5cbee3ff7ed733188cd4674296a4b0e5209906",
+     "title": "L'ultimo autobus",
+     "subtitle": "Mezzanotte, una fermata vuota, un autista che aspetta.",
+     "words": 983,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "78090101-d879-4e65-aa47-7acf1bee5fcd",
+   "level": 4,
+   "genre": "biografia",
+   "tags": [
+    "scienza",
+    "radio",
+    "bologna"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "a4c7f76f07c692814ade9ee399c86be4e3902f61f9839385e8e087bd4adc593e",
+     "title": "Marconi e la radio",
+     "subtitle": "Un ragazzo di Bologna manda un segnale oltre l’oceano.",
+     "words": 1121,
+     "band_words": [
+      180,
+      705,
+      159,
+      77
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "c456487c539176b8fe85b7cf41b85da28508d16a05dcbda66e0251b2dbca694a",
+     "title": "Marconi e la radio",
+     "subtitle": "Un ragazzo di Bologna manda un segnale oltre l’oceano.",
+     "words": 1211,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "9f11d7be-7951-4781-9672-981fa6c1e618",
+   "level": 4,
+   "genre": "teatro",
+   "tags": [
+    "segreto",
+    "vicini"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "luigi-pirandello",
+   "adapted": 1,
+   "license": "public-domain",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "66f0e945cbc7aee60443a4c4265106e221d2a270010fa1d6e4362e2592f76288",
+     "title": "Così è (se vi pare), scena prima",
+     "subtitle": "Chi è davvero la signora Frola?",
+     "words": 1085,
+     "band_words": [
+      163,
+      691,
+      156,
+      75
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "8ff53badcf793de18dad468c1512f06b00b88cb96ca29049dfdaab179b41d003",
+     "title": "Così è (se vi pare), scena prima",
+     "subtitle": "Chi è davvero la signora Frola?",
+     "words": 1172,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "521a5324-5a40-4c25-9832-5530739472d9",
+   "level": 4,
+   "genre": "classici",
+   "tags": [
+    "cibo",
+    "firenze"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "giovanni-boccaccio",
+   "adapted": 1,
+   "license": "public-domain",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "f0cee47400e40af46b4d77dca2580f6288a04e2c7e1cef2f6cb3a1b5be2ab319",
+     "title": "Chichibio e la gru",
+     "subtitle": "Un cuoco veneziano e una gru con una zampa sola.",
+     "words": 1191,
+     "band_words": [
+      203,
+      741,
+      167,
+      80
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "e1929df59343df2ffca24a66f5458cb1dca0735c74bab449a9bd286225dbc41a",
+     "title": "Chichibio e la gru",
+     "subtitle": "Un cuoco veneziano e una gru con una zampa sola.",
+     "words": 1286,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "322eedff-c606-4dc4-9d26-55b59c8bcfab",
+   "level": 4,
+   "genre": "viaggio",
+   "tags": [
+    "sardegna",
+    "mare",
+    "turismo"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "b58ae8a66856148d56753642337f4de56428a3e97b99c412045f8d6834ecdc60",
+     "title": "Sardegna fuori stagione",
+     "subtitle": "Le spiagge vuote e i paesi dell’interno.",
+     "words": 1166,
+     "band_words": [
+      175,
+      743,
+      168,
+      80
+     ],
+     "audio_ms": 585000,
+     "opus_sha256": "e469fb6e772108d3ddea902cd3b72aca8ae0be7fb6734d9ffcc1e05a29a07367",
+     "opus_size": 1755000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "320bc7cde7b07eb034887be3c8894b902638471b25d7a4191b5b34f2af8a228f",
+     "title": "Sardegna fuori stagione",
+     "subtitle": "Le spiagge vuote e i paesi dell’interno.",
+     "words": 1259,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "3d229294-75b1-463d-bccb-a6c38c4c483d",
+   "level": 4,
+   "genre": "fantascienza",
+   "tags": [
+    "giornale",
+    "futuro",
+    "citta"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "b48877b2b2dda757cf0a54cd33931fc0b8113f0011330b7d8dcde12b1bdd9f51",
+     "title": "L’ultimo giornale di carta",
+     "subtitle": "Nel 2060 un’edicola resiste ancora.",
+     "words": 1092,
+     "band_words": [
+      175,
+      687,
+      155,
+      75
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "a976cc5eef6494e201c91d563bca3c22a91c30a29121051974d61dd2f96ac00c",
+     "title": "L’ultimo giornale di carta",
+     "subtitle": "Nel 2060 un’edicola resiste ancora.",
+     "words": 1179,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "4d9fbd46-6061-4957-8f68-c1ae3bf9f35f",
+   "level": 4,
+   "genre": "mistero",
+   "tags": [
+    "musica",
+    "polizia",
+    "bologna"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "1dda303b014ace954f9d902d14e5e3849a76adca6dba23cd578edc1a614bf978",
+     "title": "Il commissario e il violinista",
+     "subtitle": "Un concerto interrotto e un violino che vale una fortuna.",
+     "words": 1314,
+     "band_words": [
+      211,
+      827,
+      187,
+      89
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "83f68743d52227ef1e0ea2331758cf1d9087a96a3db292d0b7fe1105375f30cb",
+     "title": "Il commissario e il violinista",
+     "subtitle": "Un concerto interrotto e un violino che vale una fortuna.",
+     "words": 1419,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "3255c170-650d-41a4-9286-387b33c9307c",
+   "level": 4,
+   "genre": "racconto",
+   "tags": [
+    "guerra",
+    "memoria",
+    "famiglia",
+    "nonno"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "51970af2edd70c0191363723d023a77399a31ba117a363afbfe129f561f98dd0",
+     "title": "Le lettere del nonno",
+     "subtitle": "Una scatola in soffitta, lettere dal fronte.",
+     "words": 1278,
+     "band_words": [
+      205,
+      804,
+      182,
+      87
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "f21ecdea41cc2bf991b9850e9c36bf45558093fb542c2ec97d29cbc04fbe4529",
+     "title": "Le lettere del nonno",
+     "subtitle": "Una scatola in soffitta, lettere dal fronte.",
+     "words": 1380,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "79d86147-21c4-4cac-9fcd-e27f10cc53c6",
+   "level": 4,
+   "genre": "mistero",
+   "tags": [
+    "arte",
+    "sicilia",
+    "polizia",
+    "pioggia"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "c486bf43a471c297dca5d28cec7b39a49db2e862542679b89f90972724985f8a",
+     "title": "Il furto del Caravaggio",
+     "subtitle": "Palermo, 1969: un quadro sparisce in una notte di pioggia.",
+     "words": 1250,
+     "band_words": [
+      200,
+      787,
+      178,
+      85
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "d4c3a13b8b139a346660a19533eadffaa6b21331013c38d0040ea7f5cfc3e6c8",
+     "title": "Il furto del Caravaggio",
+     "subtitle": "Palermo, 1969: un quadro sparisce in una notte di pioggia.",
+     "words": 1350,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "87c56b96-e37e-4405-bedf-e9a186aa9747",
+   "level": 4,
+   "genre": "leggenda",
+   "tags": [
+    "mare",
+    "sicilia",
+    "magia"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "362e865df3c8a473cd1bfd954f1c04fe06bcae635ecc77dd129c7399dc7cb489",
+     "title": "La Fata Morgana",
+     "subtitle": "Sullo Stretto di Messina appaiono città che non esistono.",
+     "words": 1223,
+     "band_words": [
+      184,
+      779,
+      176,
+      84
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "74c77643f01f87b06e19441f86f26f78b37b1c80652c56b113ffaf91f2d62880",
+     "title": "La Fata Morgana",
+     "subtitle": "Sullo Stretto di Messina appaiono città che non esistono.",
+     "words": 1321,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "41765f97-529a-4f9e-bf64-1e47c0957c27",
+   "level": 4,
+   "genre": "classici",
+   "tags": [
+    "sicilia",
+    "lavoro"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "giovanni-verga",
+   "adapted": 1,
+   "license": "public-domain",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "c0502f6b3461c6e9281b2de4afc1cf5a782c5b362d161db16760a940ff6de268",
+     "title": "Rosso Malpelo",
+     "subtitle": "Un ragazzo dai capelli rossi nella cava di sabbia.",
+     "words": 1347,
+     "band_words": [
+      216,
+      848,
+      192,
+      91
+     ],
+     "audio_ms": 690000,
+     "opus_sha256": "d02a9ef96c7aaf70e0a1fb520917fc7bbfced83d80efce20164beb456b25d76c",
+     "opus_size": 2070000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "313468b5cc454a05abe0099356931b3b44f9b3219fb038fd53f22a828c10cb83",
+     "title": "Rosso Malpelo",
+     "subtitle": "Un ragazzo dai capelli rossi nella cava di sabbia.",
+     "words": 1455,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "73ca3d53-efe8-4fac-a749-287d5bbb6ed0",
+   "level": 4,
+   "genre": "fantascienza",
+   "tags": [
+    "futuro",
+    "roma",
+    "tecnologia"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "834264b42d170069f2bc5a3b1fa039699922758bb0212b12ef8e225778fe6e8f",
+     "title": "Roma 2100",
+     "subtitle": "Il Colosseo sotto una cupola di vetro.",
+     "words": 1409,
+     "band_words": [
+      254,
+      866,
+      196,
+      93
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "a457d1237f1242f97d7e40f5281c5c1022b9b1d56a151029fab9e7b8f64e7742",
+     "title": "Roma 2100",
+     "subtitle": "Il Colosseo sotto una cupola di vetro.",
+     "words": 1522,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "34f52af4-0c39-49d6-89ac-7867528ce0b6",
+   "level": 4,
+   "genre": "racconto",
+   "tags": [
+    "neve",
+    "montagna",
+    "alpi"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "f8c4f9b6fb9d9605627011827e8c80e1d2c4394371d67301ae2896bae29e6bfa",
+     "title": "La valanga",
+     "subtitle": "Un paese di montagna isolato per tre giorni.",
+     "words": 1325,
+     "band_words": [
+      226,
+      824,
+      186,
+      89
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "93d27c86d9cf1e678c57d4dbe6eb442d401edc5f059b6e4ab3c95e15d7834305",
+     "title": "La valanga",
+     "subtitle": "Un paese di montagna isolato per tre giorni.",
+     "words": 1431,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "7c1a429b-9995-4cb9-a8db-8b9230c05936",
+   "level": 4,
+   "genre": "racconto",
+   "tags": [
+    "amore",
+    "roma"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "98b3cc5bc2938a53bca83f9e128f49bb4ab148082b38c800f3e5cc08ad45f70b",
+     "title": "Un appuntamento a Trastevere",
+     "subtitle": "Lei è in ritardo, lui è in anticipo.",
+     "words": 1357,
+     "band_words": [
+      218,
+      854,
+      193,
+      92
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "1d017c764b01f3e797b4d6661d3e63f8c232ca01ebfaa8a7ed44d9317fb49677",
+     "title": "Un appuntamento a Trastevere",
+     "subtitle": "Lei è in ritardo, lui è in anticipo.",
+     "words": 1466,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "e397dc21-684e-475f-8fad-96c37429617b",
+   "level": 4,
+   "genre": "notizia",
+   "tags": [
+    "venezia",
+    "mare",
+    "pioggia"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "099fcad9d8386b5ea628c472e341fff1b67084aa01f0fd67f7731f74333ecca3",
+     "title": "L’acqua alta",
+     "subtitle": "Quando la piazza diventa una laguna.",
+     "words": 1451,
+     "band_words": [
+      247,
+      903,
+      204,
+      97
+     ],
+     "audio_ms": 740000,
+     "opus_sha256": "ceecb40709eb51a9f4e160fac9a37a07ef687c6cbce9f461738162690a777fe5",
+     "opus_size": 2220000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "1271056f0a90a04f76887d8aa14db52dd99ece81a6c407ee15439ee776965d0d",
+     "title": "L’acqua alta",
+     "subtitle": "Quando la piazza diventa una laguna.",
+     "words": 1567,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "170464e6-cf86-440e-983c-6556614dd053",
+   "level": 4,
+   "genre": "biografia",
+   "tags": [
+    "arte",
+    "roma",
+    "etichetta-nuova"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "2995603dc8b84ed1bcba0fccb808cd999f16e325070fac7c2a020e76490dee64",
+     "title": "Artemisia Gentileschi",
+     "subtitle": "Una pittrice nella Roma del Seicento.",
+     "words": 1556,
+     "band_words": [
+      281,
+      956,
+      216,
+      103
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "6d49ebd61d81e3545344a5f8d401becfb5d772742a8dbb0cffea58505aacc5ba",
+     "title": "Artemisia Gentileschi",
+     "subtitle": "Una pittrice nella Roma del Seicento.",
+     "words": 1680,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "8ff4c663-d49f-4e5e-9153-ad1e1f6e3331",
+   "level": 4,
+   "genre": "classici",
+   "tags": [
+    "firenze",
+    "magia"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "giovanni-boccaccio",
+   "adapted": 1,
+   "license": "public-domain",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "45a2ea8d0f84dcfa9030189fa463315d838cb08979c34e3da5ad54c6f96b30bb",
+     "title": "Calandrino e l’elitropia",
+     "subtitle": "La pietra che rende invisibili, o quasi.",
+     "words": 1478,
+     "band_words": [
+      267,
+      908,
+      205,
+      98
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "f2ee3c3efbe8dc213d2c0e13ac86fec5625d4cd64ad028576718d631428b8a1d",
+     "title": "Calandrino e l’elitropia",
+     "subtitle": "La pietra che rende invisibili, o quasi.",
+     "words": 1596,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "ccbb4c7e-c725-43f7-8c0f-d9efe8a15819",
+   "level": 4,
+   "genre": "romanzo",
+   "tags": [
+    "sicilia",
+    "mare",
+    "famiglia",
+    "pesca"
+   ],
+   "work": "I Malavoglia",
+   "part": 1,
+   "author": "giovanni-verga",
+   "adapted": 1,
+   "license": "public-domain",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "137e5c2392ae226f42d7f1d6f88bd80c9060f9a8a457a3d4e35fab2262372545",
+     "title": "I Malavoglia, capitolo primo",
+     "subtitle": "La famiglia Toscano e la barca Provvidenza.",
+     "words": 1591,
+     "band_words": [
+      271,
+      990,
+      224,
+      106
+     ],
+     "audio_ms": 820000,
+     "opus_sha256": "f406431d3eedc7a76ae4e1fa6f6c022d2c9ae1df1542ff3a9a3bc9cdb76f33a0",
+     "opus_size": 2460000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "a2c91ec65bb17f4230df4120dc6baf937e2efa4ea19e822f95b84b9546574f27",
+     "title": "I Malavoglia, capitolo primo",
+     "subtitle": "La famiglia Toscano e la barca Provvidenza.",
+     "words": 1718,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "b021de63-cc68-484a-99ca-95b1be46d1d4",
+   "level": 4,
+   "genre": "sconosciuto",
+   "tags": [
+    "cinema",
+    "roma"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "581b3d43eb76a31eda37abe5252d0dd1ce3b28ad8d1f2387e75e1f4f318656a6",
+     "title": "Cinecittà",
+     "subtitle": "Gli studi dove è nato il cinema italiano.",
+     "words": 1570,
+     "band_words": [
+      236,
+      1000,
+      226,
+      108
+     ],
+     "audio_ms": 790000,
+     "opus_sha256": "e35ab4a04e1915abbf0f501414e434928b09ee140221b461938f7cc5e1ae00e2",
+     "opus_size": 2370000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "87aac905f9e4c15ea530c06057bb24812d85337878e6b10e28fafed10ae66e0f",
+     "title": "Cinecittà",
+     "subtitle": "Gli studi dove è nato il cinema italiano.",
+     "words": 1696,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "fcdd995c-1a2c-4416-8bb1-3373693f4a17",
+   "level": 5,
+   "genre": "sconosciuto",
+   "tags": [
+    "opera",
+    "musica",
+    "stelle"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "a6aeebf5f424849ae94f7f370dab11a25ec25d6358591b061c470e5086d499a2",
+     "title": "Una sera all’Arena",
+     "subtitle": "Aida sotto le stelle di Verona.",
+     "words": 1074,
+     "band_words": [
+      205,
+      651,
+      147,
+      71
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "f0cbd053c5091f0a9df66c265380c92f927841f6f671acd14085d6d4b2f2d473",
+     "title": "Una sera all’Arena",
+     "subtitle": "Aida sotto le stelle di Verona.",
+     "words": 1160,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "7cda5ca3-0662-4ebe-a9f0-bf8793b68416",
+   "level": 5,
+   "genre": "poesia-in-prosa",
+   "tags": [
+    "inverno",
+    "campagna",
+    "emilia-romagna"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "801a837a50ee05084fceeea1e5589f488c69760f32913edaffcce3c592aedf29",
+     "title": "Nebbia in Val Padana",
+     "subtitle": "Quando il mondo finisce a dieci metri.",
+     "words": 1231,
+     "band_words": [
+      259,
+      729,
+      165,
+      78
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "81da043522d6d9afa37ee9d1a0c438c93d1c42b1d71a009e435cae4a9ec45814",
+     "title": "Nebbia in Val Padana",
+     "subtitle": "Quando il mondo finisce a dieci metri.",
+     "words": 1329,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "b5a8e557-32f3-4eac-baa0-c46cb21c4628",
+   "level": 5,
+   "genre": "notizia",
+   "tags": [
+    "mare",
+    "scienza",
+    "pesca"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "dccbbc7c812ba048fd77bb96d5a00eb3677c61421492db6caae9b3ed3a707ae5",
+     "title": "Il Mediterraneo si scalda",
+     "subtitle": "Pesci tropicali nei mari italiani.",
+     "words": 1351,
+     "band_words": [
+      257,
+      820,
+      185,
+      89
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "59095f5e605cae72495612cc52239213962ef526c1b2d035a3a75f0592e99d72",
+     "title": "Il Mediterraneo si scalda",
+     "subtitle": "Pesci tropicali nei mari italiani.",
+     "words": 1459,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "fd773a54-fac5-4bf5-9a9e-0df22c64cf86",
+   "level": 5,
+   "genre": "fantascienza",
+   "tags": [
+    "robot",
+    "nonna",
+    "tecnologia"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "4e9155d5cfbd0a7d03252564b734f253321de7341f200bc9ab28fb1fca7e16db",
+     "title": "La badante elettronica",
+     "subtitle": "Un robot per la nonna, ma la nonna non è d’accordo.",
+     "words": 1321,
+     "band_words": [
+      278,
+      782,
+      177,
+      84
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "59704fb443c177d3bdb99b74ab8bb6958ff409e63e5c8c02d990b17989db4c64",
+     "title": "La badante elettronica",
+     "subtitle": "Un robot per la nonna, ma la nonna non è d’accordo.",
+     "words": 1427,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "91e2d11d-9fd9-4429-a159-b1bce1914548",
+   "level": 5,
+   "genre": "saggio",
+   "tags": [
+    "lingua",
+    "dialetto"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "e36687ed16bbdb90809b0ee040e10b1b33dad28a06a3708bc0915eeb37004cfe",
+     "title": "L’italiano e i dialetti",
+     "subtitle": "Una lingua per scrivere, cento per parlare.",
+     "words": 1466,
+     "band_words": [
+      279,
+      890,
+      201,
+      96
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "9905f4f43de0395fb79a089be25be0912aabd0bb55186b24466ae7512b8c6ca9",
+     "title": "L’italiano e i dialetti",
+     "subtitle": "Una lingua per scrivere, cento per parlare.",
+     "words": 1583,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "ed7939d4-ef9c-42ca-8e5c-155a77a0f997",
+   "level": 5,
+   "genre": "racconto",
+   "tags": [
+    "amore",
+    "matrimonio",
+    "fotografia"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "c298606f495c72fba23c69924eb0dff8efb31d79e3df0c6e698cfdb516fb4b59",
+     "title": "Il fotografo di matrimoni",
+     "subtitle": "Ha visto mille sì, e nessuno il suo.",
+     "words": 1423,
+     "band_words": [
+      271,
+      864,
+      195,
+      93
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "8da8c527ffad0d788acbc52d06cd50e6522f1e1256bab7a2cbcb02808dcc71ae",
+     "title": "Il fotografo di matrimoni",
+     "subtitle": "Ha visto mille sì, e nessuno il suo.",
+     "words": 1537,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "1677c360-25bc-4a87-9fb9-290c30fe823c",
+   "level": 5,
+   "genre": "classici",
+   "tags": [
+    "campagna",
+    "sicilia"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "luigi-pirandello",
+   "adapted": 1,
+   "license": "public-domain",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "cf136ecf38ca8af09e5360c9fe96ec6b216b3dae81a43d23c68c292a97160dbb",
+     "title": "La giara",
+     "subtitle": "Una giara enorme, rotta, e un artigiano che ci resta dentro.",
+     "words": 1641,
+     "band_words": [
+      345,
+      972,
+      220,
+      104
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "a689eae505b6f4b2273e50e717749fabd30bf61bc6df12fd5dd46ac329d53d95",
+     "title": "La giara",
+     "subtitle": "Una giara enorme, rotta, e un artigiano che ci resta dentro.",
+     "words": 1772,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "29e412a1-3d46-40d2-87a2-7c38694c05ed",
+   "level": 5,
+   "genre": "mistero",
+   "tags": [
+    "bologna",
+    "polizia",
+    "notte"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "25c6e8151b723986fe9f1a607f145a34dc27a149e8e7f7b52e1ff90b7deee1c7",
+     "title": "Il portico dei sospetti",
+     "subtitle": "Bologna, quaranta chilometri di portici e un testimone.",
+     "words": 1546,
+     "band_words": [
+      310,
+      927,
+      210,
+      99
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "599489a2bb4d2fc399339da745b31ab22eddbe77874a2da412c426415c896a7c",
+     "title": "Il portico dei sospetti",
+     "subtitle": "Bologna, quaranta chilometri di portici e un testimone.",
+     "words": 1670,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "b1243459-b89e-4226-8fa7-28043935d205",
+   "level": 5,
+   "genre": "viaggio",
+   "tags": [
+    "puglia",
+    "treno",
+    "olio"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "ae700cc74c230e0ea677f48094c794735ba8abc68f6b0b72be5508e1d7c22c36",
+     "title": "Il Salento in treno",
+     "subtitle": "Littorine, ulivi e mare da tutte e due le parti.",
+     "words": 1564,
+     "band_words": [
+      282,
+      961,
+      217,
+      104
+     ],
+     "audio_ms": 700000,
+     "opus_sha256": "a9275633802b6252d6ebea004c368d9209021f7c1b5d027def1893f08e23a382",
+     "opus_size": 2100000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "dbdb17b628e8a44da09fc4b354938c134ce45379a9171c86336e32b4a8cd853f",
+     "title": "Il Salento in treno",
+     "subtitle": "Littorine, ulivi e mare da tutte e due le parti.",
+     "words": 1689,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "005fb38f-aec4-4357-96f3-1ef7b63a97a9",
+   "level": 5,
+   "genre": "teatro",
+   "tags": [
+    "venezia",
+    "vicini"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "carlo-goldoni",
+   "adapted": 1,
+   "license": "public-domain",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "13b50f6ef7759ed5fda35a76e523fec5c84338540a3673ae54a381b4789bcda1",
+     "title": "Il campiello, scena prima",
+     "subtitle": "Una piazzetta veneziana e i suoi pettegolezzi.",
+     "words": 1742,
+     "band_words": [
+      366,
+      1032,
+      233,
+      111
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "1b8501a228cca5ca90b9ae09102e30a3a826ab5096b1f020717a17462f78bd9c",
+     "title": "Il campiello, scena prima",
+     "subtitle": "Una piazzetta veneziana e i suoi pettegolezzi.",
+     "words": 1881,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "8ef0c913-f70f-49f6-9ac8-da38b54ad504",
+   "level": 5,
+   "genre": "cronaca",
+   "tags": [
+    "roma",
+    "estate",
+    "turismo"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "94b6edffc029ef7e2ecf38a1a5ccd2e384bbe659a03372026d6ee5deb3678014",
+     "title": "Roma d’agosto",
+     "subtitle": "La città vuota, le persiane chiuse, i turisti.",
+     "words": 1789,
+     "band_words": [
+      358,
+      1073,
+      243,
+      115
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "96b3a26527d5afd2313ecfcda4d3adfe2c4271fad3097c53ea0ee052b493152f",
+     "title": "Roma d’agosto",
+     "subtitle": "La città vuota, le persiane chiuse, i turisti.",
+     "words": 1932,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "425fcfd4-bae6-4fb8-be42-892d6dbf4841",
+   "level": 5,
+   "genre": "leggenda",
+   "tags": [
+    "firenze",
+    "magia"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "098788c8c813ba282d0473028498cf108996ab581061ffc3c302d7f423fe8410",
+     "title": "Il diavolo e Firenze",
+     "subtitle": "Perché il vento soffia sempre in piazza del Duomo.",
+     "words": 1748,
+     "band_words": [
+      350,
+      1048,
+      237,
+      113
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "2211ebb6dd6e307b984bb5d500ea13e2fd31391899f2df66d1d7e282e5ef7c41",
+     "title": "Il diavolo e Firenze",
+     "subtitle": "Perché il vento soffia sempre in piazza del Duomo.",
+     "words": 1888,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "04382882-f897-494f-82b8-1c2ec3d3432f",
+   "level": 5,
+   "genre": "classici",
+   "tags": [
+    "sicilia",
+    "luna",
+    "lavoro"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "luigi-pirandello",
+   "adapted": 1,
+   "license": "public-domain",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "cc552234d8280c4f561758e3cf7f5ab8167b7bab494de79e6d43a293ab826309",
+     "title": "Ciàula scopre la luna",
+     "subtitle": "Un minatore esce dalla zolfara e vede la luna.",
+     "words": 1856,
+     "band_words": [
+      353,
+      1127,
+      255,
+      121
+     ],
+     "audio_ms": 810000,
+     "opus_sha256": "4923193b2388f6fa1d262bb7f653a2b0d278fd34ffe60841c750cbe119196ece",
+     "opus_size": 2430000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "cc739d999b18f472ebc7bacb89fc9f070647d7e8fd4a0af5b514a7e851339c59",
+     "title": "Ciàula scopre la luna",
+     "subtitle": "Un minatore esce dalla zolfara e vede la luna.",
+     "words": 2004,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "6942c33a-ce2e-4b5c-9925-5f3ad5f65b2a",
+   "level": 5,
+   "genre": "racconto",
+   "tags": [
+    "immigrazione",
+    "lavoro"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "f107198b3f739ddf2e8a364c0f421b0d4d916b695d57d81a3d0c61c4c4fd42bc",
+     "title": "Il cantiere",
+     "subtitle": "Un muratore senegalese a Brescia.",
+     "words": 1888,
+     "band_words": [
+      340,
+      1161,
+      263,
+      124
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "4fdac14b1f4cb8500ae3485a0400cdcb8aea2e6a9352fc5354eacaf112c1c11a",
+     "title": "Il cantiere",
+     "subtitle": "Un muratore senegalese a Brescia.",
+     "words": 2039,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "25b7d4d3-4677-4e37-8392-df618dcf2a62",
+   "level": 5,
+   "genre": "biografia",
+   "tags": [
+    "scienza",
+    "roma"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "14cc900a87cfd8c12fc521574cd10b6a58286f0c08e282f1815f4bc6bdcf6ac5",
+     "title": "I ragazzi di via Panisperna",
+     "subtitle": "Enrico Fermi e un gruppo di fisici giovanissimi.",
+     "words": 1989,
+     "band_words": [
+      359,
+      1222,
+      277,
+      131
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "42593362029b24d10c941dd648aa2ce79933c281b58ca818f71db1c1c464c2bf",
+     "title": "I ragazzi di via Panisperna",
+     "subtitle": "Enrico Fermi e un gruppo di fisici giovanissimi.",
+     "words": 2148,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "28e2374f-d473-45d8-b965-e3723601b043",
+   "level": 5,
+   "genre": "classici",
+   "tags": [
+    "amore",
+    "firenze",
+    "cibo"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "giovanni-boccaccio",
+   "adapted": 1,
+   "license": "public-domain",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "b21fdcd35a9a17929ba4f54ba61b864df80ae1bcb59ec3633313dcc86af0bf53",
+     "title": "Federigo degli Alberighi",
+     "subtitle": "Un falcone, una dama e una cena povera.",
+     "words": 2014,
+     "band_words": [
+      363,
+      1238,
+      280,
+      133
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "e27193a90f70ed99ba72ae9d4410c9b84584467a39eea0c7f6831a4b5a1fa377",
+     "title": "Federigo degli Alberighi",
+     "subtitle": "Un falcone, una dama e una cena povera.",
+     "words": 2175,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "741e7455-97b3-4a65-92fe-fb07671000dc",
+   "level": 5,
+   "genre": "romanzo",
+   "tags": [
+    "trieste",
+    "memoria"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "italo-svevo",
+   "adapted": 1,
+   "license": "public-domain",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "a80d662a90e9855604d3135e0fb8f90d73cc81a1de4ddaa8ea9e07e28ac9484a",
+     "title": "La coscienza di Zeno, il fumo",
+     "subtitle": "L’ultima sigaretta, sempre l’ultima.",
+     "words": 2212,
+     "band_words": [
+      399,
+      1359,
+      308,
+      146
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "d16221588b28bbb20497658615967b8571305699ceaec3050d8c5480ae21ac44",
+     "title": "La coscienza di Zeno, il fumo",
+     "subtitle": "L’ultima sigaretta, sempre l’ultima.",
+     "words": 2389,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "a9221a51-2537-4e49-8ef3-6245df503112",
+   "level": 5,
+   "genre": "saggio",
+   "tags": [
+    "cibo",
+    "famiglia"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "87ea62916acae6218e7bb08efc514164ef06dc5215cbed0ed3899434efd7bae9",
+     "title": "Elogio della lentezza a tavola",
+     "subtitle": "Il pranzo della domenica come forma di resistenza.",
+     "words": 2193,
+     "band_words": [
+      395,
+      1348,
+      305,
+      145
+     ],
+     "audio_ms": 910000,
+     "opus_sha256": "151884048315535c1f6108a5935d76f322d777fec7d5200eac16846482a9a3b2",
+     "opus_size": 2730000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "a22ff5be92432168d31f521ad106a061ea46891c1439a8fb729aeb0f940cdb43",
+     "title": "Elogio della lentezza a tavola",
+     "subtitle": "Il pranzo della domenica come forma di resistenza.",
+     "words": 2368,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "b4e8d7d9-502d-4e35-8ee5-b103ff691db9",
+   "level": 5,
+   "genre": "classici",
+   "tags": [
+    "mare",
+    "barca"
+   ],
+   "work": "Il Corsaro Nero",
+   "part": 1,
+   "author": "emilio-salgari",
+   "adapted": 1,
+   "license": "public-domain",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "2634c601fe1f8921de5467bd118556883b8959015e3abe78e09d67f3187f6a17",
+     "title": "Il Corsaro Nero, capitolo primo",
+     "subtitle": "Una nave di filibustieri nel mare dei Caraibi.",
+     "words": 2288,
+     "band_words": [
+      412,
+      1407,
+      318,
+      151
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "792d32786d92c63f69f6227bc5fd9fa5be1ee8d3102c5504828e3c1b8bf9c1e9",
+     "title": "Il Corsaro Nero, capitolo primo",
+     "subtitle": "Una nave di filibustieri nel mare dei Caraibi.",
+     "words": 2471,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "b3367cf8-ac83-4625-8888-aa9830915db4",
+   "level": 6,
+   "genre": "poesia-in-prosa",
+   "tags": [
+    "genova",
+    "mare",
+    "notte"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "eb679277fa6b970923050d9aa08d29bbf05761a2e7a4840855297037f2c3b94d",
+     "title": "Notturno sul porto",
+     "subtitle": "Gru, gabbiani e luci di Genova.",
+     "words": 1902,
+     "band_words": [
+      457,
+      1083,
+      245,
+      117
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "e4a66f22163c9d76fc58874738bdbd871d1be1f8133a70cb5a603586a1b68040",
+     "title": "Notturno sul porto",
+     "subtitle": "Gru, gabbiani e luci di Genova.",
+     "words": 2054,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "1341e80a-1e92-4f1c-a45e-55785d2c3df0",
+   "level": 6,
+   "genre": "lettere",
+   "tags": [
+    "amore",
+    "roma",
+    "arte",
+    "torino"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "db9ea2287d944038782de69b5d61644e1116d097da936ad8f8d5787a437effbf",
+     "title": "Lettere da Roma",
+     "subtitle": "Un pittore scrive alla moglie rimasta a Torino.",
+     "words": 1915,
+     "band_words": [
+      441,
+      1105,
+      250,
+      119
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "6be47e996c89937c0542015368eb26d6f3b7a162a2ff190953e46623c3205f17",
+     "title": "Lettere da Roma",
+     "subtitle": "Un pittore scrive alla moglie rimasta a Torino.",
+     "words": 2068,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "61f10595-7c23-4657-b431-bb13abeb401b",
+   "level": 6,
+   "genre": "biografia",
+   "tags": [
+    "arte",
+    "napoli"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "f13dcb765065f7c8470397ef974478848b2f99e00411bacc2909c9ac62091299",
+     "title": "Caravaggio in fuga",
+     "subtitle": "Da Roma a Napoli a Malta, sempre un passo avanti.",
+     "words": 2028,
+     "band_words": [
+      426,
+      1201,
+      272,
+      129
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "e6c11175e09ad5aa70f96de605a7b72c2fa474b21f5fb0975a4776792d4b077c",
+     "title": "Caravaggio in fuga",
+     "subtitle": "Da Roma a Napoli a Malta, sempre un passo avanti.",
+     "words": 2190,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "c5d62d29-72ad-443d-a6a7-0678c0fc7baa",
+   "level": 6,
+   "genre": "saggio",
+   "tags": [
+    "lingua",
+    "cibo"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "511ea891b9e93ca16713e0f339f91d99a750bd42ce49c505a2e741c46731cb35",
+     "title": "Tradurre la pizza",
+     "subtitle": "Che cosa si perde, e che cosa si trova, in traduzione.",
+     "words": 2103,
+     "band_words": [
+      505,
+      1198,
+      271,
+      129
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "fee634b7944cbd31785be524ac986468ae40e44658081c6fceee450a90af16c6",
+     "title": "Tradurre la pizza",
+     "subtitle": "Che cosa si perde, e che cosa si trova, in traduzione.",
+     "words": 2271,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "f74e8c6d-eaf7-421e-9a05-047da68e2491",
+   "level": 6,
+   "genre": "cronaca",
+   "tags": [
+    "fabbrica",
+    "lavoro",
+    "tecnologia"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "cfb962183940a17cb91c3d958cb0706d3357aa10155dab1dc8c5649deb6b9770",
+     "title": "L’ultima fabbrica",
+     "subtitle": "Gli operai di Ivrea raccontano l’Olivetti.",
+     "words": 2129,
+     "band_words": [
+      469,
+      1245,
+      282,
+      133
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "a473f80b5aa3f93dafd187d9fa739b690d99bddfefc9d2d94822f5db17b38fff",
+     "title": "L’ultima fabbrica",
+     "subtitle": "Gli operai di Ivrea raccontano l’Olivetti.",
+     "words": 2299,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "2e511a26-14cd-43f9-ad55-934c7b8ecbb9",
+   "level": 6,
+   "genre": "classici",
+   "tags": [
+    "sicilia",
+    "guerra"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "giovanni-verga",
+   "adapted": 1,
+   "license": "public-domain",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "9c29441d33838733db2354c8790f31a62178394b8f766414e34557d46223e5b0",
+     "title": "Libertà",
+     "subtitle": "Bronte, 1860: una rivolta raccontata da Verga.",
+     "words": 2308,
+     "band_words": [
+      485,
+      1367,
+      309,
+      147
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "20c2421e642ebaa5f35c04b67c89997fb6b010529304aa6b42f17487af9a05f2",
+     "title": "Libertà",
+     "subtitle": "Bronte, 1860: una rivolta raccontata da Verga.",
+     "words": 2493,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "9709bb95-a878-47bc-8824-976849951991",
+   "level": 6,
+   "genre": "teatro",
+   "tags": [
+    "famiglia",
+    "segreto"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "luigi-pirandello",
+   "adapted": 1,
+   "license": "public-domain",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "1ecf80a72af97b5a77b346ea969756314f2a7168e3e3645fa427b4db4f04187f",
+     "title": "Sei personaggi, l’ingresso",
+     "subtitle": "Sei sconosciuti interrompono una prova.",
+     "words": 2342,
+     "band_words": [
+      516,
+      1369,
+      310,
+      147
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "954daf7a6362b17fbdd8e7a2bfbb6d7c9f778f694a96db106870f73080771d21",
+     "title": "Sei personaggi, l’ingresso",
+     "subtitle": "Sei sconosciuti interrompono una prova.",
+     "words": 2529,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "31875b95-3974-4305-8a59-d2d123926a33",
+   "level": 6,
+   "genre": "notizia",
+   "tags": [
+    "montagna",
+    "campagna"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "10c53fcc54d23e7fb31882d171f75647e3da8d8e67f3beb04cb93664ac73d744",
+     "title": "Le città che si svuotano",
+     "subtitle": "Paesi dell’Appennino con più case che abitanti.",
+     "words": 2559,
+     "band_words": [
+      538,
+      1515,
+      343,
+      163
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "64d4e2455c86667fbac730bb7707eae43f89049d3f698dd99f35d45e47314be7",
+     "title": "Le città che si svuotano",
+     "subtitle": "Paesi dell’Appennino con più case che abitanti.",
+     "words": 2764,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "17577b1b-e8e6-4d22-add8-28223cbae533",
+   "level": 6,
+   "genre": "mistero",
+   "tags": [
+    "trieste",
+    "caffe",
+    "segreto"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "187391a83e2f91e3fa3dc787b30bac7056178305b54a6c3086be9f533d789c3e",
+     "title": "Un caffè a Trieste",
+     "subtitle": "Al Caffè San Marco qualcuno lascia sempre lo stesso biglietto.",
+     "words": 2604,
+     "band_words": [
+      573,
+      1523,
+      345,
+      163
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "ea95cba991a408db4debc71ea3cf06dea884a115507ff0a07c126c07f3cfd847",
+     "title": "Un caffè a Trieste",
+     "subtitle": "Al Caffè San Marco qualcuno lascia sempre lo stesso biglietto.",
+     "words": 2812,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "ef41157d-b4b7-47d1-814f-450414db2fe1",
+   "level": 6,
+   "genre": "classici",
+   "tags": [
+    "memoria"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "luigi-pirandello",
+   "adapted": 1,
+   "license": "public-domain",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "f1908b6127c504f16739a7b385aada57be869fdbab33a5132b485cc4990f0375",
+     "title": "Il fu Mattia Pascal, premessa",
+     "subtitle": "Una delle poche cose che sapevo di certo era il mio nome.",
+     "words": 2801,
+     "band_words": [
+      617,
+      1638,
+      371,
+      175
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "91f190d181b7773429b4f28fb885ce39dafad93800a27af54c6b1a3130f5a6b0",
+     "title": "Il fu Mattia Pascal, premessa",
+     "subtitle": "Una delle poche cose che sapevo di certo era il mio nome.",
+     "words": 3025,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "54a3675d-741b-4cc4-aef4-0565d00d769f",
+   "level": 6,
+   "genre": "fantascienza",
+   "tags": [
+    "libri",
+    "futuro",
+    "stelle"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "62be2da42f33931b66cfdf02ad7d88d2c3b6a67f3cfc1d97b1e29c3ba0dd2c6b",
+     "title": "La biblioteca di Marte",
+     "subtitle": "L’ultima copia di Dante a cento milioni di chilometri.",
+     "words": 2850,
+     "band_words": [
+      599,
+      1688,
+      382,
+      181
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "fa2c305d730cc38f35e09e054f8e6f2285edf4700e403d66e6229ce622d2fc7a",
+     "title": "La biblioteca di Marte",
+     "subtitle": "L’ultima copia di Dante a cento milioni di chilometri.",
+     "words": 3078,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "30aff261-a164-44d0-abed-94c00f6fb3fc",
+   "level": 6,
+   "genre": "racconto",
+   "tags": [
+    "napoli",
+    "famiglia",
+    "memoria",
+    "nonno"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "3829fe8ed3108dc816c44218b3f20bbdb63c0cd8aeeaa1c081b3fa7cffa39768",
+     "title": "La casa di via Toledo",
+     "subtitle": "Tre generazioni nello stesso appartamento napoletano.",
+     "words": 2932,
+     "band_words": [
+      704,
+      1671,
+      378,
+      179
+     ],
+     "audio_ms": 1100000,
+     "opus_sha256": "225e570e287297c1d16cd17879bbe0ab8ba51341f034dda5c5d3b400b4e298c1",
+     "opus_size": 3300000
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "0a0dbef64bb809854d1aa7bc7bd60d99111d4ee85867b86347e99c592f41f2ff",
+     "title": "La casa di via Toledo",
+     "subtitle": "Tre generazioni nello stesso appartamento napoletano.",
+     "words": 3167,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  },
+  {
+   "id": "a0616eed-9de9-4271-a948-d074bf26ba68",
+   "level": 6,
+   "genre": "sconosciuto",
+   "tags": [
+    "cinema",
+    "roma",
+    "bicicletta"
+   ],
+   "work": "",
+   "part": 0,
+   "author": "",
+   "adapted": 0,
+   "license": "LicenseRef-Postilla",
+   "translations": [
+    {
+     "lang": "it",
+     "sha256": "04a767eac71e3b1bfc3cded659c58d0e410f28162c57e2e82befb9575fae3417",
+     "title": "Il neorealismo",
+     "subtitle": "Ladri di biciclette e una Roma da ricostruire.",
+     "words": 3070,
+     "band_words": [
+      707,
+      1772,
+      401,
+      190
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    },
+    {
+     "lang": "pt-BR",
+     "sha256": "7d931280daf4118d277afd0cae3cacdf57c30b41fae5ca7d9bbc66f47923b3ae",
+     "title": "Il neorealismo",
+     "subtitle": "Ladri di biciclette e una Roma da ricostruire.",
+     "words": 3316,
+     "band_words": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "audio_ms": 0,
+     "opus_sha256": "",
+     "opus_size": 0
+    }
+   ]
+  }
+ ],
+ "arrivals": [
+  "1a28d377-a67c-4447-bbb5-1aa13498d13d",
+  "f16c1a4c-fbf8-4434-8c2e-1fc10ccf99a5",
+  "2e639b8a-1d30-4b69-845e-a60d174577e2"
+ ]
+}

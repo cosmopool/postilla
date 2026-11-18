@@ -21,6 +21,7 @@ dev_dependencies:
 flutter:
   assets:
     - assets/content/
+    - assets/dev/
   fonts:
     - family: Literata
       fonts:

@@ -233,13 +233,13 @@ class FilterChipBtn extends StatelessWidget {
 
 class LevelBadge extends StatelessWidget {
   const LevelBadge(this.level, {super.key, required this.name});
-  final int level; // 1…4
+  final int level; // 1…6
   final String name;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tk;
-    final i = (level - 1).clamp(0, 3);
+    final i = (level - 1).clamp(0, 5);
     return Container(
       constraints: const BoxConstraints(minWidth: 32),
       height: 22,

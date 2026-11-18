@@ -10,6 +10,8 @@ abstract class NavStrings {
   String get immersion;
   String get reading;
   String get about;
+  // slice 1
+  String get otherGenre;
 }
 
 class NavPortuguese implements NavStrings {
@@ -25,6 +27,9 @@ class NavPortuguese implements NavStrings {
   String get reading => 'Leitura';
   @override
   String get about => 'Sobre';
+  // slice 1
+  @override
+  String get otherGenre => 'Outros';
 }
 
 class NavItalian implements NavStrings {
@@ -40,6 +45,9 @@ class NavItalian implements NavStrings {
   String get reading => 'Lettura';
   @override
   String get about => 'Informazioni';
+  // slice 1
+  @override
+  String get otherGenre => 'Altro';
 }
 
 /// Labels and buttons: everything that is not a tab, title or entry section.
@@ -132,6 +140,11 @@ abstract class UiStrings {
   String noSpace(int mb);
   String get tryAgain;
   String get contentFailed;
+  // slice 1
+  String get noTranslation;
+  String get arrivedNow;
+  String narration(int ms);
+  String moreTags(int n);
 }
 
 class UiPortuguese implements UiStrings {
@@ -312,6 +325,15 @@ class UiPortuguese implements UiStrings {
   String get tryAgain => 'Tentar de novo';
   @override
   String get contentFailed => 'Não foi possível preparar o dicionário.';
+  // slice 1
+  @override
+  String get noTranslation => 'Sem tradução';
+  @override
+  String get arrivedNow => 'Chegou agora';
+  @override
+  String narration(int ms) => 'narração de ${ms ~/ 60000} min ${ms ~/ 1000 % 60} s';
+  @override
+  String moreTags(int n) => 'e mais $n';
 }
 
 class UiItalian implements UiStrings {
@@ -492,6 +514,15 @@ class UiItalian implements UiStrings {
   String get tryAgain => 'Riprova';
   @override
   String get contentFailed => 'Impossibile preparare il dizionario.';
+  // slice 1
+  @override
+  String get noTranslation => 'Senza traduzione';
+  @override
+  String get arrivedNow => 'Appena arrivata';
+  @override
+  String narration(int ms) => 'narrazione di ${ms ~/ 60000} min ${ms ~/ 1000 % 60} s';
+  @override
+  String moreTags(int n) => 'e altri $n';
 }
 
 /// Dictionary: labels of the entry sections (DIC-02).

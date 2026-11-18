@@ -18,6 +18,7 @@ import '../ui/icons.dart';
 import '../ui/theme.dart';
 import '../ui/widgets.dart';
 import 'paragraph.dart';
+import 'titlepage.dart';
 
 /// Opens the Reader full screen, without the tab bar (NAV-02), always at the start.
 void openReader(BuildContext context, Story story, List<Story> catalog, Lists lists, IndexState state) {
@@ -54,11 +55,23 @@ typedef WordPos = ({int p, int w});
 const _readingLine = 24.0;
 
 class ReaderPage extends StatefulWidget {
-  const ReaderPage({super.key, required this.story, required this.catalog, required this.lists, required this.state});
+  const ReaderPage({
+    super.key,
+    required this.story,
+    required this.catalog,
+    required this.lists,
+    required this.state,
+    this.targetFile = true,
+    this.nativeFile = true,
+  });
   final Story story;
   final List<Story> catalog;
   final Lists lists;
   final IndexState state;
+
+  /// Whether the story has its target and native files on the device (BIB-12).
+  /// The index will feed these (ARQ-23); until then every story counts as present.
+  final bool targetFile, nativeFile;
 
   @override
   State<ReaderPage> createState() => _ReaderPageState();
@@ -68,6 +81,8 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
   List<Paragraph> _paras = const [];
   Map<String, List<EntryRef>> _lemmas = const {};
   bool _loaded = false;
+  late ReaderOpening _opening = readerOpening(widget.state, targetFile: widget.targetFile, nativeFile: widget.nativeFile);
+  bool _targetOnly = false; // "Ler sem tradução" during the wait (BIB-12)
 
   // Highlight: paragraph, start and end word (-1 = none).
   int _selP = -1, _selS = -1, _selE = -1, _anchor = -1;
@@ -101,6 +116,7 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     _ratio = settings.value.split / 100;
+    dbArrivalOpened(widget.story.id); // "Chegou agora" goes away (ARQ-26)
     _load();
     _itScroll.addListener(_onItScroll);
     _open.addListener(() => setState(() {}));
@@ -115,6 +131,7 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
       }
     }
     final lemmas = await dbLemmasOf(forms.toList());
+    if (paras.isEmpty) appLog('reader: story ${widget.story.id.v} has no text');
     if (!mounted) return;
     setState(() {
       _paras = paras;
@@ -547,13 +564,17 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
               CompactBar(
                 backLabel: ui.backToLibrary,
                 title: widget.story.title,
-                titleVisible: split || _titleOff,
+                titleVisible: split || _titleOff || _failed,
                 scrolled: split || _titleOff,
                 actions: [IconBtn(Glyphs.aLargeSmall, label: ui.readingSettings, selected: _sheetOpen, onTap: _readingSheet)],
               ),
               Expanded(
                 child: !_loaded
                     ? const SizedBox()
+                    : _waiting
+                    ? _wait(s)
+                    : _failed
+                    ? ReaderError(onBack: () => Navigator.of(context).maybePop())
                     : LayoutBuilder(
                         builder: (context, c) {
                           final h = c.maxHeight;
@@ -568,7 +589,8 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
                                   child: ClipRect(
                                     child: OverflowBox(
                                       alignment: Alignment.topCenter,
-                                      maxHeight: max(h - itH, 44),
+                                      // Room for the divider and the split hint while the half opens.
+                                      maxHeight: max(h - itH, 120),
                                       child: Column(
                                         children: [
                                           _divider(t, h),
@@ -583,7 +605,7 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
                         },
                       ),
               ),
-              _dock(t, split),
+              if (_loaded && !_waiting && !_failed) _dock(t, split),
             ],
           ),
         ),
@@ -605,7 +627,7 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
 
   Widget _itPane(Tokens t, Settings s, bool split) {
     final story = widget.story;
-    final genre = genreName(widget.lists, widget.state, story.genre, s.navIt);
+    final meta = titleMeta(story, widget.lists, widget.state, s.navIt);
     final style = T.reader(s.textSize, s.leading);
     final colors = _colors(t);
     return Column(
@@ -652,32 +674,11 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
                       children: [
                         KeyedSubtree(
                           key: _titleKey,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  LevelBadge(story.level.v, name: story.level.name),
-                                  const SizedBox(width: 8),
-                                  Text('$genre · ${ui.minutes(story.minutes)}', style: T.meta.copyWith(color: t.inkMuted)),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              Semantics(
-                                header: true,
-                                child: Text(
-                                  story.title,
-                                  style: (split ? T.title : T.titleLg).copyWith(color: t.ink),
-                                  locale: const Locale('it'),
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                story.subtitle,
-                                style: T.lead.copyWith(color: t.inkMuted, fontStyle: FontStyle.italic),
-                                locale: const Locale('it'),
-                              ),
-                            ],
+                          child: TitlePage(
+                            story: story,
+                            meta: meta,
+                            split: split,
+                            below: Colophon(story: story, lists: widget.lists),
                           ),
                         ),
                         if (!_hintSeenAtOpen)
@@ -929,20 +930,40 @@ class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
     );
   }
 
+  bool get _waiting => _opening != ReaderOpening.text;
+
+  /// The story could not be read (LEI-16): no text and nothing on its way.
+  bool get _failed => _loaded && !_waiting && _paras.isEmpty;
+
+  /// Translation available: the story has one (TRA-10) and the learner did not
+  /// choose "Ler sem tradução" while it was still arriving (BIB-12).
+  bool get _canTranslate => widget.story.hasNative && !_targetOnly;
+
+  Widget _wait(Settings s) => SingleChildScrollView(
+    padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+    child: TitlePage(
+      story: widget.story,
+      meta: titleMeta(widget.story, widget.lists, widget.state, s.navIt),
+      split: false,
+      below: ReaderWait(
+        targetHere: _opening == ReaderOpening.waitNative,
+        onReadTargetOnly: () => setState(() {
+          _opening = ReaderOpening.text;
+          _targetOnly = true;
+        }),
+        onBack: () => Navigator.of(context).maybePop(),
+      ),
+    ),
+  );
+
   Widget _dock(Tokens t, bool split) {
     final hiding = split && _open.status != AnimationStatus.reverse;
     return Container(
       color: t.bg,
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
+      padding: const EdgeInsets.fromLTRB(20, 0, 12, 4),
       height: 60,
       alignment: Alignment.centerRight,
-      child: Btn(
-        hiding ? ui.hideTranslation : ui.showTranslation,
-        kind: BtnKind.secondary,
-        small: true,
-        glyph: Glyphs.rows2,
-        onTap: _loaded ? _toggleTranslation : null,
-      ),
+      child: TranslationButton(hiding: hiding, enabled: _canTranslate, onTap: _toggleTranslation),
     );
   }
 }

@@ -132,6 +132,41 @@ abstract class UiStrings {
   String noSpace(int mb);
   String get tryAgain;
   String get contentFailed;
+
+  // slice 2: Library facets, sheets, empty states and status line
+  String get filters;
+  String get tagFacet;
+  String get levelOne;
+  String get levelMany;
+  String get genreOne;
+  String get genreMany;
+  String get tagOne;
+  String get tagMany;
+  String countOf(int n, String one, String many);
+  String facetOneLabel(String facet, String value);
+  String facetSeveral(String facet, int n);
+  String facetSeveralLabel(String facet, int n);
+  String get clear;
+  String clearFacet(String one);
+  String searchAmong(int n, String many);
+  String get marked;
+  String othersOf(String many);
+  String zeroValues(int n, String one, String many);
+  String zeroOf(int total);
+  String zeroOfLabel(int total);
+  String foundOf(int n, int total, String many);
+  String sheetNote(List<String> facets, bool search);
+  String noValueWith(String one, String q);
+  String accentTip(String one);
+  String seeStories(int n);
+  String get otherGenre;
+  String noneOfFiltered(int n, String q);
+  String backToFiltered(int n);
+  String showsWithQuery(int n, String q);
+  String storiesOnDevice(int n);
+  String newStories(int n);
+  String arrived(int n);
+  String get unknownFormat;
 }
 
 class UiPortuguese implements UiStrings {
@@ -168,7 +203,7 @@ class UiPortuguese implements UiStrings {
   @override
   String noStoryForQuery(String q) => 'Nada com “$q”. Tente outra palavra.';
   @override
-  String get noStoryForFilters => 'Nada com esses filtros. Tire um chip ou limpe todos.';
+  String get noStoryForFilters => 'Nenhuma história do aparelho tem esses filtros agora.';
   @override
   String minutes(int n) => '$n min';
   @override
@@ -312,6 +347,83 @@ class UiPortuguese implements UiStrings {
   String get tryAgain => 'Tentar de novo';
   @override
   String get contentFailed => 'Não foi possível preparar o dicionário.';
+
+  // slice 2
+  @override
+  String get filters => 'Filtros';
+  @override
+  String get tagFacet => 'Tema';
+  @override
+  String get levelOne => 'nível';
+  @override
+  String get levelMany => 'níveis';
+  @override
+  String get genreOne => 'gênero';
+  @override
+  String get genreMany => 'gêneros';
+  @override
+  String get tagOne => 'tema';
+  @override
+  String get tagMany => 'temas';
+  @override
+  String countOf(int n, String one, String many) => '$n ${n == 1 ? one : many}';
+  @override
+  String facetOneLabel(String facet, String value) => '$facet: $value';
+  @override
+  String facetSeveral(String facet, int n) => '$facet · $n';
+  @override
+  String facetSeveralLabel(String facet, int n) => '$facet, $n selecionados';
+  @override
+  String get clear => 'Limpar';
+  @override
+  String clearFacet(String one) => 'Limpar $one';
+  @override
+  String searchAmong(int n, String many) => 'Buscar entre $n $many';
+  @override
+  String get marked => 'Marcados';
+  @override
+  String othersOf(String many) => 'Outros $many';
+  @override
+  String zeroValues(int n, String one, String many) => '${countOf(n, one, many)} sem histórias com esses filtros';
+  @override
+  String zeroOf(int total) => '0 de $total';
+  @override
+  String zeroOfLabel(int total) => '0 de $total histórias: nenhuma com os outros filtros';
+  @override
+  String foundOf(int n, int total, String many) => '$n de $total $many';
+  @override
+  String sheetNote(List<String> facets, bool search) {
+    final parts = [
+      if (facets.length == 1) 'o filtro de ${facets.first}',
+      if (facets.length > 1) 'os filtros de ${facets.join(' e ')}',
+      if (search) 'a busca',
+    ];
+    return 'Números contam ${parts.join(' e ')}.';
+  }
+
+  @override
+  String noValueWith(String one, String q) => 'Nenhum $one com “$q”.';
+  @override
+  String accentTip(String one) => 'Sem acento e sem maiúsculas: “sicilia” acha Sicília. A busca olha só os nomes de $one.';
+  @override
+  String seeStories(int n) => 'Ver ${storiesCount(n)}';
+  @override
+  String get otherGenre => 'Outros';
+  @override
+  String noneOfFiltered(int n, String q) =>
+      n == 1 ? 'A história filtrada não fala de “$q”.' : 'Nenhuma das $n histórias filtradas fala de “$q”.';
+  @override
+  String backToFiltered(int n) => n == 1 ? 'Volta à história filtrada' : 'Volta às $n histórias filtradas';
+  @override
+  String showsWithQuery(int n, String q) => 'Mostra ${storiesCount(n)} com “$q”';
+  @override
+  String storiesOnDevice(int n) => '${storiesCount(n)} no aparelho';
+  @override
+  String newStories(int n) => n == 1 ? '1 história nova' : '$n histórias novas';
+  @override
+  String arrived(int n) => n == 1 ? 'chegou' : 'chegaram';
+  @override
+  String get unknownFormat => 'Há histórias novas que esta versão do app não abre.';
 }
 
 class UiItalian implements UiStrings {
@@ -348,7 +460,7 @@ class UiItalian implements UiStrings {
   @override
   String noStoryForQuery(String q) => 'Niente con «$q». Prova un’altra parola.';
   @override
-  String get noStoryForFilters => 'Niente con questi filtri. Togline uno o toglili tutti.';
+  String get noStoryForFilters => 'Nessuna storia sul dispositivo ha questi filtri ora.';
   @override
   String minutes(int n) => '$n min';
   @override
@@ -492,6 +604,83 @@ class UiItalian implements UiStrings {
   String get tryAgain => 'Riprova';
   @override
   String get contentFailed => 'Impossibile preparare il dizionario.';
+
+  // slice 2
+  @override
+  String get filters => 'Filtri';
+  @override
+  String get tagFacet => 'Tema';
+  @override
+  String get levelOne => 'livello';
+  @override
+  String get levelMany => 'livelli';
+  @override
+  String get genreOne => 'genere';
+  @override
+  String get genreMany => 'generi';
+  @override
+  String get tagOne => 'tema';
+  @override
+  String get tagMany => 'temi';
+  @override
+  String countOf(int n, String one, String many) => '$n ${n == 1 ? one : many}';
+  @override
+  String facetOneLabel(String facet, String value) => '$facet: $value';
+  @override
+  String facetSeveral(String facet, int n) => '$facet · $n';
+  @override
+  String facetSeveralLabel(String facet, int n) => '$facet, $n selezionati';
+  @override
+  String get clear => 'Togli';
+  @override
+  String clearFacet(String one) => 'Togli $one';
+  @override
+  String searchAmong(int n, String many) => 'Cerca tra $n $many';
+  @override
+  String get marked => 'Selezionati';
+  @override
+  String othersOf(String many) => 'Altri $many';
+  @override
+  String zeroValues(int n, String one, String many) => '${countOf(n, one, many)} senza storie con questi filtri';
+  @override
+  String zeroOf(int total) => '0 su $total';
+  @override
+  String zeroOfLabel(int total) => '0 su $total storie: nessuna con gli altri filtri';
+  @override
+  String foundOf(int n, int total, String many) => '$n su $total $many';
+  @override
+  String sheetNote(List<String> facets, bool search) {
+    final parts = [
+      if (facets.length == 1) 'il filtro ${facets.first}',
+      if (facets.length > 1) 'i filtri ${facets.join(' e ')}',
+      if (search) 'la ricerca',
+    ];
+    return 'I numeri contano ${parts.join(' e ')}.';
+  }
+
+  @override
+  String noValueWith(String one, String q) => 'Nessun $one con «$q».';
+  @override
+  String accentTip(String one) => 'Senza accenti né maiuscole: «sicilia» trova Sicilia. La ricerca guarda solo i nomi.';
+  @override
+  String seeStories(int n) => 'Mostra ${storiesCount(n)}';
+  @override
+  String get otherGenre => 'Altro';
+  @override
+  String noneOfFiltered(int n, String q) =>
+      n == 1 ? 'La storia filtrata non parla di «$q».' : 'Nessuna delle $n storie filtrate parla di «$q».';
+  @override
+  String backToFiltered(int n) => n == 1 ? 'Torna alla storia filtrata' : 'Torna alle $n storie filtrate';
+  @override
+  String showsWithQuery(int n, String q) => 'Mostra ${storiesCount(n)} con «$q»';
+  @override
+  String storiesOnDevice(int n) => '${storiesCount(n)} sul dispositivo';
+  @override
+  String newStories(int n) => n == 1 ? '1 storia nuova' : '$n storie nuove';
+  @override
+  String arrived(int n) => n == 1 ? 'è arrivata' : 'sono arrivate';
+  @override
+  String get unknownFormat => 'Ci sono storie nuove che questa versione dell’app non apre.';
 }
 
 /// Dictionary: labels of the entry sections (DIC-02).

@@ -10,6 +10,8 @@ abstract class NavStrings {
   String get immersion;
   String get reading;
   String get about;
+  // slice 4
+  String get languages;
 }
 
 class NavPortuguese implements NavStrings {
@@ -25,6 +27,9 @@ class NavPortuguese implements NavStrings {
   String get reading => 'Leitura';
   @override
   String get about => 'Sobre';
+  // slice 4
+  @override
+  String get languages => 'Idiomas';
 }
 
 class NavItalian implements NavStrings {
@@ -40,6 +45,9 @@ class NavItalian implements NavStrings {
   String get reading => 'Lettura';
   @override
   String get about => 'Informazioni';
+  // slice 4
+  @override
+  String get languages => 'Lingue';
 }
 
 /// Labels and buttons: everything that is not a tab, title or entry section.
@@ -124,10 +132,18 @@ abstract class UiStrings {
   String get areaDictHint;
   String get areaGloss;
   String get custom;
-  String get version;
   String get dictionaryContent;
   String get storiesContent;
-  String get credits;
+  // slice 4
+  String get learning;
+  String get translationsIn;
+  String get languagesNote;
+  String get appLabel;
+  String versionN(String v);
+  String wikiDump(String date);
+  String storiesOnDevice(int n);
+  String syncCursor(int n);
+  String get creditsText;
   String get preparingDictionary;
   String noSpace(int mb);
   String get tryAgain;
@@ -297,13 +313,31 @@ class UiPortuguese implements UiStrings {
   @override
   String get custom => 'Personalizado';
   @override
-  String get version => 'Versão do app';
-  @override
   String get dictionaryContent => 'Dicionário';
   @override
   String get storiesContent => 'Histórias';
+  // slice 4
   @override
-  String get credits => 'Créditos';
+  String get learning => 'Aprendo';
+  @override
+  String get translationsIn => 'Traduções em';
+  @override
+  String get languagesNote =>
+      'Ao trocar, as histórias no novo idioma são baixadas na próxima visita à Biblioteca. Você continua lendo enquanto isso.';
+  @override
+  String get appLabel => 'App';
+  @override
+  String versionN(String v) => 'Versão $v';
+  @override
+  String wikiDump(String date) => 'Wikizionario de $date';
+  @override
+  String storiesOnDevice(int n) => '$n no aparelho';
+  @override
+  String syncCursor(int n) => 'Sincronização $n';
+  @override
+  String get creditsText =>
+      'Dicionário: Wikizionario, en.wiktionary e WikDict, CC BY-SA. Frequência: NVdB, De Mauro 2016. '
+      'Extração: wiktextract e kaikki. Fontes Literata, Newsreader e Noto Serif (OFL). Ícones Lucide (ISC).';
   @override
   String get preparingDictionary => 'Preparando o dicionário';
   @override
@@ -477,13 +511,31 @@ class UiItalian implements UiStrings {
   @override
   String get custom => 'Personalizzato';
   @override
-  String get version => 'Versione dell’app';
-  @override
   String get dictionaryContent => 'Dizionario';
   @override
   String get storiesContent => 'Storie';
+  // slice 4
   @override
-  String get credits => 'Crediti';
+  String get learning => 'Imparo';
+  @override
+  String get translationsIn => 'Traduzioni in';
+  @override
+  String get languagesNote =>
+      'Cambiando, le storie nella nuova lingua si scaricano alla prossima visita alla Biblioteca. Intanto continui a leggere.';
+  @override
+  String get appLabel => 'App';
+  @override
+  String versionN(String v) => 'Versione $v';
+  @override
+  String wikiDump(String date) => 'Wikizionario del $date';
+  @override
+  String storiesOnDevice(int n) => '$n sul dispositivo';
+  @override
+  String syncCursor(int n) => 'Sincronizzazione $n';
+  @override
+  String get creditsText =>
+      'Dizionario: Wikizionario, en.wiktionary e WikDict, CC BY-SA. Frequenza: NVdB, De Mauro 2016. '
+      'Estrazione: wiktextract e kaikki. Font Literata, Newsreader e Noto Serif (OFL). Icone Lucide (ISC).';
   @override
   String get preparingDictionary => 'Preparazione del dizionario';
   @override

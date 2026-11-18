@@ -1,6 +1,6 @@
 // App-wide settings (ARQ-42): an immutable struct in a
 // ValueNotifier at the root. Changing a setting writes to `user` and swaps the value.
-// Screens: Settings (root), Reading, Immersion and About.
+// Screens: Settings (root: Idiomas, Reading, Immersion, About), Reading and Immersion.
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 
@@ -9,6 +9,8 @@ import '../strings.dart';
 import '../ui/icons.dart';
 import '../ui/theme.dart';
 import '../ui/widgets.dart';
+import 'about.dart';
+import 'languages.dart';
 
 class Settings {
   const Settings({
@@ -236,14 +238,61 @@ class ReadingControls extends StatelessWidget {
 
 // ---------------------------------------------------------------- screens
 
-/// Root of the Settings tab: Reading · Immersion · About.
-class SettingsRoot extends StatelessWidget {
+/// Root of the Settings tab: Idiomas first (AJU-08), Reading, Immersion, then
+/// About with the app's colophon (AJU-04).
+class SettingsRoot extends StatefulWidget {
   const SettingsRoot({super.key});
+  @override
+  State<SettingsRoot> createState() => _SettingsRootState();
+}
+
+class _SettingsRootState extends State<SettingsRoot> {
+  IndexState _state = IndexState.nil;
+  Lists _lists = Lists.nil;
+  AboutFacts _facts = const AboutFacts();
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final state = await dbIndexState();
+    final lists = await dbLists();
+    final stories = await dbStories();
+    final info = await dbContentInfo();
+    if (!mounted) return;
+    setState(() {
+      _state = state;
+      _lists = lists;
+      _facts = AboutFacts(dictVersion: info.dictVersion, dumpDate: info.dumpDate, stories: stories.length, cursor: state.cursor);
+    });
+  }
+
+  Future<void> _pick({required bool target}) async {
+    final langs = _lists.languages;
+    final chosen = await Navigator.of(context).push<LangId>(
+      PushRoute(
+        LanguagePicker(
+          title: target ? ui.learning : ui.translationsIn,
+          choices: target ? targetChoices(langs, _state.target) : nativeChoices(langs, _state.target),
+          selected: target ? _state.target : _state.native,
+        ),
+      ),
+    );
+    if (chosen == null) return;
+    final (t, n) = target ? pairAfterTarget(langs, chosen, _state.native) : (_state.target, chosen);
+    if (t == _state.target && n == _state.native) return;
+    await dbSetLanguages(t, n);
+    await _load();
+  }
 
   @override
   Widget build(BuildContext context) {
     final t = context.tk;
     final preset = Preset.of(watchSettings(context));
+    final langs = _lists.languages;
     return ListView(
       padding: EdgeInsets.zero,
       children: [
@@ -255,6 +304,24 @@ class SettingsRoot extends StatelessWidget {
             child: Text(nav.settings, style: T.title.copyWith(color: t.ink)),
           ),
         ),
+        SectionHeader(nav.languages),
+        ListRow(
+          title: ui.learning,
+          compact: true,
+          value: languageName(langs, _state.target),
+          onTap: () => _pick(target: true),
+        ),
+        ListRow(
+          title: ui.translationsIn,
+          compact: true,
+          value: languageName(langs, _state.native),
+          onTap: () => _pick(target: false),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 4, 20, 8),
+          child: Text(ui.languagesNote, style: T.meta.copyWith(color: t.inkMuted)),
+        ),
+        const SizedBox(height: 8),
         ListRow(
           title: nav.reading,
           glyph: Glyphs.aLargeSmall,
@@ -273,12 +340,8 @@ class SettingsRoot extends StatelessWidget {
           },
           onTap: () => Navigator.of(context).push(PushRoute(const _ImmersionPage())),
         ),
-        ListRow(
-          title: nav.about,
-          glyph: Glyphs.bookA,
-          compact: true,
-          onTap: () => Navigator.of(context).push(PushRoute(const _AboutPage())),
-        ),
+        SectionHeader(nav.about),
+        AboutCard(facts: _facts),
       ],
     );
   }
@@ -392,63 +455,6 @@ class _ImmersionPage extends StatelessWidget {
           area(ui.areaUi, '', s.uiIt, (v) => setImmersion(uiIt: v)),
           area(ui.areaDict, ui.areaDictHint, s.dictIt, (v) => setImmersion(dictIt: v)),
           area(ui.areaGloss, '', s.glossIt, (v) => setImmersion(glossIt: v)),
-        ],
-      ),
-    );
-  }
-}
-
-const appVersion = '0.1.0';
-
-class _AboutPage extends StatefulWidget {
-  const _AboutPage();
-  @override
-  State<_AboutPage> createState() => _AboutPageState();
-}
-
-class _AboutPageState extends State<_AboutPage> {
-  ContentInfo _info = ContentInfo.nil;
-
-  @override
-  void initState() {
-    super.initState();
-    dbContentInfo().then((i) => mounted ? setState(() => _info = i) : null);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tk;
-    final dump = _info.dumpDate.split('-').reversed.join('/');
-    Widget row(String k, String v) => Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(k, style: T.body.copyWith(color: t.ink)),
-          ),
-          Text(v, style: T.small.copyWith(color: t.inkMuted)),
-        ],
-      ),
-    );
-    return _Page(
-      title: nav.about,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          row(ui.version, appVersion),
-          // OFF-13: "Dicionário 2.1.0 (Wikizionario de 01/10/2026) · Histórias 1.4.2".
-          row(ui.dictionaryContent, '${_info.dictVersion} (Wikizionario de $dump)'),
-          row(ui.storiesContent, _info.storiesVersion),
-          const SizedBox(height: 24),
-          MicroLabel(ui.credits, header: true),
-          const SizedBox(height: 8),
-          Text(
-            'Wikizionario e Wiktionary em inglês (CC BY-SA 4.0), por meio do wiktextract e do kaikki.org. '
-            'Glosas em português: WikDict e DBnary (CC BY-SA). '
-            'Frequência: Nuovo vocabolario di base della lingua italiana, Tullio De Mauro (2016). '
-            'Fontes Literata, Newsreader e Noto Serif (SIL Open Font License). Ícones Lucide (ISC).',
-            style: T.small.copyWith(color: t.inkMuted),
-          ),
         ],
       ),
     );

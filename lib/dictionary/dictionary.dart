@@ -80,21 +80,38 @@ class ChoicePage extends StatelessWidget {
   Widget build(BuildContext context) {
     watchSettings(context);
     final t = context.tk;
+    // From a story (LEI-02): the tapped form as heading and how many words it leads to.
+    final form = story?.form ?? '';
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
-            CompactBar(backLabel: backLabel, title: ui.chooseEntry, scrolled: true),
+            CompactBar(backLabel: backLabel, title: form.isEmpty ? ui.chooseEntry : nav.dictionary, titleVisible: true, scrolled: true),
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 children: [
+                  if (form.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Semantics(
+                            header: true,
+                            child: Text(form, style: T.headword.copyWith(color: t.ink), locale: const Locale('it')),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(ui.formLeadsTo(refs.length), style: T.small.copyWith(color: t.inkMuted)),
+                        ],
+                      ),
+                    ),
                   for (final r in refs)
                     ListRow(
                       title: r.lemma,
                       meta: r.meta,
                       compact: true,
-                      glyph: Glyphs.bookA,
+                      glyph: form.isEmpty ? Glyphs.bookA : null,
                       titleWidget: Text(
                         r.lemma,
                         style: T.body.copyWith(color: t.ink),

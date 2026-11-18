@@ -10,6 +10,8 @@ abstract class NavStrings {
   String get immersion;
   String get reading;
   String get about;
+  // slice 3
+  String get otherGenre;
 }
 
 class NavPortuguese implements NavStrings {
@@ -25,6 +27,9 @@ class NavPortuguese implements NavStrings {
   String get reading => 'Leitura';
   @override
   String get about => 'Sobre';
+  // slice 3
+  @override
+  String get otherGenre => 'Outros';
 }
 
 class NavItalian implements NavStrings {
@@ -40,6 +45,9 @@ class NavItalian implements NavStrings {
   String get reading => 'Lettura';
   @override
   String get about => 'Informazioni';
+  // slice 3
+  @override
+  String get otherGenre => 'Altro';
 }
 
 /// Labels and buttons: everything that is not a tab, title or entry section.
@@ -132,6 +140,27 @@ abstract class UiStrings {
   String noSpace(int mb);
   String get tryAgain;
   String get contentFailed;
+  // slice 3
+  String get adapted;
+  String get colText;
+  String get publicDomain;
+  String get colReading;
+  String get colVocabulary;
+  String get nvdbSource;
+  String get colTranslation;
+  String get noNativeYet;
+  String get noNativeWhy;
+  String get noTranslationHint;
+  String get readError;
+  String get readErrorText;
+  String get waitNativeTitle;
+  String get waitNativeText;
+  String get waitStoryTitle;
+  String get waitStoryText;
+  String get readWithoutTranslation;
+  String license(String name);
+  String coverage(int pct);
+  String formLeadsTo(int n);
 }
 
 class UiPortuguese implements UiStrings {
@@ -312,6 +341,47 @@ class UiPortuguese implements UiStrings {
   String get tryAgain => 'Tentar de novo';
   @override
   String get contentFailed => 'Não foi possível preparar o dicionário.';
+  // slice 3
+  @override
+  String get adapted => 'adaptado';
+  @override
+  String get colText => 'Texto';
+  @override
+  String get publicDomain => 'Domínio público';
+  @override
+  String get colReading => 'Leitura';
+  @override
+  String get colVocabulary => 'Vocabulário';
+  @override
+  String get nvdbSource => 'Nuovo vocabolario di base, De Mauro (NVdB)';
+  @override
+  String get colTranslation => 'Tradução';
+  @override
+  String get noNativeYet => 'Ainda não existe em português';
+  @override
+  String get noNativeWhy => 'Esta história foi publicada antes das traduções em português.';
+  @override
+  String get noTranslationHint => 'Esta história ainda não tem tradução em português';
+  @override
+  String get readError => 'Não foi possível abrir esta história';
+  @override
+  String get readErrorText => 'Escolha outra na biblioteca.';
+  @override
+  String get waitNativeTitle => 'O português ainda está chegando';
+  @override
+  String get waitNativeText => 'Você trocou o idioma das traduções. O italiano desta história já está aqui; quando a tradução terminar de baixar, a história abre sozinha.';
+  @override
+  String get waitStoryTitle => 'Esta história ainda está chegando';
+  @override
+  String get waitStoryText => 'Você trocou de idioma. Quando os arquivos terminarem de baixar, ela abre sozinha.';
+  @override
+  String get readWithoutTranslation => 'Ler sem tradução';
+  @override
+  String license(String name) => 'Licença $name';
+  @override
+  String coverage(int pct) => '$pct% das palavras são do vocabulário básico';
+  @override
+  String formLeadsTo(int n) => 'Esta forma leva a ${n >= 2 && n <= 10 ? const ['duas', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove', 'dez'][n - 2] : n} palavras.';
 }
 
 class UiItalian implements UiStrings {
@@ -492,6 +562,47 @@ class UiItalian implements UiStrings {
   String get tryAgain => 'Riprova';
   @override
   String get contentFailed => 'Impossibile preparare il dizionario.';
+  // slice 3
+  @override
+  String get adapted => 'adattato';
+  @override
+  String get colText => 'Testo';
+  @override
+  String get publicDomain => 'Pubblico dominio';
+  @override
+  String get colReading => 'Lettura';
+  @override
+  String get colVocabulary => 'Vocabolario';
+  @override
+  String get nvdbSource => 'Nuovo vocabolario di base, De Mauro (NVdB)';
+  @override
+  String get colTranslation => 'Traduzione';
+  @override
+  String get noNativeYet => 'Non esiste ancora in portoghese';
+  @override
+  String get noNativeWhy => 'Questa storia è stata pubblicata prima delle traduzioni in portoghese.';
+  @override
+  String get noTranslationHint => 'Questa storia non ha ancora una traduzione in portoghese';
+  @override
+  String get readError => 'Impossibile aprire questa storia';
+  @override
+  String get readErrorText => 'Scegline un’altra nella biblioteca.';
+  @override
+  String get waitNativeTitle => 'Il portoghese sta ancora arrivando';
+  @override
+  String get waitNativeText => 'Hai cambiato la lingua delle traduzioni. L’italiano di questa storia è già qui; quando la traduzione avrà finito di scaricarsi, la storia si aprirà da sola.';
+  @override
+  String get waitStoryTitle => 'Questa storia sta ancora arrivando';
+  @override
+  String get waitStoryText => 'Hai cambiato lingua. Quando i file avranno finito di scaricarsi, si aprirà da sola.';
+  @override
+  String get readWithoutTranslation => 'Leggi senza traduzione';
+  @override
+  String license(String name) => 'Licenza $name';
+  @override
+  String coverage(int pct) => 'Il $pct% delle parole è del vocabolario di base';
+  @override
+  String formLeadsTo(int n) => 'Questa forma porta a ${n >= 2 && n <= 10 ? const ['due', 'tre', 'quattro', 'cinque', 'sei', 'sette', 'otto', 'nove', 'dieci'][n - 2] : n} parole.';
 }
 
 /// Dictionary: labels of the entry sections (DIC-02).

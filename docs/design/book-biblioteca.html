@@ -154,7 +154,7 @@
     <div class="book-feature">
       <div class="book-state__stage on-bg"><div class="book-state__fill book-pinned lib-anat" data-card-anat="Pinocchio, capitolo primo"></div></div>
       <ol class="book-legend">
-        <li><span class="book-pin" aria-hidden="true">1</span><span><strong>Gênero · temas</strong><code>--type-label</code> em caixa alta, tinta suave, uma linha: o gênero e no máximo os dois primeiros temas, na ordem do feed, depois “+N” com o resto (“Viagem · Trem · Bolonha · +3”). Nunca corta um nome; a página de título lista todos. Nomes na língua de Imersão › Navegação. Gênero desconhecido vira “Outros”; tema desconhecido não aparece (BIB-11).</span></li>
+        <li><span class="book-pin" aria-hidden="true">1</span><span><strong>Gênero · temas</strong><code>--type-label</code> em caixa alta, tinta suave, uma linha: o gênero e no máximo os dois primeiros temas, pela ordem dos ids, depois “+N” com o resto (“Viagem · Trem · Bolonha · +3”). Nunca corta um nome; a página de título lista todos. Nomes na língua de Imersão › Navegação. Gênero desconhecido vira “Outros”; tema desconhecido não aparece (BIB-11).</span></li>
         <li><span class="book-pin" aria-hidden="true">2</span><span><strong>Título</strong>Sempre em italiano, nunca traduzido. Newsreader 500, 22/28.</span></li>
         <li><span class="book-pin" aria-hidden="true">3</span><span><strong>Autor</strong>Só quando a história tem um. Itálico em tinta. Autor que a lista do app ainda não conhece fica de fora até a próxima busca das listas.</span></li>
         <li><span class="book-pin" aria-hidden="true">4</span><span><strong>Subtítulo</strong>Italiano, uma linha com reticências.</span></li>
@@ -1058,7 +1058,7 @@ c2|20|Outros|Cinema,Roma,Bicicleta|Il neorealismo|Ladri di biciclette e una Roma
     return `<div class="ui-facets" role="group" aria-label="Filtros"${pinAttr(o, 5)}>${KEYS.map(k => facetHTML(k, st.f[k], { inert: o.inert, open: o.openKey === k })).join('')}</div>`;
   }
 
-  function kickerHTML(s, name, it) {   /* genre + at most 2 tags in feed order, then "+N": never cuts a name (BIB-01) */
+  function kickerHTML(s, name, it) {   /* genre + at most 2 tags by id, then "+N": never cuts a name (BIB-01) */
     const head = esc([s.g, ...s.tags.slice(0, 2)].map(name).join(' · ')), more = s.tags.length - 2;
     return more > 0 ? `${head} · <span aria-hidden="true">+${more}</span><span class="visually-hidden">${it ? ` e altri ${more}` : ` e mais ${more}`}</span>` : head;
   }

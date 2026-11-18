@@ -56,6 +56,7 @@ How to read:
 | After a language switch, a story still downloading opens the Reader with a wait in place of the text; the "Baixando…" dialog is dropped (BIB-12). | 2026-11-13 |
 | Settings opens with Idiomas ("Aprendo", "Traduções em") and About ends with the app's colophon (AJU-04, AJU-08). | 2026-11-13 |
 | Book gaps closed: the filter sheet note names facets, not values; no group label with nothing checked; a sheet search miss is one line; the card kicker is genre + 2 tags + "+N"; the sync-only empty state and "Ver 0 histórias" stay as drawn; the wait without the target file talks about the story; the choice page stays lemma + part of speech, no gloss; a story that fails to open offers only "Voltar à biblioteca" (BIB-01, BIB-05, BIB-08, BIB-12, BIB-14, LEI-02, LEI-16). | 2026-11-18 |
+| Slice decisions: the Italian interface copy written for the v1 screens is final; About's credits add the fonts (OFL) and Lucide (ISC); the native list offers every translate language, with Portuguese as the fallback for areas without strings (§11 #32); a story's tags are stored and shown by id, so the kicker's two tags are the first by id (BIB-01, ARQ-23); the debug story fixture lives in an Android `dev` flavor until sync fills the index (ARQ-96). | 2026-11-18 |
 
 ## Versions
 

@@ -9,7 +9,7 @@ import '../ui/theme.dart';
 import '../ui/widgets.dart';
 
 /// The card's kicker (BIB-01): the genre and at most the first two tags in
-/// feed order; `more` counts the tags left out. Names are in `lang` (Immersion ›
+/// their stored order (by id); `more` counts the tags left out. Names are in `lang` (Immersion ›
 /// Navigation). An unknown genre shows as `other` and an unknown tag is hidden
 /// (BIB-11), so it neither shows nor counts in `more`. Never cuts a name.
 ({String text, int more}) cardKicker(Story s, Lists lists, LangId lang, String other) {

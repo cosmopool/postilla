@@ -21,7 +21,9 @@ dev_dependencies:
 flutter:
   assets:
     - assets/content/
-    - assets/dev/
+    - path: assets/dev/ # debug story fixture, `dev` flavor only
+      flavors:
+        - dev
   fonts:
     - family: Literata
       fonts:

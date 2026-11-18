@@ -3,7 +3,6 @@
 // (ARQ-44): one Navigator per tab in an IndexedStack, and the root one for the Reader.
 import 'dart:io';
 
-import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
@@ -79,9 +78,9 @@ class _BootState extends State<_Boot> {
       storiesPath: state.storiesPath,
       indexPath: '${support.path}/stories-index.db',
     );
-    // Until sync exists, debug builds fill an empty index from the fixture;
-    // release builds start empty and wait for sync.
-    if (kDebugMode) await dbLoadIndexFixture(await rootBundle.loadString('assets/dev/index_fixture.json'));
+    // Until sync exists, the `dev` flavor fills an empty index from the fixture,
+    // which only that flavor bundles; `prod` starts empty and waits for sync.
+    if (appFlavor == 'dev') await dbLoadIndexFixture(await rootBundle.loadString('assets/dev/index_fixture.json'));
     await loadSettings();
     if (mounted) setState(() => _ready = true);
   }

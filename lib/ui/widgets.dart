@@ -460,6 +460,7 @@ class ListRow extends StatelessWidget {
     this.compact = false,
     this.titleWidget,
     this.italian = false,
+    this.chevron = false,
   });
   final String title;
   final String? meta;
@@ -469,6 +470,7 @@ class ListRow extends StatelessWidget {
   final bool compact;
   final Widget? titleWidget;
   final bool italian;
+  final bool chevron; // link affordance: the row pushes a page
 
   @override
   Widget build(BuildContext context) {
@@ -505,6 +507,7 @@ class ListRow extends StatelessWidget {
                   padding: const EdgeInsets.only(left: 8, right: 8),
                   child: Text(value!, style: T.small.copyWith(color: t.inkMuted)),
                 ),
+              if (chevron) Glyph(Glyphs.chevronRight, size: 20, color: t.inkMuted),
             ],
           ),
         ),

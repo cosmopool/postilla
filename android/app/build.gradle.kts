@@ -30,6 +30,20 @@ android {
         versionName = flutter.versionName
     }
 
+    // `dev` carries the debug story fixture (assets/dev/, flavored in pubspec.yaml)
+    // until sync fills the index; `prod` is what ships. Same application id, so
+    // only one is installed at a time.
+    flavorDimensions += "env"
+    productFlavors {
+        create("dev") {
+            dimension = "env"
+            versionNameSuffix = "-dev"
+        }
+        create("prod") {
+            dimension = "env"
+        }
+    }
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.

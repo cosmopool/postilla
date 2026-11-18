@@ -62,7 +62,7 @@ class Story {
   final String subtitle;
   final Level level;
   final GenreId genre;
-  final List<TagId> tags; // feed order
+  final List<TagId> tags; // sorted by id (BIB-01)
   final String work; // '' outside a split work
   final int part;
   final AuthorId author; // '' for a story written for Postilla
@@ -370,9 +370,8 @@ const _indexMigrations = [
   CREATE INDEX translation_lang ON translation (lang, level, words);
   CREATE TABLE translation_tag (
     story_id TEXT NOT NULL,
-    pos INTEGER NOT NULL, -- feed order
     tag TEXT NOT NULL,
-    PRIMARY KEY (story_id, pos)
+    PRIMARY KEY (story_id, tag)
   ) WITHOUT ROWID;
   CREATE TABLE list (
     kind TEXT NOT NULL, -- genre · tag · author · language
@@ -466,7 +465,7 @@ void _setState(Database index, String key, Object value) => index.execute(
 Future<List<Story>> dbStories() => _run((d) {
       final st = _indexState(d.index);
       final tags = <String, List<TagId>>{};
-      for (final r in d.index.select('SELECT story_id, tag FROM translation_tag ORDER BY story_id, pos')) {
+      for (final r in d.index.select('SELECT story_id, tag FROM translation_tag ORDER BY story_id, tag' /* tags by id (BIB-01) */)) {
         (tags[r['story_id'] as String] ??= []).add(TagId(r['tag'] as String));
       }
       return [
@@ -545,7 +544,7 @@ Future<bool> dbSetLanguages(LangId target, LangId native) => _run((d) {
       return true;
     }, false);
 
-/// Debug builds only: fills an empty index from `assets/dev/index_fixture.json`
+/// `dev` flavor only: fills an empty index from `assets/dev/index_fixture.json`
 /// (written by `tool/make_index_fixture.dart`). Does nothing once the index
 /// has a story, so sync and the fixture never mix. Returns whether it loaded.
 Future<bool> dbLoadIndexFixture(String json) => _run((d) => _loadIndexFixture(d.index, json), false);
@@ -566,13 +565,12 @@ bool _loadIndexFixture(Database index, String json) {
     list.close();
     final tr = index.prepare(
         "INSERT OR REPLACE INTO translation VALUES (?, ?, ?, '', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    final tag = index.prepare('INSERT OR REPLACE INTO translation_tag (story_id, pos, tag) VALUES (?, ?, ?)');
+    final tag = index.prepare('INSERT OR REPLACE INTO translation_tag (story_id, tag) VALUES (?, ?)');
     for (final x in m['stories'] as List) {
       final s = x as Map<String, dynamic>;
       final id = s['id'] as String;
-      final tags = s['tags'] as List;
-      for (var i = 0; i < tags.length; i++) {
-        tag.execute([id, i, tags[i]]);
+      for (final t in s['tags'] as List) {
+        tag.execute([id, t]);
       }
       for (final y in s['translations'] as List) {
         final t = y as Map<String, dynamic>;

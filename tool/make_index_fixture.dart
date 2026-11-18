@@ -281,7 +281,9 @@ void main(List<String> args) {
       'part': part,
       'author': author,
       'adapted': author.isEmpty ? 0 : 1,
-      'license': author.isEmpty ? 'LicenseRef-Postilla' : 'public-domain',
+      // Goldoni's stories stand in for a CC BY-SA adaptation, so the colophon's
+      // licence line is exercised; the other classics are public domain.
+      'license': author.isEmpty ? 'LicenseRef-Postilla' : (authorName == 'Carlo Goldoni' ? 'CC-BY-SA-4.0' : 'public-domain'),
       'translations': [
         translation('it', words, [words - covered, b1, b2, b3]),
         if (!flags.containsKey('x')) translation('pt-BR', (words * 1.08).round(), [0, 0, 0, 0]),

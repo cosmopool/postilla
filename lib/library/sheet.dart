@@ -540,20 +540,19 @@ class TwoWayEmpty extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tk;
-    Widget way(String label, String note, VoidCallback onTap) => Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Semantics(
-                hint: note,
-                child: Btn(label, kind: BtnKind.secondary, small: true, block: true, onTap: onTap),
-              ),
-              const SizedBox(height: 4),
-              ExcludeSemantics(
-                child: Text(note, style: T.meta.copyWith(color: t.inkMuted), textAlign: TextAlign.center),
-              ),
-            ],
-          ),
+    // Stacked, each way with its note below (book-biblioteca, BIB-08).
+    Widget way(String label, String note, VoidCallback onTap) => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Semantics(
+              hint: note,
+              child: Btn(label, kind: BtnKind.secondary, small: true, block: true, onTap: onTap),
+            ),
+            const SizedBox(height: 4),
+            ExcludeSemantics(
+              child: Text(note, style: T.meta.copyWith(color: t.inkMuted), textAlign: TextAlign.center),
+            ),
+          ],
         );
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
@@ -563,14 +562,9 @@ class TwoWayEmpty extends StatelessWidget {
           const SizedBox(height: 8),
           Text(ui.noneOfFiltered(filtered, query), style: T.small.copyWith(color: t.inkMuted), textAlign: TextAlign.center),
           const SizedBox(height: 16),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              way(ui.clearSearch, ui.backToFiltered(filtered), onClearSearch),
-              const SizedBox(width: 12),
-              way(ui.clearFilters, ui.showsWithQuery(withQuery, query), onClearFilters),
-            ],
-          ),
+          way(ui.clearSearch, ui.backToFiltered(filtered), onClearSearch),
+          const SizedBox(height: 12),
+          way(ui.clearFilters, ui.showsWithQuery(withQuery, query), onClearFilters),
         ],
       ),
     );

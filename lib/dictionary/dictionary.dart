@@ -112,6 +112,7 @@ class ChoicePage extends StatelessWidget {
                       meta: r.meta,
                       compact: true,
                       glyph: form.isEmpty ? Glyphs.bookA : null,
+                      chevron: form.isNotEmpty, // the choice page from a story (book-leitor)
                       titleWidget: Text(
                         r.lemma,
                         style: T.body.copyWith(color: t.ink),

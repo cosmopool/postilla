@@ -33,13 +33,14 @@ analyze:
 build: build-android build-ios
 
 build-android: fetch
-	flutter build apk --release
+	flutter build apk --release --flavor prod
 
 build-ios: fetch
 	flutter build ios --release --no-codesign
 
+# Android only: iOS has no `dev` scheme yet, so `flutter run` there shows an empty Library.
 run: fetch
-	flutter run
+	flutter run --flavor dev
 
 clean:
 	flutter clean

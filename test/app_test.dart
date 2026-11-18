@@ -120,7 +120,7 @@ void main() {
     expect(nextStory(b1p2, cat).id.v, '');
   });
 
-  test('card kicker: genre + 2 tags in feed order + "+N"; unknown genre "Outros", unknown tag hidden', () {
+  test('card kicker: genre + the first 2 tags + "+N"; unknown genre "Outros", unknown tag hidden', () {
     const lists = Lists(
       genres: {GenreId('viaggio'): {LangId('pt-BR'): 'Viagem', LangId('it'): 'Viaggio'}},
       tags: {

@@ -9,9 +9,6 @@ import '../ui/icons.dart';
 import '../ui/theme.dart';
 import '../ui/widgets.dart';
 
-/// Native languages the app has interface strings for (ARQ-46, §11 #32).
-const uiLanguages = {LangId('pt-BR'), LangId('it')};
-
 /// Target choices: learnable languages. The stored target stays offered even if
 /// the backend stopped offering it (a stored choice never becomes invalid).
 List<Language> targetChoices(List<Language> all, LangId current) => [
@@ -19,11 +16,12 @@ List<Language> targetChoices(List<Language> all, LangId current) => [
         if (l.target || l.id == current) l,
     ];
 
-/// Native choices: languages stories are translated into, with interface
-/// strings, minus the target.
+/// Native choices: every language stories are translated into, minus the
+/// target. One the app has no interface strings for still counts: Immersion's
+/// native side falls back to Portuguese (AJU-08, §11 #32).
 List<Language> nativeChoices(List<Language> all, LangId target) => [
       for (final l in all)
-        if (l.translate && uiLanguages.contains(l.id) && l.id != target) l,
+        if (l.translate && l.id != target) l,
     ];
 
 /// The language's own name; the id when the cache lacks it.

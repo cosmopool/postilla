@@ -6,7 +6,7 @@ Fonte única de texto para os 4 books. Não invente outra história nem outro ca
 
 | Título (IT) | Nível | Gênero (PT) | Duração | Estado |
 |---|---|---|---|---|
-| Il treno per Bologna | A2 | Viagem | 4 min | 38% lido (em andamento) |
+| Il treno per Bologna | A2 | Viagem | 2 min | 38% lido (em andamento) |
 | Un caffè al banco | A1 | Cotidiano | 3 min | novo |
 | La nonna e il basilico | A1 | Família | 3 min | novo |
 | La chiave sotto il vaso | A2 | Mistério | 6 min | novo |
@@ -25,7 +25,7 @@ Subtítulo curto de cada um (IT, uma linha), quando o card precisar:
 - Lettera da Trieste — Una lettera al fratello, tra vento e caffè.
 - L'ultimo autobus — Mezzanotte, una fermata vuota, un autista che aspetta.
 
-## História: Il treno per Bologna (A2 · Viagem · 4 min)
+## História: Il treno per Bologna (A2 · Viagem · 2 min)
 
 Parágrafos alinhados 1:1 (italiano ↔ português). No reader com tradução, a rolagem é sincronizada por parágrafo e tocar numa frase em italiano destaca a frase correspondente em português (as frases também estão alinhadas 1:1, separadas por ponto).
 

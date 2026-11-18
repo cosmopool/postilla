@@ -4,39 +4,50 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" href="data:,">
-<title>Postilla Biblioteca</title>
-<meta name="description" content="Livro da Biblioteca da Postilla: seleção de história, componentes, estados, telas e o componente de níveis de imersão.">
+<title>Postilla · Biblioteca</title>
+<meta name="description" content="Livro da Biblioteca da Postilla: linha de status, card de história, facetas Nível · Gênero · Tema e suas folhas, resultados, vazios e o componente de Imersão.">
 <link rel="stylesheet" href="tokens.css">
 <link rel="stylesheet" href="book.css">
 <style>
 /* ===== book-biblioteca.html — book-specific rules (prefix lib-) =====
-   Shared pieces come from book.css: ui-search, ui-progress, ui-hero, ui-sechead,
-   ui-empty, ui-row, book-feature/legend/pin, book-table, book-dd, book-callout. */
+   Shared pieces come from book.css: ui-statusline, ui-dot, ui-facets/ui-facet, ui-sheet--tall, ui-check,
+   ui-search, ui-progress, ui-hero, ui-sechead, ui-empty, ui-titlepage, ui-wait, book-feature/legend/pin,
+   book-table, book-dd, book-callout. Local rules never name a ui-* or book-* class. */
 @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
 
 /* ---- book layout helpers ---- */
 .lib-steps { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--space-4); max-width: 44em; font: var(--type-def); counter-reset: st; }
-.lib-steps li { display: grid; grid-template-columns: var(--space-8) 1fr; gap: var(--space-2); counter-increment: st; }
+.lib-steps li { display: grid; grid-template-columns: var(--space-8) minmax(0, 1fr); gap: var(--space-2); counter-increment: st; }
 .lib-steps li::before { content: counter(st); font: var(--weight-medium) var(--text-md-size)/var(--text-def-lh) var(--font-display); color: var(--color-ink-muted); font-variant-numeric: tabular-nums; }
 .lib-steps strong { font-weight: var(--weight-semibold); }
+.lib-ids { display: block; margin-top: var(--space-1); font: var(--type-meta); color: var(--color-ink-muted); }
 .lib-t-it { font-family: var(--font-display); font-size: var(--text-md-size); }
 .lib-nowrap { white-space: nowrap; }
+.lib-top0 { margin-top: 0; }
+.lib-gap { margin-bottom: var(--space-4); }
 .lib-pin-top[data-pin]::after { top: var(--space-5); transform: none; }   /* anatomy pin on the hero card */
+.lib-next { margin-top: var(--space-4); }
+/* card anatomy: pins sit in a right-hand gutter outside the card, text may wrap so nothing clips a pin */
+.lib-anat { padding-inline-end: var(--space-8); }
+.lib-anat .lib-card__kicker, .lib-anat .lib-card__sub { overflow: visible; white-space: normal; }
+.lib-anat [data-pin]::after { inset-inline-end: calc(-1 * var(--space-8)); }
+.lib-anat .lib-card__narr[data-pin]::after { inset-inline-end: auto; inset-inline-start: calc(100% + var(--space-2)); }
+.lib-cq { container-type: inline-size; width: 100%; }                      /* facet row measures the stage like a phone screen */
+.lib-cq--323 { max-width: 323px; }
+.lib-tags { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-3); max-width: 60em; font: var(--type-small); color: var(--color-ink-muted); }
+.lib-tags b { color: var(--color-ink); font-weight: var(--weight-medium); }
+.lib-more { margin-top: var(--space-6); }
+.lib-more > summary { cursor: pointer; min-height: var(--tap-min); display: flex; align-items: center; font: var(--type-button); color: var(--color-ink); }
+.lib-catalog { max-height: 32rem; overflow: auto; }
 
 /* ---- phone content: Biblioteca ---- */
 .lib-pad { padding: 0 var(--gutter); }
 .lib-searchbar { padding: 0 var(--gutter) var(--space-1); }
 
-/* filter chips row */
-.lib-filters { display: flex; align-items: center; gap: var(--space-2); overflow-x: auto; padding: var(--space-3) var(--gutter); scrollbar-width: none; }
-.lib-filters::-webkit-scrollbar { display: none; }
-.lib-filters__group { display: flex; gap: var(--space-2); flex: none; }
-.lib-filters__rule { flex: none; width: var(--border-hairline); height: var(--space-5); background: var(--color-rule-strong); }
-
-/* story card (list row) */
+/* story card (list row) — kicker · title · author · subtitle · meta · progress */
 .lib-list { margin: 0; padding: 0 var(--gutter); list-style: none; }
 .lib-card {
-  position: relative; display: grid; gap: var(--space-1); margin-inline: calc(-1 * var(--space-3));
+  position: relative; display: grid; gap: 2px; margin-inline: calc(-1 * var(--space-3));
   padding: var(--space-4) var(--space-3); border-radius: var(--radius-card);
   color: var(--color-ink); text-decoration: none;
   transition: background-color var(--dur-fast) var(--ease-standard);
@@ -44,13 +55,27 @@
 .lib-list li + li .lib-card::before { content: ""; position: absolute; top: 0; left: var(--space-3); right: var(--space-3); height: var(--border-hairline); background: var(--color-rule); }
 .lib-card:hover, .lib-card.is-hover { background: var(--color-surface); }
 .lib-card:active, .lib-card.is-active { background: var(--color-surface-2); }
+.lib-card__kicker { margin-bottom: 2px; font: var(--type-label); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--color-ink-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .lib-card__title { font: var(--weight-medium) var(--text-xl-size)/var(--text-xl-lh) var(--font-display); letter-spacing: var(--tracking-tight); }
+.lib-card__by { font: var(--type-small); font-style: italic; color: var(--color-ink); }
 .lib-card__sub { font: var(--type-small); color: var(--color-ink-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.lib-card__meta { display: flex; align-items: center; gap: var(--space-2); margin-top: var(--space-1); font: var(--type-meta); color: var(--color-ink-muted); }
-.lib-card__status { margin-inline-start: auto; display: inline-flex; align-items: center; gap: var(--space-1); font-variant-numeric: tabular-nums; }
-.lib-card__status--pct { color: var(--color-ink); }
-.lib-card__status svg, .lib-card__status [data-lucide] { width: var(--icon-size-sm); height: var(--icon-size-sm); }
+.lib-card__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-2); margin-top: var(--space-2); font: var(--type-meta); color: var(--color-ink-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.lib-card__narr { display: inline-flex; align-items: center; gap: 3px; }
+.lib-card__narr svg, .lib-card__narr [data-lucide] { width: var(--space-4); height: var(--space-4); }
+.lib-card__flag { display: inline-flex; align-items: center; min-height: var(--space-5); padding: 0 var(--space-2); border: var(--border-hairline) solid var(--color-rule-strong); border-radius: var(--radius-pill); color: var(--color-ink-muted); }
+.lib-card__status { margin-inline-start: auto; display: inline-flex; align-items: center; gap: var(--space-1); }
+.lib-card__status--ink { color: var(--color-ink); }
+.lib-card__status svg, .lib-card__status [data-lucide] { width: var(--space-4); height: var(--space-4); }
 .lib-card__progress { margin-top: var(--space-2); }
+
+/* empty state with two ways out (BIB-08) */
+.lib-empty { padding: var(--space-6) var(--gutter); }
+.lib-ways { display: grid; gap: var(--space-3); width: min(100%, 18rem); margin-top: var(--space-3); }
+.lib-way { display: grid; gap: var(--space-1); justify-items: stretch; }
+.lib-way__note { font: var(--type-meta); color: var(--color-ink-muted); }
+
+/* Reader column (BIB-12 wait) */
+.lib-rpad { padding: var(--space-2) var(--gutter) 0; }
 
 /* ---- phone content: Imersão ---- */
 .lib-imm { padding: var(--space-2) var(--gutter) 0; }
@@ -69,6 +94,7 @@
 .lib-bad-stat { display: flex; gap: var(--space-2); flex-wrap: wrap; }
 .lib-bad-stat span { padding: var(--space-1) var(--space-3); border-radius: var(--radius-field); background: var(--color-accent); color: var(--color-accent-ink); font: var(--type-small); font-weight: var(--weight-bold); text-transform: uppercase; letter-spacing: var(--tracking-caps); }
 .lib-bad-badge { justify-self: start; padding: 0 var(--space-2); border-radius: var(--radius-mark); background: var(--color-error); color: var(--color-on-ink); font: var(--type-label); letter-spacing: var(--tracking-caps); }
+.lib-bad-banner { display: flex; gap: var(--space-2); align-items: center; padding: var(--space-3); border-radius: var(--radius-card); background: var(--color-error-soft); color: var(--color-error); font: var(--type-small); font-weight: var(--weight-semibold); }
 .lib-bad-tr { font: var(--type-small); color: var(--color-ink-muted); font-style: italic; }
 </style>
 </head>
@@ -83,7 +109,7 @@
     </div>
     <p class="book-series">Livro 2 de 5 · Biblioteca</p>
     <h1 class="book-title">Biblioteca</h1>
-    <p class="book-lede">Onde a pessoa escolhe o que ler: uma história para continuar, um catálogo curto filtrado por nível e gênero, e uma busca. Sem placar e sem pressa. O progresso é uma linha fina.</p>
+    <p class="book-lede">Onde a pessoa escolhe o que ler: uma história para continuar, um acervo que cresce sozinho a cada sincronização, três facetas (Nível, Gênero, Tema) e uma busca. Sem placar e sem pressa. O progresso é uma linha fina.</p>
     <nav class="book-toc" aria-label="Seções">
       <a href="#estrutura">Estrutura</a><a href="#estados">Estados</a><a href="#telas">Telas</a><a href="#especificacao">Especificação</a><a href="#conteudo-copia">Conteúdo</a><a href="#imersao">Imersão</a><a href="#faca">Faça e não faça</a>
     </nav>
@@ -98,14 +124,14 @@
     <header class="book-section__head">
       <p class="book-kicker">01 · Estrutura</p>
       <h2 class="book-h2" id="estrutura-h">Anatomia da tela</h2>
-      <p class="book-note">A Biblioteca é a raiz da primeira aba. De cima para baixo: app bar grande, título, busca, filtros, o card Continuar lendo e a lista. A barra de abas fica sempre embaixo. Toda a tela é tinta sobre papel; o único amarelo é o traço da aba ativa.</p>
+      <p class="book-note">A Biblioteca é a raiz da primeira aba. De cima para baixo: app bar grande, título, linha de status, busca, as três facetas, o card Continuar lendo e a lista. A barra de abas fica sempre embaixo. Toda a tela é tinta sobre papel; o único amarelo é o traço da aba ativa.</p>
     </header>
 
     <div class="book-feature">
       <figure class="phone" aria-label="Biblioteca com as partes numeradas">
         <div class="phone__device"><div class="phone__screen">
           <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
-          <div class="phone__body lib-app book-pinned" data-anat></div>
+          <div class="phone__body lib-app book-pinned" data-anat data-status="new"></div>
           <div class="phone__home" aria-hidden="true"></div>
         </div></div>
         <figcaption class="phone__caption"><strong>Biblioteca</strong> · anatomia</figcaption>
@@ -114,12 +140,26 @@
       <ol class="book-legend">
         <li><span class="book-pin" aria-hidden="true">1</span><span><strong>App bar grande</strong>56px, sem ações. O título compacto “Biblioteca” aparece nela ao rolar, com o filete <code>.is-scrolled</code>.</span></li>
         <li><span class="book-pin" aria-hidden="true">2</span><span><strong>Título grande</strong><code>.ui-largetitle</code>, Newsreader 28/32. Some ao rolar.</span></li>
-        <li><span class="book-pin" aria-hidden="true">3</span><span><strong>Campo de busca</strong>Pílula de 44px em <code>--color-surface</code>. Busca em título, subtítulo e gênero.</span></li>
-        <li><span class="book-pin" aria-hidden="true">4</span><span><strong>Filtros</strong>Uma fileira com rolagem lateral: níveis A1–B2, um filete, gêneros. Todos são <code>.ui-chip</code>.</span></li>
-        <li><span class="book-pin" aria-hidden="true">5</span><span><strong>Continuar lendo</strong>Um único card, com a história aberta por último. Some quando há filtro ou busca.</span></li>
-        <li><span class="book-pin" aria-hidden="true">6</span><span><strong>Cabeçalho de seção</strong>Micro-rótulo em caixa alta e a contagem. Pode levar uma ação fantasma à direita.</span></li>
-        <li><span class="book-pin" aria-hidden="true">7</span><span><strong>Card de história</strong>Título e subtítulo em italiano, nível, gênero, duração e estado. Linhas separadas por filete, sem sombra.</span></li>
-        <li><span class="book-pin" aria-hidden="true">8</span><span><strong>Barra de abas</strong>Biblioteca ativa: rótulo em tinta, peso 600 e o traço amarelo de 2px. É o amarelo da tela.</span></li>
+        <li><span class="book-pin" aria-hidden="true">3</span><span><strong>Linha de status</strong><code>.ui-statusline</code>, logo abaixo do título. O único lugar onde a sincronização fala: aviso de atualizar o app, histórias novas ou a contagem (BIB-13).</span></li>
+        <li><span class="book-pin" aria-hidden="true">4</span><span><strong>Campo de busca</strong>Pílula de 44px em <code>--color-surface</code>. Busca em título, subtítulo, gênero, temas e autor.</span></li>
+        <li><span class="book-pin" aria-hidden="true">5</span><span><strong>Facetas</strong><code>.ui-facets</code>: Nível · Gênero · Tema, fixas e sempre nessa ordem. Cada uma abre a própria folha (BIB-05).</span></li>
+        <li><span class="book-pin" aria-hidden="true">6</span><span><strong>Continuar lendo</strong><code>.ui-hero</code> com a última história aberta que ainda está em andamento. Some com busca ou filtro.</span></li>
+        <li><span class="book-pin" aria-hidden="true">7</span><span><strong>Cabeçalho de seção</strong>Micro-rótulo e a contagem. Com filtro, leva “Limpar filtros” à direita.</span></li>
+        <li><span class="book-pin" aria-hidden="true">8</span><span><strong>Card de história</strong>Gênero · temas em caixa alta, título e subtítulo em italiano, autor quando há, nível, leitura, narração e estado. Filete entre cards, sem sombra.</span></li>
+        <li><span class="book-pin" aria-hidden="true">9</span><span><strong>Barra de abas</strong>Biblioteca · Dicionário · Revisão · Ajustes. Biblioteca ativa: rótulo em tinta, peso 600 e o traço amarelo de 2px. É o amarelo da tela.</span></li>
+      </ol>
+    </div>
+
+    <h3 class="book-h3">O card, peça por peça</h3>
+    <div class="book-feature">
+      <div class="book-state__stage on-bg"><div class="book-state__fill book-pinned lib-anat" data-card-anat="Pinocchio, capitolo primo"></div></div>
+      <ol class="book-legend">
+        <li><span class="book-pin" aria-hidden="true">1</span><span><strong>Gênero · temas</strong><code>--type-label</code> em caixa alta, tinta suave, uma linha: o gênero e no máximo os dois primeiros temas, na ordem do feed, depois “+N” com o resto (“Viagem · Trem · Bolonha · +3”). Nunca corta um nome; a página de título lista todos. Nomes na língua de Imersão › Navegação. Gênero desconhecido vira “Outros”; tema desconhecido não aparece (BIB-11).</span></li>
+        <li><span class="book-pin" aria-hidden="true">2</span><span><strong>Título</strong>Sempre em italiano, nunca traduzido. Newsreader 500, 22/28.</span></li>
+        <li><span class="book-pin" aria-hidden="true">3</span><span><strong>Autor</strong>Só quando a história tem um. Itálico em tinta. Autor que a lista do app ainda não conhece fica de fora até a próxima busca das listas.</span></li>
+        <li><span class="book-pin" aria-hidden="true">4</span><span><strong>Subtítulo</strong>Italiano, uma linha com reticências.</span></li>
+        <li><span class="book-pin" aria-hidden="true">5</span><span><strong>Nível, leitura e narração</strong><code>.ui-level</code> A1–C2 · “9 min” (palavras ÷ velocidade do nível, para cima) · <code>headphones</code> + “8:05” só em história narrada, mesmo antes de o áudio estar no aparelho.</span></li>
+        <li><span class="book-pin" aria-hidden="true">6</span><span><strong>Estado</strong>À direita: “Chegou agora” com <code>.ui-dot</code> até a primeira abertura, ou “38%” com a linha, ou “Lida”. “Sem tradução” vem antes, como nota contornada (TRA-10).</span></li>
       </ol>
     </div>
   </div>
@@ -131,10 +171,22 @@
     <header class="book-section__head">
       <p class="book-kicker">02 · Estados</p>
       <h2 class="book-h2" id="estados-h">Componentes da Biblioteca</h2>
-      <p class="book-note">Cada componente com seus estados lado a lado, na ordem padrão, hover, pressionado, foco e selecionado. Quase tudo vem de <code>book.css</code>: chips, botões, abas, busca (<code>.ui-search</code>), card Continuar lendo (<code>.ui-hero</code>), cabeçalho de seção (<code>.ui-sechead</code>), estado vazio (<code>.ui-empty</code>) e linha de progresso (<code>.ui-progress</code>). Só o card de história e a fileira de filtros são <code>lib-</code>.</p>
+      <p class="book-note">Cada componente com seus estados lado a lado, na ordem padrão, hover, pressionado, foco, selecionado e desativado. Quase tudo vem de <code>book.css</code>: linha de status, facetas, folha alta, linha de marcar, busca, Continuar lendo, cabeçalho de seção, vazio e progresso. Só o card de história e o vazio com duas saídas são <code>lib-</code>.</p>
     </header>
 
-    <h3 class="book-h3" style="margin-top:0">Continuar lendo</h3>
+    <h3 class="book-h3 lib-top0">Linha de status</h3>
+    <p class="book-note lib-gap">Uma linha sob o título, <code>role="status"</code>, sem botão de fechar. Em ordem de prioridade: o aviso de atualizar o app ganha das histórias novas, que ganham da contagem. Tinta e tinta suave; o aviso não é erro.</p>
+    <div class="book-states book-states--wide">
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-status-demo="count"></div></div><figcaption class="book-state__label"><strong>Contagem</strong> · o estado de sempre</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-status-demo="new"></div></div><figcaption class="book-state__label"><strong>Novas</strong> · fica até a pessoa sair da Biblioteca (OFF-24)</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-status-demo="new1"></div></div><figcaption class="book-state__label"><strong>Uma nova</strong> · singular</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-status-demo="notice"></div></div><figcaption class="book-state__label"><strong>Aviso · padrão</strong> · formato que esta versão não lê (OFF-26)</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-status-demo="notice|hover"></div></div><figcaption class="book-state__label"><strong>Aviso · hover</strong> · sublinhado engrossa</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-status-demo="notice|focus"></div></div><figcaption class="book-state__label"><strong>Aviso · foco</strong> · anel no link de 44px</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg" data-theme="dark"><div class="book-state__fill" data-status-demo="notice"></div></div><figcaption class="book-state__label"><strong>Aviso · escuro</strong> · sem cor de erro</figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Continuar lendo</h3>
     <div class="book-states book-states--wide">
       <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-hero></div></div><figcaption class="book-state__label"><strong>Padrão</strong> · em <code>--color-surface</code></figcaption></figure>
       <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-hero="press"></div></div><figcaption class="book-state__label"><strong>Pressionado</strong> · <code>--color-surface-2</code> (também hover com ponteiro)</figcaption></figure>
@@ -142,62 +194,96 @@
     </div>
     <div class="book-callout" role="note">
       <p class="ui-label">Decisão · onde fica o amarelo</p>
-      <p>O único amarelo da Biblioteca é o traço de 2px sob a aba ativa. Ele vem de <code>book.css</code> em toda raiz de aba e não sai. Por isso o progresso, que no Leitor é amarelo, aqui é <strong>tinta</strong>: linha de 2px em <code>--color-ink</code> sobre <code>--color-rule</code>, com a porcentagem ao lado. Não há palavra grifada nesta tela, então o orçamento fecha em um elemento.</p>
+      <p>O único amarelo da Biblioteca é o traço de 2px sob a aba ativa. Por isso o progresso, que no Leitor é amarelo, aqui é <strong>tinta</strong>, e também o ponto de “Chegou agora”, a linha de status e as facetas marcadas. Com uma folha de faceta aberta não há amarelo nenhum na folha: o traço da aba fica sob o véu.</p>
+      <p>O card só aparece com uma história <strong>em andamento</strong> (BIB-03): uma história lida nunca ocupa o lugar. Sem nenhuma em andamento, o card some.</p>
     </div>
 
     <h3 class="book-h3">Card de história · variantes</h3>
     <div class="book-states book-states--wide">
-      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-card="0"></div></div><figcaption class="book-state__label"><strong>Em andamento</strong> · linha de progresso e porcentagem</figcaption></figure>
-      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-card="1"></div></div><figcaption class="book-state__label"><strong>Nova</strong> · sem selo; é o estado normal</figcaption></figure>
-      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-card="6"></div></div><figcaption class="book-state__label"><strong>Concluída</strong> · ícone check e “Lida” em tinta suave</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-card="Il gatto di Marco"></div></div><figcaption class="book-state__label"><strong>Nova</strong> · sem selo; é o estado normal</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-card="Il mercato di Ballarò"></div></div><figcaption class="book-state__label"><strong>Chegou agora</strong> · ponto de tinta até a primeira abertura (OFF-24)</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-card="Domenica dalla nonna"></div></div><figcaption class="book-state__label"><strong>Em andamento</strong> · linha de progresso e “40%”</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-card="Una cena di Natale"></div></div><figcaption class="book-state__label"><strong>Lida</strong> · check e “Lida”; reabrir não desfaz (BIB-02)</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-card="Pinocchio, capitolo secondo"></div></div><figcaption class="book-state__label"><strong>Com autor</strong> · e narração de 8:20</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-card="Lettera da Trieste"></div></div><figcaption class="book-state__label"><strong>Sem tradução</strong> · nota contornada; some quando a tradução chega (TRA-10)</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-card="Cinecittà"></div></div><figcaption class="book-state__label"><strong>Gênero desconhecido</strong> · “Outros” (BIB-11)</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg" data-theme="dark"><div class="book-state__fill" data-card="Il tamburino sardo"></div></div><figcaption class="book-state__label"><strong>Escuro</strong> · autor, sem tradução</figcaption></figure>
     </div>
 
     <h3 class="book-h3">Card de história · estados</h3>
     <div class="book-states book-states--wide">
-      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-card="3"></div></div><figcaption class="book-state__label"><strong>Padrão</strong> · sem fundo</figcaption></figure>
-      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-card="3" data-state="hover"></div></div><figcaption class="book-state__label"><strong>Hover</strong> · só com ponteiro (tablet), <code>--color-surface</code></figcaption></figure>
-      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-card="3" data-state="press"></div></div><figcaption class="book-state__label"><strong>Pressionado</strong> · <code>--color-surface-2</code>, sem escala</figcaption></figure>
-      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-card="3" data-state="focus"></div></div><figcaption class="book-state__label"><strong>Foco</strong> · anel no card inteiro</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-card="La volpe e l’uva"></div></div><figcaption class="book-state__label"><strong>Padrão</strong> · sem fundo</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-card="La volpe e l’uva" data-state="hover"></div></div><figcaption class="book-state__label"><strong>Hover</strong> · só com ponteiro (tablet), <code>--color-surface</code></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-card="La volpe e l’uva" data-state="press"></div></div><figcaption class="book-state__label"><strong>Pressionado</strong> · <code>--color-surface-2</code>, sem escala</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-card="La volpe e l’uva" data-state="focus"></div></div><figcaption class="book-state__label"><strong>Foco</strong> · anel no card inteiro</figcaption></figure>
     </div>
 
-    <h3 class="book-h3">Chips de nível</h3>
-    <p class="book-note" style="margin-bottom:var(--space-4)">No filtro, o nível é um chip neutro como os outros. A escala sálvia de <code>.ui-level</code> fica só na etiqueta do card, para que dois sistemas de cor não disputem a mesma fileira.</p>
+    <h3 class="book-h3">Faceta</h3>
+    <p class="book-note lib-gap">Abre um diálogo, então não usa <code>aria-pressed</code>: <code>aria-haspopup="dialog"</code> e <code>aria-expanded</code>. Fechada, resume o que está marcado: o texto muda junto com o preenchimento, nunca só a cor. O nome acessível sempre traz a faceta (“Nível: A2”, “Tema · 3 selecionados”).</p>
     <div class="book-states">
-      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-chip" type="button" tabindex="-1" aria-pressed="false">A2</button></div><figcaption class="book-state__label"><strong>Padrão</strong></figcaption></figure>
-      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-chip is-hover" type="button" tabindex="-1" aria-pressed="false">A2</button></div><figcaption class="book-state__label"><strong>Hover</strong> · ponteiro</figcaption></figure>
-      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-chip is-focus" type="button" tabindex="-1" aria-pressed="false">A2</button></div><figcaption class="book-state__label"><strong>Foco</strong></figcaption></figure>
-      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-chip" type="button" tabindex="-1" aria-pressed="true">A2</button></div><figcaption class="book-state__label"><strong>Selecionado</strong> · tinta cheia</figcaption></figure>
-      <figure class="book-state"><div class="book-state__stage on-bg"><span class="ui-level" data-level="a2">A2</span></div><figcaption class="book-state__label"><strong>Etiqueta no card</strong> · <code>.ui-level</code>, não é filtro</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div data-facet="Nível"></div></div><figcaption class="book-state__label"><strong>Padrão</strong> · nada marcado, o nome</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div data-facet="Nível||hover"></div></div><figcaption class="book-state__label"><strong>Hover</strong> · ponteiro</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div data-facet="Nível||press"></div></div><figcaption class="book-state__label"><strong>Pressionado</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div data-facet="Nível||focus"></div></div><figcaption class="book-state__label"><strong>Foco</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div data-facet="Nível|a2"></div></div><figcaption class="book-state__label"><strong>Selecionado · um</strong> · o próprio valor</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div data-facet="Tema|Comida,Natal,Nonna"></div></div><figcaption class="book-state__label"><strong>Selecionado · vários</strong> · nome e contagem</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div data-facet="Gênero|Romance (capítulo)" style="max-width:9.5rem"></div></div><figcaption class="book-state__label"><strong>Valor longo</strong> · reticências</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div data-facet="Gênero|Conto,Fábula,Lenda|press"></div></div><figcaption class="book-state__label"><strong>Selecionado, pressionado</strong></figcaption></figure>
+    </div>
+    <div class="book-states book-states--wide lib-next">
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill lib-cq" data-facets=""></div></div><figcaption class="book-state__label"><strong>Fileira</strong> · nada filtrado</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill lib-cq" data-facets="a2|Conto,Fábula,Lenda|Comida,Natal,Nonna"></div></div><figcaption class="book-state__label"><strong>Fileira</strong> · as três ativas</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill lib-cq lib-cq--323" data-facets="a2|Conto,Fábula,Lenda|Comida,Natal,Nonna"></div></div><figcaption class="book-state__label"><strong>Tela de 323px</strong> · abaixo de 350px a seta sai das preenchidas e as três cabem numa linha</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg" data-theme="dark"><div class="book-state__fill lib-cq" data-facets="a2|Conto,Fábula,Lenda|"></div></div><figcaption class="book-state__label"><strong>Fileira · escuro</strong> · preenchida em tinta clara</figcaption></figure>
     </div>
 
-    <h3 class="book-h3">Chips de gênero</h3>
+    <h3 class="book-h3">Linha de marcar</h3>
+    <p class="book-note lib-gap">A linha da folha de faceta. O estado mora num <code>&lt;input type="checkbox"&gt;</code> real (<code>checked</code>, <code>disabled</code>); a linha inteira é o alvo de 44px.</p>
     <div class="book-states">
-      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-chip" type="button" tabindex="-1" aria-pressed="false">Mistério</button></div><figcaption class="book-state__label"><strong>Padrão</strong></figcaption></figure>
-      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-chip is-hover" type="button" tabindex="-1" aria-pressed="false">Mistério</button></div><figcaption class="book-state__label"><strong>Hover</strong> · ponteiro</figcaption></figure>
-      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-chip is-focus" type="button" tabindex="-1" aria-pressed="false">Mistério</button></div><figcaption class="book-state__label"><strong>Foco</strong></figcaption></figure>
-      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-chip" type="button" tabindex="-1" aria-pressed="true">Mistério</button></div><figcaption class="book-state__label"><strong>Selecionado</strong></figcaption></figure>
-      <figure class="book-state"><div class="book-state__stage on-bg"><div class="lib-filters" style="padding:var(--space-2) 0;max-width:100%"><div class="lib-filters__group"><button class="ui-chip" type="button" tabindex="-1" aria-pressed="false">B1</button></div><span class="lib-filters__rule" aria-hidden="true"></span><div class="lib-filters__group"><button class="ui-chip" type="button" tabindex="-1" aria-pressed="true">Viagem</button></div></div></div><figcaption class="book-state__label"><strong>Fileira</strong> · nível | gênero, filete de 1px</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-check="Família|6"></div></div><figcaption class="book-state__label"><strong>Padrão</strong> · nome e contagem</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-check="Família|6|hover"></div></div><figcaption class="book-state__label"><strong>Hover</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-check="Família|6|press"></div></div><figcaption class="book-state__label"><strong>Pressionado</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-check="Família|6|focus"></div></div><figcaption class="book-state__label"><strong>Foco</strong> · anel por dentro</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-check="Comida|7|checked"></div></div><figcaption class="book-state__label"><strong>Selecionado</strong> · caixa em tinta</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-check="Viagem|0 de 7|disabled"></div></div><figcaption class="book-state__label"><strong>Desativado</strong> · daria zero com os outros filtros</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-check="Nonna|3||nonn"></div></div><figcaption class="book-state__label"><strong>Achado na busca</strong> · seminegrito e sublinhado, não cor</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg" data-theme="dark"><div class="book-state__fill" data-check="Comida|7|checked"></div><div class="book-state__fill" data-check="Viagem|0 de 7|disabled"></div></div><figcaption class="book-state__label"><strong>Escuro</strong> · marcado e desativado</figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Folha de faceta · peças</h3>
+    <div class="book-states book-states--wide">
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-sheethead="Tema|92 temas|off"></div></div><figcaption class="book-state__label"><strong>Cabeça · nada marcado</strong> · “Limpar” desativado</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-sheethead="Tema|92 temas|on"></div></div><figcaption class="book-state__label"><strong>Cabeça · com marca</strong> · “Limpar” limpa só esta faceta</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-more="64 temas sem histórias com esses filtros"></div></div><figcaption class="book-state__label"><strong>Zeros recolhidos · padrão</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-more="64 temas sem histórias com esses filtros|hover"></div></div><figcaption class="book-state__label"><strong>Zeros recolhidos · hover</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-more="64 temas sem histórias com esses filtros|focus"></div></div><figcaption class="book-state__label"><strong>Zeros recolhidos · foco</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-more="64 temas sem histórias com esses filtros|open"></div></div><figcaption class="book-state__label"><strong>Zeros abertos</strong> · <code>aria-expanded="true"</code>, <code>chevron-up</code></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-foot="9"></div></div><figcaption class="book-state__label"><strong>Rodapé</strong> · o total ao vivo; tocar só fecha</figcaption></figure>
     </div>
 
     <h3 class="book-h3">Campo de busca</h3>
     <div class="book-states">
-      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill"><div class="ui-search"><i data-lucide="search" aria-hidden="true"></i><input type="search" tabindex="-1" aria-label="Buscar histórias (exemplo em repouso)" placeholder="Buscar histórias"></div></div></div><figcaption class="book-state__label"><strong>Repouso</strong> · placeholder em <code>--color-ink-faint</code></figcaption></figure>
-      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill"><div class="ui-search is-focus"><i data-lucide="search" aria-hidden="true"></i><input type="search" tabindex="-1" aria-label="Buscar histórias (exemplo em foco)" placeholder="Buscar histórias"></div></div></div><figcaption class="book-state__label"><strong>Foco</strong> · anel na pílula inteira</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill"><div class="ui-search"><i data-lucide="search" aria-hidden="true"></i><input type="search" tabindex="-1" aria-label="Buscar histórias (exemplo em repouso)" placeholder="Buscar"></div></div></div><figcaption class="book-state__label"><strong>Padrão</strong> · placeholder em <code>--color-ink-faint</code></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill"><div class="ui-search is-focus"><i data-lucide="search" aria-hidden="true"></i><input type="search" tabindex="-1" aria-label="Buscar histórias (exemplo em foco)" placeholder="Buscar"></div></div></div><figcaption class="book-state__label"><strong>Foco</strong> · anel na pílula inteira</figcaption></figure>
       <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill"><div class="ui-search"><i data-lucide="search" aria-hidden="true"></i><input type="search" tabindex="-1" aria-label="Buscar histórias (exemplo preenchido)" value="nonna" lang="it"><button type="button" tabindex="-1" class="ui-iconbtn ui-search__clear" aria-label="Limpar busca"><i data-lucide="x" aria-hidden="true"></i></button></div></div></div><figcaption class="book-state__label"><strong>Preenchido</strong> · surge o botão limpar</figcaption></figure>
       <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill"><div class="ui-search"><i data-lucide="search" aria-hidden="true"></i><input type="search" tabindex="-1" aria-label="Buscar histórias (exemplo limpando)" value="nonna" lang="it"><button type="button" tabindex="-1" class="ui-iconbtn ui-search__clear is-active" aria-label="Limpar busca"><i data-lucide="x" aria-hidden="true"></i></button></div></div></div><figcaption class="book-state__label"><strong>Limpar pressionado</strong> · esvazia e mantém o foco</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill"><div class="ui-search"><i data-lucide="search" aria-hidden="true"></i><input type="search" tabindex="-1" aria-label="Buscar tema (exemplo)" placeholder="Buscar entre 92 temas"></div></div></div><figcaption class="book-state__label"><strong>Na folha</strong> · só em faceta com mais de 12 valores</figcaption></figure>
     </div>
 
     <h3 class="book-h3">Cabeçalho de seção</h3>
     <div class="book-states book-states--wide">
-      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-sechead="Todas as histórias|6"></div></div><figcaption class="book-state__label"><strong>Lista</strong> · rótulo e contagem</figcaption></figure>
-      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-sechead="Concluídas|1"></div></div><figcaption class="book-state__label"><strong>Concluídas</strong> · sempre no fim</figcaption></figure>
-      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-sechead="Resultados|2|filters"></div></div><figcaption class="book-state__label"><strong>Com filtro</strong> · ação fantasma “Limpar filtros”</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-sechead="Todas as histórias|all"></div></div><figcaption class="book-state__label"><strong>Lista</strong> · rótulo e contagem</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-sechead="Concluídas|done"></div></div><figcaption class="book-state__label"><strong>Concluídas</strong> · sempre no fim</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-sechead="Resultados|9|filters"></div></div><figcaption class="book-state__label"><strong>Com filtro</strong> · ação fantasma “Limpar filtros”</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-sechead="Resultados|0"></div></div><figcaption class="book-state__label"><strong>Zero com busca e filtro</strong> · a ação sai daqui e vai para o vazio (BIB-08)</figcaption></figure>
     </div>
 
     <h3 class="book-h3">Estado vazio</h3>
+    <p class="book-note lib-gap">As contagens das facetas já descontam as outras facetas, então só filtros nunca chegam a zero. O zero vem de uma busca por cima deles, ou de uma sincronização que tirou histórias.</p>
     <div class="book-states book-states--wide">
-      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-empty="Venezia"></div></div><figcaption class="book-state__label"><strong>Busca sem resultado</strong> · repete o termo e oferece a saída</figcaption></figure>
-      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-empty=""></div></div><figcaption class="book-state__label"><strong>Filtros sem resultado</strong> · ex.: B2 + Viagem</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-empty="q"></div></div><figcaption class="book-state__label"><strong>Busca sem resultado, sem filtro</strong> · repete o termo e oferece “Limpar busca”</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-empty="both"></div></div><figcaption class="book-state__label"><strong>Busca e filtros</strong> · as duas saídas juntas, cada uma diz o que traz de volta</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-empty="sync"></div></div><figcaption class="book-state__label"><strong>Só filtros, depois de uma sincronização</strong> · os valores marcados continuam marcados mesmo com zero (lacuna de cópia, ver Especificação)</figcaption></figure>
     </div>
 
     <h3 class="book-h3">Barra de abas · Biblioteca ativa</h3>
@@ -206,6 +292,7 @@
       <figure class="book-state"><div class="book-state__stage on-bg"><div class="lib-tabdemo" data-tabs="0" data-tabfocus="1"></div></div><figcaption class="book-state__label"><strong>Foco</strong> · em Dicionário, com teclado</figcaption></figure>
       <figure class="book-state"><div class="book-state__stage on-bg" data-theme="dark"><div class="lib-tabdemo" data-tabs="0"></div></div><figcaption class="book-state__label"><strong>Escuro</strong> · o traço continua sendo o único amarelo</figcaption></figure>
     </div>
+    <p class="book-note lib-next">Quatro abas (NAV-01), sem contagem nem selo em nenhuma: as histórias novas falam só na linha de status. O ícone de Revisão ainda é o provisório <code>check</code>, até o brand lead escolher (book-revisao › Em aberto A1).</p>
   </div>
 </section>
 
@@ -215,64 +302,216 @@
     <header class="book-section__head">
       <p class="book-kicker">03 · Telas</p>
       <h2 class="book-h2" id="telas-h">A Biblioteca em uso</h2>
-      <p class="book-note">Todas as telas são interativas: toque nos chips, digite na busca, limpe. Os mockups usam a interface em português (predefinição Iniciante de Imersão). Títulos e subtítulos ficam sempre em italiano.</p>
+      <p class="book-note">Todas as telas são interativas e usam o mesmo acervo suposto de <span data-n="total">152</span> histórias (ver Conteúdo): role a lista, digite na busca, toque numa faceta, marque e desmarque, abra os zeros. Os mockups usam a interface em português (predefinição Iniciante de Imersão). Títulos e subtítulos ficam sempre em italiano.</p>
     </header>
 
+    <h3 class="book-h3 lib-top0">Repouso e sincronização</h3>
     <div class="book-screens">
-      <figure class="phone" aria-label="Biblioteca, estado padrão, interativo">
+      <figure class="phone" aria-label="Biblioteca depois de uma sincronização com três histórias novas, interativa">
         <div class="phone__device"><div class="phone__screen">
           <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
-          <div class="phone__body lib-app"></div>
+          <div class="phone__body lib-app" data-status="new"></div>
           <div class="phone__home" aria-hidden="true"></div>
         </div></div>
-        <figcaption class="phone__caption"><strong>Biblioteca</strong> · padrão (interativo)</figcaption>
+        <figcaption class="phone__caption"><strong>Biblioteca</strong> · logo depois de uma sincronização que trouxe 3 histórias (interativa)</figcaption>
       </figure>
 
-      <figure class="phone" aria-label="Biblioteca, tema escuro">
+      <figure class="phone" aria-label="Biblioteca depois de uma sincronização, tema escuro">
         <div class="phone__device"><div class="phone__screen" data-theme="dark">
           <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
-          <div class="phone__body lib-app"></div>
+          <div class="phone__body lib-app" data-status="new"></div>
           <div class="phone__home" aria-hidden="true"></div>
         </div></div>
-        <figcaption class="phone__caption"><strong>Biblioteca</strong> · padrão, tema escuro</figcaption>
+        <figcaption class="phone__caption"><strong>Biblioteca</strong> · a mesma tela, tema escuro</figcaption>
       </figure>
 
-      <figure class="phone" aria-label="Biblioteca filtrada por nível A2">
+      <figure class="phone" aria-label="Biblioteca rolada até uma história que chegou">
         <div class="phone__device"><div class="phone__screen">
           <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
-          <div class="phone__body lib-app" data-levels="a2"></div>
+          <div class="phone__body lib-app" data-status="new" data-scroll="Pinocchio, capitolo primo"></div>
           <div class="phone__home" aria-hidden="true"></div>
         </div></div>
-        <figcaption class="phone__caption"><strong>Biblioteca</strong> · filtrada por A2</figcaption>
+        <figcaption class="phone__caption"><strong>Biblioteca</strong> · rolada até o B1: “Chegou agora” no lugar de sempre da ordem, sem seção própria; autor e “Sem tradução”</figcaption>
       </figure>
 
-      <figure class="phone" aria-label="Biblioteca filtrada por gênero Viagem">
+      <figure class="phone" aria-label="Biblioteca rolada até as concluídas">
         <div class="phone__device"><div class="phone__screen">
           <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
-          <div class="phone__body lib-app" data-genres="Viagem"></div>
+          <div class="phone__body lib-app" data-status="count" data-scroll="end"></div>
           <div class="phone__home" aria-hidden="true"></div>
         </div></div>
-        <figcaption class="phone__caption"><strong>Biblioteca</strong> · filtrada por Viagem</figcaption>
+        <figcaption class="phone__caption"><strong>Biblioteca</strong> · rolada até o fim: Concluídas, com uma história sem tradução</figcaption>
       </figure>
 
-      <figure class="phone" aria-label="Biblioteca, busca com resultados">
+      <figure class="phone" aria-label="Biblioteca com o aviso de atualizar o app">
         <div class="phone__device"><div class="phone__screen">
           <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
-          <div class="phone__body lib-app" data-q="nonna" data-focus></div>
+          <div class="phone__body lib-app" data-status="notice"></div>
           <div class="phone__home" aria-hidden="true"></div>
         </div></div>
-        <figcaption class="phone__caption"><strong>Biblioteca</strong> · busca “nonna”, com resultados (teclado omitido)</figcaption>
-      </figure>
-
-      <figure class="phone" aria-label="Biblioteca, busca sem resultado">
-        <div class="phone__device"><div class="phone__screen">
-          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
-          <div class="phone__body lib-app" data-q="Venezia"></div>
-          <div class="phone__home" aria-hidden="true"></div>
-        </div></div>
-        <figcaption class="phone__caption"><strong>Biblioteca</strong> · busca “Venezia”, vazia</figcaption>
+        <figcaption class="phone__caption"><strong>Biblioteca</strong> · a sincronização achou um formato que esta versão não lê; nada fica bloqueado</figcaption>
       </figure>
     </div>
+
+    <h3 class="book-h3">Folhas de faceta</h3>
+    <p class="book-note lib-gap">A folha ocupa a tela menos a barra de status e 20px; cabeça, nota e busca ficam, a lista rola, o rodapé fica. Marcar já filtra a lista atrás da folha e anuncia o total. “Ver N histórias” (também “Ver 0 histórias”, com a lista já vazia), tocar no véu ou Esc fecham sem desfazer.</p>
+    <div class="book-screens">
+      <figure class="phone" aria-label="Folha Tema, nada marcado">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body lib-app" data-sheet="tg"></div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Folha Tema</strong> · nada marcado: lista sem rótulo, mais histórias primeiro, “Limpar” desativado</figcaption>
+      </figure>
+
+      <figure class="phone" aria-label="Folha Tema buscando nonn, com Nível A2">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body lib-app" data-lv="a2" data-sheet="tg" data-sheet-q="nonn"></div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Folha Tema</strong> · busca “nonn” com A2: o trecho achado sublinhado, o valor zerado desativado</figcaption>
+      </figure>
+
+      <figure class="phone" aria-label="Folha Tema com Nível, Gênero e três temas marcados">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body lib-app" data-lv="a2" data-g="Conto,Fábula,Lenda" data-tg="Comida,Natal,Nonna" data-sheet="tg"></div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Folha Tema</strong> · A2 e três gêneros já filtram; três temas marcados sobem ao topo; zeros recolhidos no fim</figcaption>
+      </figure>
+
+      <figure class="phone" aria-label="Folha Tema com três facetas ativas, tema escuro">
+        <div class="phone__device"><div class="phone__screen" data-theme="dark">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body lib-app" data-lv="a2" data-g="Conto,Fábula,Lenda" data-tg="Comida,Natal,Nonna" data-sheet="tg"></div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Folha Tema</strong> · a mesma folha, tema escuro: nenhum amarelo</figcaption>
+      </figure>
+
+      <figure class="phone" aria-label="Folha Gênero com os valores zerados abertos">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body lib-app" data-lv="a2" data-tg="Comida,Natal,Nonna" data-sheet="g" data-more data-sheet-scroll="more"></div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Folha Gênero</strong> · rolada até os zeros, abertos: desativados, em ordem alfabética, com “0 de N” (aqui / no aparelho)</figcaption>
+      </figure>
+
+      <figure class="phone" aria-label="Folha Nível com Gênero Clássicos">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body lib-app" data-g="Clássicos" data-lv="b1,b2" data-sheet="lv"></div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Folha Nível</strong> · seis valores, sem busca, A1 → C2 fixo; com Clássicos, A1 e A2 dariam zero</figcaption>
+      </figure>
+
+      <figure class="phone" aria-label="Folha Tema buscando fantasma, sem achado">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body lib-app" data-sheet="tg" data-sheet-q="fantasma"></div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Folha Tema</strong> · busca sem achado: uma linha só, “Nenhum tema com “fantasma”.”</figcaption>
+      </figure>
+
+      <figure class="phone" aria-label="Folha Gênero com a lista já vazia">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body lib-app" data-lv="a2" data-q="fantasma" data-sheet="g"></div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Folha Gênero</strong> · a lista já está vazia (busca sobre filtros): o rodapé diz “Ver 0 histórias”, mesmo rótulo, mesma ação</figcaption>
+      </figure>
+    </div>
+
+    <h3 class="book-h3">Resultados e vazios</h3>
+    <div class="book-screens">
+      <figure class="phone" aria-label="Resultados com as três facetas ativas">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body lib-app" data-lv="a2" data-g="Conto,Fábula,Lenda" data-tg="Comida,Natal,Nonna"></div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Resultados</strong> · as facetas resumem: “A2”, “Gênero · 3”, “Tema · 3”; Continuar lendo sai; em andamento → novas → lidas</figcaption>
+      </figure>
+
+      <figure class="phone" aria-label="Busca com resultados">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body lib-app" data-q="veneza" data-focus></div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Busca</strong> · “veneza” acha o tema Veneza em qualquer nível (teclado omitido)</figcaption>
+      </figure>
+
+      <figure class="phone" aria-label="Busca sem resultado, sem filtro">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body lib-app" data-q="fantasma"></div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Nenhum resultado</strong> · só a busca: uma saída, “Limpar busca”</figcaption>
+      </figure>
+
+      <figure class="phone" aria-label="Busca e filtros sem resultado">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body lib-app" data-lv="a2" data-g="Conto,Fábula,Lenda" data-tg="Comida,Natal,Nonna" data-q="veneza"></div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Nenhum resultado</strong> · busca sobre filtros: as duas saídas juntas; o “Limpar filtros” do cabeçalho some</figcaption>
+      </figure>
+
+      <figure class="phone" aria-label="Resultados no tema escuro">
+        <div class="phone__device"><div class="phone__screen" data-theme="dark">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body lib-app" data-lv="a2" data-g="Conto,Fábula,Lenda" data-tg="Comida,Natal,Nonna" data-q="veneza"></div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Nenhum resultado</strong> · o mesmo vazio, tema escuro</figcaption>
+      </figure>
+    </div>
+
+    <h3 class="book-h3">Tocar num card</h3>
+    <div class="book-screens">
+      <figure class="phone" aria-label="Leitor esperando os arquivos do português">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body">
+            <div class="ui-appbar">
+              <button class="ui-iconbtn" type="button" aria-label="Voltar à Biblioteca"><i data-lucide="chevron-left" aria-hidden="true"></i></button>
+              <p class="ui-appbar__title"></p>
+              <div class="ui-appbar__actions"><button class="ui-iconbtn" type="button" aria-label="Tamanho do texto"><i data-lucide="a-large-small" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Mais opções"><i data-lucide="ellipsis" aria-hidden="true"></i></button></div>
+            </div>
+            <div class="phone__scroll lib-rpad">
+              <header class="ui-titlepage" lang="it">
+                <p class="ui-titlepage__meta"><span class="ui-level" data-level="a2">A2</span><span lang="pt-BR">Viagem · Trem · Emília-Romanha</span></p>
+                <h4 class="ui-titlepage__title">Il treno per Bologna</h4>
+                <p class="ui-titlepage__sub">Marta va a trovare la nonna dopo due anni.</p>
+                <div class="ui-wait" lang="pt-BR" role="status">
+                  <span class="ui-wait__icon"><i data-lucide="download" aria-hidden="true"></i></span>
+                  <p class="ui-wait__title">O português ainda está chegando</p>
+                  <p class="ui-wait__text">Você trocou o idioma das traduções. O italiano desta história já está aqui; quando a tradução terminar de baixar, a história abre sozinha.</p>
+                  <span class="ui-progress" aria-hidden="true"><i style="--p:60%"></i></span>
+                  <div class="ui-wait__actions">
+                    <button class="ui-btn ui-btn--primary ui-btn--block" type="button">Ler sem tradução</button>
+                    <button class="ui-btn ui-btn--ghost ui-btn--block" type="button">Voltar à biblioteca</button>
+                  </div>
+                </div>
+              </header>
+            </div>
+          </div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Leitor</strong> · arquivos do novo idioma ainda chegando (BIB-12): abre na hora, com a espera no lugar do texto</figcaption>
+      </figure>
+    </div>
+    <p class="book-note">A espera é do Leitor e está no livro dele; aqui ela aparece porque é o que o toque no card abre depois de trocar de idioma. Não há diálogo “Baixando…”: ficar na tela é esperar, “Ler sem tradução” só aparece quando o italiano já está no aparelho, e “Voltar à biblioteca” desiste.</p>
   </div>
 </section>
 
@@ -282,31 +521,41 @@
     <header class="book-section__head">
       <p class="book-kicker">04 · Especificação</p>
       <h2 class="book-h2" id="espec-h">Comportamento e medidas</h2>
-      <p class="book-note">O que acontece quando a pessoa toca, em que ordem as histórias aparecem e como o progresso é mostrado.</p>
+      <p class="book-note">O que acontece quando a pessoa toca, em que ordem as histórias aparecem, como as facetas contam e o que a linha de status diz.</p>
     </header>
 
     <ol class="lib-steps">
-      <li><span><strong>Tocar num card empilha o Leitor.</strong> Tela cheia, sem barra de abas, com “Voltar” para a Biblioteca. Em andamento abre no último parágrafo lido; nova e concluída abrem no início. O card Continuar lendo faz o mesmo que o card da lista.</span></li>
-      <li><span><strong>Sem pressão longa.</strong> Nada de prévia (peek), menu de contexto ou deslizar para apagar. Um toque, uma ação.</span></li>
-      <li><span><strong>Voltar preserva o lugar.</strong> Ao sair do Leitor, a Biblioteca volta com a mesma rolagem, busca e filtros. Tocar de novo na aba Biblioteca rola ao topo.</span></li>
-      <li><span><strong>Ordem fixa.</strong> Continuar lendo (só a história aberta por último) → Todas as histórias, do nível A1 ao B2 e, no mesmo nível, da mais curta à mais longa → Concluídas, no fim. Não há ordenação manual nesta versão.</span></li>
-      <li><span><strong>Com filtro ou busca, uma lista só.</strong> O card Continuar lendo sai e a história em andamento entra na lista com sua linha de progresso. A ordem continua: em andamento, novas, concluídas. Sem filtro, a história do card principal não se repete na lista.</span></li>
-      <li><span><strong>Filtros.</strong> Dentro do mesmo grupo vale “ou” (A1 ou A2); entre grupos vale “e” (A2 e Mistério). Nenhum chip ativo mostra tudo. “Limpar filtros” aparece no cabeçalho da lista.</span></li>
-      <li><span><strong>Busca.</strong> Procura em título, subtítulo e gênero, sem diferenciar acento ou maiúscula: “nonna” encontra o subtítulo de <span lang="it">Il treno per Bologna</span>. O resultado muda a cada letra, sem botão de enviar. Busca e filtros se somam.</span></li>
-      <li><span><strong>Progresso sem jogo.</strong> Linha de 2px em tinta e a porcentagem em texto. Concluída ganha um check e “Lida”, em tinta suave. Sem sequência de dias, XP, troféus, metas, medalhas ou confete.</span></li>
+      <li><span><strong>Tocar num card empilha o Leitor.</strong> Tela cheia, sem barra de abas, com “Voltar à Biblioteca”. Em andamento abre no último parágrafo lido; nova e lida abrem no início. O card Continuar lendo faz o mesmo que o card da lista. Se os arquivos do idioma escolhido ainda estão chegando, o Leitor abre com a espera no lugar do texto.<span class="lib-ids">BIB-09 · BIB-12</span></span></li>
+      <li><span><strong>Sem pressão longa.</strong> Nada de prévia, menu de contexto ou deslizar para apagar. Um toque, uma ação.<span class="lib-ids">BIB-10</span></span></li>
+      <li><span><strong>Voltar preserva o lugar.</strong> Ao sair do Leitor, a Biblioteca volta com a mesma rolagem, busca e facetas. Tocar de novo na aba Biblioteca rola ao topo.<span class="lib-ids">NAV-05 · NAV-06</span></span></li>
+      <li><span><strong>Ordem fixa.</strong> Continuar lendo → Todas as histórias, do nível A1 ao C2 e, no mesmo nível, da mais curta à mais longa → Concluídas, no fim. Histórias novas não têm seção própria. Não há ordenação manual.<span class="lib-ids">BIB-04 · OFF-24</span></span></li>
+      <li><span><strong>Com filtro ou busca, uma lista só.</strong> “Resultados”, na ordem em andamento → novas → lidas. O card Continuar lendo sai e a história em andamento entra na lista com sua linha. Sem filtro, a história do card não se repete na lista.<span class="lib-ids">BIB-03 · BIB-07</span></span></li>
+      <li><span><strong>Três facetas.</strong> Nível, Gênero e Tema, uma fileira fixa sob a busca, sempre nessa ordem. “Ou” dentro da faceta, “e” entre facetas. Cada uma abre a própria folha: lista de marcar com os valores que alguma história do aparelho tem, “Limpar” (só esta faceta, desativado sem marca) e “Ver N histórias”, que fecha. Marcar aplica na hora e anuncia o total. Tocar fora ou arrastar para baixo também fecha, sem desfazer. Tirar um valor: abrir a faceta e desmarcar. Tirar tudo: “Limpar filtros” no cabeçalho da lista.<span class="lib-ids">BIB-05</span></span></li>
+      <li><span><strong>Contar sem mudar sob o dedo.</strong> O número de cada valor é quantas histórias ficariam se ele fosse marcado, com as outras facetas e a busca aplicadas e a própria faceta ignorada. Marcar não muda os números da folha aberta; só o rodapé se mexe. Ordem: Nível de A1 a C2, fixa; Gênero e Tema com os marcados no topo, depois mais histórias primeiro, empate em ordem alfabética, “Outros” sempre por último. A ordem é calculada ao abrir e congela enquanto a folha está aberta. Sem nada marcado, a lista não tem rótulo; com marcas, divide-se em “Marcados” e “Outros temas”. Com outra faceta ou a busca ativa, a nota da folha diz o que os números contam, pelo nome da faceta, nunca pelos valores: “Números contam os filtros de Nível e Gênero e a busca.”<span class="lib-ids">BIB-14</span></span></li>
+      <li><span><strong>Zeros desativados, não escondidos.</strong> Um valor que daria zero fica recolhido sob a última linha (“10 gêneros sem histórias com esses filtros”); aberto, aparece desativado, em ordem alfabética, com “0 de 12” (aqui / no aparelho). A busca da folha também o acha, desativado; quando não acha nada, só “Nenhum tema com “fantasma”.”. Um valor marcado nunca é desativado nem escondido, mesmo com zero.<span class="lib-ids">BIB-14</span></span></li>
+      <li><span><strong>Busca na folha.</strong> Só em faceta com mais de 12 valores (na prática Gênero e Tema). Acha o trecho em qualquer parte do nome, sem acento e sem maiúscula. Acha valores para marcar; a busca da Biblioteca acha histórias.<span class="lib-ids">BIB-05</span></span></li>
+      <li><span><strong>Busca da Biblioteca.</strong> Procura em título, subtítulo, gênero, temas e autor, sem diferenciar acento ou maiúscula: “nonna” acha o tema Nonna e o subtítulo de <span lang="it">Il treno per Bologna</span>. O resultado muda a cada letra. Gêneros e temas são buscados na língua de Imersão › Navegação. Busca e facetas se somam.<span class="lib-ids">BIB-06</span></span></li>
+      <li><span><strong>Vazio.</strong> Só a busca: “Limpar busca”. Busca e filtros: as duas saídas juntas, cada uma dizendo o que traz de volta, e o “Limpar filtros” do cabeçalho some. A contagem é anunciada.<span class="lib-ids">BIB-08</span></span></li>
+      <li><span><strong>Linha de status.</strong> O único lugar onde a sincronização fala, sem toast e sem selo na aba. Prioridade: “Há histórias novas que esta versão do app não abre.” com “Atualizar na loja” (abre a loja, sai do app) → “3 histórias novas chegaram” até a pessoa sair da Biblioteca → “152 histórias no aparelho”. Anunciada quando muda. Histórias atualizadas, removidas e as da semente não contam como novas.<span class="lib-ids">BIB-13 · OFF-24 · OFF-26</span></span></li>
+      <li><span><strong>Card.</strong> Gênero · temas, título e subtítulo em italiano, autor (só quando há), nível, leitura (palavras ÷ velocidade do nível: A1 60, A2 80, B1 100, B2 120, C1 140, C2 160 palavras por minuto, arredondado para cima), narração em minutos e segundos (só em história narrada), estado, “Chegou agora” e “Sem tradução”. Atualizações aparecem ao vivo: o card surge ou muda assim que a história é aplicada.<span class="lib-ids">BIB-01 · BIB-11 · OFF-23 · TRA-10</span></span></li>
+      <li><span><strong>Progresso sem jogo.</strong> Nova, em andamento (linha de 2px em tinta e “N%”) ou lida (check e “Lida”). Lida quando o bloco final aparece na tela; não há “Marcar como lida”. Sem sequência de dias, XP, troféus, metas ou confete.<span class="lib-ids">BIB-02</span></span></li>
     </ol>
 
     <dl class="book-spec">
       <dt>Margem da tela</dt><dd><code>--gutter</code> (20px). Cards da lista estendem o fundo de pressão 12px para fora, alinhando o texto à margem.</dd>
-      <dt>Título grande</dt><dd><code>.ui-largetitle</code> · <code>--type-title</code></dd>
-      <dt>Busca</dt><dd>Pílula de 44px (<code>--tap-min</code>), fundo <code>--color-surface</code>, ícone 20px (<code>--icon-size-sm</code>), texto <code>--type-body</code>. O anel de foco sai do campo e vai para a pílula inteira.</dd>
-      <dt>Filtros</dt><dd><code>.ui-chip</code> com <code>aria-pressed</code>, em grupos com <code>role="group"</code> e rótulo (Nível, Gênero). Filete de 1px × 20px em <code>--color-rule-strong</code> entre os grupos. Rolagem lateral sem barra visível.</dd>
-      <dt>Continuar lendo</dt><dd>Fundo <code>--color-surface</code>, <code>--radius-card</code>, respiro <code>--space-5</code>. Rótulo <code>.ui-label</code>, título <code>--type-title</code>, subtítulo <code>--type-small</code> em <code>--color-ink-muted</code>.</dd>
-      <dt>Card de história</dt><dd>Título Newsreader 500, <code>--text-xl</code> (22/28). Subtítulo em uma linha com reticências. Meta em <code>--type-meta</code>: <code>.ui-level</code> · gênero · duração · estado. Filete <code>--color-rule</code> entre cards.</dd>
-      <dt>Progresso</dt><dd><code>.ui-progress</code>: 2px, trilho <code>--color-rule</code>, preenchimento <code>--color-ink</code>, número tabular. Fora do Leitor o progresso é sempre tinta; a variante amarela (<code>--accent</code>) é só do Leitor. Decorativo para leitor de tela; o texto “38%” carrega a informação.</dd>
-      <dt>Amarelo</dt><dd>Só o traço da aba ativa (<code>.ui-tab[aria-current="page"]</code>).</dd>
-      <dt>Sombra</dt><dd>Nenhuma. Ao rolar, a app bar ganha só o filete (<code>.is-scrolled</code>).</dd>
-      <dt>Movimento</dt><dd>Fundo de pressão em <code>--dur-fast</code>; push do Leitor em <code>--dur-base</code>. Com movimento reduzido, os tokens zeram a duração e a mudança de estado continua.</dd>
+      <dt>Título grande</dt><dd><code>.ui-largetitle</code> · <code>--type-title</code>; perde o respiro de baixo quando a linha de status vem logo depois.</dd>
+      <dt>Linha de status</dt><dd><code>.ui-statusline</code>, <code>--type-small</code> em <code>--color-ink-muted</code>, a contagem nova em seminegrito de tinta com <code>.ui-dot</code> de 6px. Aviso: <code>.ui-statusline--notice</code> com <code>circle-arrow-up</code> e o link <code>.ui-statusline__link</code> (sublinhado, alvo de 44px, <code>external-link</code>).</dd>
+      <dt>Busca</dt><dd>Pílula de 44px (<code>--tap-min</code>), fundo <code>--color-surface</code>, ícone 20px, texto <code>--type-body</code>, placeholder “Buscar”, nome acessível “Buscar histórias”. O anel de foco vai para a pílula inteira.</dd>
+      <dt>Facetas</dt><dd><code>.ui-facets</code> + três <code>.ui-facet</code>: pílula de 36px com alvo de 44px, contorno 1px <code>--color-rule-strong</code>, <code>chevron-down</code> 16px. <code>.is-selected</code> = tinta cheia. Abaixo de 350px de tela a fileira aperta e as preenchidas perdem a seta.</dd>
+      <dt>Folha</dt><dd><code>.ui-overlay</code> &gt; <code>.ui-scrim</code> + <code>.ui-sheet.ui-sheet--tall</code>, <code>role="dialog"</code>, <code>aria-modal</code>. Título <code>--type-heading</code> com a contagem em <code>__count</code>; nota em <code>__note</code>; busca só com mais de 12 valores; <code>__group</code> com a contagem à direita (“Marcados 3”, “Outros temas 25”, “2 de 92 temas”); <code>__more</code> recolhe os zeros; <code>__foot</code> com o total em <code>role="status"</code>. A folha Nível é a <code>.ui-sheet</code> curta, sem busca.</dd>
+      <dt>Linha de marcar</dt><dd><code>.ui-check</code>: caixa de 20px, 1.5px <code>--color-ink-muted</code>, marcada em tinta com <code>check</code>; nome <code>--type-body</code>, contagem <code>--type-meta</code>; desativada em <code>--color-ink-faint</code>.</dd>
+      <dt>Continuar lendo</dt><dd><code>.ui-hero</code>: fundo <code>--color-surface</code>, <code>--radius-card</code>. Rótulo <code>.ui-label</code>, título <code>--type-title</code>, subtítulo <code>--type-small</code>, meta com nível, leitura, narração e porcentagem.</dd>
+      <dt>Card de história</dt><dd>Chapéu <code>--type-label</code> em caixa alta, gênero + até dois temas + “+N”; título Newsreader 500, <code>--text-xl</code> (22/28); autor <code>--type-small</code> itálico em tinta; subtítulo em uma linha com reticências; meta em <code>--type-meta</code>, quebra linha em tela estreita. “Sem tradução” = pílula de 20px com contorno <code>--color-rule-strong</code>. Filete <code>--color-rule</code> entre cards.</dd>
+      <dt>Progresso</dt><dd><code>.ui-progress</code>: 2px, trilho <code>--color-rule</code>, preenchimento <code>--color-ink</code>, número tabular. Decorativo para leitor de tela; o texto “38% lido” carrega a informação.</dd>
+      <dt>Amarelo</dt><dd>Só o traço da aba ativa. Na folha, nenhum.</dd>
+      <dt>Sombra</dt><dd>Lista e cards sem sombra; a folha usa <code>--shadow-2</code>. Ao rolar, a app bar ganha só o filete.</dd>
+      <dt>Movimento</dt><dd>Fundo de pressão em <code>--dur-fast</code>; push do Leitor e entrada da folha em <code>--dur-base</code>. Com movimento reduzido, os tokens zeram a duração e a mudança de estado continua.</dd>
+      <dt>Em aberto</dt><dd>Nada. As lacunas da v0.4 foram fechadas em 18/11/2026 e estão desenhadas aqui (BIB-01, BIB-05, BIB-08, BIB-14).</dd>
     </dl>
   </div>
 </section>
@@ -316,31 +565,44 @@
   <div class="book-wrap">
     <header class="book-section__head">
       <p class="book-kicker">05 · Conteúdo e cópia</p>
-      <h2 class="book-h2" id="copia-h">Catálogo e textos da tela</h2>
-      <p class="book-note">O catálogo é o de <code>content.md</code>, sem acréscimos. Gêneros e textos da interface em português; títulos e subtítulos em italiano.</p>
+      <h2 class="book-h2" id="copia-h">O acervo suposto e os textos da tela</h2>
+      <p class="book-note">Os oito títulos de <code>content.md</code> e os dos mocks escolhidos estão todos aqui, com os mesmos dados. Para mostrar as facetas em escala, o livro supõe um aparelho que já sincronizou bastante: clássicos em domínio público (Collodi, De Amicis, Verga, Pirandello, Boccaccio, Deledda, Svevo, Goldoni, Salgari) e histórias próprias.</p>
     </header>
 
-    <div class="book-table-wrap" role="region" aria-label="Catálogo" tabindex="0">
-      <table class="book-table">
-        <thead><tr><th scope="col">Título</th><th scope="col">Nível</th><th scope="col">Gênero</th><th scope="col">Duração</th><th scope="col">Estado</th></tr></thead>
-        <tbody data-catalog></tbody>
-      </table>
-    </div>
+    <p class="book-prose" data-summary></p>
+
+    <h3 class="book-h3">Gêneros</h3>
+    <ul class="lib-tags" data-genres></ul>
+    <h3 class="book-h3">Temas</h3>
+    <ul class="lib-tags" data-tagcloud></ul>
+
+    <details class="lib-more">
+      <summary>Ver o acervo inteiro</summary>
+      <div class="book-table-wrap lib-catalog" role="region" aria-label="Acervo" tabindex="0">
+        <table class="book-table">
+          <thead><tr><th scope="col">Título</th><th scope="col">Nível</th><th scope="col">Gênero · temas</th><th scope="col">Leitura</th><th scope="col">Narração</th><th scope="col">Estado</th></tr></thead>
+          <tbody data-catalog></tbody>
+        </table>
+      </div>
+    </details>
 
     <h3 class="book-h3">Textos</h3>
     <table class="book-table book-table--stack">
       <thead><tr><th scope="col">Lugar</th><th scope="col">Texto</th></tr></thead>
       <tbody>
-        <tr><td>Busca</td><td>Buscar histórias (placeholder) · Limpar busca (rótulo do botão x)</td></tr>
+        <tr><td>Linha de status</td><td>152 histórias no aparelho · 1 história no aparelho · 3 histórias novas chegaram · 1 história nova chegou · Há histórias novas que esta versão do app não abre. · Atualizar na loja</td></tr>
+        <tr><td>Busca</td><td>Buscar (placeholder) · Buscar histórias (nome acessível) · Limpar busca (rótulo do botão x)</td></tr>
+        <tr><td>Facetas</td><td>Nível · Gênero · Tema · fechada com um valor: o valor · com vários: “Tema · 3” · nome acessível “Nível: A2”, “Tema · 3 selecionados” · grupo “Filtros”</td></tr>
+        <tr><td>Folha</td><td>Tema 92 temas · Gênero 18 gêneros · Nível · Limpar (nome acessível “Limpar tema”) · Buscar entre 92 temas · Marcados · Outros temas · Outros gêneros · 2 de 92 temas · Nenhum tema com “fantasma”. · Ver 0 histórias · 64 temas sem histórias com esses filtros · 0 de 12 · Ver 9 histórias · Ver 1 história</td></tr>
+        <tr><td>Nota da folha</td><td>Números contam o filtro de Nível. · Números contam os filtros de Nível e Gênero e a busca. · Números contam a busca. · Sem acento e sem maiúsculas: “sicilia” acha Sicília. A busca olha só os nomes de tema.</td></tr>
         <tr><td>Card principal</td><td>Continuar lendo</td></tr>
         <tr><td>Seções</td><td>Todas as histórias · Concluídas · Resultados</td></tr>
-        <tr><td>Grupos de filtro</td><td>Nível · Gênero (só para leitor de tela)</td></tr>
-        <tr><td>Progresso</td><td>38% · leitor de tela: “38% lido”</td></tr>
-        <tr><td>Concluída</td><td>Lida</td></tr>
+        <tr><td>Card</td><td>12 min · 4:12 (leitor de tela: “narração de 4 min 12 s”) · 38% (leitor de tela: “38% lido”) · Lida · Chegou agora · Sem tradução · Outros</td></tr>
         <tr><td>Ação de lista</td><td>Limpar filtros</td></tr>
-        <tr><td>Vazio, busca</td><td>Nenhuma história encontrada · Nada com “Venezia”. Tente outra palavra. · Limpar busca</td></tr>
-        <tr><td>Vazio, filtros</td><td>Nenhuma história encontrada · Nada com esses filtros. Tire um chip ou limpe todos. · Limpar filtros</td></tr>
-        <tr><td>Contagem</td><td>1 história · 6 histórias (anunciado ao filtrar)</td></tr>
+        <tr><td>Vazio, busca</td><td>Nenhuma história encontrada · Nada com “fantasma”. Tente outra palavra. · Limpar busca</td></tr>
+        <tr><td>Vazio, busca e filtros</td><td>Nenhuma história encontrada · Nenhuma das 9 histórias filtradas fala de “veneza”. · Limpar busca · Volta às 9 histórias filtradas · Limpar filtros · Mostra 5 histórias com “veneza”</td></tr>
+        <tr><td>Contagem anunciada</td><td>1 história · 9 histórias (ao filtrar, buscar e marcar)</td></tr>
+        <tr><td>Espera do Leitor</td><td>O português ainda está chegando · Ler sem tradução · Voltar à biblioteca</td></tr>
       </tbody>
     </table>
   </div>
@@ -352,7 +614,7 @@
     <header class="book-section__head">
       <p class="book-kicker">06 · Componente · Imersão</p>
       <h2 class="book-h2" id="imersao-h">Níveis de imersão</h2>
-      <p class="book-note">A pessoa escolhe, por área, se a interface fala português ou italiano. Fica em Ajustes › Imersão. Aqui ele é documentado como componente; a tela final é do livro Ajustes. Os mockups deste e dos outros livros usam a interface em português.</p>
+      <p class="book-note">A pessoa escolhe, por área, se o app fala português ou italiano. Fica em Ajustes › Imersão. Aqui ele é documentado como componente; a tela final é do livro Ajustes. Não há onboarding: o app começa em Iniciante sem perguntar (AJU-03). Os mockups deste e dos outros livros usam a interface em português.</p>
     </header>
 
     <div class="book-screens">
@@ -385,29 +647,32 @@
     </div>
 
     <h3 class="book-h3">Prévia · Navegação em italiano</h3>
+    <p class="book-note lib-gap">Navegação vale para o app inteiro, sem exceção: as abas, e também os nomes de gênero e tema no card, nas facetas e na busca (BIB-06), e a nota “Sem tradução” (TRA-10).</p>
     <div class="book-states book-states--wide">
       <figure class="book-state"><div class="book-state__stage on-bg"><div class="lib-tabdemo" data-tabs="3"></div></div><figcaption class="book-state__label"><strong>Navegação = Português</strong></figcaption></figure>
       <figure class="book-state"><div class="book-state__stage on-bg"><div class="lib-tabdemo" data-tabs="3" data-tabit></div></div><figcaption class="book-state__label"><strong>Navegação = Italiano</strong> · Dizionario, Ripasso, Impostazioni</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-card="Il tamburino sardo"></div></div><figcaption class="book-state__label"><strong>Card · Português</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill" data-card="Il tamburino sardo" data-it></div></div><figcaption class="book-state__label"><strong>Card · Italiano</strong> · Classici · Guerra · Sardegna, “Senza traduzione”</figcaption></figure>
     </div>
 
     <h3 class="book-h3">Áreas e predefinições</h3>
     <table class="book-table book-table--stack">
       <thead><tr><th scope="col">Área</th><th scope="col">Português</th><th scope="col">Italiano</th><th scope="col">Onde aparece</th></tr></thead>
       <tbody>
-        <tr><td>Navegação</td><td data-l="PT">Biblioteca · Dicionário · Revisão · Ajustes</td><td data-l="IT" lang="it">Biblioteca · Dizionario · Ripasso · Impostazioni</td><td data-l="Onde">barra de abas, menus</td></tr>
-        <tr><td>Rótulos e botões</td><td data-l="PT">Mostrar tradução · Continuar lendo</td><td data-l="IT" lang="it">Mostra traduzione · Continua a leggere</td><td data-l="Onde">botões, avisos, títulos de tela</td></tr>
+        <tr><td>Navegação</td><td data-l="PT">Biblioteca · Dicionário · Revisão · Ajustes</td><td data-l="IT" lang="it">Biblioteca · Dizionario · Ripasso · Impostazioni</td><td data-l="Onde">barra de abas, menus, nomes de gênero e tema, “Sem tradução”</td></tr>
+        <tr><td>Rótulos e botões</td><td data-l="PT">Mostrar tradução · Continuar lendo</td><td data-l="IT" lang="it">Mostra traduzione · Continua a leggere</td><td data-l="Onde">botões, avisos, títulos de tela, inclusive os do Dicionário</td></tr>
         <tr><td>Dicionário</td><td data-l="PT">Janela pequena, sobretudo de um veículo.</td><td data-l="IT" lang="it">Piccola finestra, in particolare quella di un veicolo.</td><td data-l="Onde">definições do verbete</td></tr>
-        <tr><td>Glosas e tradução</td><td data-l="PT">janela (de trem, carro, avião)</td><td data-l="IT" lang="it">piccola finestra (di treno, auto, aereo)</td><td data-l="Onde">glosa curta atrás de “Mostrar tradução”</td></tr>
+        <tr><td>Glosas</td><td data-l="PT">janela (de trem, carro, avião)</td><td data-l="IT" lang="it">piccola finestra (di treno, auto, aereo)</td><td data-l="Onde">só a glosa do verbete; com Italiano, a pílula de glosa não aparece</td></tr>
       </tbody>
     </table>
     <dl class="book-spec">
-      <dt>Iniciante</dt><dd>Tudo em português. É o padrão de quem instala o app.</dd>
+      <dt>Iniciante</dt><dd>Tudo em português. É o padrão de quem instala o app, sem perguntar.</dd>
       <dt>Intermediário</dt><dd>Navegação, rótulos e glosas em português; dicionário em italiano.</dd>
       <dt>Imersão total</dt><dd>As quatro áreas em italiano.</dd>
       <dt>Personalizado</dt><dd>Qualquer outra combinação. Mexer numa área desmarca a predefinição; tocar numa predefinição reescreve as quatro áreas.</dd>
+      <dt>Tradução da história</dt><dd>Fica fora da Imersão: é sempre na língua nativa, em qualquer predefinição (TRA-09).</dd>
       <dt>Controle</dt><dd><code>.ui-segmented</code> com <code>role="group"</code> e o nome da área como rótulo; cada botão usa <code>aria-pressed</code>. Predefinições são <code>.ui-chip</code>. A frase de resumo é <code>aria-live="polite"</code>.</dd>
       <dt>Efeito</dt><dd>Imediato, sem botão de salvar. A barra de abas da própria tela muda na hora, então ela serve de prévia.</dd>
-      <dt>Em aberto</dt><dd>O que a tradução dividida do Leitor faz com Glosas = Italiano fica para o livro do Leitor.</dd>
     </dl>
   </div>
 </section>
@@ -429,28 +694,44 @@
         <figcaption><span class="book-dd__tag book-dd__tag--dont"><i data-lucide="x" aria-hidden="true"></i>Não faça</span><br>Não pinte o progresso de amarelo ao lado da barra de abas. São dois amarelos na mesma tela.</figcaption>
       </figure>
       <figure>
-        <div class="book-dd__stage"><div data-card-mini="0"></div></div>
+        <div class="book-dd__stage"><div data-status-demo="new"></div><div data-card="Il mercato di Ballarò"></div></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--do"><i data-lucide="check" aria-hidden="true"></i>Faça</span><br>Histórias novas falam na linha de status e no “Chegou agora” do card, em tinta, até a primeira abertura.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage"><span class="lib-bad-badge">Novo</span><p class="lib-top0" style="font:var(--type-heading)" lang="it">Il mercato di Ballarò</p><div class="lib-tabdemo" data-tabs="0"></div></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--dont"><i data-lucide="x" aria-hidden="true"></i>Não faça</span><br>Não use selo colorido, toast que some, seção “Novidades” nem contagem na aba.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage"><div data-status-demo="notice"></div></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--do"><i data-lucide="check" aria-hidden="true"></i>Faça</span><br>O aviso de atualizar é uma linha em tinta, com o caminho para a loja. Nada fica bloqueado.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage"><div class="lib-bad-banner"><i data-lucide="x" aria-hidden="true"></i>Erro de sincronização. Tente de novo.</div></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--dont"><i data-lucide="x" aria-hidden="true"></i>Não faça</span><br>Não trate formato desconhecido ou falta de rede como erro: sem vermelho, sem “tente de novo”, sem banner sobre a lista.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage"><div class="lib-cq" data-facets="a2|Conto,Fábula,Lenda|"></div></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--do"><i data-lucide="check" aria-hidden="true"></i>Faça</span><br>Facetas neutras; a ativa fica em tinta e o texto diz o que filtra.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage"><div class="lib-row"><span class="lib-bad-chip" style="background:var(--color-level-a1-bg)">A1</span><span class="lib-bad-chip" style="background:var(--color-level-b2-bg)">A2</span><span class="lib-bad-chip" style="background:var(--color-error-soft)">Mistério</span><span class="lib-bad-chip" style="background:var(--color-accent-soft)">Viagem</span><span class="lib-bad-chip">Comida</span><span class="lib-bad-chip">Natal</span><span class="lib-bad-chip">+ 86</span></div></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--dont"><i data-lucide="x" aria-hidden="true"></i>Não faça</span><br>Não volte aos chips: com 92 temas eles não cabem, e uma cor por nível ou gênero briga com a etiqueta do card.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage"><div data-card="Lettera da Trieste"></div></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--do"><i data-lucide="check" aria-hidden="true"></i>Faça</span><br>Título e subtítulo em italiano, metadados em português. Sem tradução é uma nota discreta, não um aviso.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage"><p class="lib-top0" style="font:var(--type-heading)" lang="it">Un caffè al banco</p><p class="lib-bad-tr lib-top0">Um café no balcão</p></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--dont"><i data-lucide="x" aria-hidden="true"></i>Não faça</span><br>Não traduza o título no card.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage"><div data-card-mini="Domenica dalla nonna"></div></div>
         <figcaption><span class="book-dd__tag book-dd__tag--do"><i data-lucide="check" aria-hidden="true"></i>Faça</span><br>Mostre o progresso como uma linha e um número.</figcaption>
       </figure>
       <figure>
-        <div class="book-dd__stage"><div class="lib-bad-stat"><span>5 dias seguidos</span><span>+120 XP</span><span>Nível 3</span></div><p style="margin:0;font:var(--type-heading)" lang="it">Il treno per Bologna</p></div>
+        <div class="book-dd__stage"><div class="lib-bad-stat"><span>5 dias seguidos</span><span>+120 XP</span><span>Nível 3</span></div><p class="lib-top0" style="font:var(--type-heading)" lang="it">Il treno per Bologna</p></div>
         <figcaption><span class="book-dd__tag book-dd__tag--dont"><i data-lucide="x" aria-hidden="true"></i>Não faça</span><br>Não ponha sequência, XP ou troféus na Biblioteca. Quem lê não está competindo.</figcaption>
-      </figure>
-      <figure>
-        <div class="book-dd__stage"><div class="lib-row"><button class="ui-chip" type="button" tabindex="-1" aria-pressed="true">A1</button><button class="ui-chip" type="button" tabindex="-1" aria-pressed="false">A2</button><button class="ui-chip" type="button" tabindex="-1" aria-pressed="false">Mistério</button><button class="ui-chip" type="button" tabindex="-1" aria-pressed="false">Viagem</button></div></div>
-        <figcaption><span class="book-dd__tag book-dd__tag--do"><i data-lucide="check" aria-hidden="true"></i>Faça</span><br>Chips neutros; o selecionado fica em tinta.</figcaption>
-      </figure>
-      <figure>
-        <div class="book-dd__stage"><div class="lib-row"><span class="lib-bad-chip" style="background:var(--color-level-a1-bg)">A1</span><span class="lib-bad-chip" style="background:var(--color-level-b2-bg)">A2</span><span class="lib-bad-chip" style="background:var(--color-error-soft)">Mistério</span><span class="lib-bad-chip" style="background:var(--color-accent-soft)">Viagem</span></div></div>
-        <figcaption><span class="book-dd__tag book-dd__tag--dont"><i data-lucide="x" aria-hidden="true"></i>Não faça</span><br>Não dê uma cor a cada nível ou gênero no filtro. A cor do nível mora só na etiqueta do card.</figcaption>
-      </figure>
-      <figure>
-        <div class="book-dd__stage"><div data-card-mini="1"></div></div>
-        <figcaption><span class="book-dd__tag book-dd__tag--do"><i data-lucide="check" aria-hidden="true"></i>Faça</span><br>Título e subtítulo em italiano, metadados em português. História nova não leva selo.</figcaption>
-      </figure>
-      <figure>
-        <div class="book-dd__stage"><span class="lib-bad-badge">Novo</span><p style="margin:0;font:var(--type-heading)" lang="it">Un caffè al banco</p><p class="lib-bad-tr" style="margin:0">Um café no balcão</p></div>
-        <figcaption><span class="book-dd__tag book-dd__tag--dont"><i data-lucide="x" aria-hidden="true"></i>Não faça</span><br>Não traduza o título no card nem marque “Novo” em quase todo o catálogo.</figcaption>
       </figure>
     </div>
   </div>
@@ -458,181 +739,604 @@
 
 </main>
 
-<footer class="book-footer"><div class="book-wrap">Postilla · sistema v0.2 · Biblioteca · tokens em <code>tokens.css</code> · componentes em <code>book.css</code></div></footer>
+<footer class="book-footer"><div class="book-wrap">Postilla · sistema v0.4 · Biblioteca · tokens em <code>tokens.css</code> · componentes em <code>book.css</code></div></footer>
 
 <script>
 (() => {
-  /* ---------- data: catalogue from content.md ---------- */
-  const STORIES = [
-    { t: 'Il treno per Bologna', lv: 'a2', g: 'Viagem', min: 4, st: 'reading', p: 38, sub: 'Marta va a trovare la nonna dopo due anni.' },
-    { t: 'Un caffè al banco', lv: 'a1', g: 'Cotidiano', min: 3, st: 'new', sub: 'Come si ordina un caffè in un bar italiano.' },
-    { t: 'La nonna e il basilico', lv: 'a1', g: 'Família', min: 3, st: 'new', sub: 'Un vaso sul balcone e una ricetta di famiglia.' },
-    { t: 'La chiave sotto il vaso', lv: 'a2', g: 'Mistério', min: 6, st: 'new', sub: 'Una porta chiusa, un vicino curioso.' },
-    { t: 'Il mercato di Ballarò', lv: 'b1', g: 'Viagem', min: 7, st: 'new', sub: 'Colori, voci e odori di Palermo.' },
-    { t: 'Pinocchio, capitolo primo (adattato)', lv: 'b1', g: 'Clássicos', min: 9, st: 'new', sub: 'Mastro Ciliegia trova un pezzo di legno che parla.' },
-    { t: 'Lettera da Trieste', lv: 'b1', g: 'Cartas', min: 8, st: 'done', sub: 'Una lettera al fratello, tra vento e caffè.' },
-    { t: 'L’ultimo autobus', lv: 'b2', g: 'Conto', min: 10, st: 'new', sub: 'Mezzanotte, una fermata vuota, un autista che aspetta.' },
-  ];
-  const LEVELS = ['a1', 'a2', 'b1', 'b2'];
-  const GENRES = ['Viagem', 'Cotidiano', 'Família', 'Mistério', 'Clássicos', 'Cartas', 'Conto'];
-  const STATE_LABEL = { reading: '38% lido (em andamento)', new: 'nova', done: 'concluída' };
+  /* ---------- data: the supposed library (content.md titles + the chosen mocks + public-domain classics) ----------
+     row = level | minutes | genre | tags | title | subtitle | flags
+     flags (";"): n=m:ss narration · p=NN in progress · d done · N arrived through a sync · x no translation · a=author */
+  const RAW = `
+a1|2|Fábula|Animais,Família|Il gatto di Marco|Un gatto arancione che non vuole uscire.|
+a1|2|Diálogo|Mercado,Comida|Al mercato|Quanto costano le pesche oggi?|n=1:48
+a1|2|Diálogo|Café,Amizade|Un cappuccino, per favore|Due amiche, un tavolino e una brioche.|n=1:55
+a1|2|Cotidiano|Casa,Família|La mattina di Luca|Sveglia, doccia, colazione e via.|d
+a1|2|Diálogo|Trem,Roma|Un biglietto per Roma|Andata e ritorno, binario tre.|n=1:50;d
+a1|2|Cotidiano|Família,Fotografia|La foto sul frigorifero|Chi sono queste persone al mare?|
+a1|3|Cotidiano|Café,Cidade|Un caffè al banco|Come si ordina un caffè in un bar italiano.|n=2:51
+a1|3|Conto|Nonna,Cozinha,Família|La nonna e il basilico|Un vaso sul balcone e una ricetta di famiglia.|
+a1|3|Crônica|Escola,Infância|Il primo giorno di scuola|Uno zaino nuovo e troppe domande.|
+a1|3|Fábula|Animais,Campo,Cidade|Il topo di campagna e il topo di città|Due cugini, due case, due modi di vivere.|n=2:40
+a1|3|Cotidiano|Comida,Família|La pizza del sabato|Ogni sabato, la stessa pizzeria sotto casa.|
+a1|3|Diálogo|Cidade,Turismo|Dov’è la stazione?|Una turista, una mappa e un vigile gentile.|d
+a1|3|Fábula|Animais|La lepre e la tartaruga|Chi va piano va sano e va lontano.|n=2:58;d
+a1|3|Diálogo|Comida,Restaurante|Al ristorante|Che cosa prendete da bere?|n=2:35
+a1|3|Cotidiano|Animais,Família|Il cane di Giulia|Fido aspetta sempre davanti alla porta.|
+a1|3|Diálogo|Hotel,Turismo|In albergo|Ho una prenotazione a nome Rossi.|n=2:30
+a1|4|Conto|Mar,Verão,Infância,Sorvete|Una giornata al mare|Secchiello, ombrellone e un gelato che si scioglie.|n=3:30
+a1|4|Cotidiano|Pão,Trabalho|Il fornaio di via Garibaldi|Il pane è pronto alle cinque del mattino.|
+a1|4|Crônica|Escola,Amizade|Il compagno di banco|Matteo parla poco, ma disegna benissimo.|
+a1|4|Conto|Natal,Neve,Família|La neve a Natale|Quest’anno la neve arriva davvero.|
+a1|4|Lenda|Mar,Sicília|Colapesce|Un ragazzo che vive sotto il mare di Messina.|n=3:44
+a1|4|Crônica|Futebol,Família,Nonno|La partita della domenica|Tutti allo stadio, anche il nonno.|
+a1|4|Fábula|Animais,Verão,Inverno|La cicala e la formica|Un’estate di canzoni e un inverno di fame.|n=3:20
+a1|4|Cotidiano|Comida,Mercado|La lista della spesa|Latte, pane, uova e qualcosa di dolce.|
+a2|3|Fábula|Animais,Comida|La volpe e l’uva|Una volpe affamata e un grappolo troppo alto.|n=2:05
+a2|3|Fábula|Animais,Comida|Il lupo e la cicogna|Un osso in gola e una promessa.|
+a2|3|Fábula|Animais,Amizade|Il leone e il topo|Anche il più piccolo può aiutare il più forte.|
+a2|3|Cotidiano|Café,Casa|La moka|Il rumore del caffè che sale.|n=2:44;d
+a2|4|Viagem|Trem,Emília-Romanha|Il treno per Bologna|Marta va a trovare la nonna dopo due anni.|n=4:12;p=38
+a2|4|Conto|Nonna,Comida,Família|Domenica dalla nonna|Il ragù cuoce dalle sette del mattino.|n=3:40;p=40
+a2|4|Lenda|Natal,Família|La Befana viene di notte|Una scopa, un sacco e il camino di casa.|n=3:22
+a2|4|Conto|Nonna,Família,Cozinha|La nonna non sbaglia mai|Ogni ricetta ha un segreto, e lei non lo dice.|
+a2|4|Fábula|Animais,Floresta|Il corvo e la volpe|Un pezzo di formaggio e troppi complimenti.|n=3:15
+a2|4|Fábula|Animais,Infância,Campo|Il ragazzo che gridava al lupo|Una bugia, due bugie, e poi nessuno ci crede.|
+a2|4|Lenda|Montanha,Alpes|La regina delle Dolomiti|Perché le montagne diventano rosa al tramonto.|
+a2|4|Conto|Vizinhos,Música,Cidade|Il vicino del terzo piano|Ogni sera, alle nove, suona il violino.|
+a2|4|Diálogo|Trabalho|Il colloquio di lavoro|Perché vuole lavorare con noi?|
+a2|4|Cartas|Família,Turim|Cartolina da Torino|Cari genitori, qui fa freddo ma sto bene.|
+a2|4|Diálogo|Saúde|Dal medico|Da quanto tempo ha la febbre?|d
+a2|5|Conto|Nonna,Comida,Natal|I tortellini della nonna|La vigilia di Natale in una cucina di Modena.|n=4:30
+a2|5|Lenda|Natal,Comida,Cidade|Il panettone di Milano|Un garzone, un dolce sbagliato, una città intera.|
+a2|5|Fábula|Animais,Campo|La gallina dalle uova d’oro|Un contadino che non sa aspettare.|
+a2|5|Lenda|Roma,Cidade,Irmãos|Romolo e Remo|Due gemelli, una lupa e una città sul Tevere.|n=4:40
+a2|5|Lenda|Veneza,Cidade,Mar|Il leone di San Marco|Perché Venezia ha un leone con le ali.|n=4:18
+a2|5|Conto|Escola,Amizade,Segredo|Il segreto di Sara|Un quaderno rosso nascosto sotto il banco.|
+a2|5|Conto|Festas,Aniversário,Família,Infância|La festa di compleanno|Dieci candeline e un regalo misterioso.|
+a2|5|Crônica|Bicicleta,Cidade,Emília-Romanha|In bicicletta a Ferrara|La città dove tutti pedalano, anche i nonni.|n=4:50
+a2|5|Viagem|Veneza,Turismo,Cidade|Un giorno a Venezia|Vaporetto, calli e un caffè troppo caro.|n=4:35
+a2|5|Crônica|Mercado,Comida,Trabalho|Il mercato del giovedì|Il signor Enzo vende formaggi da quarant’anni.|
+a2|6|Lenda|Comida,Nápoles|La pizza della regina|Napoli, 1889: una pizza con i colori d’Italia.|n=5:12
+a2|6|Conto|Natal,Família,Comida|Una cena di Natale|Dodici persone, un tavolo, una sedia di troppo.|d
+a2|6|Conto|Família,Mar,Verão,Puglia|L’estate dei cugini|Tre settimane in Puglia, cinque cugini, una bicicletta sola.|
+a2|6|Lenda|Festas,Toscana,Cavalo|Il Palio di Siena|Dieci cavalli, una piazza, una corsa di novanta secondi.|
+a2|6|Mistério|Vizinhos,Casa,Segredo|La chiave sotto il vaso|Una porta chiusa, un vicino curioso.|
+a2|6|Mistério|Trem,Noite|Il passeggero senza biglietto|Sul regionale delle 23:40 c’è un uomo che non parla.|
+b1|5|Diálogo|Família,Telefone|Una telefonata alla mamma|Hai mangiato? Ti copri bene?|d
+b1|6|Conto|Cidade,Noite,Milão|L’ultimo tram|Una città vuota vista dal finestrino.|
+b1|6|Diálogo|Casa,Cidade,Milão|Cercasi appartamento|Due stanze, luminoso, vicino alla metro.|
+b1|6|Poesia em prosa|Chuva,Gênova,Mar|La pioggia su Genova|Ombrelli, vicoli e il mare grigio.|
+b1|6|Fábula|Animais,Liberdade|Il cane e il lupo|La libertà ha un prezzo, e anche la catena.|
+b1|6|Cotidiano|Cidade,Correio|All’ufficio postale|Numero 47. Ancora venti persone prima di me.|
+b1|6|Teatro|Família,Cozinha|La cena delle cinque sorelle|Un atto unico in una cucina troppo piccola.|
+b1|7|Viagem|Comida,Sicília,Mercado|Il mercato di Ballarò|Colori, voci e odori di Palermo.|n=6:40;N
+b1|7|Crônica|Café,Roma,Trabalho|Il barista di piazza Navona|Trent’anni di caffè e di turisti.|n=6:30;d
+b1|7|Crônica|Futebol,Roma,Amizade|Il derby|Una città divisa in due per novanta minuti.|
+b1|7|Cotidiano|Vespa,Roma,Trabalho|In motorino per Roma|Il traffico, i clacson e una consegna in ritardo.|
+b1|7|Biografia|Ciência,Guerra|Rita Levi-Montalcini|Una scienziata che studiava in camera da letto.|
+b1|7|Notícia adaptada|Bicicleta,Milão,Cidade|Milano in bicicletta|Nuove piste ciclabili, vecchie abitudini.|
+b1|7|Conto|Inverno,Amizade,Moda|Il cappotto rosso|Un regalo che nessuno voleva, tranne Anna.|
+b1|7|Viagem|Veneza,Carnaval,Festas|Carnevale a Venezia|Maschere, costumi e una città che si traveste.|n=6:45
+b1|8|Cartas|Família,Trieste|Lettera da Trieste|Una lettera al fratello, tra vento e caffè.|d;x
+b1|8|Clássicos|Escola,Infância|Il piccolo patriota padovano|Un ragazzo, tre stranieri e una manciata di monete.|a=Edmondo De Amicis
+b1|8|Mistério|Arte,Museu,Florença|Il quadro scomparso|Agli Uffizi manca un ritratto, e nessuno ha visto niente.|
+b1|8|Conto|Trabalho,Família,Memória|Il negozio di papà|Chiudere dopo cinquant’anni non è facile.|
+b1|8|Diálogo|Escola,Família|Il colloquio con i professori|Signora, suo figlio è bravo, ma parla troppo.|
+b1|8|Crônica|Mercado,Comida,Turim|Il mercato di Porta Palazzo|Il più grande mercato all’aperto d’Europa.|
+b1|8|Lenda|Toscana,Magia|Il ponte del diavolo|Un costruttore, un patto e un’anima da pagare.|
+b1|8|Biografia|Música,Ópera,Emília-Romanha|Giuseppe Verdi a Busseto|Il ragazzo che suonava l’organo della chiesa.|
+b1|9|Clássicos||Pinocchio, capitolo primo|Mastro Ciliegia trova un pezzo di legno che parla.|a=Carlo Collodi;n=8:05;N
+b1|9|Clássicos||Pinocchio, capitolo secondo|Mastro Ciliegia regala il pezzo di legno a Geppetto.|a=Carlo Collodi;n=8:20
+b1|9|Clássicos|Guerra,Sardenha|Il tamburino sardo|Un ragazzo, una battaglia e un messaggio da portare.|a=Edmondo De Amicis;x
+b1|9|Notícia adaptada|Mar,Animais,Sicília,Ilha|Le tartarughe di Lampedusa|Ogni estate tornano sulla stessa spiaggia.|n=8:10
+b1|9|Mistério|Lagos,Hotel,Polícia|Morte sul lago di Como|Un ospite dell’albergo non scende a colazione.|
+b1|9|Conto|Cozinha,Família,Comida,Segredo|La ricetta perduta|Nel quaderno della zia manca una pagina.|n=8:40
+b1|9|Mistério|Trem,Livros|Il treno delle 6:15|Ogni mattina la stessa donna, ogni mattina un libro diverso.|n=8:30
+b1|10|Clássicos||Pinocchio, capitolo terzo|Geppetto fabbrica il burattino e lo chiama Pinocchio.|a=Carlo Collodi
+b1|10|Viagem|Montanha,Alpes,Comida|Il rifugio sopra le nuvole|Tre ore di sentiero e una polenta che vale la fatica.|n=9:12
+b1|10|Ficção científica|Robôs,Língua,Futuro|Il robot che imparava l’italiano|Sa mille parole ma non capisce le battute.|n=9:40
+b1|11|Lenda|Mar,Nápoles|La sirena Partenope|Il canto che ha dato il nome a Napoli.|n=10:05
+b1|11|Conto|Imigração,Mar,Nápoles,Família|La valigia di cartone|Partire da Napoli per l’America nel 1910.|
+b1|12|Romance (capítulo)|Sardenha,Campo|Canne al vento, capitolo primo|Efix guarda il podere delle sue padrone.|a=Grazia Deledda
+b2|7|Poesia em prosa|Verão,Mar|Agosto|Il paese si svuota, il mare si riempie.|
+b2|8|Crônica|Trem,Trabalho,Milão|Pendolari|Due ore al giorno sul treno, da vent’anni.|
+b2|8|Crônica|Azeite,Puglia,Campo,Comida|La raccolta delle olive|Novembre in Puglia, reti e mani fredde.|n=7:50
+b2|8|Cotidiano|Casa,Família,Memória|Il trasloco|Trent’anni di cose in quaranta scatoloni.|
+b2|8|Crônica|Futebol,Infância,Amizade|Il campetto|Due zaini per porta e nessun arbitro.|
+b2|9|Clássicos|Sicília,Família|La roba|Mazzarò e tutto quello che possiede.|a=Giovanni Verga;x
+b2|9|Ensaio curto|Gestos,Língua|Perché gli italiani parlano con le mani|Una piccola storia dei gesti.|n=8:30
+b2|9|Diálogo|Trabalho,Humor|La riunione|Il capo ha un’idea. Di nuovo.|
+b2|9|Notícia adaptada|Nápoles,Trabalho|I nuovi artigiani di Napoli|Giovani che riaprono le botteghe dei nonni.|
+b2|9|Mistério|Livros,Segredo|La biblioteca chiusa|Un libro restituito con quarant’anni di ritardo.|
+b2|10|Conto|Cidade,Noite|L’ultimo autobus|Mezzanotte, una fermata vuota, un autista che aspetta.|N
+b2|10|Biografia|Ciência,Rádio,Bolonha|Marconi e la radio|Un ragazzo di Bologna manda un segnale oltre l’oceano.|
+b2|10|Teatro|Segredo,Vizinhos|Così è (se vi pare), scena prima|Chi è davvero la signora Frola?|a=Luigi Pirandello
+b2|10|Clássicos|Comida,Florença|Chichibio e la gru|Un cuoco veneziano e una gru con una zampa sola.|a=Giovanni Boccaccio
+b2|10|Viagem|Sardenha,Mar,Turismo|Sardegna fuori stagione|Le spiagge vuote e i paesi dell’interno.|n=9:45
+b2|10|Ficção científica|Jornal,Futuro,Cidade|L’ultimo giornale di carta|Nel 2060 un’edicola resiste ancora.|
+b2|11|Mistério|Música,Polícia,Bolonha|Il commissario e il violinista|Un concerto interrotto e un violino che vale una fortuna.|
+b2|11|Conto|Guerra,Memória,Família,Nonno|Le lettere del nonno|Una scatola in soffitta, lettere dal fronte.|
+b2|11|Mistério|Arte,Sicília,Polícia,Chuva|Il furto del Caravaggio|Palermo, 1969: un quadro sparisce in una notte di pioggia.|
+b2|11|Lenda|Mar,Sicília,Magia|La Fata Morgana|Sullo Stretto di Messina appaiono città che non esistono.|
+b2|12|Clássicos|Sicília,Trabalho|Rosso Malpelo|Un ragazzo dai capelli rossi nella cava di sabbia.|a=Giovanni Verga;n=11:30;p=12
+b2|12|Ficção científica|Futuro,Roma,Tecnologia|Roma 2100|Il Colosseo sotto una cupola di vetro.|
+b2|12|Conto|Neve,Montanha,Alpes|La valanga|Un paese di montagna isolato per tre giorni.|
+b2|12|Conto|Amor,Roma|Un appuntamento a Trastevere|Lei è in ritardo, lui è in anticipo.|
+b2|13|Notícia adaptada|Veneza,Mar,Chuva|L’acqua alta|Quando la piazza diventa una laguna.|n=12:20
+b2|13|Biografia|Arte,Roma|Artemisia Gentileschi|Una pittrice nella Roma del Seicento.|
+b2|13|Clássicos|Florença,Magia|Calandrino e l’elitropia|La pietra che rende invisibili, o quasi.|a=Giovanni Boccaccio
+b2|14|Romance (capítulo)|Sicília,Mar,Família,Pesca|I Malavoglia, capitolo primo|La famiglia Toscano e la barca Provvidenza.|a=Giovanni Verga;n=13:40
+b2|14|Outros|Cinema,Roma|Cinecittà|Gli studi dove è nato il cinema italiano.|n=13:10
+c1|8|Outros|Ópera,Música,Estrelas|Una sera all’Arena|Aida sotto le stelle di Verona.|
+c1|9|Poesia em prosa|Inverno,Campo,Emília-Romanha|Nebbia in Val Padana|Quando il mondo finisce a dieci metri.|
+c1|10|Notícia adaptada|Mar,Ciência,Pesca|Il Mediterraneo si scalda|Pesci tropicali nei mari italiani.|
+c1|10|Ficção científica|Robôs,Nonna,Tecnologia|La badante elettronica|Un robot per la nonna, ma la nonna non è d’accordo.|
+c1|11|Ensaio curto|Língua,Dialeto|L’italiano e i dialetti|Una lingua per scrivere, cento per parlare.|
+c1|11|Conto|Amor,Casamento,Fotografia|Il fotografo di matrimoni|Ha visto mille sì, e nessuno il suo.|
+c1|12|Clássicos|Campo,Sicília|La giara|Una giara enorme, rotta, e un artigiano che ci resta dentro.|a=Luigi Pirandello
+c1|12|Mistério|Bolonha,Polícia,Noite|Il portico dei sospetti|Bologna, quaranta chilometri di portici e un testimone.|
+c1|12|Viagem|Puglia,Trem,Azeite|Il Salento in treno|Littorine, ulivi e mare da tutte e due le parti.|n=11:40
+c1|13|Teatro|Veneza,Vizinhos|Il campiello, scena prima|Una piazzetta veneziana e i suoi pettegolezzi.|a=Carlo Goldoni
+c1|13|Crônica|Roma,Verão,Turismo|Roma d’agosto|La città vuota, le persiane chiuse, i turisti.|
+c1|13|Lenda|Florença,Magia|Il diavolo e Firenze|Perché il vento soffia sempre in piazza del Duomo.|
+c1|14|Clássicos|Sicília,Lua,Trabalho|Ciàula scopre la luna|Un minatore esce dalla zolfara e vede la luna.|a=Luigi Pirandello;n=13:30
+c1|14|Conto|Imigração,Trabalho|Il cantiere|Un muratore senegalese a Brescia.|
+c1|15|Biografia|Ciência,Roma|I ragazzi di via Panisperna|Enrico Fermi e un gruppo di fisici giovanissimi.|
+c1|15|Clássicos|Amor,Florença,Comida|Federigo degli Alberighi|Un falcone, una dama e una cena povera.|a=Giovanni Boccaccio
+c1|16|Romance (capítulo)|Trieste,Memória|La coscienza di Zeno, il fumo|L’ultima sigaretta, sempre l’ultima.|a=Italo Svevo
+c1|16|Ensaio curto|Comida,Família|Elogio della lentezza a tavola|Il pranzo della domenica come forma di resistenza.|n=15:10
+c1|17|Clássicos|Mar,Barco|Il Corsaro Nero, capitolo primo|Una nave di filibustieri nel mare dei Caraibi.|a=Emilio Salgari
+c2|12|Poesia em prosa|Gênova,Mar,Noite|Notturno sul porto|Gru, gabbiani e luci di Genova.|
+c2|12|Cartas|Amor,Roma,Arte,Turim|Lettere da Roma|Un pittore scrive alla moglie rimasta a Torino.|
+c2|13|Biografia|Arte,Nápoles|Caravaggio in fuga|Da Roma a Napoli a Malta, sempre un passo avanti.|
+c2|14|Ensaio curto|Língua,Comida|Tradurre la pizza|Che cosa si perde, e che cosa si trova, in traduzione.|
+c2|14|Crônica|Fábrica,Trabalho,Tecnologia|L’ultima fabbrica|Gli operai di Ivrea raccontano l’Olivetti.|
+c2|15|Clássicos|Sicília,Guerra|Libertà|Bronte, 1860: una rivolta raccontata da Verga.|a=Giovanni Verga
+c2|15|Teatro|Família,Segredo|Sei personaggi, l’ingresso|Sei sconosciuti interrompono una prova.|a=Luigi Pirandello
+c2|16|Notícia adaptada|Montanha,Campo|Le città che si svuotano|Paesi dell’Appennino con più case che abitanti.|
+c2|17|Mistério|Trieste,Café,Segredo|Un caffè a Trieste|Al Caffè San Marco qualcuno lascia sempre lo stesso biglietto.|
+c2|18|Clássicos|Memória|Il fu Mattia Pascal, premessa|Una delle poche cose che sapevo di certo era il mio nome.|a=Luigi Pirandello
+c2|18|Ficção científica|Livros,Futuro,Estrelas|La biblioteca di Marte|L’ultima copia di Dante a cento milioni di chilometri.|
+c2|19|Conto|Nápoles,Família,Memória,Nonno|La casa di via Toledo|Tre generazioni nello stesso appartamento napoletano.|n=18:20
+c2|20|Outros|Cinema,Roma,Bicicleta|Il neorealismo|Ladri di biciclette e una Roma da ricostruire.|`;
+
+  const STORIES = RAW.trim().split('\n').map((line, i) => {
+    const [lv, min, g, tags, t, sub, flags = ''] = line.split('|');
+    const s = { id: i, lv, min: +min, g, tags: tags ? tags.split(',') : [], t, sub, st: 'new', p: 0, narr: '', by: '', arrived: false, noTr: false };
+    flags.split(';').filter(Boolean).forEach(f => {
+      if (f.startsWith('n=')) s.narr = f.slice(2);
+      else if (f.startsWith('p=')) { s.st = 'reading'; s.p = +f.slice(2); }
+      else if (f.startsWith('a=')) s.by = f.slice(2);
+      else if (f === 'd') s.st = 'done';
+      else if (f === 'N') s.arrived = true;
+      else if (f === 'x') s.noTr = true;
+    });
+    return s;
+  });
+  const byTitle = t => STORIES.find(s => s.t === t);
+  const HERO = byTitle('Il treno per Bologna');      /* last opened story still in progress (BIB-03) */
+  const LEVELS = ['a1', 'a2', 'b1', 'b2', 'c1', 'c2'];
   const ORDER = { reading: 0, new: 1, done: 2 };
   const TABS_PT = ['Biblioteca', 'Dicionário', 'Revisão', 'Ajustes'];
   const TABS_IT = ['Biblioteca', 'Dizionario', 'Ripasso', 'Impostazioni'];
-  const TAB_ICONS = ['library-big', 'book-a', 'check', 'settings-2'];   /* 'check' = placeholder da aba Revisão até o ícone pedido ao brand lead (book-revisao › Em aberto) */
+  const TAB_ICONS = ['library-big', 'book-a', 'check', 'settings-2'];   /* 'check' = Revisão placeholder until the brand lead picks one (book-revisao › Em aberto A1) */
+  /* Navigation = Italiano preview only (one card) */
+  const IT_NAMES = { 'Clássicos': 'Classici', 'Guerra': 'Guerra', 'Sardenha': 'Sardegna' };
 
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const fold = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
   const icons = () => { if (window.lucide) lucide.createIcons({ attrs: { 'stroke-width': 1.5, width: 24, height: 24 } }); };
-  const sortStories = a => a.slice().sort((x, y) => ORDER[x.st] - ORDER[y.st] || x.lv.localeCompare(y.lv) || x.min - y.min);
+  const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+  const nHist = n => plural(n, 'história', 'histórias');
+  const joinOr = a => a.length < 2 ? a.join('') : `${a.slice(0, -1).join(', ')} ou ${a[a.length - 1]}`;
   const pinAttr = (o, n) => (o && o.anat && n ? ` data-pin="${n}"` : '');
   const tabAttr = o => (o && o.inert ? ' tabindex="-1"' : '');
   const FORCE = { hover: ' is-hover', press: ' is-active', focus: ' is-focus' };   /* frozen states for the state grids */
+  const narrLabel = m => { const [a, b] = m.split(':').map(Number); return `narração de ${a} min${b ? ` ${b} s` : ''}`; };
+  const sortBase = (x, y) => LEVELS.indexOf(x.lv) - LEVELS.indexOf(y.lv) || x.min - y.min || x.id - y.id;
+  const sortResults = a => a.slice().sort((x, y) => ORDER[x.st] - ORDER[y.st] || sortBase(x, y));
+
+  /* ---------- facets (BIB-05, BIB-14) ---------- */
+  const FACETS = {
+    lv: { name: 'Nível', one: 'nível', many: 'níveis', others: '', label: v => v.toUpperCase(), has: (s, v) => s.lv === v },
+    g:  { name: 'Gênero', one: 'gênero', many: 'gêneros', others: 'Outros gêneros', label: v => v, has: (s, v) => s.g === v },
+    tg: { name: 'Tema', one: 'tema', many: 'temas', others: 'Outros temas', label: v => v, has: (s, v) => s.tags.includes(v) },
+  };
+  const KEYS = ['lv', 'g', 'tg'];
+  const VALUES = {
+    lv: LEVELS.filter(l => STORIES.some(s => s.lv === l)),
+    g: [...new Set(STORIES.map(s => s.g))],
+    tg: [...new Set(STORIES.flatMap(s => s.tags))],
+  };
+  const TOTAL = {};   /* stories on the device per value */
+  KEYS.forEach(k => { TOTAL[k] = {}; VALUES[k].forEach(v => { TOTAL[k][v] = STORIES.filter(s => FACETS[k].has(s, v)).length; }); });
+  const outrosLast = (a, b) => (a === 'Outros') - (b === 'Outros');
+  const alpha = (a, b) => outrosLast(a, b) || a.localeCompare(b, 'pt');
+
+  function hay(s) { return fold(`${s.t} ${s.sub} ${s.g} ${s.tags.join(' ')} ${s.by}`); }
+  function matches(s, st, skip) {
+    const q = fold(st.q.trim());
+    if (q && !hay(s).includes(q)) return false;
+    return KEYS.every(k => k === skip || !st.f[k].size || [...st.f[k]].some(v => FACETS[k].has(s, v)));
+  }
+  const countFor = (st, k, v) => STORIES.filter(s => matches(s, st, k) && FACETS[k].has(s, v)).length;
+  const filtered = st => KEYS.some(k => st.f[k].size);
+
+  /* order computed when the sheet opens, frozen while it stays open */
+  function freezeOrder(st, k) {
+    const n = {}; VALUES[k].forEach(v => { n[v] = countFor(st, k, v); });
+    const checked = v => st.f[k].has(v);
+    const byCount = (a, b) => outrosLast(a, b) || n[b] - n[a] || a.localeCompare(b, 'pt');
+    if (k === 'lv') return { n, top: [], rest: VALUES.lv.filter(v => checked(v) || n[v]), zero: VALUES.lv.filter(v => !checked(v) && !n[v]) };
+    return {
+      n,
+      top: VALUES[k].filter(checked).sort(byCount),
+      rest: VALUES[k].filter(v => !checked(v) && n[v]).sort(byCount),
+      zero: VALUES[k].filter(v => !checked(v) && !n[v]).sort(alpha),
+    };
+  }
+
+  function markMatch(name, q) {
+    if (!q) return esc(name);
+    const chars = [...name], map = []; let f = '';
+    chars.forEach((c, i) => { const fc = fold(c); for (const _ of fc) map.push(i); f += fc; });
+    const k = f.indexOf(q); if (k < 0) return esc(name);
+    const a = map[k], b = map[k + q.length - 1];
+    return esc(chars.slice(0, a).join('')) + '<b>' + esc(chars.slice(a, b + 1).join('')) + '</b>' + esc(chars.slice(b + 1).join(''));
+  }
 
   /* ---------- component templates ---------- */
+  function checkHTML(o) {   /* o: { name, n, total, checked, disabled, q, key, v, force, inert } */
+    const zero = o.disabled;
+    const count = zero ? `0 de ${o.total}<span class="visually-hidden"> histórias: nenhuma com os outros filtros</span>`
+                       : `${o.n}<span class="visually-hidden"> ${o.n === 1 ? 'história' : 'histórias'}</span>`;
+    const data = o.key ? ` data-k="${o.key}" data-v="${esc(o.v)}"` : '';
+    return `<label class="ui-check${FORCE[o.force] || ''}"><input class="visually-hidden" type="checkbox"${data}${o.checked ? ' checked' : ''}${zero ? ' disabled' : ''}${tabAttr(o)}>` +
+      `<span class="ui-check__box" aria-hidden="true"><i data-lucide="check"></i></span>` +
+      `<span class="ui-check__name">${markMatch(o.name, o.q ? fold(o.q) : '')}</span><span class="ui-check__n">${count}</span></label>`;
+  }
+  function moreHTML(text, open, o = {}) {
+    return `<button class="ui-sheet__more${FORCE[o.force] || ''}" type="button" data-act="more" aria-expanded="${!!open}"${tabAttr(o)}><span>${text}</span><i data-lucide="chevron-${open ? 'up' : 'down'}" aria-hidden="true"></i></button>`;
+  }
+  function footHTML(n, o = {}) {
+    return `<div class="ui-sheet__foot"><p class="visually-hidden" role="status" data-foot-status>${nHist(n)}</p><button class="ui-btn ui-btn--primary ui-btn--block" type="button" data-act="close"${tabAttr(o)}>Ver ${nHist(n)}</button></div>`;
+  }
+  function sheetHeadHTML(k, id, any, o = {}) {
+    const F = FACETS[k], count = k === 'lv' ? '' : `<span class="ui-sheet__count">${VALUES[k].length} ${F.many}</span>`;
+    return `<div class="ui-sheet__head"><h4 class="ui-sheet__title" id="${id}">${F.name}${count}</h4>` +
+      `<button class="ui-btn ui-btn--ghost ui-btn--sm" type="button" data-act="clear-facet" aria-label="Limpar ${F.one}"${any ? '' : ' disabled'}${tabAttr(o)}>Limpar</button></div>`;
+  }
+  function noteHTML(st, k) {   /* names the active facets and the search, never their values (BIB-14) */
+    const fs = KEYS.filter(x => x !== k && st.f[x].size).map(x => `<b>${FACETS[x].name}</b>`);
+    const parts = [];
+    if (fs.length) parts.push(fs.length === 1 ? `o filtro de ${fs[0]}` : `os filtros de ${fs.join(' e ')}`);
+    if (st.q.trim()) parts.push('a busca');
+    return parts.length ? `<p class="ui-sheet__note">Números contam ${parts.join(' e ')}.</p>` : '';
+  }
+  function sheetBodyHTML(st, k, ui) {
+    const F = FACETS[k], ord = ui.order, sq = fold(ui.q.trim());
+    const row = (v, zero) => checkHTML({ name: F.label(v), n: ord.n[v], total: TOTAL[k][v], checked: st.f[k].has(v), disabled: zero, q: sq, key: k, v });
+    const group = (label, count, aria, list) => `<p class="ui-label ui-sheet__group"><span>${label}</span>${count === '' ? '' : `<span>${count}</span>`}</p><div role="group" aria-label="${aria}">${list}</div>`;
+    if (sq) {
+      const all = [...ord.top, ...ord.rest, ...ord.zero].filter(v => fold(F.label(v)).includes(sq));
+      if (!all.length) return `<p class="ui-sheet__note" role="status">Nenhum ${F.one} com “${esc(ui.q.trim())}”.</p>`;   /* a miss is one line (BIB-14) */
+      const found = all.map(v => row(v, ord.zero.includes(v))).join('');
+      return group(`${all.length} de ${VALUES[k].length} ${F.many}`, '', `${F.name}: encontrados`, found) +
+        `<p class="ui-sheet__note">Sem acento e sem maiúsculas: “sicilia” acha Sicília. A busca olha só os nomes de ${F.one}.</p>`;
+    }
+    let html = '';
+    if (k === 'lv') html += `<div role="group" aria-label="Níveis">${ord.rest.map(v => row(v, false)).join('')}</div>`;
+    else if (ord.top.length) html += group('Marcados', ord.top.length, `${F.many[0].toUpperCase() + F.many.slice(1)} marcados`, ord.top.map(v => row(v, false)).join('')) +
+      (ord.rest.length ? group(F.others, ord.rest.length, F.others, ord.rest.map(v => row(v, false)).join('')) : '');
+    else html += `<div role="group" aria-label="${F.many[0].toUpperCase() + F.many.slice(1)}">${ord.rest.map(v => row(v, false)).join('')}</div>`;   /* nothing checked: no group label */
+    if (ord.zero.length) {
+      html += moreHTML(`${plural(ord.zero.length, F.one, F.many)} sem histórias com esses filtros`, ui.more);
+      if (ui.more) html += `<div role="group" aria-label="${F.many[0].toUpperCase() + F.many.slice(1)} sem histórias">${ord.zero.map(v => row(v, true)).join('')}</div>`;
+    }
+    return html;
+  }
+  function sheetHTML(st, k, ui, id) {
+    const F = FACETS[k], total = STORIES.filter(s => matches(s, st)).length;
+    const search = k === 'lv' ? '' :
+      `<div class="ui-search"><i data-lucide="search" aria-hidden="true"></i><input type="search" data-sheet-q aria-label="Buscar ${F.one}" placeholder="Buscar entre ${VALUES[k].length} ${F.many}" value="${esc(ui.q)}" autocomplete="off">` +
+      `<button type="button" class="ui-iconbtn ui-search__clear" data-act="clear-sheet-q" aria-label="Limpar busca"${ui.q ? '' : ' hidden'}><i data-lucide="x" aria-hidden="true"></i></button></div>`;
+    return `<div class="ui-sheet${k === 'lv' ? '' : ' ui-sheet--tall'}" role="dialog" aria-modal="true" aria-labelledby="${id}">` +
+      `<span class="ui-grip" aria-hidden="true"></span>` + sheetHeadHTML(k, id, st.f[k].size) + noteHTML(st, k) + search +
+      `<div class="ui-sheet__body" data-sheet-body>${sheetBodyHTML(st, k, ui)}</div>` + footHTML(total) + `</div>`;
+  }
+
+  function facetHTML(k, sel, o = {}) {
+    const F = FACETS[k], vals = [...sel];
+    const open = o.open ? 'true' : 'false';
+    let inner;
+    if (!vals.length) inner = F.name;
+    else if (vals.length === 1) inner = `<span class="visually-hidden">${F.name}: </span><span class="ui-facet__v">${esc(F.label(vals[0]))}</span>`;
+    else inner = `${F.name} · ${vals.length}<span class="visually-hidden"> selecionados</span>`;
+    return `<button class="ui-facet${vals.length ? ' is-selected' : ''}${FORCE[o.force] || ''}" type="button" data-facet-k="${k}" aria-haspopup="dialog" aria-expanded="${open}"${tabAttr(o)}>${inner}<i data-lucide="chevron-down" aria-hidden="true"></i></button>`;
+  }
+  function facetsHTML(st, o = {}) {
+    return `<div class="ui-facets" role="group" aria-label="Filtros"${pinAttr(o, 5)}>${KEYS.map(k => facetHTML(k, st.f[k], { inert: o.inert, open: o.openKey === k })).join('')}</div>`;
+  }
+
+  function kickerHTML(s, name, it) {   /* genre + at most 2 tags in feed order, then "+N": never cuts a name (BIB-01) */
+    const head = esc([s.g, ...s.tags.slice(0, 2)].map(name).join(' · ')), more = s.tags.length - 2;
+    return more > 0 ? `${head} · <span aria-hidden="true">+${more}</span><span class="visually-hidden">${it ? ` e altri ${more}` : ` e mais ${more}`}</span>` : head;
+  }
   function cardHTML(s, o = {}) {
+    const name = v => (o.it && IT_NAMES[v]) || v;
+    const pp = n => (o.pins ? ` data-pin="${n}"` : '');   /* card anatomy only */
     const status = s.st === 'reading'
-      ? `<span class="lib-card__status lib-card__status--pct"><span aria-hidden="true">${s.p}%</span><span class="visually-hidden">${s.p}% lido</span></span>`
-      : s.st === 'done' ? `<span class="lib-card__status"><i data-lucide="check" aria-hidden="true"></i>Lida</span>` : '';
+      ? `<span class="lib-card__status lib-card__status--ink"${pp(6)}><span aria-hidden="true">${s.p}%</span><span class="visually-hidden">${s.p}% lido</span></span>`
+      : s.st === 'done' ? `<span class="lib-card__status"${pp(6)}><i data-lucide="check" aria-hidden="true"></i>Lida</span>`
+      : s.arrived ? `<span class="lib-card__status lib-card__status--ink"${pp(6)}><span class="ui-dot" aria-hidden="true"></span>Chegou agora</span>` : '';
+    const narr = s.narr ? `<span class="lib-card__narr"${pp(5)}><i data-lucide="headphones" aria-hidden="true"></i><span aria-hidden="true">${s.narr}</span><span class="visually-hidden">${narrLabel(s.narr)}</span></span>` : '';
+    const flag = s.noTr ? `<span class="lib-card__flag"${o.it ? ' lang="it"' : ''}>${o.it ? 'Senza traduzione' : 'Sem tradução'}</span>` : '';
     const prog = s.st === 'reading' ? `<span class="ui-progress lib-card__progress" aria-hidden="true"><i style="--p:${s.p}%"></i></span>` : '';
-    const force = FORCE[o.force] || '';
-    return `<a class="lib-card${force}" href="#leitor"${tabAttr(o)}${pinAttr(o, o.pin)}>` +
-      `<span class="lib-card__title" lang="it">${esc(s.t)}</span>` +
-      `<span class="lib-card__sub" lang="it">${esc(s.sub)}</span>` +
-      `<span class="lib-card__meta"><span class="ui-level" data-level="${s.lv}">${s.lv.toUpperCase()}</span><span>${s.g} · ${s.min} min</span>${status}</span>` +
+    return `<a class="lib-card${FORCE[o.force] || ''}" href="#leitor" data-story="${s.id}"${tabAttr(o)}${o.pin ? pinAttr(o, o.pin) : ''}>` +
+      `<span class="lib-card__kicker"${o.it ? ' lang="it"' : ''}${pp(1)}>${kickerHTML(s, name, o.it)}</span>` +
+      `<span class="lib-card__title" lang="it"${pp(2)}>${esc(s.t)}</span>` +
+      (s.by ? `<span class="lib-card__by"${pp(3)}>${esc(s.by)}</span>` : '') +
+      `<span class="lib-card__sub" lang="it"${pp(4)}>${esc(s.sub)}</span>` +
+      `<span class="lib-card__meta"><span class="ui-level" data-level="${s.lv}">${s.lv.toUpperCase()}</span><span>${s.min} min</span>${narr}${flag}${status}</span>` +
       prog + `</a>`;
   }
   function heroHTML(s, o = {}) {
     const force = (FORCE[o.force] || '') + (o.mini ? ' ui-hero--compact' : '') + (o.anat ? ' lib-pin-top' : '');
     const fill = o.yellow ? 'background:var(--color-accent);' : '';   /* "não faça" sample only */
-    return `<a class="ui-hero${force}" href="#leitor"${tabAttr(o)}${pinAttr(o, 5)}>` +
+    const narr = s.narr ? `<span class="lib-card__narr"><i data-lucide="headphones" aria-hidden="true"></i><span aria-hidden="true">${s.narr}</span><span class="visually-hidden">${narrLabel(s.narr)}</span></span>` : '';
+    return `<a class="ui-hero${force}" href="#leitor"${tabAttr(o)}${pinAttr(o, 6)}>` +
       `<span class="ui-label">Continuar lendo</span>` +
       `<span class="ui-hero__title" lang="it">${esc(s.t)}</span>` +
       (o.mini ? '' : `<span class="ui-hero__sub" lang="it">${esc(s.sub)}</span>`) +
-      `<span class="ui-hero__meta"><span class="ui-level" data-level="${s.lv}">${s.lv.toUpperCase()}</span><span>${s.g} · ${s.min} min</span><span class="ui-hero__pct"><span aria-hidden="true">${s.p}%</span><span class="visually-hidden">${s.p}% lido</span></span></span>` +
+      `<span class="ui-hero__meta"><span class="ui-level" data-level="${s.lv}">${s.lv.toUpperCase()}</span><span>${s.min} min</span>${narr}<span class="ui-hero__pct"><span aria-hidden="true">${s.p}%</span><span class="visually-hidden">${s.p}% lido</span></span></span>` +
       `<span class="ui-progress" aria-hidden="true"><i style="--p:${s.p}%;${fill}"></i></span></a>`;
   }
   function secheadHTML(title, n, action, o = {}) {
-    const btn = action === 'filters' ? `<button class="ui-btn ui-btn--ghost ui-btn--sm ui-sechead__action" type="button" data-act="clear-filters"${tabAttr(o)}>Limpar filtros</button>` : '';
+    const btn = action ? `<button class="ui-btn ui-btn--ghost ui-btn--sm ui-sechead__action" type="button" data-act="clear-filters"${tabAttr(o)}>Limpar filtros</button>` : '';
     return `<div class="ui-sechead"${pinAttr(o, o.pin)}><p class="ui-sechead__title"><span class="ui-label">${title}</span><span class="ui-sechead__count">${n}</span></p>${btn}</div>`;
   }
-  function emptyHTML(q, o = {}) {
-    const text = q ? `Nada com “<span lang="it">${esc(q)}</span>”. Tente outra palavra.` : 'Nada com esses filtros. Tire um chip ou limpe todos.';
-    const btn = q ? `<button class="ui-btn ui-btn--secondary ui-btn--sm ui-empty__action" type="button" data-act="clear-q"${tabAttr(o)}>Limpar busca</button>`
-                  : `<button class="ui-btn ui-btn--secondary ui-btn--sm ui-empty__action" type="button" data-act="clear-filters"${tabAttr(o)}>Limpar filtros</button>`;
-    return `<div class="ui-empty"><span class="ui-empty__icon" aria-hidden="true"><i data-lucide="search"></i></span><p class="ui-empty__title">Nenhuma história encontrada</p><p class="ui-empty__text">${text}</p>${btn}</div>`;
+  function statusHTML(kind, o = {}) {
+    const n = kind === 'new1' ? 1 : STORIES.filter(s => s.arrived).length;
+    if (kind === 'notice') return `<div class="ui-statusline ui-statusline--notice" role="status"${pinAttr(o, 3)}><i data-lucide="circle-arrow-up" aria-hidden="true"></i>` +
+      `<span>Há histórias novas que esta versão do app não abre.</span>` +
+      `<a class="ui-statusline__link${FORCE[o.force] || ''}" href="#loja"${tabAttr(o)}>Atualizar na loja<i data-lucide="external-link" aria-hidden="true"></i></a></div>`;
+    if (kind === 'new' || kind === 'new1') return `<p class="ui-statusline" role="status"${pinAttr(o, 3)}><span class="ui-dot" aria-hidden="true"></span><span><b>${n === 1 ? '1 história nova' : `${n} histórias novas`}</b> ${n === 1 ? 'chegou' : 'chegaram'}</span></p>`;
+    return `<p class="ui-statusline" role="status"${pinAttr(o, 3)}>${plural(STORIES.length, 'história', 'histórias')} no aparelho</p>`;
   }
+  function emptyHTML(kind, st, o = {}) {
+    const q = st.q.trim(), qq = `“<span lang="it">${esc(q)}</span>”`;
+    const head = `<div class="ui-empty"><span class="ui-empty__icon" aria-hidden="true"><i data-lucide="search"></i></span><p class="ui-empty__title">Nenhuma história encontrada</p>`;
+    const headTight = `<div class="lib-empty"><div class="ui-empty ui-empty--compact"><p class="ui-empty__title">Nenhuma história encontrada</p>`;   /* two ways out: no icon, so both fit above the tab bar */
+    if (kind === 'q') return head + `<p class="ui-empty__text">Nada com ${qq}. Tente outra palavra.</p>` +
+      `<button class="ui-btn ui-btn--secondary ui-btn--sm ui-empty__action" type="button" data-act="clear-q"${tabAttr(o)}>Limpar busca</button></div>`;
+    if (kind === 'sync') return head + `<p class="ui-empty__text">Nenhuma história do aparelho tem esses filtros agora.</p>` +
+      `<button class="ui-btn ui-btn--secondary ui-btn--sm ui-empty__action" type="button" data-act="clear-filters"${tabAttr(o)}>Limpar filtros</button></div>`;
+    const nf = STORIES.filter(s => matches(s, { q: '', f: st.f })).length;
+    const nq = STORIES.filter(s => matches(s, { q: st.q, f: { lv: new Set(), g: new Set(), tg: new Set() } })).length;
+    const uid = 'lib-w' + (++emptyHTML.n);
+    const nff = `${nf} ${nf === 1 ? 'história filtrada' : 'histórias filtradas'}`;
+    return headTight + `<p class="ui-empty__text">Nenhuma das ${nff} fala de ${qq}.</p>` +
+      `<div class="lib-ways">` +
+      `<div class="lib-way"><button class="ui-btn ui-btn--secondary ui-btn--sm ui-btn--block" type="button" data-act="clear-q" aria-describedby="${uid}a"${tabAttr(o)}>Limpar busca</button><span class="lib-way__note" id="${uid}a">Volta às ${nff}</span></div>` +
+      `<div class="lib-way"><button class="ui-btn ui-btn--secondary ui-btn--sm ui-btn--block" type="button" data-act="clear-filters" aria-describedby="${uid}b"${tabAttr(o)}>Limpar filtros</button><span class="lib-way__note" id="${uid}b">Mostra ${nHist(nq)} com ${qq}</span></div>` +
+      `</div></div></div>`;
+  }
+  emptyHTML.n = 0;
   function tabbarHTML(active, it, o = {}) {
     const labels = it ? TABS_IT : TABS_PT;
     const tag = o.nav ? 'nav' : 'div';
     return `<${tag} class="ui-tabbar"${o.nav ? ' aria-label="Principal"' : ''}${pinAttr(o, o.pin)}>` + labels.map((l, i) =>
-      `<a class="ui-tab${o.focus === i ? ' is-focus' : ''}" href="#telas"${i === active ? ' aria-current="page"' : ''}${tabAttr(o)}><i data-lucide="${TAB_ICONS[i]}" aria-hidden="true"></i><span data-tab="${i}"${it ? ' lang="it"' : ''}>${l}</span></a>`).join('') + `</${tag}>`;
+      `<a class="ui-tab${o.focus === i ? ' is-focus' : ''}" href="#telas" data-tabi="${i}"${i === active ? ' aria-current="page"' : ''}${tabAttr(o)}><i data-lucide="${TAB_ICONS[i]}" aria-hidden="true"></i><span data-tab="${i}"${it ? ' lang="it"' : ''}>${l}</span></a>`).join('') + `</${tag}>`;
   }
 
   /* ---------- static state samples ---------- */
-  const reading = STORIES[0];
+  const emptyState = () => ({ q: '', f: { lv: new Set(), g: new Set(), tg: new Set() } });
   document.querySelectorAll('[data-hero]').forEach(el => {
     const v = el.dataset.hero;
-    el.innerHTML = heroHTML(reading, { inert: true, force: v, mini: v.startsWith('mini'), yellow: v === 'mini-yellow' });
+    el.innerHTML = heroHTML(HERO, { inert: true, force: v, mini: v.startsWith('mini'), yellow: v === 'mini-yellow' });
   });
-  document.querySelectorAll('[data-card]').forEach(el => { el.innerHTML = cardHTML(STORIES[+el.dataset.card], { inert: true, force: el.dataset.state }); });
-  document.querySelectorAll('[data-card-mini]').forEach(el => { el.innerHTML = cardHTML(STORIES[+el.dataset.cardMini], { inert: true }); });
-  document.querySelectorAll('[data-sechead]').forEach(el => { const [t, n, a] = el.dataset.sechead.split('|'); el.innerHTML = secheadHTML(t, n, a, { inert: true }); });
-  document.querySelectorAll('[data-empty]').forEach(el => { el.innerHTML = emptyHTML(el.dataset.empty, { inert: true }); });
+  document.querySelectorAll('[data-card]').forEach(el => { el.innerHTML = cardHTML(byTitle(el.dataset.card), { inert: true, force: el.dataset.state, it: el.hasAttribute('data-it') }); });
+  document.querySelectorAll('[data-card-mini]').forEach(el => { el.innerHTML = cardHTML(byTitle(el.dataset.cardMini), { inert: true }); });
+  document.querySelectorAll('[data-card-anat]').forEach(el => { el.innerHTML = cardHTML(byTitle(el.dataset.cardAnat), { inert: true, anat: true, pins: true }); });
+  document.querySelectorAll('[data-status-demo]').forEach(el => { const [k, f] = el.dataset.statusDemo.split('|'); el.innerHTML = statusHTML(k, { inert: true, force: f }); });
+  document.querySelectorAll('[data-sechead]').forEach(el => {
+    const [t, n, a] = el.dataset.sechead.split('|');
+    const cnt = n === 'all' ? STORIES.filter(s => s !== HERO && s.st !== 'done').length : n === 'done' ? STORIES.filter(s => s.st === 'done').length : n;
+    el.innerHTML = secheadHTML(t, cnt, a, { inert: true });
+  });
+  document.querySelectorAll('[data-empty]').forEach(el => {
+    const k = el.dataset.empty, st = emptyState();
+    if (k === 'q') st.q = 'fantasma';
+    if (k === 'both') { st.q = 'veneza'; st.f.lv.add('a2'); ['Conto', 'Fábula', 'Lenda'].forEach(v => st.f.g.add(v)); ['Comida', 'Natal', 'Nonna'].forEach(v => st.f.tg.add(v)); }
+    el.innerHTML = emptyHTML(k, st, { inert: true });
+  });
+  document.querySelectorAll('[data-facet]').forEach(el => {
+    const [name, vals, f] = el.dataset.facet.split('|');
+    const k = KEYS.find(x => FACETS[x].name === name);
+    el.innerHTML = facetHTML(k, new Set((vals || '').split(',').filter(Boolean)), { inert: true, force: f });
+  });
+  document.querySelectorAll('[data-facets]').forEach(el => {
+    const [lv = '', g = '', tg = ''] = el.dataset.facets.split('|');
+    const sp = s => new Set(s.split(',').filter(Boolean));
+    el.innerHTML = facetsHTML({ q: '', f: { lv: sp(lv), g: sp(g), tg: sp(tg) } }, { inert: true });
+  });
+  document.querySelectorAll('[data-check]').forEach(el => {
+    const [name, n, flag, q] = el.dataset.check.split('|');
+    const dis = flag === 'disabled';
+    el.innerHTML = checkHTML({ name, n: +n, total: dis ? +n.split(' de ')[1] : 0, checked: flag === 'checked', disabled: dis, q, force: flag, inert: true });
+  });
+  document.querySelectorAll('[data-sheethead]').forEach(el => {
+    const [, , on] = el.dataset.sheethead.split('|');
+    el.innerHTML = sheetHeadHTML('tg', 'lib-sh-' + Math.random().toString(36).slice(2, 7), on === 'on', { inert: true });
+  });
+  document.querySelectorAll('[data-more]').forEach(el => {
+    if (el.classList.contains('phone__body')) return;
+    const [t, f] = el.dataset.more.split('|');
+    el.innerHTML = moreHTML(t, f === 'open', { inert: true, force: f });
+  });
+  document.querySelectorAll('[data-foot]').forEach(el => { el.innerHTML = footHTML(+el.dataset.foot, { inert: true }); });
   document.querySelectorAll('[data-tabs]').forEach(el => {
     el.innerHTML = tabbarHTML(+el.dataset.tabs, el.hasAttribute('data-tabit'), { inert: true, focus: el.dataset.tabfocus ? +el.dataset.tabfocus : -1 });
   });
+
+  /* ---------- 05 content: summary, genres, tags, catalogue ---------- */
+  document.querySelectorAll('[data-n="total"]').forEach(el => { el.textContent = STORIES.length; });
+  const lvCount = LEVELS.map(l => `${l.toUpperCase()} ${STORIES.filter(s => s.lv === l).length}`).join(', ');
+  const tagsSorted = VALUES.tg.slice().sort((a, b) => TOTAL.tg[b] - TOTAL.tg[a] || a.localeCompare(b, 'pt'));
+  const genresSorted = VALUES.g.slice().sort((a, b) => outrosLast(a, b) || TOTAL.g[b] - TOTAL.g[a] || a.localeCompare(b, 'pt'));
+  const tail = tagsSorted.filter(t => TOTAL.tg[t] <= 2).length;
+  const sum = document.querySelector('[data-summary]');
+  if (sum) sum.innerHTML = `${nHist(STORIES.length)} no aparelho: ${lvCount}. ${VALUES.g.length} gêneros e ${VALUES.tg.length} temas, de ${tagsSorted.slice(0, 3).map(t => `${t} ${TOTAL.tg[t]}`).join(', ')} até uma cauda de ${tail} temas com 1 ou 2 histórias. ` +
+    `${STORIES.filter(s => s.narr).length} narradas, ${STORIES.filter(s => s.by).length} com autor, ${STORIES.filter(s => s.noTr).length} sem tradução, ${STORIES.filter(s => s.st === 'reading').length} em andamento, ${STORIES.filter(s => s.st === 'done').length} lidas, ${STORIES.filter(s => s.arrived).length} chegadas na última sincronização. ` +
+    `Recorte das telas: ${STORIES.filter(s => s.lv === 'a2' && ['Conto', 'Fábula', 'Lenda'].includes(s.g)).length} histórias A2 de Conto, Fábula ou Lenda; com Comida, Natal ou Nonna sobram ${STORIES.filter(s => s.lv === 'a2' && ['Conto', 'Fábula', 'Lenda'].includes(s.g) && s.tags.some(t => ['Comida', 'Natal', 'Nonna'].includes(t))).length}; ${STORIES.filter(s => s.tags.includes('Veneza')).length} histórias têm o tema Veneza, nenhuma entre essas.`;
+  const gl = document.querySelector('[data-genres]');
+  if (gl) gl.innerHTML = genresSorted.map(g => `<li><b>${esc(g)}</b> ${TOTAL.g[g]}</li>`).join('');
+  const tl = document.querySelector('[data-tagcloud]');
+  if (tl) tl.innerHTML = tagsSorted.map(t => `<li><b>${esc(t)}</b> ${TOTAL.tg[t]}</li>`).join('');
+  const STATE_LABEL = s => s.st === 'reading' ? `${s.p}% lido` : s.st === 'done' ? 'lida' : s.arrived ? 'chegou agora' : 'nova';
   const cat = document.querySelector('[data-catalog]');
-  if (cat) cat.innerHTML = STORIES.map(s => `<tr><td class="lib-t-it" lang="it">${esc(s.t)}</td><td class="lib-nowrap"><span class="ui-level" data-level="${s.lv}">${s.lv.toUpperCase()}</span></td><td class="lib-nowrap">${s.g}</td><td class="lib-nowrap">${s.min} min</td><td class="lib-nowrap">${STATE_LABEL[s.st]}</td></tr>`).join('');
+  if (cat) cat.innerHTML = STORIES.slice().sort(sortBase).map(s => `<tr><td><span class="lib-t-it" lang="it">${esc(s.t)}</span>${s.by ? `<br><span class="book-muted">${esc(s.by)}</span>` : ''}</td><td class="lib-nowrap"><span class="ui-level" data-level="${s.lv}">${s.lv.toUpperCase()}</span></td><td>${esc([s.g, ...s.tags].join(' · '))}</td><td class="lib-nowrap">${s.min} min</td><td class="lib-nowrap">${s.narr || '—'}</td><td class="lib-nowrap">${STATE_LABEL(s)}${s.noTr ? ' · sem tradução' : ''}</td></tr>`).join('');
 
   /* ---------- Biblioteca phones (all interactive) ---------- */
   function wrapPin(o, n, html) { return o.anat ? `<div data-pin="${n}">${html}</div>` : html; }
+  let phoneN = 0;
 
   function mountLibrary(body) {
-    const st = {
-      levels: new Set((body.dataset.levels || '').split(',').filter(Boolean)),
-      genres: new Set((body.dataset.genres || '').split(',').filter(Boolean)),
-      q: body.dataset.q || '',
-    };
+    const sp = s => new Set((s || '').split(',').filter(Boolean));
+    const st = { q: body.dataset.q || '', f: { lv: sp(body.dataset.lv), g: sp(body.dataset.g), tg: sp(body.dataset.tg) } };
     const o = { anat: body.hasAttribute('data-anat') };
-    const chip = (key, val, label) => `<button class="ui-chip" type="button" data-f="${key}" data-v="${val}" aria-pressed="${st[key].has(val)}">${label}</button>`;
+    const status = body.dataset.status || 'count';
+    const screen = body.closest('.phone__screen');
+    const sid = `lib-s${++phoneN}`;
+    let sheet = null;   /* { k, ui: { order, q, more } } */
+
     body.innerHTML =
       wrapPin(o, 1, `<div class="ui-appbar ui-appbar--large"><p class="ui-appbar__title">Biblioteca</p><div class="ui-appbar__actions"></div></div>`) +
-      `<div class="phone__scroll">` +
-        wrapPin(o, 2, `<h4 class="ui-largetitle">Biblioteca</h4>`) +
-        `<div class="lib-searchbar"${pinAttr(o, 3)}><div class="ui-search${body.hasAttribute('data-focus') ? ' is-focus' : ''}"><i data-lucide="search" aria-hidden="true"></i>` +
-          `<input type="search" aria-label="Buscar histórias" placeholder="Buscar histórias" value="${esc(st.q)}" autocomplete="off">` +
-          `<button type="button" class="ui-iconbtn ui-search__clear" aria-label="Limpar busca"${st.q ? '' : ' hidden'}><i data-lucide="x" aria-hidden="true"></i></button></div></div>` +
-        `<div class="lib-filters"${pinAttr(o, 4)}>` +
-          `<div class="lib-filters__group" role="group" aria-label="Nível">${LEVELS.map(l => chip('levels', l, l.toUpperCase())).join('')}</div>` +
-          `<span class="lib-filters__rule" aria-hidden="true"></span>` +
-          `<div class="lib-filters__group" role="group" aria-label="Gênero">${GENRES.map(g => chip('genres', g, g)).join('')}</div>` +
-        `</div>` +
-        `<p class="visually-hidden" aria-live="polite" data-status></p>` +
+      `<div class="phone__scroll"><div class="ui-scroll" data-scroller>` +
+        `<h4 class="ui-largetitle"${pinAttr(o, 2)}>Biblioteca</h4>` + statusHTML(status, o) +
+        `<div class="lib-searchbar"${pinAttr(o, 4)}><div class="ui-search${body.hasAttribute('data-focus') ? ' is-focus' : ''}"><i data-lucide="search" aria-hidden="true"></i>` +
+          `<input type="search" data-lib-q aria-label="Buscar histórias" placeholder="Buscar" value="${esc(st.q)}" autocomplete="off">` +
+          `<button type="button" class="ui-iconbtn ui-search__clear" data-act="clear-q" aria-label="Limpar busca"${st.q ? '' : ' hidden'}><i data-lucide="x" aria-hidden="true"></i></button></div></div>` +
+        `<div data-facetbox></div>` +
+        `<p class="visually-hidden" aria-live="polite" data-live></p>` +
         `<div data-results></div>` +
-      `</div>` +
-      tabbarHTML(0, false, { nav: true, anat: o.anat, pin: 8 });
+      `</div></div>` +
+      tabbarHTML(0, false, { nav: true, anat: o.anat, pin: 9 });
 
+    const scroller = body.querySelector('[data-scroller]');
+    const appbar = body.querySelector('.ui-appbar');
+    scroller.addEventListener('scroll', () => appbar.classList.toggle('is-scrolled', scroller.scrollTop > 0), { passive: true });
     const results = body.querySelector('[data-results]');
-    const status = body.querySelector('[data-status]');
-    const input = body.querySelector('input');
-    const clear = body.querySelector('.ui-search__clear');
-    const field = body.querySelector('.ui-search');
+    const facetBox = body.querySelector('[data-facetbox]');
+    const live = body.querySelector('[data-live]');
+    const input = body.querySelector('[data-lib-q]');
+    const clear = body.querySelector('.lib-searchbar .ui-search__clear');
+    const field = body.querySelector('.lib-searchbar .ui-search');
+    const overlay = document.createElement('div');
+    overlay.className = 'ui-overlay';   /* attached only while a sheet is open (.ui-overlay sets display, so [hidden] would not hide it) */
 
-    function render(announce) {
-      const q = fold(st.q.trim());
-      const filtered = st.levels.size || st.genres.size;
-      const list = sortStories(STORIES.filter(s =>
-        (!st.levels.size || st.levels.has(s.lv)) &&
-        (!st.genres.size || st.genres.has(s.g)) &&
-        (!q || fold(`${s.t} ${s.sub} ${s.g}`).includes(q))));
+    function renderFacets() { facetBox.innerHTML = facetsHTML(st, { anat: o.anat, openKey: sheet && sheet.k }); }
+    function renderList(announce) {
+      const list = STORIES.filter(s => matches(s, st));
+      const q = st.q.trim(), anyF = filtered(st);
       let html;
-      if (!filtered && !q) {
-        const hero = list.find(s => s.st === 'reading');
-        const rest = list.filter(s => s !== hero);
+      if (!anyF && !q) {
+        const hero = HERO && HERO.st === 'reading' ? HERO : null;
+        const rest = STORIES.filter(s => s !== hero).sort(sortBase);
         const fresh = rest.filter(s => s.st !== 'done'), done = rest.filter(s => s.st === 'done');
         html = (hero ? `<div class="lib-pad">${heroHTML(hero, o)}</div>` : '') +
-          secheadHTML('Todas as histórias', fresh.length, '', { anat: o.anat, pin: 6 }) +
-          `<ul class="lib-list">${fresh.map((s, i) => `<li>${cardHTML(s, { anat: o.anat, pin: i === 0 ? 7 : 0 })}</li>`).join('')}</ul>` +
+          secheadHTML('Todas as histórias', fresh.length, '', { anat: o.anat, pin: 7 }) +
+          `<ul class="lib-list">${fresh.map((s, i) => `<li>${cardHTML(s, { anat: o.anat, pin: i === 0 ? 8 : 0 })}</li>`).join('')}</ul>` +
           (done.length ? secheadHTML('Concluídas', done.length) + `<ul class="lib-list">${done.map(s => `<li>${cardHTML(s)}</li>`).join('')}</ul>` : '');
       } else if (!list.length) {
-        html = emptyHTML(st.q.trim());
+        html = secheadHTML('Resultados', 0, '') + emptyHTML(q && anyF ? 'both' : q ? 'q' : 'sync', st);
       } else {
-        html = secheadHTML('Resultados', list.length, filtered ? 'filters' : '') +
-          `<ul class="lib-list">${list.map(s => `<li>${cardHTML(s)}</li>`).join('')}</ul>`;
+        html = secheadHTML('Resultados', list.length, anyF) + `<ul class="lib-list">${sortResults(list).map(s => `<li>${cardHTML(s)}</li>`).join('')}</ul>`;
       }
       results.innerHTML = html;
       clear.hidden = !st.q;
-      if (announce) status.textContent = list.length === 1 ? '1 história' : `${list.length} histórias`;
+      if (announce) live.textContent = nHist(list.length);
+    }
+    function renderSheet(keepScroll) {
+      if (!sheet) { overlay.innerHTML = ''; overlay.remove(); return; }
+      const prev = overlay.querySelector('[data-sheet-body]');
+      const top = keepScroll && prev ? prev.scrollTop : 0;
+      const hadFocus = document.activeElement && overlay.contains(document.activeElement) ? document.activeElement : null;
+      const focusSel = hadFocus ? (hadFocus.matches('[data-sheet-q]') ? '[data-sheet-q]' : hadFocus.dataset.v ? `[data-v="${CSS.escape(hadFocus.dataset.v)}"]` : hadFocus.dataset.act ? `[data-act="${hadFocus.dataset.act}"]` : null) : null;
+      if (!overlay.isConnected) screen.appendChild(overlay);
+      overlay.innerHTML = `<div class="ui-scrim" data-act="close"></div>` + sheetHTML(st, sheet.k, sheet.ui, sid);
+      const b = overlay.querySelector('[data-sheet-body]'); if (b) b.scrollTop = top;
+      if (focusSel) { const el = overlay.querySelector(focusSel); if (el) { el.focus(); if (el.matches('[data-sheet-q]')) el.setSelectionRange(el.value.length, el.value.length); } }
       icons();
     }
-    function clearFilters() {
-      st.levels.clear(); st.genres.clear();
-      body.querySelectorAll('[data-f]').forEach(b => b.setAttribute('aria-pressed', 'false'));
+    function updateSheetLive() {   /* a check never changes this sheet's numbers: only head, foot and checks */
+      const total = STORIES.filter(s => matches(s, st)).length;
+      overlay.querySelector('[data-act="clear-facet"]').disabled = !st.f[sheet.k].size;
+      overlay.querySelector('[data-act="close"].ui-btn').textContent = `Ver ${nHist(total)}`;
+      overlay.querySelector('[data-foot-status]').textContent = nHist(total);
+    }
+    function render(announce) { renderFacets(); renderList(announce); icons(); }
+    function openSheet(k, preset = {}) {
+      sheet = { k, ui: { order: freezeOrder(st, k), q: preset.q || '', more: !!preset.more } };
+      renderFacets(); renderSheet(); icons();
+    }
+    function closeSheet() {
+      const k = sheet && sheet.k; sheet = null; renderSheet(); renderFacets(); icons();
+      const f = k && facetBox.querySelector(`[data-facet-k="${k}"]`); if (f) f.focus({ preventScroll: true });   /* ACE-02: back to the source */
     }
 
     body.addEventListener('click', e => {
-      const c = e.target.closest('[data-f]');
-      if (c) {
-        const set = st[c.dataset.f], v = c.dataset.v;
-        set.has(v) ? set.delete(v) : set.add(v);
-        c.setAttribute('aria-pressed', String(set.has(v)));
-        render(true); return;
-      }
-      if (e.target.closest('.ui-search__clear') || e.target.closest('[data-act="clear-q"]')) {
-        st.q = ''; input.value = ''; render(true); input.focus(); return;
-      }
-      if (e.target.closest('[data-act="clear-filters"]')) { clearFilters(); render(true); return; }
-      if (e.target.closest('.ui-search') && e.target !== input) input.focus();
+      const f = e.target.closest('[data-facet-k]');
+      if (f) { openSheet(f.dataset.facetK); const first = overlay.querySelector('[data-sheet-q], input[type="checkbox"]:not(:disabled)'); if (first) first.focus({ preventScroll: true }); return; }
+      const act = e.target.closest('[data-act]');
+      if (act && act.dataset.act === 'clear-q') { st.q = ''; input.value = ''; render(true); input.focus(); return; }
+      if (act && act.dataset.act === 'clear-filters') { KEYS.forEach(k => st.f[k].clear()); render(true); return; }
+      const tab = e.target.closest('[data-tabi="0"]');
+      if (tab) { scroller.scrollTo({ top: 0 }); return; }   /* NAV-06 */
+      if (e.target.closest('.lib-searchbar .ui-search') && e.target !== input) input.focus();
     });
     input.addEventListener('input', () => { st.q = input.value; render(true); });
     input.addEventListener('focus', () => field.classList.remove('is-focus'));
+
+    overlay.addEventListener('change', e => {
+      const c = e.target.closest('input[type="checkbox"][data-k]'); if (!c) return;
+      const set = st.f[c.dataset.k]; c.checked ? set.add(c.dataset.v) : set.delete(c.dataset.v);
+      renderFacets(); renderList(true); updateSheetLive(); icons();
+    });
+    overlay.addEventListener('input', e => {
+      if (!e.target.matches('[data-sheet-q]')) return;
+      sheet.ui.q = e.target.value; renderSheet(true);
+    });
+    overlay.addEventListener('click', e => {
+      const act = e.target.closest('[data-act]'); if (!act) return;
+      const a = act.dataset.act;
+      if (a === 'close') closeSheet();
+      else if (a === 'more') { sheet.ui.more = !sheet.ui.more; renderSheet(true); }
+      else if (a === 'clear-sheet-q') { sheet.ui.q = ''; renderSheet(true); const q = overlay.querySelector('[data-sheet-q]'); if (q) q.focus(); }
+      else if (a === 'clear-facet') { st.f[sheet.k].clear(); renderFacets(); renderList(true); renderSheet(true); }
+    });
+    overlay.addEventListener('keydown', e => { if (e.key === 'Escape') closeSheet(); });
+
     render(false);
+    if (body.dataset.sheet) {
+      openSheet(body.dataset.sheet, { q: body.dataset.sheetQ, more: body.hasAttribute('data-more') });
+      if (body.dataset.sheetScroll === 'more') {   /* bring the collapsed-zeros line to the top of the list */
+        const b = overlay.querySelector('[data-sheet-body]'), m = b.querySelector('.ui-sheet__more');
+        if (m) b.scrollTop += m.getBoundingClientRect().top - b.getBoundingClientRect().top - 8;
+      }
+    }
+    const sc = body.dataset.scroll;
+    if (sc) requestAnimationFrame(() => {
+      appbar.classList.add('is-scrolled');
+      if (sc === 'end') { scroller.scrollTop = scroller.scrollHeight; return; }
+      const s = byTitle(sc), card = s && results.querySelector(`[data-story="${s.id}"]`);
+      if (card) scroller.scrollTop += card.getBoundingClientRect().top - scroller.getBoundingClientRect().top;
+    });
   }
   document.querySelectorAll('.lib-app').forEach(mountLibrary);
 
   /* ---------- Imersão (component) ---------- */
-  const AREAS = [['nav', 'Navegação', 'abas e menus'], ['lab', 'Rótulos e botões', ''], ['dic', 'Dicionário', 'definições'], ['glo', 'Glosas e tradução', '']];
+  const AREAS = [['nav', 'Navegação', 'abas, menus, gêneros e temas'], ['lab', 'Rótulos e botões', ''], ['dic', 'Dicionário', 'definições'], ['glo', 'Glosas', 'glosa do verbete']];
   const PRESETS = [
     ['ini', 'Iniciante', { nav: 'pt', lab: 'pt', dic: 'pt', glo: 'pt' }, 'Tudo em português. Só a história fica em italiano.'],
     ['int', 'Intermediário', { nav: 'pt', lab: 'pt', dic: 'it', glo: 'pt' }, 'Navegação em português, dicionário em italiano.'],
@@ -715,6 +1419,7 @@
       btn.textContent = 'Tema: ' + label[t];
     });
   }
+  icons();
 })();
 </script>
 <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>

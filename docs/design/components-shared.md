@@ -1,4 +1,4 @@
-# Postilla — componentes compartilhados (v0.3)
+# Postilla — componentes compartilhados (v0.4)
 
 Spec for the book designers. Six books today: Identidade (`identity.html`), Biblioteca (with Ajustes › Imersão), Leitor, Leitor com tradução, Dicionário and Revisão (with the Treino). Ajustes gets its own book later.
 
@@ -30,15 +30,16 @@ Reference implementation: `identity.html` uses every class below.
 | Focus | Built into `book.css` for every focusable element (`:focus-visible`). Never remove it. |
 | Motion | `--dur-*` + `--ease-*`; reduced motion is handled by tokens. No bounces, confetti or streak flames. |
 | Copy | PT-BR, sentence case, no exclamation marks, no emoji. Buttons are verbs ("Mostrar tradução"). |
-| Toggles | One signal per state. A button whose **label changes** with its state ("Mostrar tradução" ↔ "Ocultar tradução") must **not** also carry `aria-pressed`: screen readers would announce "Ocultar tradução, pressed", which is double (and contradictory) signalling. The label is the state; the button keeps its outline look in both states. `aria-pressed` is only for toggles whose label never changes (chips, segmented, bookmark, Aa). |
+| Toggles | One signal per state. A button whose **label changes** with its state ("Mostrar tradução" ↔ "Ocultar tradução", the narration disc "Ouvir narração" ↔ "Pausar narração") must **not** also carry `aria-pressed`: screen readers would announce "Ocultar tradução, pressed", which is double (and contradictory) signalling. The label is the state. Since v0.4 the translation button (`.ui-trbtn`) is **not outlined**: `languages` icon + label in ink, no fill, a ghost pill only on press, and a box as wide as the longer label so nothing moves when it swaps. With no translation (TRA-10) it keeps the label "Mostrar tradução", turns `--color-ink-faint` and uses `aria-disabled="true"` plus the hint "Esta história ainda não tem tradução em português". `aria-pressed` is only for toggles whose label never changes (chips, segmented, bookmark, Aa). |
 | Gestures on words | **Tap** a word = dictionary entry, pushed as a full page (+ grifo). **Long-press** (500 ms) a word = select an **expression**: the grifo gets two handles and dragging extends it word by word within the paragraph (Leitor com tradução: within the sentence), e.g. «a un certo punto»; on release the expression opens in the dictionary as a full page. **Saving** a word or expression is done only with the bookmark in the dictionary entry; no gesture in the story saves. In the split reader, tapping outside a word (or anywhere in the Portuguese half) pairs the sentence. |
 
 ### Where the one yellow goes, per screen
 
 | Screen | The single yellow element | Plus |
 |---|---|---|
-| Biblioteca (tab root) | active-tab bar | — (no grifo; card progress is ink) |
-| Leitor | reading progress line in the dock (`.ui-progress--accent`) | grifo on the selected word / expression |
+| Biblioteca (tab root) | active-tab bar | — (no grifo; card progress, status line, "Chegou agora" dot and active facets are ink) |
+| Biblioteca, facet sheet open (Nível / Gênero / Tema) | none in the sheet | checked boxes, the "Ver N histórias" button and the search match are ink; the tab bar's yellow bar stays under the scrim |
+| Leitor | reading progress line in the dock (`.ui-progress--accent`) | grifo on the selected word / expression; the narration disc is ink, the sentence being read is neutral (TRA-05 look), the translation button and title page are ink |
 | Leitor com tradução | the same reading progress line in the dock | grifo; the paired sentence is **neutral** (`--color-sentence-*`), divider and paragraph marker are neutral |
 | Dicionário, pushed from the Reader (no tab bar) | grifo on the word inside the "Nella storia" snippet | nothing else; gloss, chips, labels are ink |
 | Dicionário tab root (Histórico \| Salvas, search) and entries pushed inside the tab | active-tab bar | the "Nella storia" snippet drops its grifo (ink underline only) |
@@ -56,7 +57,9 @@ Reference implementation: `identity.html` uses every class below.
 - The **Reader** is not a tab. It is pushed from Biblioteca and is full-screen with no tab bar. A dictionary entry opened from the Reader is a pushed full page ("Voltar à história") with no tab bar either.
 - **Top app bar:** `large` on tab roots (display title under a 56px bar) and `compact` on pushed pages (back + centered title + **up to 3** trailing icon buttons, e.g. dictionary entry: `volume-2`, `bookmark`, `ellipsis`).
 
-Icons: [Lucide](https://lucide.dev) pinned `lucide@0.460.0`, stroke 1.5. Names: `library-big` (Biblioteca), `book-a` (Dicionário), `settings-2` (Ajustes), `chevron-left`, `search`, `bookmark` (saved = same glyph filled via `.ui-iconbtn--bookmark[aria-pressed="true"]`), `volume-2`, `a-large-small`, `rows-2` (tradução dividida), `languages`, `ellipsis`, `x`, `check`.
+Icons: [Lucide](https://lucide.dev) pinned `lucide@0.460.0`, stroke 1.5. Names: `library-big` (Biblioteca), `book-a` (Dicionário), `settings-2` (Ajustes), `chevron-left`, `search`, `bookmark` (saved = same glyph filled via `.ui-iconbtn--bookmark[aria-pressed="true"]`), `volume-2`, `a-large-small`, `rows-2` (was the translation button's icon up to v0.3), `languages` (translation button), `ellipsis`, `x`, `check`.
+
+Added in v0.4 (used by the chosen mocks): `play` and `pause` (narration disc, glyph filled via `.ui-transport__play`), `skip-back` ("Frase anterior"), `rotate-ccw` ("Ouvir de novo"), `headphones` (narration length on the card), `download` (Reader wait, `.ui-wait__icon`), `chevron-down` (facet, collapsed zero values), `chevron-up` (zero values expanded), `chevron-right` (trailing affordance on rows and cards, e.g. Ajustes › Idiomas), `circle-arrow-up` (status-line notice), `external-link` ("Atualizar na loja" leaves the app). `sliders` is **not** on the list: the "Filtros" button it belonged to was dropped for the three facets.
 
 **Revisão tab icon: pending.** Until the brand lead picks one, every mock uses `check` from the list above as a placeholder. Requested (book-revisao › Em aberto A1): `layers` (a stack of cards), with `repeat-2` and `notebook-pen` as alternatives.
 
@@ -79,9 +82,9 @@ Icons: [Lucide](https://lucide.dev) pinned `lucide@0.460.0`, stroke 1.5. Names: 
 | `.ui-appbar` | `<div class="ui-appbar">` → leading `.ui-iconbtn`, `<p class="ui-appbar__title">`, `<div class="ui-appbar__actions">` | Compact bar. Add `.is-scrolled` for the bottom hairline. |
 | `.ui-appbar--large` + `.ui-largetitle` | `<div class="ui-appbar ui-appbar--large">…</div><h1 class="ui-largetitle">Biblioteca</h1>` | Tab roots. |
 | `.ui-tabbar` / `.ui-tab` | `<nav class="ui-tabbar" aria-label="Principal"><a class="ui-tab" aria-current="page">…` | Exactly 4 tabs: Biblioteca · Dicionário · Revisão · Ajustes. The active one gets `aria-current="page"`. No badge or count on any tab (spec §10). |
-| `.ui-btn` | `--primary` (ink) · `--secondary` (ink outline) · `--ghost` · `--accent` (yellow fill, ink text; 1 per flow) · `--sm` · `--block` | A fixed-label toggle uses `aria-pressed`; `--secondary[aria-pressed="true"]` turns ink. The translation button is **not** such a toggle: it swaps its label and has no `aria-pressed`. Disabled via `disabled`. |
+| `.ui-btn` | `--primary` (ink) · `--secondary` (ink outline) · `--ghost` · `--accent` (yellow fill, ink text; 1 per flow) · `--sm` · `--block` | A fixed-label toggle uses `aria-pressed`; `--secondary[aria-pressed="true"]` turns ink. Disabled via `disabled`. The translation button is **no longer** a `.ui-btn` (it was `--secondary --sm` up to v0.3): use `.ui-trbtn`. |
 | `.ui-iconbtn` | `--filled` · `--bookmark` | 44px circle. `aria-pressed="true"` = ink disc, except `--bookmark`, which fills the glyph in `--color-word-saved-mark`. Always has `aria-label`. |
-| `.ui-chip` | `<button class="ui-chip" aria-pressed="false">Mistério</button>` | Filter chip; pressed = ink fill. |
+| `.ui-chip` | `<button class="ui-chip" aria-pressed="false">Imperfetto</button>` | Toggle chip with a fixed label; pressed = ink fill. Used by the Dicionário (tense switch). Chips **no longer filter the Library**: the Library filters with `.ui-facets` and their sheets. |
 | `.ui-level` | `<span class="ui-level" data-level="a2">A2</span>` | Static CEFR tag, `a1`…`c2`, sage ramp. |
 | `.ui-label` | `<p class="ui-label">Sinônimos</p>` | 11px caps micro-label. |
 | `.ui-word` | `.is-hover` / `.is-active` · `.is-saved` · `.is-selected` (or `aria-current="true"`) | See states below. |
@@ -89,13 +92,23 @@ Icons: [Lucide](https://lucide.dev) pinned `lucide@0.460.0`, stroke 1.5. Names: 
 | `.ui-sentence` | `.is-active` (finger down) · `.is-selected` (paired) | Leitor com tradução. Neutral box: `--color-sentence-bg` / `--color-sentence-press-bg`, text `--color-sentence-ink`. Never yellow. Paragraph-in-focus gutter rule uses `--color-sentence-line`. |
 | `.ui-search` | `<div class="ui-search"><i data-lucide="search"></i><input type="search"><button class="ui-iconbtn ui-search__clear" hidden>` · `--link` (field-shaped link) · `__value` + `__caret` (static typed text) | 44px surface pill; the focus ring moves to the whole pill. |
 | `.ui-progress` | `<span class="ui-progress"><i style="--p:38%"></i></span>` · `--accent` | 2px line, `--color-rule` track, **ink** fill. `--accent` (yellow) only in the Reader. |
-| `.ui-dock` / `__row` | dock = `.ui-progress--accent` on the top edge + one row (meta left, translation button right) | Reader and split reader. |
+| `.ui-dock` / `__row` | dock = `.ui-progress--accent` on the top edge + one row: [`.ui-transport`] · `.ui-dock__pct` · `.ui-trbtn` | Reader and split reader (LEI-01). The transport exists only on a narrated story whose audio is ready (LEI-14). See "Reader dock" below. |
 | `.ui-hero` | `__title` · `__sub` · `__meta` · `__pct` · `--compact` | "Continuar lendo", "Próxima história". As a link it darkens to surface-2 on hover/press. |
 | `.ui-sechead` | `__title` (holds a `.ui-label`) · `__count` · `__action` (ghost sm button) | List group header. |
 | `.ui-list` / `.ui-row` | `__main` (link) · `__text` · `__title` · `__meta` · `__value` · `--saved` · `--compact` + trailing `.ui-iconbtn--bookmark` | History, saved, suggestions, settings rows. |
 | `.ui-empty` | `__icon` · `__title` · `__text` · `__action` · `--compact` | Empty / not found / offline. |
 | `.ui-toast` | `<p class="ui-toast" role="status">` + `.is-shown` (2.6 s) · `--static` · `--action` + `__action` | Inside `.phone__screen`. With one action ("Desfazer"): `<div class="ui-toast ui-toast--action" role="status"><span>…</span><button class="ui-toast__action">Desfazer</button></div>`, shown for 6 s; the timer pauses while the toast has focus, and the focus is never moved to it. The action is underlined text in `--color-on-ink`, with an inset `--color-on-ink` focus ring. Used by "Já sei esta palavra", "Tirar da Revisão" and, when adopted, SAL-02 ("Removida das Salvas. Desfazer"). |
-| `.ui-overlay` / `.ui-scrim` / `.ui-sheet` | `__head` · `__title` + `.ui-grip` | Bottom sheet for quick settings (Aa). The dictionary never opens in a sheet. |
+| `.ui-overlay` / `.ui-scrim` / `.ui-sheet` | `__head` · `__title` + `.ui-grip` · `--tall` (with `__count`, `__note`, `__body`, `__group`, `__more`, `__foot`) | Bottom sheet for quick settings (Aa) and, as `--tall`, the Library facet sheets (BIB-05). The dictionary never opens in a sheet. |
+| `.ui-trbtn` / `__label` | `<button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button>` | Translation button (dock). See "Reader dock". |
+| `.ui-transport` / `__play` | `<div class="ui-transport" role="group" aria-label="Narração">` + `.ui-iconbtn` (`skip-back`) + `.ui-transport__play` (`play`/`pause`) + `.ui-iconbtn` (`rotate-ccw`) | Narration transport (LEI-15). See "Reader dock". |
+| `.ui-dock__pct` | `<span class="ui-dock__pct">36%<span> lido</span></span>` · "Lida" when completed (no inner span) | "N% lido" (LEI-07); shrinks on narrow screens. |
+| `.ui-titlepage` | `__meta` (`.ui-level` + genre · tags) · `__title` · `__sub` · then `.ui-colophon` (or `.ui-wait`) | Story title page (LEI-13), first thing in the reading column, scrolls away with the text. Single and split view. |
+| `.ui-colophon` | `<dl class="ui-colophon"><div><dt>Leitura</dt><dd>4 min · narração de 4:12<small>second line</small></dd></div>…</dl>` | Labelled rows, each only when it applies. Labels follow Immersion › Labels and buttons; the label column takes the widest label. Same component closes Ajustes › Sobre (AJU-04). |
+| `.ui-wait` | `__icon` (`download`) · `__title` · `__text` · `.ui-progress` · `__actions` | Reader waiting for the files of a new language (BIB-12). `role="status"`. |
+| `.ui-statusline` | `--notice` + `__link` | Library status line (BIB-13). See "Library" below. |
+| `.ui-dot` | `<span class="ui-dot" aria-hidden="true"></span>` | 6px ink "new" marker: before "N histórias novas" and the card's "Chegou agora" (OFF-24). |
+| `.ui-facets` / `.ui-facet` | `.is-selected` · `__v` | Library facet row and facet button (BIB-05). See "Library" below. |
+| `.ui-check` | `__box` · `__name` (`<b>` = search match) · `__n` + a visually hidden `<input type="checkbox">` | Checklist row of the facet sheets (BIB-14). |
 | `.ui-grip` | | 40×4 pill in `--color-ink-faint`; sheet handle and divider grip. |
 | `.ui-divider` | `__handle` (`role="separator"`) · `__ratio` · `.is-hover` · `.is-active` (dragging) · `__handle.is-focus` (inset ring) | Split-reader divider. |
 | `.ui-field` | `<div class="ui-field"><p class="ui-label">Entrelinha</p>control</div>` | Label stacked over a control. |
@@ -106,6 +119,134 @@ Icons: [Lucide](https://lucide.dev) pinned `lucide@0.460.0`, stroke 1.5. Names: 
 | `.ipa` | `<span class="ipa">/fiˈnɛstra/</span>` | Only for IPA. |
 | `.wordmark` | `<span class="wordmark">Post<span class="wordmark__i">ı</span>lla</span>` (ı = U+0131) | Set `font-size` only. The dot uses `--color-accent-mark`. |
 | `.visually-hidden` | | Screen-reader-only text. |
+
+### Reader dock (v0.4)
+
+```html
+<div class="ui-dock">
+  <div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:36%"></i></div>
+  <div class="ui-dock__row">
+    <div class="ui-transport" role="group" aria-label="Narração">
+      <button class="ui-iconbtn" type="button" aria-label="Frase anterior"><i data-lucide="skip-back" aria-hidden="true"></i></button>
+      <button class="ui-transport__play" type="button" aria-label="Pausar narração"><i data-lucide="pause" aria-hidden="true"></i></button>
+      <button class="ui-iconbtn" type="button" aria-label="Ouvir de novo"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button>
+    </div>
+    <span class="ui-dock__pct">36%<span> lido</span></span>
+    <button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button>
+  </div>
+</div>
+```
+
+- **Order is fixed:** transport · "N% lido" · translation button. Glyphs and text (not the 44px hit boxes) align to the 20px gutter on both ends, like the app bar; hit boxes reach 12px into the gutter.
+- **Transport** (`.ui-transport`): three 44px targets, no gap. It appears whole and at once when the audio is ready (LEI-14) and never moves, so a second tap on the disc always pauses. Before the first Play both ends are `disabled`; on the story's first sentence "Frase anterior" is `disabled`. The disc (`.ui-transport__play`) is an ink circle with the glyph filled in `--color-on-ink`; it swaps glyph and label: "Ouvir narração a partir daqui" (`play`) → "Pausar narração" (`pause`) → "Continuar narração" (`play`). Never `aria-pressed`, never yellow. Without narration the group is absent and nothing else moves.
+- **"N% lido"** (`.ui-dock__pct`): 16px after the last transport glyph. On narrow screens, with the transport present, "lido" leaves the screen below 386px and the number too below 360px (only the progress line remains); both stay in the accessible text. The rule queries the nearest inline-size container: `.phone__screen` in a phone. A dock shown outside a phone needs a book-local wrapper with `container-type: inline-size` at the screen width (identity uses `.id-strip`). Without the transport nothing shrinks.
+- **Translation button** (`.ui-trbtn`): `--type-small`, `--color-ink`, no outline, no fill; hover = `--color-surface` pill, pressed = `--color-surface-2` pill, focus ring on the pill. `data-alt` on `__label` holds the other label so the box is as wide as the longer one ("Mostrar tradução" / "Ocultar tradução"; IT "Mostra traduzione" / "Nascondi traduzione"). The label is the state: never `aria-pressed`. No translation (TRA-10): `aria-disabled="true"` + `aria-describedby` pointing to a `.visually-hidden` hint, colour `--color-ink-faint`, no pill. It stays focusable so the hint is reachable.
+- Forced states: `.ui-trbtn` and `.ui-transport__play` take `.is-hover` / `.is-active` / `.is-focus`.
+
+### Title page, colophon and wait (v0.4)
+
+```html
+<header class="ui-titlepage" lang="it">
+  <p class="ui-titlepage__meta"><span class="ui-level" data-level="a2">A2</span><span lang="pt-BR">Viagem · Emília-Romanha</span></p>
+  <h1 class="ui-titlepage__title">Il treno per Bologna</h1>
+  <p class="ui-titlepage__sub">Marta va a trovare la nonna dopo due anni.</p>
+  <dl class="ui-colophon" lang="pt-BR">
+    <div><dt>Texto</dt><dd>Carlo Collodi · adaptado<small>Licença CC BY-SA 4.0</small></dd></div>
+    <div><dt>Leitura</dt><dd>4 min · narração de 4:12</dd></div>
+    <div><dt>Vocabulário</dt><dd>92% das palavras são do vocabulário básico<small>Nuovo vocabolario di base, De Mauro (NVdB)</small></dd></div>
+    <div><dt>Tradução</dt><dd>Ainda não existe em português<small>one line of why</small></dd></div>
+  </dl>
+</header>
+```
+
+- The title page is the top of the reading column (single and split view) and scrolls away with the text. Meta line = level + genre · tags (in the Navigation language); title in `--type-title-lg`, subtitle in italic `--type-lead`, both always Italian.
+- Colophon rows appear only when they apply (LEI-13): "Texto" only for a license other than `LicenseRef-Postilla`, "narração de m:ss" only once the audio is on the device, "Vocabulário" only with band data, "Tradução" only without a translation. `<small>` is the muted second line. The license name is plain text, never a link.
+- Ajustes › Sobre reuses `.ui-colophon` as is ("App", "Dicionário" + dump date, "Histórias" + "Sincronização 42"), inside a book-local surface card with the wordmark and the credits.
+- Wait (BIB-12) replaces the colophon and the text, inside the title page:
+
+```html
+<div class="ui-wait" lang="pt-BR" role="status">
+  <span class="ui-wait__icon"><i data-lucide="download" aria-hidden="true"></i></span>
+  <p class="ui-wait__title">O português ainda está chegando</p>   <!-- target file missing too: "Esta história ainda está chegando" -->
+  <p class="ui-wait__text">… quando a tradução terminar de baixar, a história abre sozinha.</p>
+  <span class="ui-progress" aria-hidden="true"><i style="--p:60%"></i></span>
+  <div class="ui-wait__actions">
+    <button class="ui-btn ui-btn--primary ui-btn--block" type="button">Ler sem tradução</button>   <!-- only when the target file is on the device -->
+    <button class="ui-btn ui-btn--ghost ui-btn--block" type="button">Voltar à biblioteca</button>
+  </div>
+</div>
+```
+
+### Library (v0.4)
+
+Status line (BIB-13), one line under the large title, `role="status"`, no close button. In priority order:
+
+```html
+<div class="ui-statusline ui-statusline--notice" role="status"><i data-lucide="circle-arrow-up" aria-hidden="true"></i>
+  <span>Há histórias novas que esta versão do app não abre.</span>
+  <a class="ui-statusline__link" href="…">Atualizar na loja<i data-lucide="external-link" aria-hidden="true"></i></a></div>   <!-- OFF-26 -->
+<p class="ui-statusline" role="status"><span class="ui-dot" aria-hidden="true"></span><span><b>3 histórias novas</b> chegaram</span></p>   <!-- OFF-24 -->
+<p class="ui-statusline" role="status">152 histórias no aparelho</p>
+```
+
+Put it right after `.ui-largetitle` (the title then drops its bottom padding). Ink and muted ink only: the notice is not an error (no error colour, nothing blocked). The link is underlined text with a 44px target.
+
+Facets (BIB-05), a fixed row under the search field, always Nível · Gênero · Tema:
+
+```html
+<div class="ui-facets" role="group" aria-label="Filtros">
+  <button class="ui-facet" type="button" aria-haspopup="dialog" aria-expanded="false">Nível<i data-lucide="chevron-down" aria-hidden="true"></i></button>
+  <button class="ui-facet is-selected" type="button" aria-haspopup="dialog" aria-expanded="false"><span class="visually-hidden">Gênero: </span><span class="ui-facet__v">Conto</span><i data-lucide="chevron-down" aria-hidden="true"></i></button>
+  <button class="ui-facet is-selected" type="button" aria-haspopup="dialog" aria-expanded="false">Tema · 3<span class="visually-hidden"> selecionados</span><i data-lucide="chevron-down" aria-hidden="true"></i></button>
+</div>
+```
+
+- Closed summary: nothing checked = the facet name; one value = the value (`__v`, cut with an ellipsis); several = "name · N". `.is-selected` (at least one value checked) = ink fill. The text changes with the state, so the state is never colour alone. The accessible name always carries the facet ("Nível: A2", "Tema · 3 selecionados").
+- 36px pill with a 44px hit area, like `.ui-btn--sm`. Below a 350px screen the row tightens and selected facets drop the chevron, so three facets still fit one line.
+- Not `aria-pressed`: a facet opens a dialog (`aria-haspopup="dialog"`, `aria-expanded`).
+
+Facet sheet = `.ui-sheet.ui-sheet--tall` in a `.ui-overlay` (child of `.phone__screen`):
+
+```html
+<div class="ui-sheet ui-sheet--tall" role="dialog" aria-modal="true" aria-labelledby="s-tema">
+  <span class="ui-grip" aria-hidden="true"></span>
+  <div class="ui-sheet__head"><h3 class="ui-sheet__title" id="s-tema">Tema<span class="ui-sheet__count">92 temas</span></h3>
+    <button class="ui-btn ui-btn--ghost ui-btn--sm" type="button" aria-label="Limpar tema">Limpar</button></div>
+  <p class="ui-sheet__note">Números contam o filtro de <b>Nível</b>.</p>
+  <div class="ui-search">…</div>                                   <!-- only for a facet with more than 12 values -->
+  <div class="ui-sheet__body">
+    <p class="ui-label ui-sheet__group"><span>Marcados</span><span>3</span></p>
+    <div role="group" aria-label="Temas marcados">
+      <label class="ui-check"><input class="visually-hidden" type="checkbox" checked><span class="ui-check__box" aria-hidden="true"><i data-lucide="check"></i></span>
+        <span class="ui-check__name">Comida</span><span class="ui-check__n">7<span class="visually-hidden"> histórias</span></span></label>
+    </div>
+    <button class="ui-sheet__more" type="button" aria-expanded="false"><span>71 temas sem histórias com esses filtros</span><i data-lucide="chevron-down" aria-hidden="true"></i></button>
+  </div>
+  <div class="ui-sheet__foot"><p class="visually-hidden" role="status">9 histórias</p><button class="ui-btn ui-btn--primary ui-btn--block" type="button">Ver 9 histórias</button></div>
+</div>
+```
+
+- Height = the screen minus the status bar and 20px; the head, note and search stay, `__body` scrolls, `__foot` stays at the bottom with a hairline above.
+- "Limpar" clears this facet only and is `disabled` while nothing is checked.
+- `__note` is the muted meta line: the context above the search, naming the other active facets and the search, never their values ("Números contam os filtros de Nível e Gênero e a busca."); a tip under the results; or, alone, a sheet search that finds nothing ("Nenhum tema com “fantasma”."). With nothing checked the list has no `__group` label.
+- `__group`: a `.ui-label` with its count on the right ("Marcados 3", "Outros temas 18", "2 de 92 temas").
+- `__more`: the last line collapsing the zero values ("10 gêneros sem histórias com esses filtros"); `aria-expanded` and `chevron-down` ↔ `chevron-up`. Opened, the zero values follow as disabled `.ui-check` rows.
+- **No yellow** anywhere in the sheet.
+
+Checklist row (`.ui-check`): a 20px box (`--radius-mark`, 1.5px `--color-ink-muted` outline; checked = ink fill with an on-ink `check`), the name in `--type-body`, the count in `--type-meta`. The state lives on the real `<input type="checkbox">` (`checked`, `disabled`); the row shows its focus ring inside. Disabled (zero with the other filters, BIB-14) = `--color-ink-faint` name and count, "0 de 6". A search match is `<b>` inside `__name`: semibold and underlined, never colour. Forced states: `.is-hover`, `.is-active`, `.is-focus`.
+
+### Added in v0.4
+
+- `.ui-trbtn` (+ `__label`): the translation button, unoutlined, three states in one box (replaces `.ui-btn--secondary.ui-btn--sm` in the dock).
+- `.ui-transport` (+ `__play`): narration transport in the dock.
+- `.ui-dock__pct`: "N% lido" with the narrow-screen rule.
+- `.ui-titlepage` (+ `.ui-titlepage__meta`, `.ui-titlepage__title`, `.ui-titlepage__sub`) and `.ui-colophon`: story title page; the colophon also in Ajustes › Sobre.
+- `.ui-wait` (+ `.ui-wait__icon`, `.ui-wait__title`, `.ui-wait__text`, `.ui-wait__actions`): Reader wait after a language switch.
+- `.ui-statusline` (+ `--notice`, `__link`) and `.ui-dot`: Library status line and the "new" marker.
+- `.ui-facets` / `.ui-facet` (+ `.is-selected`, `__v`): Library facets.
+- `.ui-sheet--tall` (+ `__count`, `__note`, `__body`, `__group`, `__more`, `__foot`): Library facet sheet.
+- `.ui-check` (+ `__box`, `__name`, `__n`): checklist row.
+- No new tokens. Literal sizes kept from the mocks (no token fits): the 6px `.ui-dot`, the 14px `check` glyph with a 2.25px stroke inside the 20px box, the facet's 36px height (same as `.ui-btn--sm`), and the 10px / 6px facet padding and gap below a 350px screen.
 
 ### Word highlight states
 
@@ -122,7 +263,7 @@ Never color the word text itself. Never use bold for state.
 
 ### Forced states (for side-by-side state grids)
 
-One convention for every book: add `.is-hover`, `.is-active` (pressed) or `.is-focus` to freeze a state in a mockup. Works on every `ui-*` control above; book-local components define their own `.lib-card.is-active` etc. with the same three classes. Never `data-force`. Selection is `.is-selected`; use `disabled` and `aria-pressed` as in production.
+One convention for every book: add `.is-hover`, `.is-active` (pressed) or `.is-focus` to freeze a state in a mockup. Works on every `ui-*` control above (v0.4: `.ui-trbtn`, `.ui-transport__play`, `.ui-facet`, `.ui-check` take all three; `.ui-sheet__more` and `.ui-statusline__link` take `.is-hover`); book-local components define their own `.lib-card.is-active` etc. with the same three classes. Never `data-force`. Selection is `.is-selected`; use `disabled` and `aria-pressed` as in production.
 
 ### Tokens added in v0.3 (`tokens.css`)
 
@@ -218,7 +359,7 @@ File names: `book-biblioteca.html`, `book-leitor.html`, `book-leitor-traducao.ht
     </section>
   </main>
 
-  <footer class="book-footer"><div class="book-wrap">Postilla · sistema v0.3</div></footer>
+  <footer class="book-footer"><div class="book-wrap">Postilla · sistema v0.4</div></footer>
 
   <script>
   /* theme toggle: auto → light → dark */

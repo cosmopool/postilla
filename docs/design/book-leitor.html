@@ -4,23 +4,22 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" href="data:,">
-<title>Postilla Leitor</title>
+<title>Postilla · Leitor</title>
 <meta name="description" content="Livro do Leitor da Postilla: a história em italiano, sem tradução, com toque na palavra que abre o dicionário em página inteira.">
 <link rel="stylesheet" href="tokens.css">
 <link rel="stylesheet" href="book.css">
 <style>
 /* ===== book-leitor.html — book-specific rules only (prefix rd-) =====
-   Shared pieces come from book.css: ui-dock + ui-progress--accent, ui-stack,
-   ui-scroll, ui-sheet, ui-field, ui-hero, ui-expression, dictionary entry pieces,
+   Shared pieces come from book.css: ui-dock (+ ui-transport, ui-dock__pct, ui-trbtn), ui-progress--accent,
+   ui-titlepage + ui-colophon, ui-wait, ui-sentence (narration mark, TRA-05 look), ui-stack, ui-scroll,
+   ui-sheet, ui-field, ui-hero, ui-expression, ui-list/ui-row, ui-toast, dictionary entry pieces,
    book-feature/legend/pin, book-board/frame, book-table, book-dd, book-callout. */
 @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
 
 /* ---- reading column ---------------------------------------------------- */
 .rd-content { padding: var(--space-2) var(--gutter) var(--space-8); }
 .rd-meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin: 0 0 var(--space-3); font: var(--type-meta); color: var(--color-ink-muted); }
-.rd-title { margin: 0 0 var(--space-2); font: var(--type-title-lg); letter-spacing: var(--tracking-display); }
-.rd-sub { margin: 0 0 var(--space-8); font: var(--type-lead); font-style: italic; color: var(--color-ink-muted); }
-.rd-text { margin: 0; font: var(--type-reader); text-align: start; hyphens: manual; -webkit-hyphens: manual; overflow-wrap: break-word; }
+.rd-text { margin: 0; font: var(--type-reader); color: var(--color-ink); text-align: start; hyphens: manual; -webkit-hyphens: manual; overflow-wrap: break-word; }
 .rd-text + .rd-text { margin-top: var(--space-4); }
 .rd-shift { margin-top: calc(var(--text-reader-lh) * -3); }   /* static mock: story scrolled past the top lines */
 .rd-words { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; } /* long-press selects an expression, not text */
@@ -33,7 +32,7 @@
   transition: font-size var(--dur-fast) var(--ease-standard), line-height var(--dur-fast) var(--ease-standard);
 }
 
-/* ---- app bar title (hidden at top, appears once the page title scrolls away) */
+/* ---- app bar title (hidden at top, appears once the title page scrolls away) */
 .rd-bartitle { opacity: 0; transition: opacity var(--dur-fast) var(--ease-standard); }
 .is-scrolled > .rd-bartitle { opacity: 1; }
 
@@ -41,10 +40,19 @@
 .rd-end { display: grid; gap: var(--space-4); margin-top: var(--space-10); padding-top: var(--space-6); border-top: var(--border-hairline) solid var(--color-rule); }
 .rd-end__line { margin: 0; font: var(--type-small); color: var(--color-ink-muted); }
 
-/* dictionary stub (the real page lives in book-dicionario.html) */
+/* dictionary stub (the real page lives in book-dicionario.html) and the lemma choice page (LEI-02) */
 .rd-dict { display: grid; gap: var(--space-3); align-content: start; padding: var(--space-2) var(--gutter) var(--space-8); }
+.rd-choice { display: grid; gap: var(--space-2); align-content: start; padding: var(--space-2) 0 var(--space-8); }
+.rd-choice__head { display: grid; gap: var(--space-1); padding-inline: var(--gutter); margin-bottom: var(--space-2); }
+.rd-choice__note { margin: 0; font: var(--type-small); color: var(--color-ink-muted); }
 .rd-link { color: var(--color-ink); text-underline-offset: 0.2em; }
-.rd-inl { display: inline-flex; align-items: center; gap: var(--space-1); }
+
+/* toast slot: the toast sits just above the dock instead of over it (static mock) */
+.rd-toastanchor { position: relative; flex: none; height: 0; }
+.rd-toastbox { position: absolute; inset-inline: var(--gutter); bottom: var(--space-3); }
+
+/* local reading error (no network wording) */
+.rd-error { display: grid; align-content: center; min-height: 100%; }
 
 /* ---- reading settings sheet ("Aa") stepper ------------------------------ */
 .rd-stepper { display: flex; align-items: center; gap: var(--space-3); width: 100%; }
@@ -59,6 +67,22 @@
 .rd-hint { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--tap-min); font: var(--type-small); color: var(--color-ink-muted); }
 .rd-hint b { color: var(--color-ink); font-weight: var(--weight-semibold); }
 .rd-nowrap { white-space: nowrap; }
+.rd-colo { width: 100%; padding: 0 var(--space-2); }         /* colophon / wait specimen inside a state stage */
+
+/* phone grid: like .book-screens, but wide enough for a 390pt screen, so the dock shows "N% lido" as on most phones */
+.rd-screens { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, calc(var(--frame-width) + var(--space-5))), 1fr)); gap: var(--space-10) var(--space-8); align-items: start; justify-items: center; }
+
+/* dock strips: a dock outside a phone, at a screen width (container for the LEI-07 narrow rule) */
+.rd-strips { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 390px), 1fr)); gap: var(--space-6); align-items: start; }
+.rd-stripfig { margin: 0; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2); align-content: start; }
+.rd-strip { width: 390px; max-width: 100%; container-type: inline-size; overflow: hidden; background: var(--color-bg); color: var(--color-ink); border-radius: var(--radius-field); box-shadow: 0 0 0 var(--border-hairline) var(--color-rule); }
+.rd-strip--360 { width: 360px; }
+.rd-strip--340 { width: 340px; }
+.rd-strip--fluid { width: 100%; }                          /* fills a do/don't stage */
+.rd-ddcenter { display: flex; justify-content: center; }
+.rd-strip__ruler { display: flex; justify-content: space-between; padding: var(--space-1) var(--space-2) 0; font: var(--type-meta); color: var(--color-ink-faint); font-variant-numeric: tabular-nums; }
+.rd-stripfig figcaption { font: var(--type-meta); color: var(--color-ink-muted); }
+.rd-stripfig figcaption strong { color: var(--color-ink); font-weight: var(--weight-semibold); }
 
 /* anatomy: pin positions (pins themselves are .book-pin) */
 .rd-anchor { position: relative; }
@@ -68,6 +92,8 @@
 .rd-at--tr { top: 0; inset-inline-end: var(--space-1); }
 .rd-at--gut { top: var(--space-1); inset-inline-end: calc(var(--gutter) * -1 + var(--space-1) / 2); }
 .rd-at--line { top: calc(var(--space-5) / -2); inset-inline-start: var(--gutter); }
+.rd-at--tp { inset-inline-start: calc(var(--gutter) + var(--tap-min)); }
+.rd-at--pct { inset-inline-start: calc(var(--gutter) + var(--tap-min) * 3); }
 .rd-at--end { inset-inline-start: auto; inset-inline-end: var(--gutter); }
 
 /* typography specimen + tap rows */
@@ -101,6 +127,10 @@
 .rd-bad-drop::first-letter { float: left; margin: var(--space-1) var(--space-2) 0 0; font: var(--type-display); color: var(--color-accent-strong); }
 .rd-bad-xp { display: grid; gap: var(--space-2); justify-items: start; }
 .rd-bad-xp p { margin: 0; font: var(--type-title); color: var(--color-ink); }
+.rd-bad-mark { background: var(--color-accent-soft); border-radius: var(--radius-mark); -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.rd-bad-row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); font: var(--type-meta); color: var(--color-ink-muted); }
+.rd-bad-time { font-variant-numeric: tabular-nums; }
+.rd-bad-bar { flex: 1; }
 </style>
 </head>
 <body class="book">
@@ -114,7 +144,7 @@
     </div>
     <p class="book-series">Livro 2 de 5 · Leitor</p>
     <h1 class="book-title">Leitor</h1>
-    <p class="book-lede">A história em repouso: só italiano, uma coluna calma e um toque que leva qualquer palavra ao dicionário, numa página inteira, sem perder o lugar na leitura.</p>
+    <p class="book-lede">A história em repouso: uma página de título, só italiano numa coluna calma, e um toque que leva qualquer palavra ao dicionário sem perder o lugar. Na doca, a narração (quando o áudio está no aparelho), quanto já foi lido e o único caminho para a tradução.</p>
     <nav class="book-toc" aria-label="Seções">
       <a href="#estrutura">Estrutura</a><a href="#estados">Estados</a><a href="#telas">Telas</a><a href="#especificacao">Especificação</a><a href="#conteudo-copia">Conteúdo e cópia</a><a href="#faca">Faça e não faça</a>
     </nav>
@@ -128,51 +158,40 @@
   <div class="book-wrap">
     <header class="book-section__head">
       <p class="book-kicker">01 · Estrutura</p>
-      <h2 class="book-h2" id="estrutura-h">Uma coluna, duas barras finas</h2>
-      <p class="book-note">O leitor é empurrado a partir da Biblioteca e ocupa a tela inteira, sem barra de abas. Em cima, uma app bar compacta. No meio, só o italiano. Embaixo, uma doca baixa com o progresso e o único caminho para a tradução. Nada mais disputa a atenção com o texto.</p>
+      <h2 class="book-h2" id="estrutura-h">Página de título, uma coluna, duas barras finas</h2>
+      <p class="book-note">O leitor é empurrado a partir da Biblioteca e ocupa a tela inteira, sem barra de abas. Em cima, uma app bar compacta. No meio, a página de título com o colofão e, logo abaixo, só o italiano. Embaixo, uma doca baixa com o progresso, a narração quando o áudio está pronto, “N% lido” e o único caminho para a tradução.</p>
     </header>
 
     <div class="book-feature">
-      <figure class="phone" aria-label="Anatomia do leitor, topo da história" data-rd-static>
+      <figure class="phone" aria-label="Anatomia do leitor, página de título e doca com narração pronta" data-rd-static>
         <div class="phone__device"><div class="phone__screen">
           <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
           <div class="phone__body">
-            <div class="rd-anchor">
-              <div class="ui-appbar">
-                <button class="ui-iconbtn" type="button" aria-label="Voltar à biblioteca"><i data-lucide="chevron-left" aria-hidden="true"></i></button>
-                <p class="ui-appbar__title rd-bartitle" lang="it" aria-hidden="true">Il treno per Bologna</p>
-                <div class="ui-appbar__actions"><button class="ui-iconbtn" type="button" aria-label="Ajustes de leitura"><i data-lucide="a-large-small" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Mais opções"><i data-lucide="ellipsis" aria-hidden="true"></i></button></div>
-              </div>
-              <span class="book-pin rd-at rd-at--tl" aria-hidden="true">1</span><span class="book-pin rd-at rd-at--tc" aria-hidden="true">2</span><span class="book-pin rd-at rd-at--tr" aria-hidden="true">3</span>
-            </div>
+            <div class="rd-anchor"><div class="ui-appbar"><button class="ui-iconbtn" type="button" aria-label="Voltar à biblioteca"><i data-lucide="chevron-left" aria-hidden="true"></i></button><p class="ui-appbar__title rd-bartitle" lang="it" aria-hidden="true">Il treno per Bologna</p><div class="ui-appbar__actions"><button class="ui-iconbtn" type="button" aria-label="Ajustes de leitura"><i data-lucide="a-large-small" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Mais opções"><i data-lucide="ellipsis" aria-hidden="true"></i></button></div></div><span class="book-pin rd-at rd-at--tl" aria-hidden="true">1</span><span class="book-pin rd-at rd-at--tc" aria-hidden="true">2</span><span class="book-pin rd-at rd-at--tr" aria-hidden="true">3</span></div>
             <div class="phone__scroll rd-content" lang="it">
-              <div class="rd-anchor"><p class="rd-meta"><span class="ui-level" data-level="a2">A2</span><span lang="pt-BR">Viagem · 4 min</span></p><span class="book-pin rd-at rd-at--gut" aria-hidden="true">4</span></div>
-              <div class="rd-anchor"><h3 class="rd-title">Il treno per Bologna</h3><p class="rd-sub">Marta va a trovare la nonna dopo due anni.</p><span class="book-pin rd-at rd-at--gut" aria-hidden="true">5</span></div>
-              <div class="rd-anchor"><p class="rd-text">Marta arriva in stazione alle sette. Il <span class="ui-word is-saved">binario</span><span class="book-pin" aria-hidden="true">7</span> è quasi vuoto e l’aria sa di caffè. Compra un <span class="ui-word is-saved">biglietto</span> alla macchinetta e si siede vicino al finestrino.</p><span class="book-pin rd-at rd-at--gut" aria-hidden="true">6</span></div>
-              <p class="rd-text" style="margin-top:var(--space-4)">Il treno parte in orario. Fuori, la città si sveglia piano: un ragazzo in bicicletta, una signora con il cane, le <span class="ui-word is-saved">serrande</span> dei negozi che si alzano.</p>
+              <header class="ui-titlepage"><div class="rd-anchor"><p class="ui-titlepage__meta"><span class="ui-level" data-level="a2">A2</span><span lang="pt-BR">Viagem · Emília-Romanha</span></p><span class="book-pin rd-at rd-at--gut" aria-hidden="true">4</span></div><div class="rd-anchor"><h3 class="ui-titlepage__title">Il treno per Bologna</h3><p class="ui-titlepage__sub">Marta va a trovare la nonna dopo due anni.</p><span class="book-pin rd-at rd-at--gut" aria-hidden="true">5</span></div><div class="rd-anchor"><dl class="ui-colophon" lang="pt-BR"><div><dt>Leitura</dt><dd>2 min · narração de 4:12</dd></div><div><dt>Vocabulário</dt><dd>92% das palavras são do vocabulário básico<small>Nuovo vocabolario di base, De Mauro (NVdB)</small></dd></div></dl><span class="book-pin rd-at rd-at--gut" aria-hidden="true">6</span></div></header>
+              <div class="rd-anchor"><p class="rd-text">Marta arriva in stazione alle sette. Il <span class="ui-word is-saved">binario</span><span class="book-pin" aria-hidden="true">8</span> è quasi vuoto e l’aria sa di caffè. Compra un <span class="ui-word is-saved">biglietto</span> alla macchinetta e si siede vicino al finestrino.</p><span class="book-pin rd-at rd-at--gut" aria-hidden="true">7</span></div>
             </div>
-            <div class="ui-dock rd-anchor">
-              <div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:2%"></i></div>
-              <span class="book-pin rd-at rd-at--line" aria-hidden="true">8</span><span class="book-pin rd-at rd-at--line rd-at--end" aria-hidden="true">10</span>
-              <div class="ui-dock__row"><span class="rd-inl">4 min restantes <span class="book-pin" aria-hidden="true">9</span></span><button class="ui-btn ui-btn--secondary ui-btn--sm" type="button"><i data-lucide="rows-2" aria-hidden="true"></i>Mostrar tradução</button></div>
-            </div>
+            <div class="ui-dock rd-anchor"><div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:0%"></i></div><span class="book-pin rd-at rd-at--line" aria-hidden="true">9</span><span class="book-pin rd-at rd-at--line rd-at--tp" aria-hidden="true">10</span><span class="book-pin rd-at rd-at--line rd-at--pct" aria-hidden="true">11</span><span class="book-pin rd-at rd-at--line rd-at--end" aria-hidden="true">12</span><div class="ui-dock__row"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior" disabled><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Ouvir narração a partir daqui"><i data-lucide="play" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo" disabled><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div><span class="ui-dock__pct">0%<span> lido</span></span><button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div></div>
           </div>
           <div class="phone__home" aria-hidden="true"></div>
         </div></div>
-        <figcaption class="phone__caption"><strong>Leitor</strong> · anatomia, topo da história</figcaption>
+        <figcaption class="phone__caption"><strong>Leitor</strong> · anatomia, página de título, narração pronta</figcaption>
       </figure>
 
       <ol class="book-legend">
-        <li><span class="book-pin" aria-hidden="true">1</span><div><strong>Voltar</strong><span><code>.ui-iconbtn</code> com <code>chevron-left</code>, rótulo “Voltar à biblioteca”. Volta para o card da história, que mostra o novo progresso.</span></div></li>
-        <li><span class="book-pin" aria-hidden="true">2</span><div><strong>Título na barra</strong><span>Oculto no topo, porque o título já está na página. Aparece quando o título da página sai da vista, junto com o filete <code>.is-scrolled</code>.</span></div></li>
-        <li><span class="book-pin" aria-hidden="true">3</span><div><strong>Ações</strong><span><code>a-large-small</code> abre os ajustes de leitura (Aa). <code>ellipsis</code> abre o menu da história. O app bar compacto aceita até três ícones; aqui bastam dois. O marcador fica de fora: o glifo <code>bookmark</code> é das palavras salvas.</span></div></li>
-        <li><span class="book-pin" aria-hidden="true">4</span><div><strong>Cabeçalho</strong><span><code>.ui-level</code> A2, gênero e duração em <code>--type-meta</code>.</span></div></li>
-        <li><span class="book-pin" aria-hidden="true">5</span><div><strong>Título e linha-fina</strong><span>Newsreader <code>--type-title-lg</code> (36/40). A linha-fina, em italiano, usa <code>--type-lead</code> em itálico e tinta suave.</span></div></li>
-        <li><span class="book-pin" aria-hidden="true">6</span><div><strong>Coluna de leitura</strong><span>Literata <code>--type-reader</code> 20/34, margem de 20px (<code>--gutter</code>). Cada palavra é um alvo de toque.</span></div></li>
-        <li><span class="book-pin" aria-hidden="true">7</span><div><strong>Palavra salva</strong><span>Pontilhado de 2px em <code>--color-word-saved</code>. Neutra: não é cor nem peso.</span></div></li>
-        <li><span class="book-pin" aria-hidden="true">8</span><div><strong>Linha de progresso</strong><span><code>.ui-progress--accent</code> no topo de <code>.ui-dock</code>: 2px, trilho <code>--color-rule</code>, preenchimento <code>--color-accent</code>. É o único amarelo da tela além do grifo. Fora do Leitor a mesma linha é tinta.</span></div></li>
-        <li><span class="book-pin" aria-hidden="true">9</span><div><strong>Tempo restante</strong><span>Em minutos, arredondado para cima. Na última tela vira “Concluída”.</span></div></li>
-        <li><span class="book-pin" aria-hidden="true">10</span><div><strong>Mostrar tradução</strong><span><code>.ui-btn--secondary.ui-btn--sm</code> com <code>rows-2</code>. Tinta, nunca amarelo. Fica na zona do polegar, mas em contorno, para não chamar o olho durante a leitura.</span></div></li>
+        <li><span class="book-pin" aria-hidden="true">1</span><div><strong>Voltar</strong><span><code>.ui-iconbtn</code> com <code>chevron-left</code>, rótulo “Voltar à biblioteca”. Volta para o card da história, que mostra o novo “N% lido”. Sair do Leitor para a narração.</span></div></li>
+        <li><span class="book-pin" aria-hidden="true">2</span><div><strong>Título na barra</strong><span>Oculto no topo, porque o título já está na página. Aparece quando a página de título sai da vista, junto com o filete <code>.is-scrolled</code>.</span></div></li>
+        <li><span class="book-pin" aria-hidden="true">3</span><div><strong>Ações</strong><span><code>a-large-small</code> abre os ajustes de leitura (Aa). <code>ellipsis</code> abre Mais opções: Recomeçar do início · Relatar erro no texto. O marcador fica de fora: o glifo <code>bookmark</code> é das palavras salvas.</span></div></li>
+        <li><span class="book-pin" aria-hidden="true">4</span><div><strong>Linha da página de título</strong><span><code>.ui-titlepage__meta</code>: <code>.ui-level</code> e gênero · temas, no idioma de Imersão › Navegação.</span></div></li>
+        <li><span class="book-pin" aria-hidden="true">5</span><div><strong>Título e linha-fina</strong><span>Newsreader <code>--type-title-lg</code> (36/40); linha-fina em <code>--type-lead</code> itálico. Sempre em italiano, nunca traduzidos.</span></div></li>
+        <li><span class="book-pin" aria-hidden="true">6</span><div><strong>Colofão</strong><span><code>.ui-colophon</code>: linhas rotuladas, cada uma só quando se aplica (LEI-13). Aqui “Leitura” com a narração já no aparelho e “Vocabulário”. Rola junto com o texto.</span></div></li>
+        <li><span class="book-pin" aria-hidden="true">7</span><div><strong>Coluna de leitura</strong><span>Literata <code>--type-reader</code> 20/34, margem de 20px (<code>--gutter</code>). Cada palavra é um alvo de toque.</span></div></li>
+        <li><span class="book-pin" aria-hidden="true">8</span><div><strong>Palavra salva</strong><span>Pontilhado de 2px em <code>--color-word-saved</code>. Neutra: não é cor nem peso.</span></div></li>
+        <li><span class="book-pin" aria-hidden="true">9</span><div><strong>Linha de progresso</strong><span><code>.ui-progress--accent</code> no topo de <code>.ui-dock</code>: o único amarelo da tela além do grifo. Mede o mesmo que “N% lido”.</span></div></li>
+        <li><span class="book-pin" aria-hidden="true">10</span><div><strong>Transporte da narração</strong><span><code>.ui-transport</code>: “Frase anterior”, o disco de tinta e “Ouvir de novo”. Só existe quando o áudio está no aparelho (LEI-14). Antes do primeiro toque no disco não há frase marcada, então as pontas ficam desativadas.</span></div></li>
+        <li><span class="book-pin" aria-hidden="true">11</span><div><strong>N% lido</strong><span><code>.ui-dock__pct</code>: palavras dos parágrafos antes do que está no topo ÷ total, para baixo; 99% no máximo até o fim (LEI-07). Em telas estreitas cede antes dos botões.</span></div></li>
+        <li><span class="book-pin" aria-hidden="true">12</span><div><strong>Botão de tradução</strong><span><code>.ui-trbtn</code>: <code>languages</code> + rótulo em tinta, sem contorno nem fundo. O rótulo é o estado (“Mostrar tradução” ↔ “Ocultar tradução”). Fica no lugar mesmo sem tradução, desativado (TRA-10).</span></div></li>
       </ol>
     </div>
   </div>
@@ -184,17 +203,17 @@
     <header class="book-section__head">
       <p class="book-kicker">02 · Estados</p>
       <h2 class="book-h2" id="estados-h">Cada peça, em cada estado</h2>
-      <p class="book-note">Todos os componentes vêm de <code>book.css</code>, inclusive a doca (<code>.ui-dock</code>), a linha de progresso (<code>.ui-progress--accent</code>), a folha (<code>.ui-sheet</code>) e a seleção de expressão (<code>.ui-expression</code>). Só o passo de tamanho do Aa é deste livro.</p>
+      <p class="book-note">Todos os componentes vêm de <code>book.css</code>: a doca (<code>.ui-dock</code>) com o transporte (<code>.ui-transport</code>), “N% lido” (<code>.ui-dock__pct</code>) e o botão de tradução (<code>.ui-trbtn</code>); a página de título (<code>.ui-titlepage</code> + <code>.ui-colophon</code>), a espera (<code>.ui-wait</code>), a frase lida (<code>.ui-sentence</code>), a folha (<code>.ui-sheet</code>) e a seleção de expressão (<code>.ui-expression</code>). Só o passo de tamanho do Aa e as faixas de doca são deste livro.</p>
     </header>
 
     <h3 class="book-h3" style="margin-top:0">Palavra</h3>
     <div class="book-states" lang="it" data-rd-static>
       <figure class="book-state"><div class="book-state__stage on-bg"><p class="rd-text">vicino al <span class="ui-word">finestrino</span></p></div><figcaption class="book-state__label" lang="pt-BR"><strong>Padrão</strong> · sem marca, tocável</figcaption></figure>
       <figure class="book-state"><div class="book-state__stage on-bg"><p class="rd-text">vicino al <span class="ui-word is-hover">finestrino</span></p></div><figcaption class="book-state__label" lang="pt-BR"><strong>Hover</strong> · só ponteiro</figcaption></figure>
-      <figure class="book-state"><div class="book-state__stage on-bg"><p class="rd-text">vicino al <span class="ui-word is-hover">finestrino</span></p></div><figcaption class="book-state__label" lang="pt-BR"><strong>Pressionado</strong> · dedo na tela, <code>--dur-instant</code></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><p class="rd-text">vicino al <span class="ui-word is-active">finestrino</span></p></div><figcaption class="book-state__label" lang="pt-BR"><strong>Pressionado</strong> · dedo na tela, <code>--dur-instant</code></figcaption></figure>
       <figure class="book-state"><div class="book-state__stage on-bg"><p class="rd-text">vicino al <span class="ui-word is-focus">finestrino</span></p></div><figcaption class="book-state__label" lang="pt-BR"><strong>Foco</strong> · teclado, anel <code>--color-focus</code></figcaption></figure>
       <figure class="book-state"><div class="book-state__stage on-bg"><p class="rd-text">il <span class="ui-word is-saved">binario</span></p></div><figcaption class="book-state__label" lang="pt-BR"><strong>Salva</strong> · pontilhado neutro</figcaption></figure>
-      <figure class="book-state"><div class="book-state__stage on-bg"><p class="rd-text">vicino al <span class="ui-word is-selected">finestrino</span></p></div><figcaption class="book-state__label" lang="pt-BR"><strong>Selecionada</strong> · o grifo</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><p class="rd-text">vicino al <span class="ui-word is-selected">finestrino</span></p></div><figcaption class="book-state__label" lang="pt-BR"><strong>Selecionada</strong> · o grifo, até o próximo toque ou a primeira rolagem</figcaption></figure>
       <figure class="book-state"><div class="book-state__stage on-bg"><p class="rd-text">un <span class="ui-word is-saved is-selected">biglietto</span></p></div><figcaption class="book-state__label" lang="pt-BR"><strong>Salva + selecionada</strong> · o grifo vence</figcaption></figure>
       <figure class="book-state"><div class="book-state__stage on-bg"><p class="rd-text"><span class="ui-expression is-selected"><span class="ui-word">a</span> <span class="ui-word">un</span> <span class="ui-word">certo</span> <span class="ui-word">punto</span></span> la guarda</p></div><figcaption class="book-state__label" lang="pt-BR"><strong>Expressão selecionada</strong> · pressão longa + arrastar: o mesmo grifo cobre as palavras e os espaços, com duas alças</figcaption></figure>
     </div>
@@ -219,23 +238,73 @@
     </div>
     <p class="book-callout">A barra não some ao rolar. Ela tem só 56px, e manter o voltar e o Aa sempre no mesmo lugar vale mais do que ganhar duas linhas de texto. “Recolher” aqui quer dizer trocar o cabeçalho da página pelo título pequeno na barra.</p>
 
-    <h3 class="book-h3">Linha de progresso</h3>
-    <div class="book-states book-states--wide" data-rd-static>
-      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill"><div class="ui-dock" style="background:transparent"><div class="ui-progress ui-progress--accent" role="progressbar" aria-label="Progresso de leitura" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"><i style="--p:0%"></i></div><div class="ui-dock__row"><span>4 min restantes</span></div></div></div></div><figcaption class="book-state__label"><strong>Início</strong> · só o trilho</figcaption></figure>
-      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill"><div class="ui-dock" style="background:transparent"><div class="ui-progress ui-progress--accent" role="progressbar" aria-label="Progresso de leitura" aria-valuenow="38" aria-valuemin="0" aria-valuemax="100"><i style="--p:38%"></i></div><div class="ui-dock__row"><span>3 min restantes</span></div></div></div></div><figcaption class="book-state__label"><strong>Em andamento</strong> · 38%, segue a rolagem</figcaption></figure>
-      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill"><div class="ui-dock" style="background:transparent"><div class="ui-progress ui-progress--accent" role="progressbar" aria-label="Progresso de leitura" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"><i style="--p:100%"></i></div><div class="ui-dock__row"><span>Concluída</span></div></div></div></div><figcaption class="book-state__label"><strong>Concluída</strong> · cheia, sem animação de festa</figcaption></figure>
-      <figure class="book-state"><div class="book-state__stage on-bg" data-theme="dark"><div class="book-state__fill"><div class="ui-dock" style="background:transparent"><div class="ui-progress ui-progress--accent" role="progressbar" aria-label="Progresso de leitura" aria-valuenow="38" aria-valuemin="0" aria-valuemax="100"><i style="--p:38%"></i></div><div class="ui-dock__row"><span>3 min restantes</span></div></div></div></div><figcaption class="book-state__label"><strong>Escuro</strong> · mesmo papel, acento do tema</figcaption></figure>
+    <h3 class="book-h3">Doca</h3>
+    <p class="book-prose book-muted">Ordem fixa: transporte · “N% lido” · botão de tradução. A linha amarela no topo mede o mesmo que o número. Os glifos (não as áreas de toque) alinham com a margem de 20px. Cada faixa abaixo é uma doca na largura de uma tela, com a mesma regra de telas estreitas que vale dentro do telefone.</p>
+    <div class="rd-strips" data-rd-static>
+      <figure class="rd-stripfig"><div class="rd-strip"><div class="rd-strip__ruler" aria-hidden="true"><span>0</span><span>390 px</span></div><div class="ui-dock"><div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:0%"></i></div><div class="ui-dock__row"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior" disabled><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Ouvir narração a partir daqui"><i data-lucide="play" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo" disabled><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div><span class="ui-dock__pct">0%<span> lido</span></span><button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div></div></div><figcaption><strong>Pronta, antes do primeiro toque</strong> · o transporte já está inteiro; pontas desativadas, nada marcado</figcaption></figure>
+      <figure class="rd-stripfig"><div class="rd-strip"><div class="rd-strip__ruler" aria-hidden="true"><span>0</span><span>390 px</span></div><div class="ui-dock"><div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:36%"></i></div><div class="ui-dock__row"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior"><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Pausar narração"><i data-lucide="pause" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div><span class="ui-dock__pct">36%<span> lido</span></span><button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div></div></div><figcaption><strong>Tocando</strong> · ¶3 no topo: 54 de 149 palavras, 36%</figcaption></figure>
+      <figure class="rd-stripfig"><div class="rd-strip"><div class="rd-strip__ruler" aria-hidden="true"><span>0</span><span>390 px</span></div><div class="ui-dock"><div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:36%"></i></div><div class="ui-dock__row"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior"><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Continuar narração"><i data-lucide="play" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div><span class="ui-dock__pct">36%<span> lido</span></span><button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div></div></div><figcaption><strong>Pausada</strong> · só o glifo e o rótulo do disco mudam</figcaption></figure>
+      <figure class="rd-stripfig"><div class="rd-strip"><div class="rd-strip__ruler" aria-hidden="true"><span>0</span><span>390 px</span></div><div class="ui-dock"><div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:0%"></i></div><div class="ui-dock__row"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior" disabled><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Pausar narração"><i data-lucide="pause" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div><span class="ui-dock__pct">0%<span> lido</span></span><button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div></div></div><figcaption><strong>Primeira frase da história</strong> · “Frase anterior” desativada, no lugar</figcaption></figure>
+      <figure class="rd-stripfig"><div class="rd-strip"><div class="rd-strip__ruler" aria-hidden="true"><span>0</span><span>390 px</span></div><div class="ui-dock"><div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:0%"></i></div><div class="ui-dock__row"><span class="ui-dock__pct">0%<span> lido</span></span><button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div></div></div><figcaption><strong>Áudio ainda baixando, ou história sem narração</strong> · sem transporte, nada encolhe</figcaption></figure>
+      <figure class="rd-stripfig"><div class="rd-strip"><div class="rd-strip__ruler" aria-hidden="true"><span>0</span><span>390 px</span></div><div class="ui-dock"><div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:100%"></i></div><div class="ui-dock__row"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior"><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Continuar narração"><i data-lucide="play" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div><span class="ui-dock__pct">Lida</span><button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div></div></div><figcaption><strong>Lida</strong> · o fim da história apareceu na tela: 100%, sem festa</figcaption></figure>
+      <figure class="rd-stripfig"><div class="rd-strip" data-theme="dark"><div class="rd-strip__ruler" aria-hidden="true"><span>0</span><span>390 px</span></div><div class="ui-dock"><div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:63%"></i></div><div class="ui-dock__row"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior"><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Pausar narração"><i data-lucide="pause" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div><span class="ui-dock__pct">63%<span> lido</span></span><button class="ui-trbtn" type="button" aria-disabled="true" aria-describedby="rd-notr-1"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button><span class="visually-hidden" id="rd-notr-1">Esta história ainda não tem tradução em português</span></div></div></div><figcaption><strong>Sem tradução, escuro</strong> · “Mostrar tradução” desativado (TRA-10)</figcaption></figure>
+      <figure class="rd-stripfig"><div class="rd-strip rd-strip--360"><div class="rd-strip__ruler" aria-hidden="true"><span>0</span><span>360 px</span></div><div class="ui-dock"><div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:36%"></i></div><div class="ui-dock__row"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior"><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Pausar narração"><i data-lucide="pause" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div><span class="ui-dock__pct">36%<span> lido</span></span><button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div></div></div><figcaption><strong>360 px</strong> · “lido” sai da tela e fica para o leitor de tela</figcaption></figure>
+      <figure class="rd-stripfig"><div class="rd-strip rd-strip--340"><div class="rd-strip__ruler" aria-hidden="true"><span>0</span><span>340 px</span></div><div class="ui-dock"><div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:36%"></i></div><div class="ui-dock__row"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior"><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Pausar narração"><i data-lucide="pause" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div><span class="ui-dock__pct">36%<span> lido</span></span><button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Mostrar tradução">Ocultar tradução</span></button></div></div></div><figcaption><strong>340 px, tradução aberta</strong> · o número também sai; fica a linha de progresso</figcaption></figure>
     </div>
-    <p class="book-callout"><strong>Por que amarelo e por que embaixo.</strong> O orçamento permite o grifo e mais um amarelo. O progresso é o candidato natural: é um traço fino, não um texto, e diz “você está aqui” sem pedir nada. Ele fica no topo da doca, junto do tempo restante, e não sob a app bar, para não somar uma segunda linha ao filete <code>.is-scrolled</code>. Ao terminar, o preenchimento não pulsa nem muda de cor.</p>
+    <p class="book-callout"><strong>Por que amarelo e por que embaixo.</strong> O orçamento permite o grifo e mais um amarelo. O progresso é o candidato natural: é um traço fino, não um texto, e diz “você está aqui” sem pedir nada. Ele fica no topo da doca, junto do “N% lido”, e não sob a app bar, para não somar uma segunda linha ao filete <code>.is-scrolled</code>. O disco da narração é tinta, a frase lida é neutra e o botão de tradução é tinta: nenhum deles disputa o amarelo. Ao terminar, o preenchimento não pulsa nem muda de cor.</p>
 
-    <h3 class="book-h3">Mostrar tradução</h3>
+    <h3 class="book-h3">Transporte da narração</h3>
+    <p class="book-prose book-muted">Três alvos de 44px sem espaço entre eles, em ordem fixa. O grupo entra inteiro quando o áudio está pronto e nunca muda de lugar, então o segundo toque no disco sempre pausa. O disco troca glifo e rótulo; nunca <code>aria-pressed</code>, nunca amarelo.</p>
+    <div class="book-states book-states--wide" data-rd-static>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior"><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Pausar narração"><i data-lucide="pause" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div></div><figcaption class="book-state__label"><strong>Padrão · tocando</strong> · “Pausar narração”</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior"><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Continuar narração"><i data-lucide="play" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div></div><figcaption class="book-state__label"><strong>Padrão · pausado</strong> · “Continuar narração”; as pontas seguem ativas e também tocam</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior"><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play is-hover" type="button" aria-label="Pausar narração"><i data-lucide="pause" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div></div><figcaption class="book-state__label"><strong>Hover</strong> · disco um degrau mais claro</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn is-active" type="button" aria-label="Frase anterior"><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Pausar narração"><i data-lucide="pause" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div></div><figcaption class="book-state__label"><strong>Pressionado</strong> · “Frase anterior”: pílula <code>--color-surface-2</code>, sem aviso</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior"><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play is-focus" type="button" aria-label="Pausar narração"><i data-lucide="pause" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div></div><figcaption class="book-state__label"><strong>Foco</strong> · anel <code>--color-focus</code> no disco</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior" disabled><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Ouvir narração a partir daqui"><i data-lucide="play" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo" disabled><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div></div><figcaption class="book-state__label"><strong>Desativado · pronto</strong> · antes do primeiro toque: “Ouvir narração a partir daqui”, pontas desativadas</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior" disabled><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Pausar narração"><i data-lucide="pause" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div></div><figcaption class="book-state__label"><strong>Desativado · primeira frase</strong> · “Frase anterior” apagada, nunca vira outra ação</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg" data-theme="dark"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior"><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Pausar narração"><i data-lucide="pause" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div></div><figcaption class="book-state__label"><strong>Padrão · tocando</strong> · escuro</figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Frase em narração</h3>
+    <p class="book-prose book-muted">A frase que está sendo lida usa o visual da frase pareada do leitor com tradução (TRA-05): caixa neutra em <code>--color-sentence-bg</code>, texto em <code>--color-sentence-ink</code>, nunca amarela. Ela leva <code>aria-current="true"</code>. Pausada, a marca fica: é o alvo de “Ouvir de novo”.</p>
+    <div class="book-states" lang="it" data-rd-static>
+      <figure class="book-state"><div class="book-state__stage on-bg"><p class="rd-text">Accanto a lei c’è un uomo anziano. A un certo punto la guarda e chiede: «Va anche lei a Bologna?»</p></div><figcaption class="book-state__label" lang="pt-BR"><strong>Padrão</strong> · antes do primeiro toque no disco, nada marcado</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><p class="rd-text">Accanto a lei c’è un uomo anziano. <span class="ui-sentence is-active">A un certo punto la guarda e chiede: «Va anche lei a Bologna?»</span></p></div><figcaption class="book-state__label" lang="pt-BR"><strong>Pressionado</strong> · tocando, dedo fora de palavra: a narração pula para esta frase</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><p class="rd-text">Accanto a lei c’è un uomo anziano. <span class="ui-sentence is-selected" aria-current="true">A un certo punto la guarda e chiede: «Va anche lei a Bologna?»</span></p></div><figcaption class="book-state__label" lang="pt-BR"><strong>Selecionado · tocando</strong> · entre o início e o fim da frase no áudio</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><p class="rd-text">Accanto a lei c’è un uomo anziano. <span class="ui-sentence is-selected" aria-current="true">A un certo punto la guarda e chiede: «Va anche lei a Bologna?»</span></p></div><figcaption class="book-state__label" lang="pt-BR"><strong>Selecionado · pausado</strong> · a marca fica; “Ouvir de novo” recomeça daqui</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><p class="rd-text">Accanto a lei c’è un uomo anziano. <span class="ui-sentence is-selected" aria-current="true">A un certo punto la <span class="ui-word is-selected">guarda</span> e chiede: «Va anche lei a Bologna?»</span></p></div><figcaption class="book-state__label" lang="pt-BR"><strong>Selecionado + grifo</strong> · tocar numa palavra pausa e abre o verbete; na volta, a palavra grifada dentro da frase marcada</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg" data-theme="dark"><p class="rd-text">Accanto a lei c’è un uomo anziano. <span class="ui-sentence is-selected" aria-current="true">A un certo punto la guarda e chiede: «Va anche lei a Bologna?»</span></p></div><figcaption class="book-state__label" lang="pt-BR"><strong>Selecionado · escuro</strong></figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Botão de tradução</h3>
     <div class="book-states" data-rd-static>
-      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-btn ui-btn--secondary ui-btn--sm" type="button"><i data-lucide="rows-2" aria-hidden="true"></i>Mostrar tradução</button></div><figcaption class="book-state__label"><strong>Padrão</strong> · em repouso</figcaption></figure>
-      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-btn ui-btn--secondary ui-btn--sm is-hover" type="button"><i data-lucide="rows-2" aria-hidden="true"></i>Mostrar tradução</button></div><figcaption class="book-state__label"><strong>Hover</strong> · ponteiro</figcaption></figure>
-      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-btn ui-btn--secondary ui-btn--sm is-active" type="button"><i data-lucide="rows-2" aria-hidden="true"></i>Mostrar tradução</button></div><figcaption class="book-state__label"><strong>Pressionado</strong> · 98%, <code>--dur-instant</code></figcaption></figure>
-      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-btn ui-btn--secondary ui-btn--sm is-focus" type="button"><i data-lucide="rows-2" aria-hidden="true"></i>Mostrar tradução</button></div><figcaption class="book-state__label"><strong>Foco</strong> · teclado</figcaption></figure>
-      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-btn ui-btn--secondary ui-btn--sm" type="button"><i data-lucide="rows-2" aria-hidden="true"></i>Ocultar tradução</button></div><figcaption class="book-state__label"><strong>Aberta</strong> · o rótulo vira “Ocultar tradução” e é ele que diz o estado: sem <code>aria-pressed</code>, sem preenchimento (<a class="rd-link" href="book-leitor-traducao.html">livro Leitor com tradução</a>)</figcaption></figure>
-      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-btn ui-btn--secondary ui-btn--sm" type="button" disabled aria-busy="true"><i data-lucide="rows-2" aria-hidden="true"></i>Carregando</button></div><figcaption class="book-state__label"><strong>Desativado</strong> · carregando a tradução, <code>aria-busy</code></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div><figcaption class="book-state__label"><strong>Padrão</strong> · tradução oculta, tinta, sem contorno</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-trbtn is-hover" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div><figcaption class="book-state__label"><strong>Hover</strong> · pílula <code>--color-surface</code></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-trbtn is-active" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div><figcaption class="book-state__label"><strong>Pressionado</strong> · pílula <code>--color-surface-2</code></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-trbtn is-focus" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div><figcaption class="book-state__label"><strong>Foco</strong> · anel na pílula</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Mostrar tradução">Ocultar tradução</span></button></div><figcaption class="book-state__label"><strong>Tradução aberta</strong> · o rótulo vira “Ocultar tradução” e é ele que diz o estado: sem <code>aria-pressed</code>; a caixa não muda de largura (<a class="rd-link" href="book-leitor-traducao.html">Leitor com tradução</a>)</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-trbtn" type="button" aria-disabled="true" aria-describedby="rd-notr-2"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button><span class="visually-hidden" id="rd-notr-2">Esta história ainda não tem tradução em português</span></div><figcaption class="book-state__label"><strong>Desativado</strong> · história sem tradução (TRA-10): mesmo rótulo em <code>--color-ink-faint</code>, <code>aria-disabled</code> e a dica “Esta história ainda não tem tradução em português”; continua focável</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg" data-theme="dark"><button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div><figcaption class="book-state__label"><strong>Padrão</strong> · escuro</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg" data-theme="dark"><button class="ui-trbtn" type="button" aria-disabled="true" aria-describedby="rd-notr-3"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button><span class="visually-hidden" id="rd-notr-3">Esta história ainda não tem tradução em português</span></div><figcaption class="book-state__label"><strong>Desativado</strong> · escuro</figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Página de título e colofão</h3>
+    <p class="book-prose book-muted">O colofão fecha a página de título com linhas rotuladas, cada uma só quando se aplica (LEI-13). Os rótulos seguem Imersão › Rótulos e botões; a coluna dos rótulos tem a largura do mais longo. A licença é texto simples, nunca link.</p>
+    <div class="book-states book-states--wide" data-rd-static>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="rd-colo"><dl class="ui-colophon" lang="pt-BR"><div><dt>Leitura</dt><dd>2 min · narração de 4:12</dd></div><div><dt>Vocabulário</dt><dd>92% das palavras são do vocabulário básico<small>Nuovo vocabolario di base, De Mauro (NVdB)</small></dd></div></dl></div></div><figcaption class="book-state__label"><strong>Narrada, áudio no aparelho</strong> · “Leitura” ganha “narração de 4:12”</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="rd-colo"><dl class="ui-colophon" lang="pt-BR"><div><dt>Leitura</dt><dd>2 min</dd></div><div><dt>Vocabulário</dt><dd>92% das palavras são do vocabulário básico<small>Nuovo vocabolario di base, De Mauro (NVdB)</small></dd></div></dl></div></div><figcaption class="book-state__label"><strong>Áudio ainda baixando</strong> · nenhum rastro de narração (LEI-14)</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="rd-colo"><dl class="ui-colophon" lang="pt-BR"><div><dt>Texto</dt><dd>Carlo Collodi · adaptado<small>Licença CC BY-SA 4.0</small></dd></div><div><dt>Leitura</dt><dd>9 min</dd></div><div><dt>Vocabulário</dt><dd>81% das palavras são do vocabulário básico<small>Nuovo vocabolario di base, De Mauro (NVdB)</small></dd></div></dl></div></div><figcaption class="book-state__label"><strong>Clássico adaptado</strong> · “Texto” só para licença diferente de <code>LicenseRef-Postilla</code></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg" data-theme="dark"><div class="rd-colo"><dl class="ui-colophon" lang="pt-BR"><div><dt>Leitura</dt><dd>8 min · narração de 7:38</dd></div><div><dt>Tradução</dt><dd>Ainda não existe em português<small>Esta história foi publicada antes das traduções em português.</small></dd></div></dl></div></div><figcaption class="book-state__label"><strong>Sem tradução</strong> · TRA-10; sem “Vocabulário” porque a história não tem faixas NVdB</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="rd-colo"><dl class="ui-colophon" lang="it"><div><dt>Lettura</dt><dd>2 min · narrazione di 4:12</dd></div><div><dt>Vocabolario</dt><dd>92% delle parole è del vocabolario di base<small>Nuovo vocabolario di base, De Mauro (NVdB)</small></dd></div></dl></div></div><figcaption class="book-state__label"><strong>Rótulos em italiano</strong> · Imersão › Rótulos e botões em italiano</figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Espera pelo idioma novo</h3>
+    <p class="book-prose book-muted">Depois de trocar de idioma (AJU-08), uma história cujos arquivos ainda estão baixando abre na hora, com a espera no lugar do colofão e do texto (BIB-12). Ficar na tela é esperar: quando os arquivos chegam, o texto entra sozinho. A espera nunca promete tempo e não fala de conexão (OFF-01).</p>
+    <div class="book-states book-states--wide" data-rd-static>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="rd-colo"><div class="ui-wait" lang="pt-BR" role="status"><span class="ui-wait__icon"><i data-lucide="download" aria-hidden="true"></i></span><p class="ui-wait__title">O português ainda está chegando</p><p class="ui-wait__text">Você trocou o idioma das traduções. O italiano desta história já está aqui; quando a tradução terminar de baixar, a história abre sozinha.</p><span class="ui-progress" aria-hidden="true"><i style="--p:60%"></i></span><div class="ui-wait__actions"><button class="ui-btn ui-btn--primary ui-btn--block" type="button">Ler sem tradução</button><button class="ui-btn ui-btn--ghost ui-btn--block" type="button">Voltar à biblioteca</button></div></div></div></div><figcaption class="book-state__label"><strong>Italiano no aparelho</strong> · “Ler sem tradução” abre a história só em italiano até a tradução chegar</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="rd-colo"><div class="ui-wait" lang="pt-BR" role="status"><span class="ui-wait__icon"><i data-lucide="download" aria-hidden="true"></i></span><p class="ui-wait__title">Esta história ainda está chegando</p><p class="ui-wait__text">Você trocou de idioma. Quando os arquivos terminarem de baixar, ela abre sozinha.</p><span class="ui-progress" aria-hidden="true"><i style="--p:60%"></i></span><div class="ui-wait__actions"><button class="ui-btn ui-btn--ghost ui-btn--block" type="button">Voltar à biblioteca</button></div></div></div></div><figcaption class="book-state__label"><strong>Italiano ainda chegando</strong> · o título fala da história, não de um idioma; só “Voltar à biblioteca”, que desiste</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg" data-theme="dark"><div class="rd-colo"><div class="ui-wait" lang="pt-BR" role="status"><span class="ui-wait__icon"><i data-lucide="download" aria-hidden="true"></i></span><p class="ui-wait__title">O português ainda está chegando</p><p class="ui-wait__text">Você trocou o idioma das traduções. O italiano desta história já está aqui; quando a tradução terminar de baixar, a história abre sozinha.</p><span class="ui-progress" aria-hidden="true"><i style="--p:60%"></i></span><div class="ui-wait__actions"><button class="ui-btn ui-btn--primary ui-btn--block" type="button">Ler sem tradução</button><button class="ui-btn ui-btn--ghost ui-btn--block" type="button">Voltar à biblioteca</button></div></div></div></div><figcaption class="book-state__label"><strong>Italiano no aparelho</strong> · escuro</figcaption></figure>
     </div>
 
     <h3 class="book-h3">Ajustes de leitura (Aa)</h3>
@@ -266,12 +335,12 @@
   <div class="book-wrap">
     <header class="book-section__head">
       <p class="book-kicker">03 · Telas</p>
-      <h2 class="book-h2" id="telas-h">Do primeiro parágrafo ao fim</h2>
-      <p class="book-note">A primeira tela é interativa: role a história, toque em qualquer palavra e volte. As outras mostram os momentos fixos, com os gêmeos no tema escuro.</p>
+      <h2 class="book-h2" id="telas-h">Da página de título ao fim</h2>
+      <p class="book-note">A primeira tela é interativa: role a história, ouça a narração simulada, toque em qualquer palavra e volte. As outras mostram os momentos fixos, com gêmeos no tema escuro.</p>
     </header>
 
     <div class="book-feature">
-      <figure class="phone" aria-label="Leitor interativo: toque numa palavra para abrir o dicionário" data-rd-demo>
+      <figure class="phone" aria-label="Leitor interativo: role, toque numa palavra ou ouça a narração" data-rd-demo>
         <div class="phone__device"><div class="phone__screen">
           <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
           <div class="phone__body">
@@ -284,17 +353,15 @@
                 </div>
                 <div class="ui-scroll" data-rd-scroller tabindex="-1">
                   <div class="rd-content" lang="it">
-                    <p class="rd-meta"><span class="ui-level" data-level="a2">A2</span><span lang="pt-BR">Viagem · 4 min</span></p>
-                    <h3 class="rd-title" data-rd-title>Il treno per Bologna</h3>
-                    <p class="rd-sub">Marta va a trovare la nonna dopo due anni.</p>
+                    <header class="ui-titlepage"><p class="ui-titlepage__meta"><span class="ui-level" data-level="a2">A2</span><span lang="pt-BR">Viagem · Emília-Romanha</span></p><h3 class="ui-titlepage__title" data-rd-title>Il treno per Bologna</h3><p class="ui-titlepage__sub">Marta va a trovare la nonna dopo due anni.</p><dl class="ui-colophon" lang="pt-BR"><div><dt>Leitura</dt><dd>2 min · narração de 4:12</dd></div><div><dt>Vocabulário</dt><dd>92% das palavras são do vocabulário básico<small>Nuovo vocabolario di base, De Mauro (NVdB)</small></dd></div></dl></header>
                     <div class="rd-words" data-rd-words>
-                      <p class="rd-text">Marta arriva in stazione alle sette. Il <span class="ui-word is-saved">binario</span> è quasi vuoto e l’aria sa di caffè. Compra un <span class="ui-word is-saved">biglietto</span> alla macchinetta e si siede vicino al <span class="ui-word is-selected">finestrino</span>.</p>
-                      <p class="rd-text">Il treno parte in orario. Fuori, la città si sveglia piano: un ragazzo in bicicletta, una signora con il cane, le <span class="ui-word is-saved">serrande</span> dei negozi che si alzano.</p>
-                      <p class="rd-text">Accanto a lei c’è un uomo anziano che legge il giornale. A un certo punto la guarda e chiede: «Va anche lei a Bologna?» Marta sorride e risponde di sì. Va a trovare sua nonna, che non vede da due anni.</p>
-                      <p class="rd-text">L’uomo piega il giornale. «Allora deve assaggiare i tortellini di via Pescherie Vecchie», dice. «Ma non lo dica a sua nonna. Le nonne vogliono sempre cucinare loro.»</p>
-                      <p class="rd-text">Marta ride. Guarda di nuovo fuori dal finestrino. Le colline sono verdi e il cielo è chiaro. Per la prima volta da molto tempo, non ha fretta.</p>
+                      <p class="rd-text"><span data-rd-s>Marta arriva in stazione alle sette.</span> <span data-rd-s>Il <span class="ui-word is-saved">binario</span> è quasi vuoto e l’aria sa di caffè.</span> <span data-rd-s>Compra un <span class="ui-word is-saved">biglietto</span> alla macchinetta e si siede vicino al finestrino.</span></p>
+                      <p class="rd-text"><span data-rd-s>Il treno parte in orario.</span> <span data-rd-s>Fuori, la città si sveglia piano: un ragazzo in bicicletta, una signora con il cane, le <span class="ui-word is-saved">serrande</span> dei negozi che si alzano.</span></p>
+                      <p class="rd-text"><span data-rd-s>Accanto a lei c’è un uomo anziano che legge il giornale.</span> <span data-rd-s>A un certo punto la guarda e chiede: «Va anche lei a Bologna?»</span> <span data-rd-s>Marta sorride e risponde di sì.</span> <span data-rd-s>Va a trovare sua nonna, che non vede da due anni.</span></p>
+                      <p class="rd-text"><span data-rd-s>L’uomo piega il giornale.</span> <span data-rd-s>«Allora deve assaggiare i tortellini di via Pescherie Vecchie», dice.</span> <span data-rd-s>«Ma non lo dica a sua nonna.</span> <span data-rd-s>Le nonne vogliono sempre cucinare loro.»</span></p>
+                      <p class="rd-text"><span data-rd-s>Marta ride.</span> <span data-rd-s>Guarda di nuovo fuori dal finestrino.</span> <span data-rd-s>Le colline sono verdi e il cielo è chiaro.</span> <span data-rd-s>Per la prima volta da molto tempo, non ha fretta.</span></p>
                     </div>
-                    <div class="rd-end" lang="pt-BR">
+                    <div class="rd-end" lang="pt-BR" data-rd-end>
                       <p class="ui-label">Fim da história</p>
                       <p class="rd-end__line">3 palavras salvas nesta história. <a class="rd-link" href="book-dicionario.html">Ver em Dicionário › Salvas</a></p>
                       <div class="ui-hero ui-hero--compact">
@@ -309,8 +376,8 @@
                   </div>
                 </div>
                 <div class="ui-dock">
-                  <div class="ui-progress ui-progress--accent" role="progressbar" aria-label="Progresso de leitura" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-rd-progress><i></i></div>
-                  <div class="ui-dock__row"><span data-rd-left aria-live="off">4 min restantes</span><a class="ui-btn ui-btn--secondary ui-btn--sm" href="book-leitor-traducao.html"><i data-lucide="rows-2" aria-hidden="true"></i>Mostrar tradução</a></div>
+                  <div class="ui-progress ui-progress--accent" aria-hidden="true"><i data-rd-progress style="--p:0%"></i></div>
+                  <div class="ui-dock__row"><div class="ui-transport" data-rd-transport role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior" disabled><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Ouvir narração a partir daqui"><i data-lucide="play" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo" disabled><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div><span class="ui-dock__pct" data-rd-pct>0%<span> lido</span></span><button class="ui-trbtn" type="button" data-rd-tr><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div>
                 </div>
               </div>
 
@@ -328,217 +395,194 @@
           </div>
           <div class="phone__home" aria-hidden="true"></div>
         </div></div>
-        <figcaption class="phone__caption"><strong>Leitor</strong> · interativo, <span lang="it">finestrino</span> grifado</figcaption>
+        <figcaption class="phone__caption"><strong>Leitor</strong> · interativo, narração pronta</figcaption>
       </figure>
 
       <div class="book-prose">
         <p class="ui-label" style="margin-bottom:var(--space-3)">Experimente</p>
         <ol>
-          <li><b>Role</b> a história. Quando o título sai da vista, ele entra na barra com o filete. A linha amarela acompanha e o tempo restante cai.</li>
-          <li><b>Toque numa palavra.</b> Ela ganha o grifo em <code>--dur-fast</code> e, logo depois, o verbete entra pela direita em <code>--dur-base</code>, como página inteira. O texto recua 30%, sem sumir.</li>
-          <li><b>Toque em ‹</b> (“Voltar à história”). A história volta na mesma posição e a palavra continua grifada por 1,5 s antes de apagar.</li>
-          <li><b>No verbete, salve</b> pelo marcador. Ao voltar, a palavra já tem o pontilhado.</li>
-          <li><b>Mantenha o dedo</b> (ou o botão do mouse) numa palavra por meio segundo e arraste: as alças aparecem e a seleção cresce palavra a palavra. Tente <span lang="it">«A un certo punto»</span> no terceiro parágrafo. Ao soltar, a expressão abre no dicionário como página inteira.</li>
+          <li><b>Role</b> a história. Quando a página de título sai da vista, o título entra na barra com o filete. “N% lido” muda a cada parágrafo que passa do topo; quando o fim da história aparece, vira “Lida”.</li>
+          <li><b>Toque no disco.</b> A narração começa na primeira frase do parágrafo do topo, a frase lida fica marcada (caixa neutra) e o texto rola para mantê-la à vista. O disco vira “Pausar narração”.</li>
+          <li><b>Pause.</b> A marca fica. <b>“Ouvir de novo”</b> volta ao começo da frase marcada e <b>“Frase anterior”</b> à de antes, atravessando parágrafos; as duas tocam dali, pausado ou não.</li>
+          <li><b>Tocando, toque fora de uma palavra</b> noutra frase: a narração pula para ela. Rolar com o dedo para o acompanhamento até o próximo toque no transporte.</li>
+          <li><b>Toque numa palavra.</b> A narração pausa, a palavra ganha o grifo e o verbete entra pela direita como página inteira. Em ‹ (“Voltar à história”) a história volta na mesma posição e a palavra continua grifada até o próximo toque ou a primeira rolagem.</li>
+          <li><b>Mantenha o dedo</b> (ou o botão do mouse) numa palavra por meio segundo e arraste: as alças aparecem e a seleção cresce palavra a palavra, dentro do parágrafo. Tente <span lang="it">«A un certo punto»</span> no terceiro parágrafo.</li>
           <li><b>Teclado:</b> Tab entra no texto, ← → percorrem as palavras, Enter abre o verbete e Esc volta.</li>
         </ol>
-        <p>“Mostrar tradução” leva ao <a class="rd-link" href="book-leitor-traducao.html">livro do leitor com tradução</a>. O verbete de <span lang="it">finestrino</span> completo está no <a class="rd-link" href="book-dicionario.html#finestrino">livro Dicionário</a>.</p>
+        <p>“Mostrar tradução” leva ao <a class="rd-link" href="book-leitor-traducao.html">livro do leitor com tradução</a>. O verbete de <span lang="it">finestrino</span> completo está no <a class="rd-link" href="book-dicionario.html#finestrino">livro Dicionário</a>. Neste protótipo o áudio é simulado: cada frase dura o tempo das suas palavras.</p>
         <p class="rd-hint"><i data-lucide="a-large-small" aria-hidden="true"></i><span>O Aa desta tela leva à <a class="rd-link" href="#tela-aa">folha de ajustes</a>, que também funciona.</span></p>
       </div>
     </div>
 
-    <h3 class="book-h3">Momentos fixos</h3>
-    <div class="book-screens" data-rd-static>
-
-      <!-- 1 · top of story, light -->
-      <figure class="phone" aria-label="Leitor, topo da história, tema claro">
+    <h3 class="book-h3">Narração</h3>
+    <div class="rd-screens" data-rd-static>
+      <figure class="phone" aria-label="Leitor, página de título, narração pronta e parada, tema claro">
         <div class="phone__device"><div class="phone__screen">
           <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
           <div class="phone__body">
-            <div class="ui-appbar">
-              <button class="ui-iconbtn" type="button" aria-label="Voltar à biblioteca"><i data-lucide="chevron-left" aria-hidden="true"></i></button>
-              <p class="ui-appbar__title rd-bartitle" lang="it" aria-hidden="true">Il treno per Bologna</p>
-              <div class="ui-appbar__actions"><button class="ui-iconbtn" type="button" aria-label="Ajustes de leitura"><i data-lucide="a-large-small" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Mais opções"><i data-lucide="ellipsis" aria-hidden="true"></i></button></div>
-            </div>
-            <div class="phone__scroll rd-content" lang="it">
-              <p class="rd-meta"><span class="ui-level" data-level="a2">A2</span><span lang="pt-BR">Viagem · 4 min</span></p>
-              <h4 class="rd-title">Il treno per Bologna</h4>
-              <p class="rd-sub">Marta va a trovare la nonna dopo due anni.</p>
-              <p class="rd-text">Marta arriva in stazione alle sette. Il <span class="ui-word is-saved">binario</span> è quasi vuoto e l’aria sa di caffè. Compra un <span class="ui-word is-saved">biglietto</span> alla macchinetta e si siede vicino al finestrino.</p>
-              <p class="rd-text">Il treno parte in orario. Fuori, la città si sveglia piano: un ragazzo in bicicletta, una signora con il cane, le <span class="ui-word is-saved">serrande</span> dei negozi che si alzano.</p>
-            </div>
-            <div class="ui-dock">
-              <div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:0%"></i></div>
-              <div class="ui-dock__row"><span>4 min restantes</span><button class="ui-btn ui-btn--secondary ui-btn--sm" type="button"><i data-lucide="rows-2" aria-hidden="true"></i>Mostrar tradução</button></div>
-            </div>
+            <div class="ui-appbar"><button class="ui-iconbtn" type="button" aria-label="Voltar à biblioteca"><i data-lucide="chevron-left" aria-hidden="true"></i></button><p class="ui-appbar__title rd-bartitle" lang="it" aria-hidden="true">Il treno per Bologna</p><div class="ui-appbar__actions"><button class="ui-iconbtn" type="button" aria-label="Ajustes de leitura"><i data-lucide="a-large-small" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Mais opções"><i data-lucide="ellipsis" aria-hidden="true"></i></button></div></div><div class="phone__scroll rd-content" lang="it"><header class="ui-titlepage"><p class="ui-titlepage__meta"><span class="ui-level" data-level="a2">A2</span><span lang="pt-BR">Viagem · Emília-Romanha</span></p><h4 class="ui-titlepage__title">Il treno per Bologna</h4><p class="ui-titlepage__sub">Marta va a trovare la nonna dopo due anni.</p><dl class="ui-colophon" lang="pt-BR"><div><dt>Leitura</dt><dd>2 min · narração de 4:12</dd></div><div><dt>Vocabulário</dt><dd>92% das palavras são do vocabulário básico<small>Nuovo vocabolario di base, De Mauro (NVdB)</small></dd></div></dl></header><p class="rd-text">Marta arriva in stazione alle sette. Il <span class="ui-word is-saved">binario</span> è quasi vuoto e l’aria sa di caffè. Compra un <span class="ui-word is-saved">biglietto</span> alla macchinetta e si siede vicino al finestrino.</p></div><div class="ui-dock"><div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:0%"></i></div><div class="ui-dock__row"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior" disabled><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Ouvir narração a partir daqui"><i data-lucide="play" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo" disabled><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div><span class="ui-dock__pct">0%<span> lido</span></span><button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div></div>
           </div>
           <div class="phone__home" aria-hidden="true"></div>
         </div></div>
-        <figcaption class="phone__caption"><strong>Leitor</strong> · topo da história, tradução oculta</figcaption>
+        <figcaption class="phone__caption"><strong>Leitor</strong> · página de título, narração pronta, tradução oculta</figcaption>
       </figure>
-
-      <!-- 2 · top of story, dark twin -->
-      <figure class="phone" aria-label="Leitor, topo da história, tema escuro">
+      <figure class="phone" aria-label="Leitor, página de título, narração pronta e parada, tema escuro">
         <div class="phone__device"><div class="phone__screen" data-theme="dark">
           <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
           <div class="phone__body">
-            <div class="ui-appbar">
-              <button class="ui-iconbtn" type="button" aria-label="Voltar à biblioteca"><i data-lucide="chevron-left" aria-hidden="true"></i></button>
-              <p class="ui-appbar__title rd-bartitle" lang="it" aria-hidden="true">Il treno per Bologna</p>
-              <div class="ui-appbar__actions"><button class="ui-iconbtn" type="button" aria-label="Ajustes de leitura"><i data-lucide="a-large-small" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Mais opções"><i data-lucide="ellipsis" aria-hidden="true"></i></button></div>
-            </div>
-            <div class="phone__scroll rd-content" lang="it">
-              <p class="rd-meta"><span class="ui-level" data-level="a2">A2</span><span lang="pt-BR">Viagem · 4 min</span></p>
-              <h4 class="rd-title">Il treno per Bologna</h4>
-              <p class="rd-sub">Marta va a trovare la nonna dopo due anni.</p>
-              <p class="rd-text">Marta arriva in stazione alle sette. Il <span class="ui-word is-saved">binario</span> è quasi vuoto e l’aria sa di caffè. Compra un <span class="ui-word is-saved">biglietto</span> alla macchinetta e si siede vicino al finestrino.</p>
-              <p class="rd-text">Il treno parte in orario. Fuori, la città si sveglia piano: un ragazzo in bicicletta, una signora con il cane, le <span class="ui-word is-saved">serrande</span> dei negozi che si alzano.</p>
-            </div>
-            <div class="ui-dock">
-              <div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:0%"></i></div>
-              <div class="ui-dock__row"><span>4 min restantes</span><button class="ui-btn ui-btn--secondary ui-btn--sm" type="button"><i data-lucide="rows-2" aria-hidden="true"></i>Mostrar tradução</button></div>
-            </div>
+            <div class="ui-appbar"><button class="ui-iconbtn" type="button" aria-label="Voltar à biblioteca"><i data-lucide="chevron-left" aria-hidden="true"></i></button><p class="ui-appbar__title rd-bartitle" lang="it" aria-hidden="true">Il treno per Bologna</p><div class="ui-appbar__actions"><button class="ui-iconbtn" type="button" aria-label="Ajustes de leitura"><i data-lucide="a-large-small" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Mais opções"><i data-lucide="ellipsis" aria-hidden="true"></i></button></div></div><div class="phone__scroll rd-content" lang="it"><header class="ui-titlepage"><p class="ui-titlepage__meta"><span class="ui-level" data-level="a2">A2</span><span lang="pt-BR">Viagem · Emília-Romanha</span></p><h4 class="ui-titlepage__title">Il treno per Bologna</h4><p class="ui-titlepage__sub">Marta va a trovare la nonna dopo due anni.</p><dl class="ui-colophon" lang="pt-BR"><div><dt>Leitura</dt><dd>2 min · narração de 4:12</dd></div><div><dt>Vocabulário</dt><dd>92% das palavras são do vocabulário básico<small>Nuovo vocabolario di base, De Mauro (NVdB)</small></dd></div></dl></header><p class="rd-text">Marta arriva in stazione alle sette. Il <span class="ui-word is-saved">binario</span> è quasi vuoto e l’aria sa di caffè. Compra un <span class="ui-word is-saved">biglietto</span> alla macchinetta e si siede vicino al finestrino.</p></div><div class="ui-dock"><div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:0%"></i></div><div class="ui-dock__row"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior" disabled><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Ouvir narração a partir daqui"><i data-lucide="play" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo" disabled><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div><span class="ui-dock__pct">0%<span> lido</span></span><button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div></div>
           </div>
           <div class="phone__home" aria-hidden="true"></div>
         </div></div>
-        <figcaption class="phone__caption"><strong>Leitor</strong> · topo da história, tema escuro</figcaption>
+        <figcaption class="phone__caption"><strong>Leitor</strong> · o mesmo, tema escuro</figcaption>
       </figure>
-
-      <!-- 3 · mid story, scrolled -->
-      <figure class="phone" aria-label="Leitor, meio da história, barra recolhida">
+      <figure class="phone" aria-label="Leitor com a narração tocando a frase 2 do parágrafo 3">
         <div class="phone__device"><div class="phone__screen">
           <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
           <div class="phone__body">
-            <div class="ui-appbar is-scrolled">
-              <button class="ui-iconbtn" type="button" aria-label="Voltar à biblioteca"><i data-lucide="chevron-left" aria-hidden="true"></i></button>
-              <p class="ui-appbar__title rd-bartitle" lang="it">Il treno per Bologna</p>
-              <div class="ui-appbar__actions"><button class="ui-iconbtn" type="button" aria-label="Ajustes de leitura"><i data-lucide="a-large-small" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Mais opções"><i data-lucide="ellipsis" aria-hidden="true"></i></button></div>
-            </div>
-            <div class="phone__scroll rd-content" lang="it">
-              <p class="rd-text rd-shift">Il treno parte in orario. Fuori, la città si sveglia piano: un ragazzo in bicicletta, una signora con il cane, le <span class="ui-word is-saved">serrande</span> dei negozi che si alzano.</p>
-              <p class="rd-text">Accanto a lei c’è un uomo anziano che legge il giornale. A un certo punto la guarda e chiede: «Va anche lei a Bologna?» Marta sorride e risponde di sì. Va a trovare sua nonna, che non vede da due anni.</p>
-              <p class="rd-text">L’uomo piega il giornale. «Allora deve assaggiare i tortellini di via Pescherie Vecchie», dice.</p>
-            </div>
-            <div class="ui-dock">
-              <div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:38%"></i></div>
-              <div class="ui-dock__row"><span>3 min restantes</span><button class="ui-btn ui-btn--secondary ui-btn--sm" type="button"><i data-lucide="rows-2" aria-hidden="true"></i>Mostrar tradução</button></div>
-            </div>
+            <div class="ui-appbar is-scrolled"><button class="ui-iconbtn" type="button" aria-label="Voltar à biblioteca"><i data-lucide="chevron-left" aria-hidden="true"></i></button><p class="ui-appbar__title rd-bartitle" lang="it">Il treno per Bologna</p><div class="ui-appbar__actions"><button class="ui-iconbtn" type="button" aria-label="Ajustes de leitura"><i data-lucide="a-large-small" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Mais opções"><i data-lucide="ellipsis" aria-hidden="true"></i></button></div></div><div class="phone__scroll rd-content" lang="it"><p class="rd-text">Accanto a lei c’è un uomo anziano che legge il giornale. <span class="ui-sentence is-selected" aria-current="true">A un certo punto la guarda e chiede: «Va anche lei a Bologna?»</span> Marta sorride e risponde di sì. Va a trovare sua nonna, che non vede da due anni.</p><p class="rd-text">L’uomo piega il giornale. «Allora deve assaggiare i tortellini di via Pescherie Vecchie», dice. «Ma non lo dica a sua nonna. Le nonne vogliono sempre cucinare loro.»</p><p class="rd-text">Marta ride. Guarda di nuovo fuori dal finestrino. Le colline sono verdi e il cielo è chiaro.</p></div><div class="ui-dock"><div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:36%"></i></div><div class="ui-dock__row"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior"><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Pausar narração"><i data-lucide="pause" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div><span class="ui-dock__pct">36%<span> lido</span></span><button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div></div>
           </div>
           <div class="phone__home" aria-hidden="true"></div>
         </div></div>
-        <figcaption class="phone__caption"><strong>Leitor</strong> · meio da história, barra recolhida</figcaption>
+        <figcaption class="phone__caption"><strong>Leitor</strong> · tocando: ¶3, frase 2 marcada; 36% lido</figcaption>
       </figure>
+      <figure class="phone" aria-label="Leitor com a narração pausada, a frase continua marcada">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body">
+            <div class="ui-appbar is-scrolled"><button class="ui-iconbtn" type="button" aria-label="Voltar à biblioteca"><i data-lucide="chevron-left" aria-hidden="true"></i></button><p class="ui-appbar__title rd-bartitle" lang="it">Il treno per Bologna</p><div class="ui-appbar__actions"><button class="ui-iconbtn" type="button" aria-label="Ajustes de leitura"><i data-lucide="a-large-small" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Mais opções"><i data-lucide="ellipsis" aria-hidden="true"></i></button></div></div><div class="phone__scroll rd-content" lang="it"><p class="rd-text">Accanto a lei c’è un uomo anziano che legge il giornale. <span class="ui-sentence is-selected" aria-current="true">A un certo punto la guarda e chiede: «Va anche lei a Bologna?»</span> Marta sorride e risponde di sì. Va a trovare sua nonna, che non vede da due anni.</p><p class="rd-text">L’uomo piega il giornale. «Allora deve assaggiare i tortellini di via Pescherie Vecchie», dice. «Ma non lo dica a sua nonna. Le nonne vogliono sempre cucinare loro.»</p><p class="rd-text">Marta ride. Guarda di nuovo fuori dal finestrino. Le colline sono verdi e il cielo è chiaro.</p></div><div class="ui-dock"><div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:36%"></i></div><div class="ui-dock__row"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior"><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Continuar narração"><i data-lucide="play" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div><span class="ui-dock__pct">36%<span> lido</span></span><button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div></div>
+          </div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Leitor</strong> · pausado: a marca fica, é o alvo de “Ouvir de novo”</figcaption>
+      </figure>
+      <figure class="phone" aria-label="Leitor tocando a primeira frase da história, Frase anterior desativada">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body">
+            <div class="ui-appbar"><button class="ui-iconbtn" type="button" aria-label="Voltar à biblioteca"><i data-lucide="chevron-left" aria-hidden="true"></i></button><p class="ui-appbar__title rd-bartitle" lang="it" aria-hidden="true">Il treno per Bologna</p><div class="ui-appbar__actions"><button class="ui-iconbtn" type="button" aria-label="Ajustes de leitura"><i data-lucide="a-large-small" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Mais opções"><i data-lucide="ellipsis" aria-hidden="true"></i></button></div></div><div class="phone__scroll rd-content" lang="it"><header class="ui-titlepage"><p class="ui-titlepage__meta"><span class="ui-level" data-level="a2">A2</span><span lang="pt-BR">Viagem · Emília-Romanha</span></p><h4 class="ui-titlepage__title">Il treno per Bologna</h4><p class="ui-titlepage__sub">Marta va a trovare la nonna dopo due anni.</p><dl class="ui-colophon" lang="pt-BR"><div><dt>Leitura</dt><dd>2 min · narração de 4:12</dd></div><div><dt>Vocabulário</dt><dd>92% das palavras são do vocabulário básico<small>Nuovo vocabolario di base, De Mauro (NVdB)</small></dd></div></dl></header><p class="rd-text"><span class="ui-sentence is-selected" aria-current="true">Marta arriva in stazione alle sette.</span> Il <span class="ui-word is-saved">binario</span> è quasi vuoto e l’aria sa di caffè. Compra un <span class="ui-word is-saved">biglietto</span> alla macchinetta e si siede vicino al finestrino.</p></div><div class="ui-dock"><div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:0%"></i></div><div class="ui-dock__row"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior" disabled><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Pausar narração"><i data-lucide="pause" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div><span class="ui-dock__pct">0%<span> lido</span></span><button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div></div>
+          </div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Leitor</strong> · primeira frase: “Frase anterior” desativada, no lugar</figcaption>
+      </figure>
+      <figure class="phone" aria-label="Leitor logo depois de Frase anterior, a marca volta ao parágrafo 2">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body">
+            <div class="ui-appbar is-scrolled"><button class="ui-iconbtn" type="button" aria-label="Voltar à biblioteca"><i data-lucide="chevron-left" aria-hidden="true"></i></button><p class="ui-appbar__title rd-bartitle" lang="it">Il treno per Bologna</p><div class="ui-appbar__actions"><button class="ui-iconbtn" type="button" aria-label="Ajustes de leitura"><i data-lucide="a-large-small" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Mais opções"><i data-lucide="ellipsis" aria-hidden="true"></i></button></div></div><div class="phone__scroll rd-content" lang="it"><p class="rd-text">Il treno parte in orario. <span class="ui-sentence is-selected" aria-current="true">Fuori, la città si sveglia piano: un ragazzo in bicicletta, una signora con il cane, le <span class="ui-word is-saved">serrande</span> dei negozi che si alzano.</span></p><p class="rd-text">Accanto a lei c’è un uomo anziano che legge il giornale. A un certo punto la guarda e chiede: «Va anche lei a Bologna?» Marta sorride e risponde di sì. Va a trovare sua nonna, che non vede da due anni.</p><p class="rd-text">L’uomo piega il giornale. «Allora deve assaggiare i tortellini di via Pescherie Vecchie», dice. «Ma non lo dica a sua nonna. Le nonne vogliono sempre cucinare loro.»</p></div><div class="ui-dock"><div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:18%"></i></div><div class="ui-dock__row"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn is-active" type="button" aria-label="Frase anterior"><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Pausar narração"><i data-lucide="pause" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div><span class="ui-dock__pct">18%<span> lido</span></span><button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div></div>
+          </div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Leitor</strong> · “Frase anterior” atravessa o parágrafo: de ¶3 para o fim de ¶2</figcaption>
+      </figure>
+      <figure class="phone" aria-label="Leitor, início de Pinocchio, áudio ainda baixando">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body">
+            <div class="ui-appbar"><button class="ui-iconbtn" type="button" aria-label="Voltar à biblioteca"><i data-lucide="chevron-left" aria-hidden="true"></i></button><p class="ui-appbar__title rd-bartitle" lang="it" aria-hidden="true">Pinocchio, capitolo primo</p><div class="ui-appbar__actions"><button class="ui-iconbtn" type="button" aria-label="Ajustes de leitura"><i data-lucide="a-large-small" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Mais opções"><i data-lucide="ellipsis" aria-hidden="true"></i></button></div></div><div class="phone__scroll rd-content" lang="it"><header class="ui-titlepage"><p class="ui-titlepage__meta"><span class="ui-level" data-level="b1">B1</span><span lang="pt-BR">Clássicos</span></p><h4 class="ui-titlepage__title">Pinocchio, capitolo primo</h4><p class="ui-titlepage__sub">Mastro Ciliegia trova un pezzo di legno che parla.</p><dl class="ui-colophon" lang="pt-BR"><div><dt>Texto</dt><dd>Carlo Collodi · adaptado<small>Licença CC BY-SA 4.0</small></dd></div><div><dt>Leitura</dt><dd>9 min</dd></div><div><dt>Vocabulário</dt><dd>81% das palavras são do vocabulário básico<small>Nuovo vocabolario di base, De Mauro (NVdB)</small></dd></div></dl></header><p class="rd-text">C’era una volta… «Un re!» diranno subito i miei piccoli lettori. No, ragazzi, avete sbagliato. C’era una volta un pezzo di legno.</p><p class="rd-text">Non era un legno di lusso, ma un semplice pezzo da catasta, di quelli che d’inverno si mettono nelle stufe e nei caminetti per accendere il fuoco.</p></div><div class="ui-dock"><div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:0%"></i></div><div class="ui-dock__row"><span class="ui-dock__pct">0%<span> lido</span></span><button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div></div>
+          </div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Leitor</strong> · áudio ainda baixando: sem transporte e sem “narração” no colofão</figcaption>
+      </figure>
+    </div>
 
-      <!-- 4 · word selected, light -->
+    <h3 class="book-h3">Palavra, expressão e verbete</h3>
+    <div class="rd-screens" data-rd-static>
       <figure class="phone" aria-label="Leitor, palavra finestrino selecionada, tema claro">
         <div class="phone__device"><div class="phone__screen">
           <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
           <div class="phone__body">
-            <div class="ui-appbar">
-              <button class="ui-iconbtn" type="button" aria-label="Voltar à biblioteca"><i data-lucide="chevron-left" aria-hidden="true"></i></button>
-              <p class="ui-appbar__title rd-bartitle" lang="it" aria-hidden="true">Il treno per Bologna</p>
-              <div class="ui-appbar__actions"><button class="ui-iconbtn" type="button" aria-label="Ajustes de leitura"><i data-lucide="a-large-small" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Mais opções"><i data-lucide="ellipsis" aria-hidden="true"></i></button></div>
-            </div>
-            <div class="phone__scroll rd-content" lang="it">
-              <p class="rd-meta"><span class="ui-level" data-level="a2">A2</span><span lang="pt-BR">Viagem · 4 min</span></p>
-              <h4 class="rd-title">Il treno per Bologna</h4>
-              <p class="rd-sub">Marta va a trovare la nonna dopo due anni.</p>
-              <p class="rd-text">Marta arriva in stazione alle sette. Il <span class="ui-word is-saved">binario</span> è quasi vuoto e l’aria sa di caffè. Compra un <span class="ui-word is-saved">biglietto</span> alla macchinetta e si siede vicino al <span class="ui-word is-selected">finestrino</span>.</p>
-              <p class="rd-text">Il treno parte in orario. Fuori, la città si sveglia piano: un ragazzo in bicicletta, una signora con il cane, le <span class="ui-word is-saved">serrande</span> dei negozi che si alzano.</p>
-            </div>
-            <div class="ui-dock">
-              <div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:6%"></i></div>
-              <div class="ui-dock__row"><span>4 min restantes</span><button class="ui-btn ui-btn--secondary ui-btn--sm" type="button"><i data-lucide="rows-2" aria-hidden="true"></i>Mostrar tradução</button></div>
-            </div>
+            <div class="ui-appbar"><button class="ui-iconbtn" type="button" aria-label="Voltar à biblioteca"><i data-lucide="chevron-left" aria-hidden="true"></i></button><p class="ui-appbar__title rd-bartitle" lang="it" aria-hidden="true">Il treno per Bologna</p><div class="ui-appbar__actions"><button class="ui-iconbtn" type="button" aria-label="Ajustes de leitura"><i data-lucide="a-large-small" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Mais opções"><i data-lucide="ellipsis" aria-hidden="true"></i></button></div></div><div class="phone__scroll rd-content" lang="it"><header class="ui-titlepage"><p class="ui-titlepage__meta"><span class="ui-level" data-level="a2">A2</span><span lang="pt-BR">Viagem · Emília-Romanha</span></p><h4 class="ui-titlepage__title">Il treno per Bologna</h4><p class="ui-titlepage__sub">Marta va a trovare la nonna dopo due anni.</p><dl class="ui-colophon" lang="pt-BR"><div><dt>Leitura</dt><dd>2 min · narração de 4:12</dd></div><div><dt>Vocabulário</dt><dd>92% das palavras são do vocabulário básico<small>Nuovo vocabolario di base, De Mauro (NVdB)</small></dd></div></dl></header><p class="rd-text">Marta arriva in stazione alle sette. Il <span class="ui-word is-saved">binario</span> è quasi vuoto e l’aria sa di caffè. Compra un <span class="ui-word is-saved">biglietto</span> alla macchinetta e si siede vicino al <span class="ui-word is-selected">finestrino</span>.</p></div><div class="ui-dock"><div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:0%"></i></div><div class="ui-dock__row"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior" disabled><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Ouvir narração a partir daqui"><i data-lucide="play" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo" disabled><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div><span class="ui-dock__pct">0%<span> lido</span></span><button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div></div>
           </div>
           <div class="phone__home" aria-hidden="true"></div>
         </div></div>
         <figcaption class="phone__caption"><strong>Leitor</strong> · <span lang="it">finestrino</span> grifado, antes de empurrar</figcaption>
       </figure>
-
-      <!-- 5 · word selected, dark twin -->
       <figure class="phone" aria-label="Leitor, palavra finestrino selecionada, tema escuro">
         <div class="phone__device"><div class="phone__screen" data-theme="dark">
           <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
           <div class="phone__body">
-            <div class="ui-appbar">
-              <button class="ui-iconbtn" type="button" aria-label="Voltar à biblioteca"><i data-lucide="chevron-left" aria-hidden="true"></i></button>
-              <p class="ui-appbar__title rd-bartitle" lang="it" aria-hidden="true">Il treno per Bologna</p>
-              <div class="ui-appbar__actions"><button class="ui-iconbtn" type="button" aria-label="Ajustes de leitura"><i data-lucide="a-large-small" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Mais opções"><i data-lucide="ellipsis" aria-hidden="true"></i></button></div>
-            </div>
-            <div class="phone__scroll rd-content" lang="it">
-              <p class="rd-meta"><span class="ui-level" data-level="a2">A2</span><span lang="pt-BR">Viagem · 4 min</span></p>
-              <h4 class="rd-title">Il treno per Bologna</h4>
-              <p class="rd-sub">Marta va a trovare la nonna dopo due anni.</p>
-              <p class="rd-text">Marta arriva in stazione alle sette. Il <span class="ui-word is-saved">binario</span> è quasi vuoto e l’aria sa di caffè. Compra un <span class="ui-word is-saved">biglietto</span> alla macchinetta e si siede vicino al <span class="ui-word is-selected">finestrino</span>.</p>
-              <p class="rd-text">Il treno parte in orario. Fuori, la città si sveglia piano: un ragazzo in bicicletta, una signora con il cane, le <span class="ui-word is-saved">serrande</span> dei negozi che si alzano.</p>
-            </div>
-            <div class="ui-dock">
-              <div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:6%"></i></div>
-              <div class="ui-dock__row"><span>4 min restantes</span><button class="ui-btn ui-btn--secondary ui-btn--sm" type="button"><i data-lucide="rows-2" aria-hidden="true"></i>Mostrar tradução</button></div>
-            </div>
+            <div class="ui-appbar"><button class="ui-iconbtn" type="button" aria-label="Voltar à biblioteca"><i data-lucide="chevron-left" aria-hidden="true"></i></button><p class="ui-appbar__title rd-bartitle" lang="it" aria-hidden="true">Il treno per Bologna</p><div class="ui-appbar__actions"><button class="ui-iconbtn" type="button" aria-label="Ajustes de leitura"><i data-lucide="a-large-small" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Mais opções"><i data-lucide="ellipsis" aria-hidden="true"></i></button></div></div><div class="phone__scroll rd-content" lang="it"><header class="ui-titlepage"><p class="ui-titlepage__meta"><span class="ui-level" data-level="a2">A2</span><span lang="pt-BR">Viagem · Emília-Romanha</span></p><h4 class="ui-titlepage__title">Il treno per Bologna</h4><p class="ui-titlepage__sub">Marta va a trovare la nonna dopo due anni.</p><dl class="ui-colophon" lang="pt-BR"><div><dt>Leitura</dt><dd>2 min · narração de 4:12</dd></div><div><dt>Vocabulário</dt><dd>92% das palavras são do vocabulário básico<small>Nuovo vocabolario di base, De Mauro (NVdB)</small></dd></div></dl></header><p class="rd-text">Marta arriva in stazione alle sette. Il <span class="ui-word is-saved">binario</span> è quasi vuoto e l’aria sa di caffè. Compra un <span class="ui-word is-saved">biglietto</span> alla macchinetta e si siede vicino al <span class="ui-word is-selected">finestrino</span>.</p></div><div class="ui-dock"><div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:0%"></i></div><div class="ui-dock__row"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior" disabled><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Ouvir narração a partir daqui"><i data-lucide="play" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo" disabled><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div><span class="ui-dock__pct">0%<span> lido</span></span><button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div></div>
           </div>
           <div class="phone__home" aria-hidden="true"></div>
         </div></div>
         <figcaption class="phone__caption"><strong>Leitor</strong> · <span lang="it">finestrino</span> grifado, tema escuro</figcaption>
       </figure>
-
-      <!-- 5b · expression selected (long-press + drag) -->
       <figure class="phone" aria-label="Leitor, expressão a un certo punto selecionada por pressão longa">
         <div class="phone__device"><div class="phone__screen">
           <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
           <div class="phone__body">
-            <div class="ui-appbar is-scrolled">
-              <button class="ui-iconbtn" type="button" aria-label="Voltar à biblioteca"><i data-lucide="chevron-left" aria-hidden="true"></i></button>
-              <p class="ui-appbar__title rd-bartitle" lang="it">Il treno per Bologna</p>
-              <div class="ui-appbar__actions"><button class="ui-iconbtn" type="button" aria-label="Ajustes de leitura"><i data-lucide="a-large-small" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Mais opções"><i data-lucide="ellipsis" aria-hidden="true"></i></button></div>
-            </div>
-            <div class="phone__scroll rd-content" lang="it">
-              <p class="rd-text rd-shift">Il treno parte in orario. Fuori, la città si sveglia piano: un ragazzo in bicicletta, una signora con il cane, le <span class="ui-word is-saved">serrande</span> dei negozi che si alzano.</p>
-              <p class="rd-text">Accanto a lei c’è un uomo anziano che legge il giornale. <span class="ui-expression is-selected"><span class="ui-word">A</span> <span class="ui-word">un</span> <span class="ui-word">certo</span> <span class="ui-word">punto</span></span> la guarda e chiede: «Va anche lei a Bologna?» Marta sorride e risponde di sì. Va a trovare sua nonna, che non vede da due anni.</p>
-              <p class="rd-text">L’uomo piega il giornale. «Allora deve assaggiare i tortellini di via Pescherie Vecchie», dice.</p>
-            </div>
-            <div class="ui-dock">
-              <div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:38%"></i></div>
-              <div class="ui-dock__row"><span>3 min restantes</span><button class="ui-btn ui-btn--secondary ui-btn--sm" type="button"><i data-lucide="rows-2" aria-hidden="true"></i>Mostrar tradução</button></div>
-            </div>
+            <div class="ui-appbar is-scrolled"><button class="ui-iconbtn" type="button" aria-label="Voltar à biblioteca"><i data-lucide="chevron-left" aria-hidden="true"></i></button><p class="ui-appbar__title rd-bartitle" lang="it">Il treno per Bologna</p><div class="ui-appbar__actions"><button class="ui-iconbtn" type="button" aria-label="Ajustes de leitura"><i data-lucide="a-large-small" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Mais opções"><i data-lucide="ellipsis" aria-hidden="true"></i></button></div></div><div class="phone__scroll rd-content" lang="it"><p class="rd-text rd-shift">Il treno parte in orario. Fuori, la città si sveglia piano: un ragazzo in bicicletta, una signora con il cane, le <span class="ui-word is-saved">serrande</span> dei negozi che si alzano.</p><p class="rd-text">Accanto a lei c’è un uomo anziano che legge il giornale. <span class="ui-expression is-selected"><span class="ui-word">A</span> <span class="ui-word">un</span> <span class="ui-word">certo</span> <span class="ui-word">punto</span></span> la guarda e chiede: «Va anche lei a Bologna?» Marta sorride e risponde di sì. Va a trovare sua nonna, che non vede da due anni.</p><p class="rd-text">L’uomo piega il giornale. «Allora deve assaggiare i tortellini di via Pescherie Vecchie», dice. «Ma non lo dica a sua nonna. Le nonne vogliono sempre cucinare loro.»</p></div><div class="ui-dock"><div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:18%"></i></div><div class="ui-dock__row"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior"><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Continuar narração"><i data-lucide="play" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div><span class="ui-dock__pct">18%<span> lido</span></span><button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div></div>
           </div>
           <div class="phone__home" aria-hidden="true"></div>
         </div></div>
         <figcaption class="phone__caption"><strong>Leitor</strong> · pressão longa e arraste: <span lang="it">a un certo punto</span></figcaption>
       </figure>
+      <figure class="phone" aria-label="Leitor, nome próprio Bologna sem verbete, toast">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body">
+            <div class="ui-appbar is-scrolled"><button class="ui-iconbtn" type="button" aria-label="Voltar à biblioteca"><i data-lucide="chevron-left" aria-hidden="true"></i></button><p class="ui-appbar__title rd-bartitle" lang="it">Il treno per Bologna</p><div class="ui-appbar__actions"><button class="ui-iconbtn" type="button" aria-label="Ajustes de leitura"><i data-lucide="a-large-small" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Mais opções"><i data-lucide="ellipsis" aria-hidden="true"></i></button></div></div><div class="phone__scroll rd-content" lang="it"><p class="rd-text">Accanto a lei c’è un uomo anziano che legge il giornale. A un certo punto la guarda e chiede: «Va anche lei a <span class="ui-word is-selected">Bologna</span>?» Marta sorride e risponde di sì. Va a trovare sua nonna, che non vede da due anni.</p><p class="rd-text">L’uomo piega il giornale. «Allora deve assaggiare i tortellini di via Pescherie Vecchie», dice. «Ma non lo dica a sua nonna. Le nonne vogliono sempre cucinare loro.»</p><p class="rd-text">Marta ride. Guarda di nuovo fuori dal finestrino.</p></div><div class="rd-toastanchor"><div class="rd-toastbox"><p class="ui-toast ui-toast--static" role="status">Sem verbete no dicionário</p></div></div><div class="ui-dock"><div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:36%"></i></div><div class="ui-dock__row"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior"><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Continuar narração"><i data-lucide="play" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div><span class="ui-dock__pct">36%<span> lido</span></span><button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div></div>
+          </div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Leitor</strong> · palavra sem verbete: grifo e toast, nada é empurrado</figcaption>
+      </figure>
+      <figure class="phone" aria-label="Página de escolha: a forma parte leva a partire e a parte">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body">
+            <div class="ui-appbar"><button class="ui-iconbtn" type="button" aria-label="Voltar à história"><i data-lucide="chevron-left" aria-hidden="true"></i></button><p class="ui-appbar__title">Dicionário</p><div class="ui-appbar__actions"></div></div><div class="phone__scroll rd-choice"><div class="rd-choice__head"><h4 class="ui-headword" lang="it">parte</h4><p class="rd-choice__note">Esta forma leva a duas palavras.</p></div><ul class="ui-list"><li class="ui-row ui-row--compact"><a class="ui-row__main" href="book-dicionario.html"><span class="ui-row__text"><span class="ui-row__title" lang="it">partire</span><span class="ui-row__meta" lang="it">verbo intransitivo</span></span><span class="ui-row__value"><i data-lucide="chevron-right" aria-hidden="true"></i></span></a></li><li class="ui-row ui-row--compact"><a class="ui-row__main" href="book-dicionario.html"><span class="ui-row__text"><span class="ui-row__title" lang="it">parte</span><span class="ui-row__meta" lang="it">sostantivo femminile</span></span><span class="ui-row__value"><i data-lucide="chevron-right" aria-hidden="true"></i></span></a></li></ul></div>
+          </div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Escolha</strong> · <span lang="it">parte</span> leva a dois lemas: uma linha por lema e classe</figcaption>
+      </figure>
+    </div>
 
-      <!-- 6 · end of story -->
+    <h3 class="book-h3">Sem tradução, espera, fim e erro</h3>
+    <div class="rd-screens" data-rd-static>
+      <figure class="phone" aria-label="Leitor, Lettera da Trieste sem tradução, narração tocando, tema escuro">
+        <div class="phone__device"><div class="phone__screen" data-theme="dark">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body">
+            <div class="ui-appbar"><button class="ui-iconbtn" type="button" aria-label="Voltar à biblioteca"><i data-lucide="chevron-left" aria-hidden="true"></i></button><p class="ui-appbar__title rd-bartitle" lang="it" aria-hidden="true">Lettera da Trieste</p><div class="ui-appbar__actions"><button class="ui-iconbtn" type="button" aria-label="Ajustes de leitura"><i data-lucide="a-large-small" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Mais opções"><i data-lucide="ellipsis" aria-hidden="true"></i></button></div></div><div class="phone__scroll rd-content" lang="it"><header class="ui-titlepage"><p class="ui-titlepage__meta"><span class="ui-level" data-level="b1">B1</span><span lang="pt-BR">Cartas</span></p><h4 class="ui-titlepage__title">Lettera da Trieste</h4><p class="ui-titlepage__sub">Una lettera al fratello, tra vento e caffè.</p><dl class="ui-colophon" lang="pt-BR"><div><dt>Leitura</dt><dd>8 min · narração de 7:38</dd></div><div><dt>Tradução</dt><dd>Ainda não existe em português<small>Esta história foi publicada antes das traduções em português.</small></dd></div></dl></header><p class="rd-text">Caro Paolo,</p><p class="rd-text">ti scrivo da un caffè vicino al porto. <span class="ui-sentence is-selected" aria-current="true">Fuori soffia la bora e la gente cammina piegata, con le mani in tasca.</span> Qui dentro, invece, è tutto calmo.</p></div><div class="ui-dock"><div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:0%"></i></div><div class="ui-dock__row"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior"><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Pausar narração"><i data-lucide="pause" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div><span class="ui-dock__pct">0%<span> lido</span></span><button class="ui-trbtn" type="button" aria-disabled="true" aria-describedby="rd-notr-4"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button><span class="visually-hidden" id="rd-notr-4">Esta história ainda não tem tradução em português</span></div></div>
+          </div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Leitor</strong> · sem tradução (TRA-10), tocando, tema escuro</figcaption>
+      </figure>
+      <figure class="phone" aria-label="Leitor esperando os arquivos do novo idioma">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body">
+            <div class="ui-appbar"><button class="ui-iconbtn" type="button" aria-label="Voltar à biblioteca"><i data-lucide="chevron-left" aria-hidden="true"></i></button><p class="ui-appbar__title rd-bartitle" lang="it" aria-hidden="true">Il treno per Bologna</p><div class="ui-appbar__actions"><button class="ui-iconbtn" type="button" aria-label="Ajustes de leitura"><i data-lucide="a-large-small" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Mais opções"><i data-lucide="ellipsis" aria-hidden="true"></i></button></div></div><div class="phone__scroll rd-content" lang="it"><header class="ui-titlepage"><p class="ui-titlepage__meta"><span class="ui-level" data-level="a2">A2</span><span lang="pt-BR">Viagem · Emília-Romanha</span></p><h4 class="ui-titlepage__title">Il treno per Bologna</h4><p class="ui-titlepage__sub">Marta va a trovare la nonna dopo due anni.</p><div class="ui-wait" lang="pt-BR" role="status"><span class="ui-wait__icon"><i data-lucide="download" aria-hidden="true"></i></span><p class="ui-wait__title">O português ainda está chegando</p><p class="ui-wait__text">Você trocou o idioma das traduções. O italiano desta história já está aqui; quando a tradução terminar de baixar, a história abre sozinha.</p><span class="ui-progress" aria-hidden="true"><i style="--p:60%"></i></span><div class="ui-wait__actions"><button class="ui-btn ui-btn--primary ui-btn--block" type="button">Ler sem tradução</button><button class="ui-btn ui-btn--ghost ui-btn--block" type="button">Voltar à biblioteca</button></div></div></header></div>
+          </div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Leitor</strong> · espera depois de trocar o idioma das traduções (BIB-12)</figcaption>
+      </figure>
       <figure class="phone" aria-label="Leitor, fim da história">
         <div class="phone__device"><div class="phone__screen">
           <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
           <div class="phone__body">
-            <div class="ui-appbar is-scrolled">
-              <button class="ui-iconbtn" type="button" aria-label="Voltar à biblioteca"><i data-lucide="chevron-left" aria-hidden="true"></i></button>
-              <p class="ui-appbar__title rd-bartitle" lang="it">Il treno per Bologna</p>
-              <div class="ui-appbar__actions"><button class="ui-iconbtn" type="button" aria-label="Ajustes de leitura"><i data-lucide="a-large-small" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Mais opções"><i data-lucide="ellipsis" aria-hidden="true"></i></button></div>
-            </div>
-            <div class="phone__scroll rd-content">
-              <p class="rd-text" lang="it">Marta ride. Guarda di nuovo fuori dal finestrino. Le colline sono verdi e il cielo è chiaro. Per la prima volta da molto tempo, non ha fretta.</p>
-              <div class="rd-end" style="margin-top:var(--space-8)">
-                <p class="ui-label">Fim da história</p>
-                <p class="rd-end__line">3 palavras salvas nesta história. <a class="rd-link" href="book-dicionario.html">Ver em Dicionário › Salvas</a></p>
-                <div class="ui-hero ui-hero--compact">
-                  <p class="ui-label">Próxima história</p>
-                  <p class="rd-meta" style="margin:0"><span class="ui-level" data-level="a2">A2</span><span>Mistério · 6 min</span></p>
-                  <p class="ui-hero__title" lang="it">La chiave sotto il vaso</p>
-                  <p class="ui-hero__sub" lang="it">Una porta chiusa, un vicino curioso.</p>
-                  <a class="ui-btn ui-btn--primary ui-btn--block" href="book-biblioteca.html">Começar a ler</a>
-                </div>
-              </div>
-            </div>
-            <div class="ui-dock">
-              <div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:100%"></i></div>
-              <div class="ui-dock__row"><span>Concluída</span><button class="ui-btn ui-btn--secondary ui-btn--sm" type="button"><i data-lucide="rows-2" aria-hidden="true"></i>Mostrar tradução</button></div>
-            </div>
+            <div class="ui-appbar is-scrolled"><button class="ui-iconbtn" type="button" aria-label="Voltar à biblioteca"><i data-lucide="chevron-left" aria-hidden="true"></i></button><p class="ui-appbar__title rd-bartitle" lang="it">Il treno per Bologna</p><div class="ui-appbar__actions"><button class="ui-iconbtn" type="button" aria-label="Ajustes de leitura"><i data-lucide="a-large-small" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Mais opções"><i data-lucide="ellipsis" aria-hidden="true"></i></button></div></div><div class="phone__scroll rd-content"><p class="rd-text" lang="it">Marta ride. Guarda di nuovo fuori dal finestrino. Le colline sono verdi e il cielo è chiaro. Per la prima volta da molto tempo, non ha fretta.</p><div class="rd-end" style="margin-top:var(--space-8)"><p class="ui-label">Fim da história</p><p class="rd-end__line">3 palavras salvas nesta história. <a class="rd-link" href="book-dicionario.html">Ver em Dicionário › Salvas</a></p><div class="ui-hero ui-hero--compact"><p class="ui-label">Próxima história</p><p class="rd-meta" style="margin:0"><span class="ui-level" data-level="a2">A2</span><span>Mistério · 6 min</span></p><p class="ui-hero__title" lang="it">La chiave sotto il vaso</p><p class="ui-hero__sub" lang="it">Una porta chiusa, un vicino curioso.</p><a class="ui-btn ui-btn--primary ui-btn--block" href="book-biblioteca.html">Começar a ler</a></div><a class="ui-btn ui-btn--ghost ui-btn--block" href="book-biblioteca.html">Voltar à biblioteca</a></div></div><div class="ui-dock"><div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:100%"></i></div><div class="ui-dock__row"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior"><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Continuar narração"><i data-lucide="play" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div><span class="ui-dock__pct">Lida</span><button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div></div>
           </div>
           <div class="phone__home" aria-hidden="true"></div>
         </div></div>
-        <figcaption class="phone__caption"><strong>Leitor</strong> · fim da história, próxima sugerida</figcaption>
+        <figcaption class="phone__caption"><strong>Leitor</strong> · fim da história: “Lida”, próxima sugerida</figcaption>
+      </figure>
+      <figure class="phone" aria-label="Leitor, erro local ao abrir a história">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body">
+            <div class="ui-appbar"><button class="ui-iconbtn" type="button" aria-label="Voltar à biblioteca"><i data-lucide="chevron-left" aria-hidden="true"></i></button><p class="ui-appbar__title rd-bartitle" lang="it" aria-hidden="true">Il treno per Bologna</p><div class="ui-appbar__actions"><button class="ui-iconbtn" type="button" aria-label="Ajustes de leitura"><i data-lucide="a-large-small" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Mais opções"><i data-lucide="ellipsis" aria-hidden="true"></i></button></div></div><div class="phone__scroll rd-content rd-error"><div class="ui-empty"><p class="ui-empty__title">Não foi possível abrir esta história</p><p class="ui-empty__text">Escolha outra na biblioteca.</p><div class="ui-empty__action"><button class="ui-btn ui-btn--secondary ui-btn--sm" type="button">Voltar à biblioteca</button></div></div></div>
+          </div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Leitor</strong> · erro local, sem falar de conexão; uma saída só, “Voltar à biblioteca”</figcaption>
       </figure>
     </div>
 
@@ -604,8 +648,8 @@
   <div class="book-wrap">
     <header class="book-section__head">
       <p class="book-kicker">04 · Especificação</p>
-      <h2 class="book-h2" id="spec-h">Tipografia, toque e movimento</h2>
-      <p class="book-note">As decisões que um desenvolvedor precisa para montar a coluna de leitura e a ida e volta até o dicionário.</p>
+      <h2 class="book-h2" id="spec-h">Tipografia, toque, narração e movimento</h2>
+      <p class="book-note">As decisões que um desenvolvedor precisa para montar a página de título, a coluna de leitura, a doca com a narração e a ida e volta até o dicionário.</p>
     </header>
 
     <h3 class="book-h3" style="margin-top:0">Coluna de leitura</h3>
@@ -621,8 +665,8 @@
       <dt>Hifenização</dt><dd><b>Desligada</b> (<code>hyphens: manual</code>, sem hífens suaves no conteúdo). Uma palavra partida vira dois alvos de toque e uma forma que o aluno não reconhece (“fi-nestrino”). Palavras longas quebram inteiras para a linha seguinte; <code>overflow-wrap: break-word</code> só como rede de segurança.</dd>
       <dt>Diálogo</dt><dd>Aspas angulares italianas <span lang="it">«…»</span>, coladas ao texto, sem espaço interno, como no original. A fala continua dentro do parágrafo, sem travessão e sem quebra de linha. As aspas e a pontuação não são tocáveis: o alvo é só a palavra.</dd>
       <dt>Elisão</dt><dd>Apóstrofo tipográfico (’). <span lang="it">l’aria</span>, <span lang="it">c’è</span> e <span lang="it">L’uomo</span> são um único alvo; o dicionário abre no lema (<span lang="it">aria</span>, <span lang="it">esserci</span>, <span lang="it">uomo</span>) e mostra o artigo como forma.</dd>
-      <dt>Primeiro parágrafo</dt><dd>Igual aos outros. <b>Sem capitular</b>: ela quebraria o ritmo de 34px das primeiras linhas, deixaria “Marta” com um alvo de toque deformado e é um ornamento que uma história de 4 minutos não precisa. Quem abre a leitura é o título em Newsreader.</dd>
-      <dt>Título</dt><dd><code>--type-title-lg</code> (36/40), <code>--tracking-display</code>, seguido da linha-fina e de <code>--space-8</code> até o texto.</dd>
+      <dt>Primeiro parágrafo</dt><dd>Igual aos outros. <b>Sem capitular</b>: ela quebraria o ritmo de 34px das primeiras linhas, deixaria “Marta” com um alvo de toque deformado e é um ornamento que uma história de 2 minutos não precisa. Quem abre a leitura é a página de título.</dd>
+      <dt>Página de título</dt><dd><code>.ui-titlepage</code>: linha com nível e gênero · temas em <code>--type-meta</code>; título em <code>--type-title-lg</code> (36/40) com <code>--tracking-display</code>; linha-fina em <code>--type-lead</code> itálico; colofão; <code>--space-8</code> até o primeiro parágrafo. É o topo da coluna e rola junto com o texto, também na tela dividida.</dd>
     </dl>
 
     <h3 class="book-h3">Alvo de toque das palavras</h3>
@@ -681,17 +725,18 @@
       </figure>
       <figure>
         <div class="book-frame"><div class="rd-mini"><div class="rd-mini__body"><p class="rd-text">Compra un <span class="ui-word is-saved">biglietto</span> alla macchinetta e si siede vicino al <span class="ui-word is-selected">finestrino</span>.</p></div></div></div>
-        <figcaption lang="pt-BR"><strong>6 · Grifo residual</strong> mesma rolagem; a palavra fica grifada por 1,5 s</figcaption>
+        <figcaption lang="pt-BR"><strong>6 · Grifo residual</strong> mesma rolagem; a palavra fica grifada até o próximo toque ou a primeira rolagem</figcaption>
       </figure>
       <figure>
         <div class="book-frame"><div class="rd-mini"><div class="rd-mini__body"><p class="rd-text">Compra un <span class="ui-word is-saved">biglietto</span> alla macchinetta e si siede vicino al <span class="ui-word">finestrino</span>.</p></div></div></div>
-        <figcaption lang="pt-BR"><strong>7 · Repouso</strong> o grifo apaga em <code>--dur-fast</code>; se foi salva, fica o pontilhado</figcaption>
+        <figcaption lang="pt-BR"><strong>7 · Repouso</strong> na primeira rolagem o grifo apaga em <code>--dur-fast</code>; se foi salva, fica o pontilhado</figcaption>
       </figure>
     </div>
     <dl class="book-spec">
       <dt>Do toque à página</dt><dd>≈ 390 ms depois de soltar o dedo: 150 de grifo + 240 de empurrar. O grifo vem antes de propósito: confirma qual palavra foi pega.</dd>
-      <dt>Posição</dt><dd>A história não é desmontada ao empurrar. A rolagem fica intacta, sem salvar e restaurar posição.</dd>
-      <dt>Grifo residual</dt><dd>1,5 s é um tempo de estado, não de animação, e continua valendo com movimento reduzido.</dd>
+      <dt>Posição</dt><dd>A história não é desmontada ao empurrar. A rolagem fica intacta, sem salvar e restaurar posição. Ao abrir o verbete, o app grava também o ponto dentro do parágrafo: se o sistema matar o app, a história reabre exatamente ali (LEI-07).</dd>
+      <dt>Narração</dt><dd>Um toque numa palavra pausa a narração antes do grifo. Na volta ela continua pausada, com a frase marcada.</dd>
+      <dt>Grifo residual</dt><dd>Sem tempo (LEI-06): a palavra continua grifada até o próximo toque ou a primeira rolagem. É um estado, não uma animação, e continua valendo com movimento reduzido.</dd>
       <dt>Movimento reduzido</dt><dd>Os tokens <code>--dur-*</code> vão a 0: sem deslizar, a página troca no lugar. O grifo e o grifo residual continuam iguais.</dd>
       <dt>Foco</dt><dd>Ao empurrar, o foco vai para o ‹ do verbete. Ao voltar, retorna à palavra tocada.</dd>
       <dt>Outra palavra</dt><dd>Tocar outra palavra durante o grifo residual troca o grifo na hora; só existe uma palavra selecionada.</dd>
@@ -701,19 +746,84 @@
     <table class="book-table book-table--keyed book-table--stack">
       <thead><tr><th scope="col">Entrada</th><th scope="col">Resultado</th><th scope="col">Nota</th></tr></thead>
       <tbody>
-        <tr><td>Toque numa palavra</td><td>Grifo e verbete empurrado</td><td>Inclui palavras salvas. Pontuação e aspas não respondem.</td></tr>
-        <tr><td>Toque fora das palavras</td><td>Nada</td><td>A interface não some nem aparece. Barra e doca são fixas.</td></tr>
-        <tr><td>Rolar</td><td>Lê a história</td><td>Título entra na barra; progresso e tempo acompanham.</td></tr>
+        <tr><td>Toque numa palavra</td><td>Grifo e verbete empurrado</td><td>Inclui palavras salvas. Pontuação e aspas não respondem. Durante a narração, pausa antes. Sem verbete: grifo e o toast “Sem verbete no dicionário”. Forma com mais de um lema: página de escolha.</td></tr>
+        <tr><td>Toque fora das palavras</td><td>Nada; tocando, pula para a frase</td><td>A interface não some nem aparece. Barra e doca são fixas. Só com a narração tocando o toque leva a narração para o começo da frase tocada (LEI-05, LEI-15).</td></tr>
+        <tr><td>Rolar</td><td>Lê a história</td><td>Título entra na barra; “N% lido” acompanha o parágrafo do topo. A primeira rolagem apaga o grifo residual. Tocando, para o acompanhamento do texto até o próximo Play ou botão do transporte.</td></tr>
         <tr><td>Borda esquerda, na história</td><td>Volta à Biblioteca</td><td>Gesto do sistema, acompanha o dedo.</td></tr>
         <tr><td>Borda esquerda, no verbete</td><td>Volta à história</td><td>Igual ao ‹. Grifo residual ao soltar.</td></tr>
+        <tr><td>Sair do Leitor · app em segundo plano</td><td>Para · pausa a narração</td><td>Sair para a narração; mandar o app para o segundo plano pausa (sem tocar com a tela bloqueada, §10).</td></tr>
         <tr><td>Pinça</td><td>Nada</td><td>Tamanho só pelo Aa: refluir o texto sob o dedo provoca toques errados.</td></tr>
         <tr><td>Toque duplo</td><td>Igual a um toque</td><td>Sem zoom. O segundo toque é ignorado se cair na mesma palavra.</td></tr>
         <tr><td>Pressão longa (500 ms)</td><td>Seleciona uma expressão</td><td>A palavra ganha o grifo com duas alças (<code>.ui-expression</code>). Arrastar estende a seleção palavra a palavra, dentro do parágrafo (<span lang="it">a un certo punto</span>). Ao soltar, a expressão abre no dicionário como página inteira. Não salva nada: salvar é só pelo marcador do verbete.</td></tr>
         <tr><td>Teclado</td><td>Tab · ← → · Enter · Esc</td><td>Tab entra na coluna na última palavra tocada (foco itinerante, um só ponto de Tab). ← → percorrem palavras, Enter abre o verbete, Esc volta à história.</td></tr>
-        <tr><td>Leitor de tela</td><td>Lê por parágrafo</td><td>Cada palavra é um botão sem rótulo extra; o rotor “Palavras” do sistema navega entre elas.</td></tr>
+        <tr><td>Leitor de tela</td><td>Lê por parágrafo</td><td>Cada palavra é um botão sem rótulo extra; o rotor “Palavras” do sistema navega entre elas (ACE-03). A frase em narração tem <code>aria-current="true"</code>.</td></tr>
       </tbody>
     </table>
     <p class="book-callout"><strong>Decidido.</strong> Toque = palavra no dicionário. Pressão longa = seleção de expressão, aberta no dicionário. Salvar só existe no marcador do verbete; nenhum gesto na história salva palavras.</p>
+
+    <h3 class="book-h3">Página de título e colofão</h3>
+    <dl class="book-spec">
+      <dt>Ordem</dt><dd>Linha (nível · gênero · temas), título, linha-fina, colofão, primeiro parágrafo. Título e linha-fina sempre em italiano (<code>lang="it"</code>); a linha e o colofão no idioma da interface.</dd>
+      <dt>Rótulos</dt><dd>Seguem Imersão › Rótulos e botões: “Texto · Leitura · Vocabulário · Tradução” ou “Testo · Lettura · Vocabolario · Traduzione”. A coluna dos rótulos tem a largura do mais longo.</dd>
+      <dt>Texto</dt><dd>Só quando a licença não é <code>LicenseRef-Postilla</code>: autor · “adaptado” (quando é adaptação) e, embaixo, “Licença” e o nome da licença, de uma tabela de ids SPDX no app. <code>public-domain</code> é “Domínio público”; um id fora da tabela aparece como está. Texto simples, nunca link.</dd>
+      <dt>Leitura</dt><dd>Palavras ÷ velocidade do nível, para cima (A1 60 · A2 80 · B1 100 · B2 120 · C1 140 · C2 160 palavras por minuto): <span lang="it">Il treno per Bologna</span>, 149 palavras em A2, dá “2 min”. “· narração de 4:12” só depois que o áudio está no aparelho.</dd>
+      <dt>Vocabulário</dt><dd>Só para história com <code>band_words</code> que não sejam todos 0: palavras das faixas 1 a 3 do NVdB ÷ todas, para baixo (“92% das palavras são do vocabulário básico”), com a fonte embaixo.</dd>
+      <dt>Tradução</dt><dd>Só para história sem tradução no idioma nativo (TRA-10): “Ainda não existe em português” e uma linha do porquê.</dd>
+    </dl>
+
+    <h3 class="book-h3">Progresso e conclusão</h3>
+    <dl class="book-spec">
+      <dt>N% lido</dt><dd>Palavras dos parágrafos antes do parágrafo do topo da tela ÷ total de palavras, para baixo. O mesmo número na doca e no card da Biblioteca. Fica em 99% no máximo até a história ser concluída. Na linha de progresso, o mesmo valor.</dd>
+      <dt>Exemplo</dt><dd><span lang="it">Il treno per Bologna</span>: ¶1 27 · ¶2 27 · ¶3 41 · ¶4 27 · ¶5 27 palavras. Com ¶3 no topo, 54 ÷ 149 = 36%; com ¶2, 18%; com ¶5, 81%.</dd>
+      <dt>Conclusão</dt><dd>Quando o bloco de fim da história aparece na tela: a doca diz “Lida” e a linha enche. Não existe “Marcar como lida”. Reabrir pelo card mantém “Lida”; só “Recomeçar do início” volta a 0% (BIB-02).</dd>
+      <dt>Gravação</dt><dd>Contínua, história + parágrafo, local e na hora (OFF-04).</dd>
+      <dt>Tela estreita</dt><dd>Com o transporte na doca, abaixo de 386px sai a palavra “lido”; abaixo de 360px sai também o número e fica a linha. Os dois continuam no texto acessível (“36% lido”). Sem transporte nada encolhe.</dd>
+    </dl>
+
+    <h3 class="book-h3">Narração</h3>
+    <table class="book-table book-table--keyed book-table--stack">
+      <thead><tr><th scope="col">Botão</th><th scope="col">Antes do primeiro toque</th><th scope="col">Tocando</th><th scope="col">Pausado</th></tr></thead>
+      <tbody>
+        <tr><td>Disco</td><td data-l="Antes">“Ouvir narração a partir daqui”: começa na primeira frase do parágrafo do topo</td><td data-l="Tocando">“Pausar narração”</td><td data-l="Pausado">“Continuar narração”: retoma na frase marcada e rola até ela</td></tr>
+        <tr><td>Frase anterior</td><td data-l="Antes">Desativado</td><td data-l="Tocando">Marca e toca a frase de antes, atravessando parágrafos; desativado na primeira frase da história</td><td data-l="Pausado">Igual, e volta a tocar</td></tr>
+        <tr><td>Ouvir de novo</td><td data-l="Antes">Desativado</td><td data-l="Tocando">Volta ao começo da frase marcada</td><td data-l="Pausado">Igual, e volta a tocar</td></tr>
+      </tbody>
+    </table>
+    <dl class="book-spec">
+      <dt>Quando existe</dt><dd>A história é narrada quando o arquivo italiano tem narração (<code>audio_ms</code> &gt; 0). Ao abrir uma narrada sem áudio no aparelho, o download começa em segundo plano, é conferido por tamanho e sha256 e fica guardado. A leitura nunca espera.</dd>
+      <dt>Aparece</dt><dd>Inteiro e de uma vez, quando o áudio fica pronto. Até lá nem a doca nem o colofão têm rastro de narração. Um download que falha é silencioso e volta na próxima abertura. Uma narração nova numa atualização é baixada de novo, e o transporte some até ela ficar pronta. As histórias da semente já vêm com áudio.</dd>
+      <dt>Marca</dt><dd>A frase lida, entre o início e o fim dela no áudio, ganha o visual da frase pareada (TRA-05, neutro) e <code>aria-current</code>; o texto rola para mantê-la à vista. Pausada, a marca fica.</dd>
+      <dt>Acompanhamento</dt><dd>Rolar com o dedo para o acompanhamento até o próximo Play ou botão do transporte. Tocando, um toque fora de palavra pula para essa frase. Um toque numa palavra pausa e abre o verbete.</dd>
+      <dt>Fim</dt><dd>Sair do Leitor para a narração; segundo plano pausa. Sem velocidade, sem barra de tempo, sem “próxima frase”, sem áudio em português (§10).</dd>
+      <dt>Movimento</dt><dd>A marca troca de frase em <code>--dur-fast</code>, só fundo e cor do texto. A rolagem de acompanhamento usa <code>--dur-base</code>; com movimento reduzido, salta.</dd>
+    </dl>
+
+    <h3 class="book-h3">Espera, palavra sem verbete e escolha</h3>
+    <dl class="book-spec">
+      <dt>Espera (BIB-12)</dt><dd>Depois de trocar de idioma, tocar numa história cujos arquivos ainda chegam abre o Leitor na hora, com <code>.ui-wait</code> no lugar do colofão e do texto: título, uma linha dizendo que a história abre sozinha, e o progresso do download. Nunca promete tempo. Quando os arquivos são aplicados, o texto entra no lugar da espera.</dd>
+      <dt>Saídas</dt><dd>“Ler sem tradução” (primário) só quando o arquivo italiano já está no aparelho: abre só em italiano, como TRA-10, até a tradução chegar. “Voltar à biblioteca” (fantasma) desiste. Sem diálogo e sem estado “Sem conexão” (OFF-01).</dd>
+      <dt>Sem verbete</dt><dd>Nome próprio ou palavra fora do dicionário: a palavra ganha o grifo e o toast “Sem verbete no dicionário” aparece logo acima da doca, por 2,6 s. Nada é empurrado.</dd>
+      <dt>Escolha</dt><dd>Forma que leva a mais de um lema ou classe (<span lang="it">parte</span> → <span lang="it">partire</span>, <span lang="it">parte</span>): uma página curta empurrada, “Voltar à história”, com uma linha por lema e classe, todas as que a forma alcança. Tocar numa linha empurra o verbete.</dd>
+    </dl>
+
+    <h3 class="book-h3">Mais opções e fim da história</h3>
+    <dl class="book-spec">
+      <dt>Mais opções</dt><dd>Recomeçar do início · Relatar erro no texto (LEI-09). Não existe “Guardar para depois”. O menu compartilhado ainda não existe (<code>.ui-menu</code>, pedido A6).</dd>
+      <dt>Relatar erro</dt><dd>Abre o app de e-mail do sistema com destinatário (postilla@kaiodelphino.com), assunto e corpo prontos: história, parágrafo, trecho e versão do conteúdo. Sem rede, o e-mail fica na caixa de saída do sistema.</dd>
+      <dt>Recomeçar</dt><dd>Volta ao topo e a história passa a “em andamento”, em 0%.</dd>
+      <dt>Fim</dt><dd>Contagem de palavras salvas nela (some se for zero), link para Salvas, card “Próxima história” e “Voltar à biblioteca”. Sem comemoração.</dd>
+      <dt>Próxima</dt><dd>A primeira candidata nesta ordem: a continuação da obra, quando a história é parte de uma obra dividida; a primeira não concluída do mesmo nível, na ordem da Biblioteca; a primeira não concluída do nível seguinte (nunca dois acima). Em andamento também conta. Sem candidata, o card some.</dd>
+      <dt>Erro (LEI-16)</dt><dd>Só erro local (arquivo ou banco), nunca de conexão: “Não foi possível abrir esta história · Escolha outra na biblioteca.”, com uma saída só, “Voltar à biblioteca”. O erro vai para o <code>appLog</code>. Sem “Tentar de novo”: os arquivos já passaram pelo sha256, repetir quase nunca resolve. “Relatar erro” entra com o Relatar erro da v1.1.</dd>
+    </dl>
+
+    <h3 class="book-h3">Acessibilidade</h3>
+    <dl class="book-spec">
+      <dt>Leitura</dt><dd>Por parágrafo; cada palavra é um botão, navegável pelo rotor de palavras (ACE-03). A página de título é um <code>header</code> com o título como cabeçalho.</dd>
+      <dt>Estados</dt><dd>Anunciados e nunca só por cor (ACE-05): o disco troca o rótulo, as pontas usam <code>disabled</code>, a frase lida tem <code>aria-current</code>, “N% lido” continua no texto acessível em tela estreita, a espera é <code>role="status"</code>.</dd>
+      <dt>Sem tradução</dt><dd><code>aria-disabled="true"</code> + <code>aria-describedby</code> com “Esta história ainda não tem tradução em português”. O botão continua focável, para a dica ser alcançada.</dd>
+      <dt>Alvos</dt><dd>44pt em todos os controles: os três do transporte, o botão de tradução (a área passa 12px dos glifos), voltar, Aa e Mais opções. A exceção documentada são as palavras na coluna, em fileiras de 34pt (ACE-06).</dd>
+      <dt>Idioma</dt><dd><code>lang="it"</code> na coluna, no título e na linha-fina; <code>lang="pt-BR"</code> na linha da página de título, no colofão e na doca.</dd>
+    </dl>
   </div>
 </section>
 
@@ -723,23 +833,30 @@
     <header class="book-section__head">
       <p class="book-kicker">05 · Conteúdo e cópia</p>
       <h2 class="book-h2" id="copia-h">O que a tela diz</h2>
-      <p class="book-note">A história e o título ficam em italiano, com <code>lang="it"</code>. Tudo o que é interface fica em português, em caixa de frase, sem exclamação.</p>
+      <p class="book-note">A história, o título e a linha-fina ficam em italiano, com <code>lang="it"</code>. Tudo o que é interface fica em português (ou em italiano, conforme a Imersão), em caixa de frase, sem exclamação.</p>
     </header>
     <table class="book-table book-table--keyed book-table--stack">
       <thead><tr><th scope="col">Lugar</th><th scope="col">Texto</th><th scope="col">Nota</th></tr></thead>
       <tbody>
         <tr><td>Voltar (história)</td><td>Voltar à biblioteca</td><td><code>aria-label</code> do ‹</td></tr>
-        <tr><td>Voltar (verbete)</td><td>Voltar à história</td><td><code>aria-label</code> do ‹ na página do dicionário</td></tr>
+        <tr><td>Voltar (verbete, escolha)</td><td>Voltar à história</td><td><code>aria-label</code> do ‹ na página do dicionário e na de escolha</td></tr>
         <tr><td>Aa</td><td>Ajustes de leitura</td><td><code>aria-label</code>; a folha se chama “Leitura”</td></tr>
-        <tr><td>Mais</td><td>Mais opções</td><td>Menu: Guardar para depois · Recomeçar do início · Relatar erro no texto</td></tr>
-        <tr><td>Cabeçalho</td><td>A2 · Viagem · 4 min</td><td>Duração total, não restante</td></tr>
-        <tr><td>Doca</td><td><span class="rd-nowrap">4 min restantes</span> · Concluída</td><td>Abaixo de 1 min: “Menos de 1 min”</td></tr>
-        <tr><td>Tradução</td><td>Mostrar tradução · Ocultar tradução</td><td>Carregando: “Carregando”. Erro: “Não foi possível carregar a tradução. Tente de novo.”</td></tr>
-        <tr><td>Primeira leitura</td><td>Toque numa palavra para abrir o dicionário.</td><td>Uma vez só, em <code>--type-meta</code> sob a linha-fina</td></tr>
+        <tr><td>Mais</td><td>Mais opções</td><td>Menu: Recomeçar do início · Relatar erro no texto</td></tr>
+        <tr><td>Página de título</td><td>A2 · Viagem · Emília-Romanha</td><td>Nível, gênero · temas no idioma de Imersão › Navegação</td></tr>
+        <tr><td>Colofão</td><td>Texto · Leitura · Vocabulário · Tradução</td><td>“Carlo Collodi · adaptado” / “Licença CC BY-SA 4.0” · “2 min · narração de 4:12” · “92% das palavras são do vocabulário básico” / “Nuovo vocabolario di base, De Mauro (NVdB)” · “Ainda não existe em português” / “Esta história foi publicada antes das traduções em português.”</td></tr>
+        <tr><td>Doca</td><td><span class="rd-nowrap">36% lido</span> · Lida</td><td>Sem tempo restante e sem “Concluída”. Acessível sempre inteiro, mesmo quando a tela estreita esconde a palavra ou o número</td></tr>
+        <tr><td>Transporte</td><td>Narração · Frase anterior · Ouvir de novo</td><td>Nome do grupo e das pontas</td></tr>
+        <tr><td>Disco</td><td>Ouvir narração a partir daqui · Pausar narração · Continuar narração</td><td>O rótulo é o estado: sem <code>aria-pressed</code></td></tr>
+        <tr><td>Tradução</td><td>Mostrar tradução · Ocultar tradução</td><td>Sem tradução: “Mostrar tradução” desativado, com a dica “Esta história ainda não tem tradução em português”. Sem estado “Carregando”</td></tr>
+        <tr><td>Espera</td><td>O português ainda está chegando</td><td>“Você trocou o idioma das traduções. O italiano desta história já está aqui; quando a tradução terminar de baixar, a história abre sozinha.” · Ler sem tradução · Voltar à biblioteca</td></tr>
+        <tr><td>Espera, sem o italiano</td><td>Esta história ainda está chegando</td><td>“Você trocou de idioma. Quando os arquivos terminarem de baixar, ela abre sozinha.” · Voltar à biblioteca</td></tr>
+        <tr><td>Sem verbete</td><td>Sem verbete no dicionário</td><td>Toast, 2,6 s</td></tr>
+        <tr><td>Escolha</td><td>Esta forma leva a duas palavras.</td><td>Linhas: lema em italiano + classe (<span lang="it">verbo intransitivo</span>, <span lang="it">sostantivo femminile</span>)</td></tr>
+        <tr><td>Primeira leitura</td><td>Toque numa palavra para abrir o dicionário.</td><td>Uma vez só, em <code>--type-meta</code> sob o colofão</td></tr>
         <tr><td>Fim</td><td>Fim da história · 3 palavras salvas nesta história.</td><td>Sem parabéns, sem pontos. Se nenhuma foi salva, a linha some.</td></tr>
-        <tr><td>Próxima</td><td>Próxima história · Começar a ler</td><td>Mesmo nível ou o seguinte, nunca dois acima</td></tr>
+        <tr><td>Próxima</td><td>Próxima história · Começar a ler</td><td>Continuação da obra → mesmo nível → nível seguinte; sem candidata, o card some</td></tr>
         <tr><td>Folha Aa</td><td>Leitura · Tamanho do texto · Entrelinha · Tema</td><td>Compacta, Padrão, Ampla · Claro, Escuro, Sistema · Diminuir texto, Aumentar texto, Fechar ajustes</td></tr>
-        <tr><td>Erro</td><td>Não foi possível carregar a história. Verifique a conexão e tente de novo.</td><td>Botão: “Tente de novo”</td></tr>
+        <tr><td>Erro</td><td>Não foi possível abrir esta história</td><td>“Escolha outra na biblioteca.” · Voltar à biblioteca. Nunca fala de conexão</td></tr>
       </tbody>
     </table>
   </div>
@@ -754,12 +871,28 @@
     </header>
     <div class="book-dd" data-rd-static>
       <figure>
-        <div class="book-dd__stage"><div class="ui-dock" style="background:transparent"><div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:38%"></i></div><div class="ui-dock__row"><span>3 min restantes</span><button class="ui-btn ui-btn--secondary ui-btn--sm" type="button"><i data-lucide="rows-2" aria-hidden="true"></i>Mostrar tradução</button></div></div></div>
-        <figcaption><span class="book-dd__tag book-dd__tag--do"><i data-lucide="check" aria-hidden="true"></i>Faça</span><br>Deixe a tradução atrás de um botão em contorno de tinta, ao alcance do polegar.</figcaption>
+        <div class="book-dd__stage"><div class="rd-strip rd-strip--fluid"><div class="ui-dock"><div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:36%"></i></div><div class="ui-dock__row"><span class="ui-dock__pct">36%<span> lido</span></span><button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div></div></div></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--do"><i data-lucide="check" aria-hidden="true"></i>Faça</span><br>Deixe a tradução num botão de tinta sem contorno, ao alcance do polegar. O único amarelo da doca é a linha de progresso.</figcaption>
       </figure>
       <figure>
-        <div class="book-dd__stage"><div class="ui-dock" style="background:transparent"><div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:38%"></i></div><div class="ui-dock__row"><span>3 min restantes</span><button class="ui-btn ui-btn--accent ui-btn--sm" type="button"><i data-lucide="rows-2" aria-hidden="true"></i>Mostrar tradução</button></div></div></div>
+        <div class="book-dd__stage"><div class="rd-strip rd-strip--fluid"><div class="ui-dock"><div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:36%"></i></div><div class="ui-dock__row"><span class="ui-dock__pct">36%</span><button class="ui-btn ui-btn--accent ui-btn--sm" type="button"><i data-lucide="languages" aria-hidden="true"></i>Mostrar tradução</button></div></div></div></div>
         <figcaption><span class="book-dd__tag book-dd__tag--dont"><i data-lucide="x" aria-hidden="true"></i>Não faça</span><br>Não pinte o botão de amarelo. Ele vira o centro da tela, convida a pular o italiano e estoura o orçamento ao lado do progresso.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage" lang="it"><p class="rd-text">Accanto a lei c’è un uomo anziano. <span class="ui-sentence is-selected">A un certo punto la guarda e chiede: «Va anche lei a Bologna?»</span></p></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--do"><i data-lucide="check" aria-hidden="true"></i>Faça</span><br>Marque a frase lida com a caixa neutra da frase pareada. O amarelo continua sendo da palavra consultada.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage" lang="it"><p class="rd-text">Accanto a lei c’è un uomo anziano. <span class="rd-bad-mark">A un certo punto la guarda e chiede: «Va anche lei a Bologna?»</span></p></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--dont"><i data-lucide="x" aria-hidden="true"></i>Não faça</span><br>Não marque a frase lida de amarelo, nem palavra por palavra como karaokê. Uma frase amarela inteira some com o grifo e passa do orçamento.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage"><div class="rd-ddcenter"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior"><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Continuar narração"><i data-lucide="play" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div></div></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--do"><i data-lucide="check" aria-hidden="true"></i>Faça</span><br>Três botões fixos e nada mais, com o disco em tinta. Onde se está na história é “N% lido”, a mesma medida do card.</figcaption>
+      </figure>
+      <figure>
+        <div class="book-dd__stage"><div class="rd-bad-row"><span class="rd-bad-time">0:42</span><span class="rd-bad-bar"><span class="ui-progress" aria-hidden="true"><i style="--p:17%"></i></span></span><span class="rd-bad-time">4:12</span><span>1,25×</span></div></div>
+        <figcaption><span class="book-dd__tag book-dd__tag--dont"><i data-lucide="x" aria-hidden="true"></i>Não faça</span><br>Não ponha barra de tempo, minutos ou velocidade. Ficam fora do escopo (§10) e transformam a leitura num player.</figcaption>
       </figure>
       <figure>
         <div class="book-dd__stage" lang="it"><p class="rd-text">Compra un <span class="ui-word is-saved">biglietto</span> alla macchinetta e si siede vicino al <span class="ui-word is-selected">finestrino</span>.</p><p class="rd-hint" lang="pt-BR"><i data-lucide="chevron-left" aria-hidden="true"></i>Verbete em página inteira, com “Voltar à história”</p></div>
@@ -815,7 +948,7 @@
 
 </main>
 
-<footer class="book-footer"><div class="book-wrap">Postilla · sistema v0.2 · Livro 2 de 5 · Leitor sem tradução · tokens em <code>tokens.css</code>, componentes em <code>book.css</code></div></footer>
+<footer class="book-footer"><div class="book-wrap">Postilla · sistema v0.4 · Livro 2 de 5 · Leitor sem tradução · tokens em <code>tokens.css</code>, componentes em <code>book.css</code></div></footer>
 
 <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
 <script>
@@ -844,8 +977,6 @@
     const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
     return v.endsWith('ms') ? parseFloat(v) : (parseFloat(v) || 0) * 1000;
   };
-  const HOLD = 1500; /* residual grifo after "Voltar à história": a state, not an animation */
-
   /* ---------------- interactive reader ---------------- */
   const demo = document.querySelector('[data-rd-demo]');
   if (demo) {
@@ -856,16 +987,21 @@
     const bar = demo.querySelector('[data-rd-bar]');
     const title = demo.querySelector('[data-rd-title]');
     const prog = demo.querySelector('[data-rd-progress]');
-    const left = demo.querySelector('[data-rd-left]');
+    const pctEl = demo.querySelector('[data-rd-pct]');
+    const endEl = demo.querySelector('[data-rd-end]');
     const entry = demo.querySelector('[data-rd-entry]');
     const back = demo.querySelector('[data-rd-back]');
     const save = demo.querySelector('[data-rd-save]');
+    const [prevB, playB, againB] = demo.querySelectorAll('[data-rd-transport] button');
+    demo.querySelector('[data-rd-tr]').addEventListener('click', () => { location.href = 'book-leitor-traducao.html#prototipo'; });
 
-    /* wrap every Italian word in .ui-word (elisions like l’aria stay one target) */
+    /* wrap every Italian word in .ui-word (elisions like l’aria stay one target); saved words are already wrapped */
     const WORD = /\p{L}+(?:[’']\p{L}+)*/gu;
-    demo.querySelectorAll('[data-rd-words] p').forEach(p => {
-      [...p.childNodes].forEach(n => {
-        if (n.nodeType !== 3) return;
+    const paras = [...demo.querySelectorAll('[data-rd-words] p')];
+    paras.forEach(p => {
+      const walk = document.createTreeWalker(p, NodeFilter.SHOW_TEXT, { acceptNode: n => n.parentElement.closest('.ui-word') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT });
+      const nodes = []; while (walk.nextNode()) nodes.push(walk.currentNode);
+      nodes.forEach(n => {
         const t = n.textContent, frag = document.createDocumentFragment(); let last = 0;
         for (const m of t.matchAll(WORD)) {
           if (m.index > last) frag.append(t.slice(last, m.index));
@@ -877,8 +1013,11 @@
       });
     });
     const words = [...demo.querySelectorAll('[data-rd-words] .ui-word')];
-    let current = words.find(w => w.classList.contains('is-selected')) || words[0];
+    const sentences = [...demo.querySelectorAll('[data-rd-s]')];
+    let current = words[0];
     words.forEach(w => { w.setAttribute('role', 'button'); w.tabIndex = w === current ? 0 : -1; });
+    const count = el => (el.textContent.match(WORD) || []).length;
+    const paraWords = paras.map(count), total = paraWords.reduce((a, b) => a + b, 0);
 
     const ENTRIES = {
       finestrino: { hw: 'finestrino', ipa: '/fi.neˈstri.no/', pos: 'sostantivo maschile · plurale finestrini',
@@ -889,10 +1028,7 @@
         def: 'In un momento non precisato; a un tratto.', ex: 'A un certo punto la guarda e chiede: «Va anche lei a Bologna?»', href: 'book-dicionario.html#expressao' }
     };
     const el = (tag, cls, text, lang) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text) e.textContent = text; if (lang) e.lang = lang; return e; };
-    const sentenceOf = w => {
-      const sentences = w.closest('p').textContent.split(/(?<=[.?!»])\s+/);
-      return sentences.find(s => s.includes(w.textContent)) || sentences[0];
-    };
+    const sentenceOf = w => { const s = w.closest('[data-rd-s]'); return s ? s.textContent : w.closest('p').textContent; };
     /* w = a .ui-word, or a .ui-expression wrapping several */
     function fill(w) {
       const isExpr = w.classList.contains('ui-expression');
@@ -921,7 +1057,72 @@
       save.setAttribute('aria-label', saved ? (isExpr ? 'Expressão salva' : 'Palavra salva') : (isExpr ? 'Salvar expressão' : 'Salvar palavra'));
     }
 
-    let pushTimer, clearTimer, held = null, expr = null, target = null, suppressUntil = 0;
+    /* ---- narration (simulated audio: each sentence lasts as long as its words) ---- */
+    const N = { mode: 'ready', i: -1, timer: 0, follow: true };
+    let ownScrollUntil = 0;                                              /* scrolls we cause are not "the learner scrolled" */
+    const audioMs = s => Math.max(1400, count(s) * 330);
+    const motion = () => dur('--dur-base') > 0 ? 'smooth' : 'auto';
+    function setGlyph(g) {
+      if (playB.dataset.g === g) return;
+      playB.dataset.g = g;
+      playB.innerHTML = `<i data-lucide="${g}" aria-hidden="true"></i>`;
+      if (window.lucide) lucide.createIcons({ attrs: { 'stroke-width': 1.5, width: 24, height: 24 } });
+    }
+    function renderTransport() {
+      playB.setAttribute('aria-label', N.mode === 'playing' ? 'Pausar narração' : N.mode === 'paused' ? 'Continuar narração' : 'Ouvir narração a partir daqui');
+      setGlyph(N.mode === 'playing' ? 'pause' : 'play');
+      prevB.disabled = N.i <= 0;                                         /* no mark yet, or the story's first sentence */
+      againB.disabled = N.i < 0;
+    }
+    function reveal(s) {
+      const sr = scroller.getBoundingClientRect(), r = s.getBoundingClientRect(), pad = 56;
+      if (r.top >= sr.top + pad && r.bottom <= sr.bottom - pad) return;
+      ownScrollUntil = performance.now() + 900;
+      scroller.scrollTo({ top: scroller.scrollTop + r.top - sr.top - pad, behavior: motion() });
+    }
+    function mark(i) {
+      sentences.forEach(s => { s.classList.remove('ui-sentence', 'is-selected'); s.removeAttribute('aria-current'); });
+      N.i = i;
+      if (i < 0) return;
+      const s = sentences[i];
+      s.classList.add('ui-sentence', 'is-selected'); s.setAttribute('aria-current', 'true');
+      if (N.follow) reveal(s);
+    }
+    function tick() {
+      clearTimeout(N.timer);
+      if (N.mode !== 'playing') return;
+      N.timer = setTimeout(() => {
+        if (N.i + 1 >= sentences.length) { N.mode = 'ready'; mark(-1); renderTransport(); return; }   /* story end */
+        mark(N.i + 1); tick();
+      }, audioMs(sentences[N.i]));
+    }
+    function playFrom(i) { N.follow = true; N.mode = 'playing'; mark(Math.max(0, i)); renderTransport(); tick(); }
+    function pause() { if (N.mode !== 'playing') return; clearTimeout(N.timer); N.mode = 'paused'; renderTransport(); }
+    function topPara() {
+      const top = scroller.getBoundingClientRect().top + 1;
+      const k = paras.findIndex(p => p.getBoundingClientRect().bottom > top);
+      return k < 0 ? paras.length : k;
+    }
+    playB.addEventListener('click', () => {
+      if (N.mode === 'playing') { pause(); return; }
+      if (N.mode === 'paused') { playFrom(N.i); return; }              /* resume at the marked sentence (§11, 35) */
+      const k = Math.min(topPara(), paras.length - 1);                 /* first Play: paragraph at the top of the screen */
+      playFrom(sentences.findIndex(s => paras[k].contains(s)));
+    });
+    againB.addEventListener('click', () => playFrom(N.i));
+    prevB.addEventListener('click', () => playFrom(N.i - 1));
+    const nearestSentence = e => {
+      const direct = e.target.closest('[data-rd-s]'); if (direct) return direct;
+      const p = e.target.closest('[data-rd-words] p'); if (!p) return null;
+      let best = null, bd = Infinity;
+      p.querySelectorAll('[data-rd-s]').forEach(s => { for (const r of s.getClientRects()) {
+        const d = Math.hypot(Math.max(r.left - e.clientX, 0, e.clientX - r.right), Math.max(r.top - e.clientY, 0, e.clientY - r.bottom));
+        if (d < bd) { bd = d; best = s; } } });
+      return best;
+    };
+
+    /* ---- word → dictionary ---- */
+    let pushTimer, held = null, expr = null, target = null, suppressUntil = 0;
     /* expression = sibling nodes from word a to word b (same paragraph), wrapped in .ui-expression */
     function unwrapExpr() { if (expr) { expr.replaceWith(...expr.childNodes); expr = null; } }
     function markExpr(a, b) {
@@ -929,12 +1130,18 @@
       let i = words.indexOf(a), j = words.indexOf(b);
       if (i > j) [i, j] = [j, i];
       const first = words[i], last = words[j];
+      if (first.parentNode !== last.parentNode) return markExpr(a, a);  /* keep the wrap inside one sentence node */
       expr = document.createElement('span'); expr.className = 'ui-expression is-selected';
       first.before(expr);
       for (let n = first; n; ) { const next = n.nextSibling; expr.append(n); if (n === last) break; n = next; }
     }
+    function clearHeld() {                                             /* LEI-06: until the next tap or the first scroll */
+      if (held) { held.classList.remove('is-selected'); held = null; }
+      if (expr && stack.dataset.state !== 'pushed') unwrapExpr();
+    }
     function select(w) {
-      clearTimeout(clearTimer); clearTimeout(pushTimer);
+      clearTimeout(pushTimer);
+      pause();                                                         /* a tap on a word pauses and opens the entry */
       if (held && held !== w) { held.classList.remove('is-selected'); held = null; }
       unwrapExpr();
       words.forEach(x => x !== w && x.classList.remove('is-selected'));
@@ -944,6 +1151,7 @@
       pushTimer = setTimeout(push, dur('--dur-fast'));
     }
     function selectExpr() {
+      pause();
       words.forEach(x => x.classList.remove('is-selected'));
       const first = expr.querySelector('.ui-word');
       current.tabIndex = -1; current = first; first.tabIndex = 0;
@@ -959,18 +1167,17 @@
       if (stack.dataset.state !== 'pushed') return;
       stack.dataset.state = '';
       dict.inert = true; reader.inert = false;
-      held = current;
-      held.focus({ preventScroll: true });
-      const wasExpr = target === expr && expr;
-      clearTimer = setTimeout(() => {
-        if (wasExpr) unwrapExpr();
-        held && held.classList.remove('is-selected'); held = null;
-      }, dur('--dur-base') + HOLD);
+      held = target === expr ? null : current;                         /* the grifo stays */
+      current.focus({ preventScroll: true });
     }
 
     scroller.addEventListener('click', e => {
       if (performance.now() < suppressUntil) return;                   /* the click that ends a long-press */
-      const w = e.target.closest('.ui-word'); if (w) select(w);
+      const w = e.target.closest('.ui-word');
+      if (w) { select(w); return; }
+      clearHeld();
+      if (N.mode !== 'playing') return;                                /* LEI-05: outside a word, only narration reacts */
+      const s = nearestSentence(e); if (s) playFrom(sentences.indexOf(s));
     });
 
     /* long-press (500 ms) = expression; drag extends it within the paragraph */
@@ -984,7 +1191,7 @@
       lp.timer = setTimeout(() => {
         if (!lp) return;
         lp.on = true; w.classList.remove('is-active');
-        clearTimeout(clearTimer); if (held) { held.classList.remove('is-selected'); held = null; }
+        if (held) { held.classList.remove('is-selected'); held = null; }
         words.forEach(x => x.classList.remove('is-selected'));
         markExpr(w, w);
         try { scroller.setPointerCapture(lp.id); } catch (err) { /* pointer already gone */ }
@@ -1002,7 +1209,6 @@
       endLp();
     });
     scroller.addEventListener('pointercancel', () => { if (lp && lp.on) unwrapExpr(); endLp(); });
-    scroller.addEventListener('scroll', () => { if (lp && !lp.on) endLp(); }, { passive: true });
     scroller.addEventListener('contextmenu', e => { if (e.target.closest('.ui-word')) e.preventDefault(); });
 
     scroller.addEventListener('keydown', e => {
@@ -1025,16 +1231,24 @@
       if (!isExpr) current.classList.toggle('is-saved', on);
     });
 
+    /* ---- progress (LEI-07, BIB-02) ---- */
+    let completed = false;
     const update = () => {
-      const max = scroller.scrollHeight - scroller.clientHeight;
-      const p = max > 0 ? Math.min(1, scroller.scrollTop / max) : 0;
-      prog.firstElementChild.style.setProperty('--p', (p * 100).toFixed(1) + '%');
-      prog.setAttribute('aria-valuenow', Math.round(p * 100));
       bar.classList.toggle('is-scrolled', scroller.scrollTop > title.offsetTop + title.offsetHeight);
-      left.textContent = p >= 0.99 ? 'Concluída' : Math.max(1, Math.ceil(4 * (1 - p))) + ' min restantes';
+      if (endEl.getBoundingClientRect().top < scroller.getBoundingClientRect().bottom) completed = true;   /* end block on screen */
+      const before = paraWords.slice(0, topPara()).reduce((a, b) => a + b, 0);
+      const pct = completed ? 100 : Math.min(99, Math.floor(before * 100 / total));
+      prog.style.setProperty('--p', pct + '%');
+      pctEl.innerHTML = completed ? 'Lida' : pct + '%<span> lido</span>';
     };
-    scroller.addEventListener('scroll', update, { passive: true });
-    update();
+    scroller.addEventListener('scroll', () => {
+      update();
+      if (performance.now() < ownScrollUntil) return;
+      if (lp && !lp.on) endLp();
+      clearHeld();                                                     /* first scroll clears the residual grifo */
+      if (N.mode === 'playing') N.follow = false;                      /* a manual scroll stops the following */
+    }, { passive: true });
+    update(); renderTransport();
   }
 
   /* ---------------- reading settings sheet ---------------- */

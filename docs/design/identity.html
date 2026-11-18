@@ -127,6 +127,35 @@
 .id-interlinear { font: var(--type-def); }
 .id-interlinear span { display: block; }
 .id-interlinear .tr { color: var(--color-ink-muted); font-size: var(--text-sm-size); margin-bottom: var(--space-2); }
+
+/* v0.4 specimens: dock strips at a fixed screen width (container = the strip, like .phone__screen) */
+.id-strips { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 390px), 1fr)); gap: var(--space-6); align-items: start; }
+.id-stripfig { margin: 0; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2); align-content: start; }
+.id-strip { width: 390px; max-width: 100%; container-type: inline-size; overflow: hidden; background: var(--color-bg); color: var(--color-ink); border-radius: var(--radius-field); box-shadow: 0 0 0 var(--border-hairline) var(--color-rule); } /* shadow, not border: the width stays exact */
+.id-strip--375 { width: 375px; }
+.id-strip--340 { width: 340px; }
+.id-strip__ruler { display: flex; justify-content: space-between; padding: var(--space-1) var(--space-2) 0; font: var(--type-meta); color: var(--color-ink-faint); font-variant-numeric: tabular-nums; }
+.id-stripfig figcaption { font: var(--type-meta); color: var(--color-ink-muted); }
+.id-stripfig figcaption strong { color: var(--color-ink); font-weight: var(--weight-semibold); }
+.id-colo { width: 100%; padding: 0 var(--space-2); }
+.id-cq { container-type: inline-size; }                   /* the facet row measures the stage like a phone screen */
+/* screens */
+.id-searchrow { padding: 0 var(--gutter) var(--space-1); }
+.id-cards { margin: 0; padding: 0 var(--gutter); list-style: none; }
+.id-card { display: grid; gap: 2px; padding: var(--space-4) 0; color: var(--color-ink); text-decoration: none; }
+.id-cards li + li .id-card { border-top: var(--border-hairline) solid var(--color-rule); }
+.id-card__kicker { font: var(--type-label); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--color-ink-muted); }
+.id-card__title { font: var(--weight-medium) var(--text-xl-size)/var(--text-xl-lh) var(--font-display); letter-spacing: var(--tracking-tight); }
+.id-card__sub { font: var(--type-small); color: var(--color-ink-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.id-card__meta { display: flex; align-items: center; gap: var(--space-2); margin-top: var(--space-2); font: var(--type-meta); color: var(--color-ink-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.id-card__narr { display: inline-flex; align-items: center; gap: 3px; }
+.id-card__narr svg, .id-card__narr [data-lucide] { width: var(--space-4); height: var(--space-4); }
+.id-card__new { margin-inline-start: auto; display: inline-flex; align-items: center; gap: var(--space-1); color: var(--color-ink); }
+.id-chev { color: var(--color-ink-faint); }
+.id-setnote { margin: 0; padding: var(--space-1) var(--gutter) var(--space-2); font: var(--type-meta); color: var(--color-ink-muted); }
+.id-about { margin: var(--space-2) var(--gutter); padding: var(--space-5); border-radius: var(--radius-card); background: var(--color-surface); display: grid; gap: var(--space-4); }
+.id-about .wordmark { font-size: var(--text-2xl-size); }
+.id-credits { margin: 0; font: var(--type-meta); color: var(--color-ink-muted); }
 </style>
 </head>
 <body class="book">
@@ -480,13 +509,24 @@
       <div class="id-icon"><i data-lucide="settings-2" aria-hidden="true"></i>Ajustes</div>
       <div class="id-icon"><i data-lucide="chevron-left" aria-hidden="true"></i>Voltar</div>
       <div class="id-icon"><i data-lucide="search" aria-hidden="true"></i>Buscar</div>
-      <div class="id-icon"><i data-lucide="rows-2" aria-hidden="true"></i>Tradução dividida</div>
+      <div class="id-icon"><i data-lucide="rows-2" aria-hidden="true"></i>Tradução dividida (até v0.3)</div>
       <div class="id-icon"><i data-lucide="bookmark" aria-hidden="true"></i>Salvar</div>
       <div class="id-icon id-icon--saved"><i data-lucide="bookmark" aria-hidden="true"></i>Salva</div>
       <div class="id-icon"><i data-lucide="volume-2" aria-hidden="true"></i>Ouvir</div>
       <div class="id-icon"><i data-lucide="a-large-small" aria-hidden="true"></i>Tamanho</div>
-      <div class="id-icon"><i data-lucide="languages" aria-hidden="true"></i>Imersão</div>
+      <div class="id-icon"><i data-lucide="languages" aria-hidden="true"></i>Tradução</div>
       <div class="id-icon"><i data-lucide="ellipsis" aria-hidden="true"></i>Mais</div>
+      <div class="id-icon"><i data-lucide="play" aria-hidden="true"></i>Ouvir narração</div>
+      <div class="id-icon"><i data-lucide="pause" aria-hidden="true"></i>Pausar</div>
+      <div class="id-icon"><i data-lucide="skip-back" aria-hidden="true"></i>Frase anterior</div>
+      <div class="id-icon"><i data-lucide="rotate-ccw" aria-hidden="true"></i>Ouvir de novo</div>
+      <div class="id-icon"><i data-lucide="headphones" aria-hidden="true"></i>Narração (card)</div>
+      <div class="id-icon"><i data-lucide="download" aria-hidden="true"></i>Baixando</div>
+      <div class="id-icon"><i data-lucide="chevron-down" aria-hidden="true"></i>Abrir faceta</div>
+      <div class="id-icon"><i data-lucide="chevron-up" aria-hidden="true"></i>Recolher</div>
+      <div class="id-icon"><i data-lucide="chevron-right" aria-hidden="true"></i>Abrir linha</div>
+      <div class="id-icon"><i data-lucide="circle-arrow-up" aria-hidden="true"></i>Atualizar o app</div>
+      <div class="id-icon"><i data-lucide="external-link" aria-hidden="true"></i>Sai do app</div>
     </div>
   </div>
 </section>
@@ -508,17 +548,18 @@
   <div class="book-wrap">
     <header class="book-section__head">
       <p class="book-kicker">09 · Componentes compartilhados</p>
-      <h2 class="book-h2" id="comp-h">O que os quatro livros reutilizam</h2>
-      <p class="book-note">App bar, barra de abas, chips, estados de palavra e de frase, controle segmentado, doca com progresso, divisor da tradução, peças do verbete e a moldura de telefone. Todos vêm de <code>book.css</code>, documentado em <code>components-shared.md</code>. Abaixo, três telas montadas só com eles.</p>
+      <h2 class="book-h2" id="comp-h">O que os livros reutilizam</h2>
+      <p class="book-note">App bar, barra de abas, chips, estados de palavra e de frase, controle segmentado, doca com transporte da narração e botão de tradução, página de título com colofão, linha de status e facetas da Biblioteca, folha alta com lista de verificação, espera de download, peças do verbete e a moldura de telefone. Todos vêm de <code>book.css</code>, documentado em <code>components-shared.md</code>. Abaixo, os estados de cada peça e oito telas montadas só com eles.</p>
     </header>
 
     <h3 class="book-h3" style="margin-top:0">Chips e controle de imersão</h3>
     <div class="book-states">
-      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-chip" type="button" aria-pressed="false">Mistério</button></div><figcaption class="book-state__label"><strong>Gênero</strong> · padrão</figcaption></figure>
-      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-chip" type="button" aria-pressed="true">Mistério</button></div><figcaption class="book-state__label"><strong>Gênero</strong> · selecionado</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-chip" type="button" aria-pressed="false" lang="it">Imperfetto</button></div><figcaption class="book-state__label"><strong>Tempo verbal</strong> · padrão (Dicionário)</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-chip" type="button" aria-pressed="true" lang="it">Presente</button></div><figcaption class="book-state__label"><strong>Tempo verbal</strong> · selecionado</figcaption></figure>
       <figure class="book-state"><div class="book-state__stage on-bg"><span class="ui-level" data-level="a2">A2</span></div><figcaption class="book-state__label"><strong>Nível</strong> · etiqueta, não é filtro</figcaption></figure>
       <figure class="book-state"><div class="book-state__stage on-bg"><div style="display:grid;gap:8px;justify-items:center"><span class="ui-label">Dicionário</span><div class="ui-segmented" role="group" aria-label="Idioma do dicionário"><button type="button" aria-pressed="false">Português</button><button type="button" aria-pressed="true">Italiano</button></div></div></div><figcaption class="book-state__label"><strong>Imersão</strong> · por área</figcaption></figure>
     </div>
+    <p class="book-callout">Os chips não filtram mais a Biblioteca: lá o filtro são as três facetas (abaixo), cada uma com a sua folha.</p>
 
     <h3 class="book-h3">Estados da palavra</h3>
     <div class="book-states" lang="it">
@@ -529,37 +570,114 @@
       <figure class="book-state"><div class="book-state__stage on-bg"><p class="id-rtext id-rtext--flat"><span class="ui-expression is-selected"><span class="ui-word">a</span> <span class="ui-word">un</span> <span class="ui-word">certo</span> <span class="ui-word">punto</span></span></p></div><figcaption class="book-state__label" lang="pt-BR"><strong>Expressão selecionada</strong> · pressão longa e arraste</figcaption></figure>
     </div>
 
+    <h3 class="book-h3">Botão de tradução</h3>
+    <p class="book-prose book-muted">Ícone <code>languages</code> e rótulo em tinta, sem contorno nem fundo. O rótulo é o estado (“Mostrar tradução” ↔ “Ocultar tradução”), por isso nunca <code>aria-pressed</code>. A caixa tem a largura do rótulo mais longo, e o ícone não se mexe. Sem tradução (TRA-10), o mesmo rótulo em <code>--color-ink-faint</code>, com <code>aria-disabled</code> e a dica para o leitor de tela.</p>
+    <div class="book-states">
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div><figcaption class="book-state__label"><strong>Padrão</strong> · tradução oculta</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-trbtn is-hover" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div><figcaption class="book-state__label"><strong>Hover</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-trbtn is-active" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div><figcaption class="book-state__label"><strong>Pressionado</strong> · pílula fantasma</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-trbtn is-focus" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div><figcaption class="book-state__label"><strong>Foco</strong> · anel na pílula</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Mostrar tradução">Ocultar tradução</span></button></div><figcaption class="book-state__label"><strong>Tradução aberta</strong> · o rótulo muda, a caixa não</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-trbtn" type="button" aria-disabled="true" aria-describedby="id-notr-1"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button><span class="visually-hidden" id="id-notr-1">Esta história ainda não tem tradução em português</span></div><figcaption class="book-state__label"><strong>Desativado</strong> · história sem tradução (TRA-10)</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg" data-theme="dark"><button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div><figcaption class="book-state__label"><strong>Padrão</strong> · escuro</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg" data-theme="dark"><button class="ui-trbtn is-active" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Mostrar tradução">Ocultar tradução</span></button></div><figcaption class="book-state__label"><strong>Pressionado</strong> · escuro</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg" data-theme="dark"><button class="ui-trbtn" type="button" aria-disabled="true" aria-describedby="id-notr-2"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button><span class="visually-hidden" id="id-notr-2">Esta história ainda não tem tradução em português</span></div><figcaption class="book-state__label"><strong>Desativado</strong> · escuro</figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Transporte da narração</h3>
+    <p class="book-prose book-muted">Três alvos de 44px em ordem fixa: “Frase anterior”, o disco de tinta (tocar ↔ pausar) e “Ouvir de novo”. O grupo entra inteiro quando o áudio está pronto e nunca muda de lugar. Antes do primeiro toque não há frase marcada, então as pontas ficam desativadas.</p>
+    <div class="book-states book-states--wide">
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior" disabled><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Ouvir narração a partir daqui"><i data-lucide="play" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo" disabled><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div></div><figcaption class="book-state__label"><strong>Pronto</strong> · antes do primeiro toque, pontas desativadas</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior"><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Pausar narração"><i data-lucide="pause" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div></div><figcaption class="book-state__label"><strong>Tocando</strong> · o disco pausa</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior"><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Continuar narração"><i data-lucide="play" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div></div><figcaption class="book-state__label"><strong>Pausado</strong> · a frase continua marcada</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior"><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play is-active" type="button" aria-label="Pausar narração"><i data-lucide="pause" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div></div><figcaption class="book-state__label"><strong>Disco pressionado</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior"><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play is-focus" type="button" aria-label="Pausar narração"><i data-lucide="pause" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div></div><figcaption class="book-state__label"><strong>Disco em foco</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg" data-theme="dark"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior"><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Pausar narração"><i data-lucide="pause" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div></div><figcaption class="book-state__label"><strong>Tocando</strong> · escuro</figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Doca do Leitor em larguras de tela</h3>
+    <p class="book-prose book-muted">Ordem fixa: transporte · “N% lido” · botão de tradução. Os glifos (não as áreas de toque) alinham com a margem de 20px. Em telas abaixo de 386px some a palavra “lido”; abaixo de 360px some também o número, e fica a linha de progresso. O texto inteiro continua para o leitor de tela.</p>
+    <div class="id-strips">
+      <figure class="id-stripfig"><div class="id-strip"><div class="id-strip__ruler" aria-hidden="true"><span>0</span><span>390 px</span></div><div class="ui-dock"><div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:36%"></i></div><div class="ui-dock__row"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior"><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Pausar narração"><i data-lucide="pause" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div><span class="ui-dock__pct">36%<span> lido</span></span><button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div></div></div><figcaption><strong>390 px, tocando</strong> · cabe “36% lido” inteiro</figcaption></figure>
+      <figure class="id-stripfig"><div class="id-strip id-strip--375"><div class="id-strip__ruler" aria-hidden="true"><span>0</span><span>375 px</span></div><div class="ui-dock"><div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:36%"></i></div><div class="ui-dock__row"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior"><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Pausar narração"><i data-lucide="pause" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div><span class="ui-dock__pct">36%<span> lido</span></span><button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div></div></div><figcaption><strong>375 px</strong> · “lido” sai da tela e fica para o leitor de tela</figcaption></figure>
+      <figure class="id-stripfig"><div class="id-strip id-strip--340"><div class="id-strip__ruler" aria-hidden="true"><span>0</span><span>340 px</span></div><div class="ui-dock"><div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:36%"></i></div><div class="ui-dock__row"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior"><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Pausar narração"><i data-lucide="pause" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div><span class="ui-dock__pct">36%<span> lido</span></span><button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div></div></div><figcaption><strong>340 px</strong> · só a linha de progresso diz quanto falta</figcaption></figure>
+      <figure class="id-stripfig"><div class="id-strip"><div class="id-strip__ruler" aria-hidden="true"><span>0</span><span>390 px</span></div><div class="ui-dock"><div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:0%"></i></div><div class="ui-dock__row"><span class="ui-dock__pct">0%<span> lido</span></span><button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div></div></div><figcaption><strong>Áudio ainda baixando</strong> · sem transporte; nada encolhe</figcaption></figure>
+      <figure class="id-stripfig"><div class="id-strip" data-theme="dark"><div class="id-strip__ruler" aria-hidden="true"><span>0</span><span>390 px</span></div><div class="ui-dock"><div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:100%"></i></div><div class="ui-dock__row"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior"><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Pausar narração"><i data-lucide="pause" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div><span class="ui-dock__pct">Lida</span><button class="ui-trbtn" type="button" aria-disabled="true" aria-describedby="id-notr-3"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button><span class="visually-hidden" id="id-notr-3">Esta história ainda não tem tradução em português</span></div></div></div><figcaption><strong>Escuro, sem tradução</strong> · lida, ouvida de novo (TRA-10)</figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Página de título e colofão</h3>
+    <p class="book-prose book-muted">O colofão é uma lista de linhas rotuladas, cada uma só quando se aplica. Os rótulos seguem Imersão › Rótulos e botões; a coluna dos rótulos tem a largura do mais longo. O mesmo colofão fecha Ajustes › Sobre.</p>
+    <div class="book-states book-states--wide">
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="id-colo"><dl class="ui-colophon" lang="pt-BR"><div><dt>Texto</dt><dd>Carlo Collodi · adaptado<small>Licença CC BY-SA 4.0</small></dd></div><div><dt>Leitura</dt><dd>9 min</dd></div><div><dt>Vocabulário</dt><dd>81% das palavras são do vocabulário básico<small>Nuovo vocabolario di base, De Mauro (NVdB)</small></dd></div></dl></div></div><figcaption class="book-state__label"><strong>Clássico adaptado</strong> · crédito e licença em texto simples</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg" data-theme="dark"><div class="id-colo"><dl class="ui-colophon" lang="pt-BR"><div><dt>Leitura</dt><dd>8 min · narração de 7:38</dd></div><div><dt>Tradução</dt><dd>Ainda não existe em português<small>Esta história foi publicada antes das traduções em português.</small></dd></div></dl></div></div><figcaption class="book-state__label"><strong>Sem tradução</strong> · TRA-10, escuro</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="id-colo"><dl class="ui-colophon" lang="it"><div><dt>Lettura</dt><dd>2 min · narrazione di 4:12</dd></div><div><dt>Vocabolario</dt><dd>92% delle parole è del vocabolario di base<small>Nuovo vocabolario di base, De Mauro (NVdB)</small></dd></div></dl></div></div><figcaption class="book-state__label"><strong>Rótulos em italiano</strong> · imersão total</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg" data-theme="dark"><div class="id-colo"><div class="ui-wait" lang="pt-BR" role="status"><span class="ui-wait__icon"><i data-lucide="download" aria-hidden="true"></i></span><p class="ui-wait__title">O português ainda está chegando</p><p class="ui-wait__text">Você trocou o idioma das traduções. O italiano desta história já está aqui; quando a tradução terminar de baixar, a história abre sozinha.</p><span class="ui-progress" aria-hidden="true"><i style="--p:60%"></i></span><div class="ui-wait__actions"><button class="ui-btn ui-btn--primary ui-btn--block" type="button">Ler sem tradução</button><button class="ui-btn ui-btn--ghost ui-btn--block" type="button">Voltar à biblioteca</button></div></div></div></div><figcaption class="book-state__label"><strong>Espera</strong> · arquivos do novo idioma chegando (BIB-12), escuro</figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Biblioteca: linha de status</h3>
+    <p class="book-prose book-muted">Uma linha sob o título grande, o único lugar onde a sincronização fala. Por prioridade: o aviso de atualizar o app, a contagem de novas, a contagem de histórias. Só tinta: o aviso não é erro.</p>
+    <div class="book-states book-states--wide">
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill"><p class="ui-statusline" role="status">152 histórias no aparelho</p></div></div><figcaption class="book-state__label"><strong>Contagem</strong> · o estado de sempre</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill"><p class="ui-statusline" role="status"><span class="ui-dot" aria-hidden="true"></span><span><b>3 histórias novas</b> chegaram</span></p></div></div><figcaption class="book-state__label"><strong>Novas</strong> · até sair da Biblioteca (OFF-24)</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg" data-theme="dark"><div class="book-state__fill"><p class="ui-statusline" role="status"><span class="ui-dot" aria-hidden="true"></span><span><b>1 história nova</b> chegou</span></p></div></div><figcaption class="book-state__label"><strong>Uma nova</strong> · singular</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill"><div class="ui-statusline ui-statusline--notice" role="status"><i data-lucide="circle-arrow-up" aria-hidden="true"></i><span>Há histórias novas que esta versão do app não abre.</span><a class="ui-statusline__link" href="#componentes">Atualizar na loja<i data-lucide="external-link" aria-hidden="true"></i></a></div></div></div><figcaption class="book-state__label"><strong>Aviso</strong> · versão do app não lê o formato (OFF-26)</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg" data-theme="dark"><div class="book-state__fill"><div class="ui-statusline ui-statusline--notice" role="status"><i data-lucide="circle-arrow-up" aria-hidden="true"></i><span>Há histórias novas que esta versão do app não abre.</span><a class="ui-statusline__link" href="#componentes">Atualizar na loja<i data-lucide="external-link" aria-hidden="true"></i></a></div></div></div><figcaption class="book-state__label"><strong>Aviso</strong> · escuro</figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Biblioteca: facetas</h3>
+    <p class="book-prose book-muted">Nível · Gênero · Tema, sempre nessa ordem, cada uma abre a sua folha. Fechada, a faceta resume a seleção: o nome, o valor ou “nome · N”. Com seleção ela vira tinta, e o texto também muda: nunca só a cor. O nome acessível sempre leva a faceta (“Nível: A2”, “Tema, 3 selecionados”).</p>
+    <div class="book-states">
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-facet" type="button" aria-haspopup="dialog" aria-expanded="false">Nível<i data-lucide="chevron-down" aria-hidden="true"></i></button></div><figcaption class="book-state__label"><strong>Padrão</strong> · nada marcado</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-facet is-hover" type="button" aria-haspopup="dialog" aria-expanded="false">Nível<i data-lucide="chevron-down" aria-hidden="true"></i></button></div><figcaption class="book-state__label"><strong>Hover</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-facet is-active" type="button" aria-haspopup="dialog" aria-expanded="false">Nível<i data-lucide="chevron-down" aria-hidden="true"></i></button></div><figcaption class="book-state__label"><strong>Pressionada</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-facet is-focus" type="button" aria-haspopup="dialog" aria-expanded="false">Nível<i data-lucide="chevron-down" aria-hidden="true"></i></button></div><figcaption class="book-state__label"><strong>Foco</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-facet is-selected" type="button" aria-haspopup="dialog" aria-expanded="false"><span class="visually-hidden">Nível: </span><span class="ui-facet__v">A2</span><i data-lucide="chevron-down" aria-hidden="true"></i></button></div><figcaption class="book-state__label"><strong>Um valor</strong> · o próprio valor</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-facet is-selected" type="button" aria-haspopup="dialog" aria-expanded="false">Tema · 3<span class="visually-hidden"> selecionados</span><i data-lucide="chevron-down" aria-hidden="true"></i></button></div><figcaption class="book-state__label"><strong>Vários</strong> · nome e contagem</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div style="max-width:150px"><button class="ui-facet is-selected" type="button" aria-haspopup="dialog" aria-expanded="false"><span class="visually-hidden">Gênero: </span><span class="ui-facet__v">Literatura de viagem</span><i data-lucide="chevron-down" aria-hidden="true"></i></button></div></div><figcaption class="book-state__label"><strong>Valor longo</strong> · reticências</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><button class="ui-facet is-active is-selected" type="button" aria-haspopup="dialog" aria-expanded="false">Gênero · 3<span class="visually-hidden"> selecionados</span><i data-lucide="chevron-down" aria-hidden="true"></i></button></div><figcaption class="book-state__label"><strong>Com seleção, pressionada</strong></figcaption></figure>
+    </div>
+    <div class="book-states book-states--wide" style="margin-top:var(--space-4)">
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill id-cq"><div class="ui-facets" role="group" aria-label="Filtros"><button class="ui-facet" type="button" aria-haspopup="dialog" aria-expanded="false">Nível<i data-lucide="chevron-down" aria-hidden="true"></i></button><button class="ui-facet" type="button" aria-haspopup="dialog" aria-expanded="false">Gênero<i data-lucide="chevron-down" aria-hidden="true"></i></button><button class="ui-facet" type="button" aria-haspopup="dialog" aria-expanded="false">Tema<i data-lucide="chevron-down" aria-hidden="true"></i></button></div></div></div><figcaption class="book-state__label"><strong>Fileira</strong> · nada filtrado</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill id-cq"><div class="ui-facets" role="group" aria-label="Filtros"><button class="ui-facet is-selected" type="button" aria-haspopup="dialog" aria-expanded="false"><span class="visually-hidden">Nível: </span><span class="ui-facet__v">A2</span><i data-lucide="chevron-down" aria-hidden="true"></i></button><button class="ui-facet is-selected" type="button" aria-haspopup="dialog" aria-expanded="false">Gênero · 3<span class="visually-hidden"> selecionados</span><i data-lucide="chevron-down" aria-hidden="true"></i></button><button class="ui-facet" type="button" aria-haspopup="dialog" aria-expanded="false">Tema<i data-lucide="chevron-down" aria-hidden="true"></i></button></div></div></div><figcaption class="book-state__label"><strong>Fileira</strong> · duas facetas ativas</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg" data-theme="dark"><div class="book-state__fill id-cq"><div class="ui-facets" role="group" aria-label="Filtros"><button class="ui-facet is-selected" type="button" aria-haspopup="dialog" aria-expanded="false"><span class="visually-hidden">Nível: </span><span class="ui-facet__v">A2</span><i data-lucide="chevron-down" aria-hidden="true"></i></button><button class="ui-facet is-selected" type="button" aria-haspopup="dialog" aria-expanded="false">Gênero · 3<span class="visually-hidden"> selecionados</span><i data-lucide="chevron-down" aria-hidden="true"></i></button><button class="ui-facet is-selected" type="button" aria-haspopup="dialog" aria-expanded="false">Tema · 3<span class="visually-hidden"> selecionados</span><i data-lucide="chevron-down" aria-hidden="true"></i></button></div></div></div><figcaption class="book-state__label"><strong>Fileira</strong> · escuro</figcaption></figure>
+    </div>
+
+    <h3 class="book-h3">Folha de faceta: lista de verificação</h3>
+    <p class="book-prose book-muted">Caixa de 20px com <code>check</code>, nome e contagem. A contagem já desconta as outras facetas. Um valor que daria zero fica desativado, nunca escondido, com “0 de N”. O trecho achado pela busca da folha vem em seminegrito e sublinhado.</p>
+    <div class="book-states book-states--wide">
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill"><label class="ui-check"><input class="visually-hidden" type="checkbox"><span class="ui-check__box" aria-hidden="true"><i data-lucide="check" aria-hidden="true"></i></span><span class="ui-check__name">Comida</span><span class="ui-check__n">7<span class="visually-hidden"> histórias</span></span></label></div></div><figcaption class="book-state__label"><strong>Padrão</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill"><label class="ui-check is-hover"><input class="visually-hidden" type="checkbox"><span class="ui-check__box" aria-hidden="true"><i data-lucide="check" aria-hidden="true"></i></span><span class="ui-check__name">Família</span><span class="ui-check__n">6<span class="visually-hidden"> histórias</span></span></label></div></div><figcaption class="book-state__label"><strong>Hover</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill"><label class="ui-check is-focus"><input class="visually-hidden" type="checkbox"><span class="ui-check__box" aria-hidden="true"><i data-lucide="check" aria-hidden="true"></i></span><span class="ui-check__name">Cidade</span><span class="ui-check__n">4<span class="visually-hidden"> histórias</span></span></label></div></div><figcaption class="book-state__label"><strong>Foco</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill"><label class="ui-check"><input class="visually-hidden" type="checkbox" checked><span class="ui-check__box" aria-hidden="true"><i data-lucide="check" aria-hidden="true"></i></span><span class="ui-check__name">Natal</span><span class="ui-check__n">4<span class="visually-hidden"> histórias</span></span></label></div></div><figcaption class="book-state__label"><strong>Marcada</strong></figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill"><label class="ui-check"><input class="visually-hidden" type="checkbox"><span class="ui-check__box" aria-hidden="true"><i data-lucide="check" aria-hidden="true"></i></span><span class="ui-check__name"><b>Nonn</b>a</span><span class="ui-check__n">9<span class="visually-hidden"> histórias</span></span></label></div></div><figcaption class="book-state__label"><strong>Achada na busca</strong> · “nonn”</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg"><div class="book-state__fill"><label class="ui-check"><input class="visually-hidden" type="checkbox" disabled><span class="ui-check__box" aria-hidden="true"><i data-lucide="check" aria-hidden="true"></i></span><span class="ui-check__name">Biografia</span><span class="ui-check__n">0 de 6<span class="visually-hidden"> histórias: nenhuma com os outros filtros</span></span></label></div></div><figcaption class="book-state__label"><strong>Desativada</strong> · zero com esses filtros</figcaption></figure>
+      <figure class="book-state"><div class="book-state__stage on-bg" data-theme="dark"><div class="book-state__fill"><label class="ui-check"><input class="visually-hidden" type="checkbox" checked><span class="ui-check__box" aria-hidden="true"><i data-lucide="check" aria-hidden="true"></i></span><span class="ui-check__name">Natal</span><span class="ui-check__n">4<span class="visually-hidden"> histórias</span></span></label><label class="ui-check"><input class="visually-hidden" type="checkbox" disabled><span class="ui-check__box" aria-hidden="true"><i data-lucide="check" aria-hidden="true"></i></span><span class="ui-check__name">Biografia</span><span class="ui-check__n">0 de 6<span class="visually-hidden"> histórias: nenhuma com os outros filtros</span></span></label></div></div><figcaption class="book-state__label"><strong>Marcada e desativada</strong> · escuro</figcaption></figure>
+    </div>
+
     <h3 class="book-h3">Telas</h3>
     <div class="book-screens">
 
-      <!-- Reader, translation hidden -->
-      <figure class="phone" aria-label="Leitor com tradução oculta">
+      <figure class="phone" aria-label="Leitor, página de título com colofão, narração pronta">
         <div class="phone__device"><div class="phone__screen">
           <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
           <div class="phone__body">
             <div class="ui-appbar">
               <button class="ui-iconbtn" type="button" aria-label="Voltar à biblioteca"><i data-lucide="chevron-left" aria-hidden="true"></i></button>
-              <p class="ui-appbar__title" lang="it">La finestra sul porto</p>
+              <p class="ui-appbar__title" lang="it">Il treno per Bologna</p>
               <div class="ui-appbar__actions"><button class="ui-iconbtn" type="button" aria-label="Tamanho do texto"><i data-lucide="a-large-small" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Mais opções"><i data-lucide="ellipsis" aria-hidden="true"></i></button></div>
             </div>
             <div class="phone__scroll id-rpad" lang="it">
-              <div class="id-rkicker"><span class="ui-label">Capitolo 1</span><span class="ui-level" data-level="a2">A2</span></div>
-              <h4 class="id-rtitle">La finestra sul porto</h4>
-              <p class="id-rtext">Ogni mattina, alle sette, Marta apre la <span class="ui-word is-selected">finestra</span> della cucina. Da lì vede il porto della città: le barche bianche, i <span class="ui-word is-saved">gabbiani</span>, il mare ancora grigio.</p>
-              <p class="id-rtext">Prepara il caffè nella vecchia moka di sua nonna e aspetta. Quando il caffè è pronto, tutta la casa profuma.</p>
-              <p class="id-rtext">Oggi, però, è un giorno diverso.</p>
+              <header class="ui-titlepage"><p class="ui-titlepage__meta"><span class="ui-level" data-level="a2">A2</span><span lang="pt-BR">Viagem · Emília-Romanha</span></p><h4 class="ui-titlepage__title">Il treno per Bologna</h4><p class="ui-titlepage__sub">Marta va a trovare la nonna dopo due anni.</p><dl class="ui-colophon" lang="pt-BR"><div><dt>Leitura</dt><dd>2 min · narração de 4:12</dd></div><div><dt>Vocabulário</dt><dd>92% das palavras são do vocabulário básico<small>Nuovo vocabolario di base, De Mauro (NVdB)</small></dd></div></dl></header>
+              <p class="id-rtext">Marta arriva in stazione alle sette. Il <span class="ui-word is-saved">binario</span> è quasi vuoto e l’aria sa di caffè. Compra un <span class="ui-word is-saved">biglietto</span> alla macchinetta e si siede vicino al finestrino.</p>
+              <p class="id-rtext">Il treno parte in orario. Fuori, la città si sveglia piano.</p>
             </div>
-            <div class="ui-dock">
-              <div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:18%"></i></div>
-              <div class="ui-dock__row"><span>Página 1 de 6</span><button class="ui-btn ui-btn--secondary ui-btn--sm" type="button"><i data-lucide="rows-2" aria-hidden="true"></i>Mostrar tradução</button></div>
-            </div>
+            <div class="ui-dock"><div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:0%"></i></div><div class="ui-dock__row"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior" disabled><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Ouvir narração a partir daqui"><i data-lucide="play" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo" disabled><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div><span class="ui-dock__pct">0%<span> lido</span></span><button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div></div>
+
           </div>
           <div class="phone__home" aria-hidden="true"></div>
         </div></div>
-        <figcaption class="phone__caption"><strong>Leitor</strong> · tradução oculta (padrão)</figcaption>
+        <figcaption class="phone__caption"><strong>Leitor</strong> · página de título e colofão, narração pronta, tradução oculta</figcaption>
       </figure>
-
-      <!-- Reader, split, dark -->
       <figure class="phone" aria-label="Leitor com tradução aberta, tema escuro">
         <div class="phone__device"><div class="phone__screen" data-theme="dark">
           <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
@@ -576,17 +694,13 @@
             <div class="id-pane id-pane--pt">
               <p class="id-rtext">Hoje, porém, é um dia diferente. <span class="ui-sentence is-selected">Sobre a mesa há uma carta.</span> Não é uma conta nem propaganda: está escrita à mão, com uma tinta azul um pouco desbotada.</p>
             </div>
-            <div class="ui-dock">
-              <div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:33%"></i></div>
-              <div class="ui-dock__row"><span>Página 2 de 6</span><button class="ui-btn ui-btn--secondary ui-btn--sm" type="button"><i data-lucide="rows-2" aria-hidden="true"></i>Ocultar tradução</button></div>
-            </div>
+            <div class="ui-dock"><div class="ui-progress ui-progress--accent" aria-hidden="true"><i style="--p:33%"></i></div><div class="ui-dock__row"><div class="ui-transport" role="group" aria-label="Narração"><button class="ui-iconbtn" type="button" aria-label="Frase anterior"><i data-lucide="skip-back" aria-hidden="true"></i></button><button class="ui-transport__play" type="button" aria-label="Continuar narração"><i data-lucide="play" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Ouvir de novo"><i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div><span class="ui-dock__pct">33%<span> lido</span></span><button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Mostrar tradução">Ocultar tradução</span></button></div></div>
+
           </div>
           <div class="phone__home" aria-hidden="true"></div>
         </div></div>
-        <figcaption class="phone__caption"><strong>Leitor</strong> · tradução dividida, frase pareada (cinza) e palavra grifada, tema escuro</figcaption>
+        <figcaption class="phone__caption"><strong>Leitor</strong> · tradução dividida, frase pareada (cinza), palavra grifada e narração pausada, tema escuro</figcaption>
       </figure>
-
-      <!-- Dictionary -->
       <figure class="phone" aria-label="Dicionário, verbete finestra">
         <div class="phone__device"><div class="phone__screen">
           <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
@@ -622,6 +736,105 @@
         <figcaption class="phone__caption"><strong>Dicionário</strong> · verbete aberto pela aba</figcaption>
       </figure>
 
+      <figure class="phone" aria-label="Biblioteca depois de uma sincronização com três histórias novas">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body">
+            <div class="ui-appbar ui-appbar--large"><p class="ui-appbar__title">Biblioteca</p><div class="ui-appbar__actions"></div></div>
+            <div class="phone__scroll">
+              <h4 class="ui-largetitle">Biblioteca</h4>
+              <p class="ui-statusline" role="status"><span class="ui-dot" aria-hidden="true"></span><span><b>3 histórias novas</b> chegaram</span></p>
+              <div class="id-searchrow"><div class="ui-search"><i data-lucide="search" aria-hidden="true"></i><input type="search" aria-label="Buscar histórias" placeholder="Buscar" autocomplete="off"></div></div>
+              <div class="ui-facets" role="group" aria-label="Filtros"><button class="ui-facet" type="button" aria-haspopup="dialog" aria-expanded="false">Nível<i data-lucide="chevron-down" aria-hidden="true"></i></button><button class="ui-facet" type="button" aria-haspopup="dialog" aria-expanded="false">Gênero<i data-lucide="chevron-down" aria-hidden="true"></i></button><button class="ui-facet" type="button" aria-haspopup="dialog" aria-expanded="false">Tema<i data-lucide="chevron-down" aria-hidden="true"></i></button></div>
+              <div class="ui-sechead"><p class="ui-sechead__title"><span class="ui-label">Todas as histórias</span><span class="ui-sechead__count">8</span></p></div>
+              <ul class="id-cards"><li><a class="id-card" href="#componentes"><span class="id-card__kicker">Viagem · Comida · Sicília</span><span class="id-card__title" lang="it">Il mercato di Ballarò</span><span class="id-card__sub" lang="it">Colori, voci e odori di Palermo.</span><span class="id-card__meta"><span class="ui-level" data-level="b1">B1</span><span>7 min</span><span class="id-card__narr"><i data-lucide="headphones" aria-hidden="true"></i><span aria-hidden="true">6:40</span><span class="visually-hidden">narração de 6 min 40 s</span></span><span class="id-card__new"><span class="ui-dot" aria-hidden="true"></span>Chegou agora</span></span></a></li><li><a class="id-card" href="#componentes"><span class="id-card__kicker">Clássicos</span><span class="id-card__title" lang="it">Pinocchio, capitolo primo</span><span class="id-card__sub" lang="it">Mastro Ciliegia trova un pezzo di legno che parla.</span><span class="id-card__meta"><span class="ui-level" data-level="b1">B1</span><span>9 min</span><span class="id-card__narr"><i data-lucide="headphones" aria-hidden="true"></i><span aria-hidden="true">8:05</span><span class="visually-hidden">narração de 8 min 5 s</span></span><span class="id-card__new"><span class="ui-dot" aria-hidden="true"></span>Chegou agora</span></span></a></li><li><a class="id-card" href="#componentes"><span class="id-card__kicker">Conto · Cidade</span><span class="id-card__title" lang="it">L’ultimo autobus</span><span class="id-card__sub" lang="it">Mezzanotte, una fermata vuota, un autista che aspetta.</span><span class="id-card__meta"><span class="ui-level" data-level="b2">B2</span><span>10 min</span><span class="id-card__new"><span class="ui-dot" aria-hidden="true"></span>Chegou agora</span></span></a></li><li><a class="id-card" href="#componentes"><span class="id-card__kicker">Cotidiano · Comida</span><span class="id-card__title" lang="it">Un caffè al banco</span><span class="id-card__sub" lang="it">Come si ordina un caffè in un bar italiano.</span><span class="id-card__meta"><span class="ui-level" data-level="a1">A1</span><span>3 min</span><span class="id-card__narr"><i data-lucide="headphones" aria-hidden="true"></i><span aria-hidden="true">2:51</span><span class="visually-hidden">narração de 2 min 51 s</span></span></span></a></li></ul>
+            </div>
+            <nav class="ui-tabbar" aria-label="Principal"><a class="ui-tab" href="#componentes" aria-current="page"><i data-lucide="library-big" aria-hidden="true"></i>Biblioteca</a><a class="ui-tab" href="#componentes"><i data-lucide="book-a" aria-hidden="true"></i>Dicionário</a><a class="ui-tab" href="#componentes"><i data-lucide="check" aria-hidden="true"></i>Revisão</a><a class="ui-tab" href="#componentes"><i data-lucide="settings-2" aria-hidden="true"></i>Ajustes</a></nav>
+
+          </div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Biblioteca</strong> · três histórias novas, facetas vazias</figcaption>
+      </figure>
+      <figure class="phone" aria-label="Folha Tema com três temas marcados">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body">
+            <div class="ui-appbar ui-appbar--large"><p class="ui-appbar__title">Biblioteca</p><div class="ui-appbar__actions"></div></div>
+            <div class="phone__scroll">
+              <h4 class="ui-largetitle">Biblioteca</h4>
+              <p class="ui-statusline" role="status">152 histórias no aparelho</p>
+              <div class="id-searchrow"><div class="ui-search"><i data-lucide="search" aria-hidden="true"></i><input type="search" aria-label="Buscar histórias" placeholder="Buscar" autocomplete="off"></div></div>
+              <div class="ui-facets" role="group" aria-label="Filtros"><button class="ui-facet is-selected" type="button" aria-haspopup="dialog" aria-expanded="false"><span class="visually-hidden">Nível: </span><span class="ui-facet__v">A2</span><i data-lucide="chevron-down" aria-hidden="true"></i></button><button class="ui-facet is-selected" type="button" aria-haspopup="dialog" aria-expanded="false">Gênero · 3<span class="visually-hidden"> selecionados</span><i data-lucide="chevron-down" aria-hidden="true"></i></button><button class="ui-facet is-selected" type="button" aria-haspopup="dialog" aria-expanded="true">Tema · 3<span class="visually-hidden"> selecionados</span><i data-lucide="chevron-down" aria-hidden="true"></i></button></div>
+              <div class="ui-sechead"><p class="ui-sechead__title"><span class="ui-label">Resultados</span><span class="ui-sechead__count">9</span></p><button class="ui-btn ui-btn--ghost ui-btn--sm ui-sechead__action" type="button">Limpar filtros</button></div>
+              <ul class="id-cards"><li><a class="id-card" href="#componentes"><span class="id-card__kicker">Conto · Nonna · Comida</span><span class="id-card__title" lang="it">Domenica dalla nonna</span><span class="id-card__sub" lang="it">Il ragù cuoce dalle sette del mattino.</span><span class="id-card__meta"><span class="ui-level" data-level="a2">A2</span><span>2 min</span><span class="id-card__narr"><i data-lucide="headphones" aria-hidden="true"></i><span aria-hidden="true">3:40</span><span class="visually-hidden">narração de 3 min 40 s</span></span></span></a></li></ul>
+            </div>
+            <nav class="ui-tabbar" aria-label="Principal"><a class="ui-tab" href="#componentes" aria-current="page"><i data-lucide="library-big" aria-hidden="true"></i>Biblioteca</a><a class="ui-tab" href="#componentes"><i data-lucide="book-a" aria-hidden="true"></i>Dicionário</a><a class="ui-tab" href="#componentes"><i data-lucide="check" aria-hidden="true"></i>Revisão</a><a class="ui-tab" href="#componentes"><i data-lucide="settings-2" aria-hidden="true"></i>Ajustes</a></nav>
+
+          </div>
+          <div class="phone__home" aria-hidden="true"></div>
+          <div class="ui-overlay"><div class="ui-scrim"></div><div class="ui-sheet ui-sheet--tall" role="dialog" aria-modal="true" aria-labelledby="id-s-tema"><span class="ui-grip" aria-hidden="true"></span><div class="ui-sheet__head"><h4 class="ui-sheet__title" id="id-s-tema">Tema<span class="ui-sheet__count">92 temas</span></h4><button class="ui-btn ui-btn--ghost ui-btn--sm" type="button" aria-label="Limpar tema">Limpar</button></div><p class="ui-sheet__note">Números contam os filtros de <b>Nível</b> e <b>Gênero</b>.</p><div class="ui-search"><i data-lucide="search" aria-hidden="true"></i><input type="search" aria-label="Buscar tema" placeholder="Buscar entre 92 temas" autocomplete="off"></div><div class="ui-sheet__body"><p class="ui-label ui-sheet__group"><span>Marcados</span><span>3</span></p><div role="group" aria-label="Temas marcados"><label class="ui-check"><input class="visually-hidden" type="checkbox" checked><span class="ui-check__box" aria-hidden="true"><i data-lucide="check" aria-hidden="true"></i></span><span class="ui-check__name">Comida</span><span class="ui-check__n">7<span class="visually-hidden"> histórias</span></span></label><label class="ui-check"><input class="visually-hidden" type="checkbox" checked><span class="ui-check__box" aria-hidden="true"><i data-lucide="check" aria-hidden="true"></i></span><span class="ui-check__name">Natal</span><span class="ui-check__n">4<span class="visually-hidden"> histórias</span></span></label><label class="ui-check"><input class="visually-hidden" type="checkbox" checked><span class="ui-check__box" aria-hidden="true"><i data-lucide="check" aria-hidden="true"></i></span><span class="ui-check__name">Nonna</span><span class="ui-check__n">3<span class="visually-hidden"> histórias</span></span></label></div><p class="ui-label ui-sheet__group"><span>Outros temas</span><span>18</span></p><div role="group" aria-label="Outros temas"><label class="ui-check"><input class="visually-hidden" type="checkbox"><span class="ui-check__box" aria-hidden="true"><i data-lucide="check" aria-hidden="true"></i></span><span class="ui-check__name">Família</span><span class="ui-check__n">6<span class="visually-hidden"> histórias</span></span></label><label class="ui-check"><input class="visually-hidden" type="checkbox"><span class="ui-check__box" aria-hidden="true"><i data-lucide="check" aria-hidden="true"></i></span><span class="ui-check__name">Animais</span><span class="ui-check__n">5<span class="visually-hidden"> histórias</span></span></label><label class="ui-check"><input class="visually-hidden" type="checkbox"><span class="ui-check__box" aria-hidden="true"><i data-lucide="check" aria-hidden="true"></i></span><span class="ui-check__name">Inverno</span><span class="ui-check__n">3<span class="visually-hidden"> histórias</span></span></label><label class="ui-check"><input class="visually-hidden" type="checkbox"><span class="ui-check__box" aria-hidden="true"><i data-lucide="check" aria-hidden="true"></i></span><span class="ui-check__name">Amizade</span><span class="ui-check__n">2<span class="visually-hidden"> histórias</span></span></label><label class="ui-check"><input class="visually-hidden" type="checkbox"><span class="ui-check__box" aria-hidden="true"><i data-lucide="check" aria-hidden="true"></i></span><span class="ui-check__name">Mar</span><span class="ui-check__n">2<span class="visually-hidden"> histórias</span></span></label><label class="ui-check"><input class="visually-hidden" type="checkbox"><span class="ui-check__box" aria-hidden="true"><i data-lucide="check" aria-hidden="true"></i></span><span class="ui-check__name">Campo</span><span class="ui-check__n">1<span class="visually-hidden"> história</span></span></label></div><button class="ui-sheet__more" type="button" aria-expanded="false"><span>71 temas sem histórias com esses filtros</span><i data-lucide="chevron-down" aria-hidden="true"></i></button></div><div class="ui-sheet__foot"><p class="visually-hidden" role="status">9 histórias</p><button class="ui-btn ui-btn--primary ui-btn--block" type="button">Ver 9 histórias</button></div></div></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Biblioteca</strong> · folha alta da faceta Tema, três marcados, zeros recolhidos</figcaption>
+      </figure>
+      <figure class="phone" aria-label="Folha Tema buscando nonn, tema escuro">
+        <div class="phone__device"><div class="phone__screen" data-theme="dark">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body">
+            <div class="ui-appbar ui-appbar--large"><p class="ui-appbar__title">Biblioteca</p><div class="ui-appbar__actions"></div></div>
+            <div class="phone__scroll">
+              <h4 class="ui-largetitle">Biblioteca</h4>
+              <p class="ui-statusline" role="status">152 histórias no aparelho</p>
+              <div class="id-searchrow"><div class="ui-search"><i data-lucide="search" aria-hidden="true"></i><input type="search" aria-label="Buscar histórias" placeholder="Buscar" autocomplete="off"></div></div>
+              <div class="ui-facets" role="group" aria-label="Filtros"><button class="ui-facet is-selected" type="button" aria-haspopup="dialog" aria-expanded="false"><span class="visually-hidden">Nível: </span><span class="ui-facet__v">A2</span><i data-lucide="chevron-down" aria-hidden="true"></i></button><button class="ui-facet" type="button" aria-haspopup="dialog" aria-expanded="false">Gênero<i data-lucide="chevron-down" aria-hidden="true"></i></button><button class="ui-facet" type="button" aria-haspopup="dialog" aria-expanded="true">Tema<i data-lucide="chevron-down" aria-hidden="true"></i></button></div>
+              <div class="ui-sechead"><p class="ui-sechead__title"><span class="ui-label">Resultados</span><span class="ui-sechead__count">9</span></p><button class="ui-btn ui-btn--ghost ui-btn--sm ui-sechead__action" type="button">Limpar filtros</button></div>
+              <ul class="id-cards"><li><a class="id-card" href="#componentes"><span class="id-card__kicker">Conto · Nonna · Comida</span><span class="id-card__title" lang="it">Domenica dalla nonna</span><span class="id-card__sub" lang="it">Il ragù cuoce dalle sette del mattino.</span><span class="id-card__meta"><span class="ui-level" data-level="a2">A2</span><span>2 min</span><span class="id-card__narr"><i data-lucide="headphones" aria-hidden="true"></i><span aria-hidden="true">3:40</span><span class="visually-hidden">narração de 3 min 40 s</span></span></span></a></li></ul>
+            </div>
+            <nav class="ui-tabbar" aria-label="Principal"><a class="ui-tab" href="#componentes" aria-current="page"><i data-lucide="library-big" aria-hidden="true"></i>Biblioteca</a><a class="ui-tab" href="#componentes"><i data-lucide="book-a" aria-hidden="true"></i>Dicionário</a><a class="ui-tab" href="#componentes"><i data-lucide="check" aria-hidden="true"></i>Revisão</a><a class="ui-tab" href="#componentes"><i data-lucide="settings-2" aria-hidden="true"></i>Ajustes</a></nav>
+
+          </div>
+          <div class="phone__home" aria-hidden="true"></div>
+          <div class="ui-overlay"><div class="ui-scrim"></div><div class="ui-sheet ui-sheet--tall" role="dialog" aria-modal="true" aria-labelledby="id-s-tema2"><span class="ui-grip" aria-hidden="true"></span><div class="ui-sheet__head"><h4 class="ui-sheet__title" id="id-s-tema2">Tema<span class="ui-sheet__count">92 temas</span></h4><button class="ui-btn ui-btn--ghost ui-btn--sm" type="button" aria-label="Limpar tema" disabled>Limpar</button></div><p class="ui-sheet__note">Números contam o filtro de <b>Nível</b>.</p><div class="ui-search"><i data-lucide="search" aria-hidden="true"></i><span class="ui-search__value" role="textbox" aria-label="Buscar tema">nonn<span class="ui-search__caret" aria-hidden="true"></span></span><button class="ui-iconbtn ui-search__clear" type="button" aria-label="Limpar busca"><i data-lucide="x" aria-hidden="true"></i></button></div><div class="ui-sheet__body"><p class="ui-label ui-sheet__group"><span>2 de 92 temas</span></p><div role="group" aria-label="Temas encontrados"><label class="ui-check"><input class="visually-hidden" type="checkbox"><span class="ui-check__box" aria-hidden="true"><i data-lucide="check" aria-hidden="true"></i></span><span class="ui-check__name"><b>Nonn</b>a</span><span class="ui-check__n">9<span class="visually-hidden"> histórias</span></span></label><label class="ui-check"><input class="visually-hidden" type="checkbox" disabled><span class="ui-check__box" aria-hidden="true"><i data-lucide="check" aria-hidden="true"></i></span><span class="ui-check__name"><b>Nonn</b>o</span><span class="ui-check__n">0 de 4<span class="visually-hidden"> histórias: nenhuma com os outros filtros</span></span></label></div><p class="ui-sheet__note">Sem acento e sem maiúsculas: “sicilia” acha Sicília. A busca olha só os nomes de tema.</p></div><div class="ui-sheet__foot"><p class="visually-hidden" role="status">152 histórias</p><button class="ui-btn ui-btn--primary ui-btn--block" type="button">Ver 152 histórias</button></div></div></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Biblioteca</strong> · busca dentro da folha: trecho achado sublinhado, valor zerado desativado, tema escuro</figcaption>
+      </figure>
+      <figure class="phone" aria-label="Leitor esperando os arquivos do novo idioma">
+        <div class="phone__device"><div class="phone__screen">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body">
+            <div class="ui-appbar">
+              <button class="ui-iconbtn" type="button" aria-label="Voltar à biblioteca"><i data-lucide="chevron-left" aria-hidden="true"></i></button>
+              <p class="ui-appbar__title" lang="it">Il treno per Bologna</p>
+              <div class="ui-appbar__actions"><button class="ui-iconbtn" type="button" aria-label="Tamanho do texto"><i data-lucide="a-large-small" aria-hidden="true"></i></button><button class="ui-iconbtn" type="button" aria-label="Mais opções"><i data-lucide="ellipsis" aria-hidden="true"></i></button></div>
+            </div>
+            <div class="phone__scroll id-rpad" lang="it">
+              <header class="ui-titlepage"><p class="ui-titlepage__meta"><span class="ui-level" data-level="a2">A2</span><span lang="pt-BR">Viagem · Emília-Romanha</span></p><h4 class="ui-titlepage__title">Il treno per Bologna</h4><p class="ui-titlepage__sub">Marta va a trovare la nonna dopo due anni.</p><div class="ui-wait" lang="pt-BR" role="status"><span class="ui-wait__icon"><i data-lucide="download" aria-hidden="true"></i></span><p class="ui-wait__title">O português ainda está chegando</p><p class="ui-wait__text">Você trocou o idioma das traduções. O italiano desta história já está aqui; quando a tradução terminar de baixar, a história abre sozinha.</p><span class="ui-progress" aria-hidden="true"><i style="--p:60%"></i></span><div class="ui-wait__actions"><button class="ui-btn ui-btn--primary ui-btn--block" type="button">Ler sem tradução</button><button class="ui-btn ui-btn--ghost ui-btn--block" type="button">Voltar à biblioteca</button></div></div></header>
+            </div>
+
+          </div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Leitor</strong> · espera depois de trocar o idioma das traduções</figcaption>
+      </figure>
+      <figure class="phone" aria-label="Ajustes, idiomas e Sobre, tema escuro">
+        <div class="phone__device"><div class="phone__screen" data-theme="dark">
+          <div class="phone__status" aria-hidden="true"><span>9:41</span><span class="phone__status-icons"><i></i><i></i><b></b></span></div>
+          <div class="phone__body">
+            <div class="ui-appbar is-scrolled"><span></span><p class="ui-appbar__title">Ajustes</p><div class="ui-appbar__actions"></div></div>
+            <div class="phone__scroll">
+              <div class="ui-sechead"><p class="ui-sechead__title"><span class="ui-label">Idiomas</span></p></div>
+              <ul class="ui-list"><li class="ui-row ui-row--compact"><a class="ui-row__main" href="#componentes"><span class="ui-row__text"><span class="ui-row__title">Aprendo</span></span><span class="ui-row__value">Italiano</span><span class="id-chev"><i data-lucide="chevron-right" aria-hidden="true"></i></span></a></li><li class="ui-row ui-row--compact"><a class="ui-row__main" href="#componentes"><span class="ui-row__text"><span class="ui-row__title">Traduções em</span></span><span class="ui-row__value">Português</span><span class="id-chev"><i data-lucide="chevron-right" aria-hidden="true"></i></span></a></li></ul>
+              <p class="id-setnote">Ao trocar, as histórias no novo idioma são baixadas na próxima visita à Biblioteca. Você continua lendo enquanto isso.</p>
+              <div class="ui-sechead"><p class="ui-sechead__title"><span class="ui-label">Sobre</span></p></div>
+              <div class="id-about"><span class="wordmark" role="img" aria-label="Postilla">Post<span class="wordmark__i">ı</span>lla</span><dl class="ui-colophon" lang="pt-BR"><div><dt>App</dt><dd>Versão 1.0.0</dd></div><div><dt>Dicionário</dt><dd>Versão 2.1.0<small>Wikizionario de 01/10/2026</small></dd></div><div><dt>Histórias</dt><dd>152 no aparelho<small>Sincronização 42</small></dd></div></dl><p class="id-credits">Dicionário: Wikizionario, en.wiktionary e WikDict, CC BY-SA. Frequência: NVdB, De Mauro 2016. Extração: wiktextract e kaikki.</p></div>
+            </div>
+            <nav class="ui-tabbar" aria-label="Principal"><a class="ui-tab" href="#componentes"><i data-lucide="library-big" aria-hidden="true"></i>Biblioteca</a><a class="ui-tab" href="#componentes"><i data-lucide="book-a" aria-hidden="true"></i>Dicionário</a><a class="ui-tab" href="#componentes"><i data-lucide="check" aria-hidden="true"></i>Revisão</a><a class="ui-tab" href="#componentes" aria-current="page"><i data-lucide="settings-2" aria-hidden="true"></i>Ajustes</a></nav>
+
+          </div>
+          <div class="phone__home" aria-hidden="true"></div>
+        </div></div>
+        <figcaption class="phone__caption"><strong>Ajustes</strong> · rolada: Idiomas no topo, colofão do app em Sobre, tema escuro</figcaption>
+      </figure>
     </div>
   </div>
 </section>
@@ -676,7 +889,7 @@
         <figcaption><span class="book-dd__tag book-dd__tag--dont"><i data-lucide="x" aria-hidden="true"></i>Não faça</span><br>Não use uma cor por botão, caixa alta e sombra 3D. É o visual Duolingo.</figcaption>
       </figure>
       <figure>
-        <div class="book-dd__stage" lang="it"><p class="id-rtext id-rtext--flat">Marta apre la <span class="ui-word is-selected">finestra</span> della cucina.</p><div><button class="ui-btn ui-btn--secondary ui-btn--sm" type="button" lang="pt-BR"><i data-lucide="rows-2" aria-hidden="true"></i>Mostrar tradução</button></div></div>
+        <div class="book-dd__stage" lang="it"><p class="id-rtext id-rtext--flat">Marta apre la <span class="ui-word is-selected">finestra</span> della cucina.</p><div lang="pt-BR"><button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button></div></div>
         <figcaption><span class="book-dd__tag book-dd__tag--do"><i data-lucide="check" aria-hidden="true"></i>Faça</span><br>Mantenha a tradução oculta e deixe um único botão claro para abri-la.</figcaption>
       </figure>
       <figure>
@@ -713,7 +926,7 @@
 
 </main>
 
-<footer class="book-footer"><div class="book-wrap">Postilla · sistema v0.2 · tokens em <code>tokens.css</code> · componentes em <code>book.css</code>, documentados em <code>components-shared.md</code></div></footer>
+<footer class="book-footer"><div class="book-wrap">Postilla · sistema v0.4 · tokens em <code>tokens.css</code> · componentes em <code>book.css</code>, documentados em <code>components-shared.md</code></div></footer>
 
 <script>
 /* swatches, scale, spacing, buttons: generated from data to keep the page short */
@@ -770,7 +983,7 @@
   const sp = document.querySelector('[data-spaces]');
   if (sp) sp.innerHTML = [1,2,3,4,5,6,8,10,12,16,20].map(n => `<div class="id-space"><span>--space-${n} · ${n*4}</span><i style="width:${n*4}px"></i></div>`).join('');
 
-  const kinds = [['primary', 'Primário', 'Começar a ler'], ['secondary', 'Secundário', 'Mostrar tradução'], ['ghost', 'Fantasma', 'Agora não'], ['accent', 'Acento · 1 por fluxo', 'Continuar']];
+  const kinds = [['primary', 'Primário', 'Começar a ler'], ['secondary', 'Secundário', 'Limpar busca'], ['ghost', 'Fantasma', 'Agora não'], ['accent', 'Acento · 1 por fluxo', 'Continuar']];
   const states = [['', 'padrão'], ['is-hover', 'hover'], ['is-active', 'pressionado'], ['is-focus', 'foco'], ['disabled', 'desativado']];
   const bt = document.querySelector('[data-buttons]');
   if (bt) {

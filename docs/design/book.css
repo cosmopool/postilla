@@ -1,6 +1,6 @@
 /* ==========================================================================
    POSTILLA — book.css (shared components + phone frame + book layout)
-   v0.3 · requires tokens.css first:
+   v0.4 · requires tokens.css first:
      <link rel="stylesheet" href="tokens.css">
      <link rel="stylesheet" href="book.css">
    Do not copy, fork or override these classes in a book. Book-specific rules
@@ -100,8 +100,7 @@
 .ui-btn--ghost:disabled { color: var(--color-ink-faint); }
 
 /* true toggles whose label never changes may use aria-pressed (pressed = ink fill).
-   NOT the translation button: it swaps its label ("Mostrar tradução" ↔ "Ocultar
-   tradução"), and the label alone carries the state — no aria-pressed, no fill. */
+   The translation button is not a .ui-btn: see .ui-trbtn (label swaps, no aria-pressed). */
 .ui-btn--secondary[aria-pressed="true"] { background: var(--color-ink); color: var(--color-on-ink); }
 
 /* ---- Icon button -------------------------------------------------------- */
@@ -293,6 +292,195 @@
 }
 .ui-dock__row > span { white-space: nowrap; }
 
+/* "N% lido": <span class="ui-dock__pct">36%<span> lido</span></span> ("Lida" when completed, no inner span).
+   Next to the transport, the text starts 16px after the last glyph. Narrow screens (LEI-07),
+   measured on the nearest inline-size container (.phone__screen in a phone; a dock shown on its
+   own needs a wrapper with container-type: inline-size at the screen width):
+     screen < 386px → "lido" leaves the screen · < 360px → the number leaves too (progress line only).
+   Both stay in the accessible text. Without the transport nothing shrinks. */
+.ui-dock__pct { flex: 1 1 auto; min-width: 0; white-space: nowrap; }
+.ui-transport + .ui-dock__pct { margin-inline-start: calc(var(--space-2) * -1); }
+@container (max-width: 385px) {
+  .ui-transport + .ui-dock__pct > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
+@container (max-width: 359px) {
+  .ui-dock__row:has(> .ui-transport) { gap: var(--space-1); }
+  .ui-transport + .ui-dock__pct { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .ui-transport ~ .ui-trbtn::after { inset-inline-start: calc(var(--space-1) * -1); }
+}
+
+/* ---- Narration transport (dock, LEI-14/15) ------------------------------ */
+/* <div class="ui-transport" role="group" aria-label="Narração">
+     <button class="ui-iconbtn" type="button" aria-label="Frase anterior" disabled><i data-lucide="skip-back" aria-hidden="true"></i></button>
+     <button class="ui-transport__play" type="button" aria-label="Ouvir narração a partir daqui"><i data-lucide="play" aria-hidden="true"></i></button>
+     <button class="ui-iconbtn" type="button" aria-label="Ouvir de novo" disabled><i data-lucide="rotate-ccw" aria-hidden="true"></i></button>
+   </div>
+   Three 44px targets, no gap, fixed order; the group appears whole or not at all, so a second tap on
+   the disc always pauses. Play ↔ pause swaps glyph and label ("Pausar narração" / "Continuar
+   narração"), never aria-pressed. Glyphs (not hit boxes) align to the gutter, like the app bar. */
+.ui-transport { flex: none; display: inline-flex; align-items: center; margin-inline-start: calc((var(--icon-size-sm) - var(--tap-min)) / 2); }
+.ui-transport svg, .ui-transport [data-lucide] { width: var(--icon-size-sm); height: var(--icon-size-sm); }
+.ui-transport__play {
+  flex: none; display: inline-grid; place-items: center; width: var(--tap-min); height: var(--tap-min);
+  padding: 0; border: 0; border-radius: var(--radius-pill); cursor: pointer;
+  background: var(--color-ink); color: var(--color-on-ink);                /* ink disc, never yellow */
+  transition: background-color var(--dur-fast) var(--ease-standard), transform var(--dur-instant) var(--ease-standard);
+}
+.ui-transport__play svg { fill: currentColor; }
+.ui-transport__play:hover, .ui-transport__play.is-hover { background: color-mix(in oklab, var(--color-ink) 86%, var(--color-bg)); }
+.ui-transport__play:active, .ui-transport__play.is-active { background: color-mix(in oklab, var(--color-ink) 76%, var(--color-bg)); transform: scale(0.96); }
+
+/* ---- Translation button (dock) ------------------------------------------- */
+/* <button class="ui-trbtn" type="button"><i data-lucide="languages" aria-hidden="true"></i><span class="ui-trbtn__label" data-alt="Ocultar tradução">Mostrar tradução</span></button>
+   One element, three states; only label and colour change. The label IS the state
+   ("Mostrar tradução" ↔ "Ocultar tradução"): never aria-pressed, no outline, no fill.
+   data-alt = the other label: the box is as wide as the longer one, so the icon never moves.
+   No translation (TRA-10): same label, aria-disabled="true" + aria-describedby → hint
+   ("Esta história ainda não tem tradução em português"), --color-ink-faint, no press pill.
+   The 44px hit area and the ghost pill sit in ::after, 12px past the glyphs on each side. */
+.ui-trbtn {
+  position: relative; isolation: isolate; flex: none;
+  display: inline-flex; align-items: center; gap: var(--space-2);
+  min-height: var(--tap-min); padding: 0; border: 0; background: transparent;
+  color: var(--color-ink); font: var(--type-small); white-space: nowrap; cursor: pointer;
+}
+.ui-trbtn > svg, .ui-trbtn > [data-lucide] { width: var(--icon-size-sm); height: var(--icon-size-sm); }
+.ui-trbtn::after {
+  content: ""; position: absolute; z-index: -1; inset: 0 calc(var(--space-3) * -1);
+  border-radius: var(--radius-pill); transition: background-color var(--dur-fast) var(--ease-standard);
+}
+.ui-trbtn:hover::after, .ui-trbtn.is-hover::after { background: var(--color-surface); }
+.ui-trbtn:active::after, .ui-trbtn.is-active::after { background: var(--color-surface-2); }
+.ui-trbtn:focus-visible, .ui-trbtn.is-focus { outline: none; }               /* the ring goes on the pill */
+.ui-trbtn:focus-visible::after, .ui-trbtn.is-focus::after { outline: var(--border-focus) solid var(--color-focus); outline-offset: 2px; }
+.ui-trbtn[aria-disabled="true"] { color: var(--color-ink-faint); cursor: default; }
+.ui-trbtn[aria-disabled="true"]:is(:hover, :active, .is-hover, .is-active)::after { background: transparent; }
+.ui-trbtn__label { display: inline-flex; flex-direction: column; }
+.ui-trbtn__label::after { content: attr(data-alt); height: 0; overflow: hidden; visibility: hidden; }
+
+/* ---- Story title page + colophon (Reader LEI-13; colophon also in Ajustes › Sobre, AJU-04) ---- */
+/* <header class="ui-titlepage" lang="it">
+     <p class="ui-titlepage__meta"><span class="ui-level" data-level="a2">A2</span><span lang="pt-BR">Viagem · Emília-Romanha</span></p>
+     <h1 class="ui-titlepage__title">Il treno per Bologna</h1>
+     <p class="ui-titlepage__sub">Marta va a trovare la nonna dopo due anni.</p>
+     <dl class="ui-colophon" lang="pt-BR"><div><dt>Leitura</dt><dd>2 min · narração de 4:12</dd></div>…</dl>
+   </header>
+   Scrolls away with the text. Colophon rows appear only when they apply; <small> = second line. */
+.ui-titlepage { margin: 0 0 var(--space-8); }
+.ui-titlepage__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin: 0 0 var(--space-3); font: var(--type-meta); color: var(--color-ink-muted); }
+.ui-titlepage__title { margin: 0 0 var(--space-2); font: var(--type-title-lg); letter-spacing: var(--tracking-display); color: var(--color-ink); }
+.ui-titlepage__sub { margin: 0 0 var(--space-5); font: var(--type-lead); font-style: italic; color: var(--color-ink-muted); }
+.ui-colophon {
+  margin: 0; padding: var(--space-3) 0; display: grid; grid-template-columns: max-content minmax(0, 1fr);
+  gap: var(--space-2) var(--space-3); align-items: baseline; border-block: var(--border-hairline) solid var(--color-rule);
+}
+.ui-colophon > div { display: contents; }                 /* label column = widest label, in any language */
+.ui-colophon dt { font: var(--type-label); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--color-ink-muted); }
+.ui-colophon dd { margin: 0; font: var(--type-small); color: var(--color-ink); }
+.ui-colophon dd small { display: block; font: var(--type-meta); color: var(--color-ink-muted); }
+
+/* ---- Reader wait (BIB-12: files of the new language still downloading) ----- */
+/* <div class="ui-wait" role="status"><span class="ui-wait__icon"><i data-lucide="download" aria-hidden="true"></i></span>
+     <p class="ui-wait__title">O português ainda está chegando</p><p class="ui-wait__text">…</p>
+     <span class="ui-progress" aria-hidden="true"><i style="--p:60%"></i></span>
+     <div class="ui-wait__actions">[primary block "Ler sem tradução", only when the target file is here][ghost block "Voltar à biblioteca"]</div></div>
+   Takes the place of the colophon and the text, under the title page. */
+.ui-wait {
+  display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: var(--space-3);
+  padding: var(--space-5); border-radius: var(--radius-card); background: var(--color-surface); color: var(--color-ink);
+}
+.ui-wait > :not(.ui-wait__icon, .ui-wait__title) { grid-column: 1 / -1; }
+.ui-wait__icon { display: grid; place-items: center; width: var(--space-10); height: var(--space-10); border-radius: var(--radius-pill); background: var(--color-bg); color: var(--color-ink); }
+.ui-wait__icon svg, .ui-wait__icon [data-lucide] { width: var(--icon-size-sm); height: var(--icon-size-sm); }
+.ui-wait__title { margin: 0; font: var(--type-button); }
+.ui-wait__text { margin: 0; font: var(--type-small); color: var(--color-ink-muted); }
+.ui-wait__actions { display: grid; gap: var(--space-2); margin-top: var(--space-2); }
+
+/* ---- Library status line (BIB-13, OFF-24, OFF-26) ------------------------ */
+/* Under the large title; the only place where syncing speaks. role="status", no close button.
+   count:  <p class="ui-statusline" role="status">152 histórias no aparelho</p>
+   new:    <p class="ui-statusline" role="status"><span class="ui-dot" aria-hidden="true"></span><span><b>3 histórias novas</b> chegaram</span></p>
+   notice: <div class="ui-statusline ui-statusline--notice" role="status"><i data-lucide="circle-arrow-up" aria-hidden="true"></i>
+             <span>Há histórias novas que esta versão do app não abre.</span>
+             <a class="ui-statusline__link" href="…">Atualizar na loja<i data-lucide="external-link" aria-hidden="true"></i></a></div>
+   Ink and muted ink only: the notice is not an error (no error colour, nothing blocked). */
+.ui-largetitle:has(+ .ui-statusline) { padding-bottom: 0; }
+.ui-statusline {
+  display: flex; align-items: center; gap: var(--space-2); margin: 0; padding: var(--space-1) var(--gutter) var(--space-4);
+  font: var(--type-small); color: var(--color-ink-muted); font-variant-numeric: tabular-nums;
+}
+.ui-statusline b { color: var(--color-ink); font-weight: var(--weight-semibold); }
+.ui-statusline--notice { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: 0 var(--space-2); padding-bottom: var(--space-2); }
+.ui-statusline--notice > svg, .ui-statusline--notice > [data-lucide] { width: var(--icon-size-sm); height: var(--icon-size-sm); }
+.ui-statusline__link {
+  grid-column: 2; justify-self: start; display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--tap-min);
+  color: var(--color-ink); font: var(--type-small); font-weight: var(--weight-medium);
+  text-decoration: underline; text-decoration-thickness: var(--border-hairline); text-underline-offset: 0.24em;
+}
+.ui-statusline__link:hover, .ui-statusline__link.is-hover { text-decoration-thickness: var(--border-strong); }
+.ui-statusline__link svg, .ui-statusline__link [data-lucide] { width: var(--space-4); height: var(--space-4); }
+/* "new" marker: 6px ink dot before "N histórias novas" and the card's "Chegou agora". Always aria-hidden. */
+.ui-dot { display: inline-block; flex: none; width: 6px; height: 6px; border-radius: var(--radius-pill); background: var(--color-ink); }
+
+/* ---- Library facets (BIB-05): Nível · Gênero · Tema, each opens its sheet --- */
+/* <div class="ui-facets" role="group" aria-label="Filtros">
+     <button class="ui-facet" type="button" aria-haspopup="dialog" aria-expanded="false">Nível<i data-lucide="chevron-down" aria-hidden="true"></i></button>
+     <button class="ui-facet is-selected" …><span class="visually-hidden">Gênero: </span><span class="ui-facet__v">Conto</span><i data-lucide="chevron-down" aria-hidden="true"></i></button>
+     <button class="ui-facet is-selected" …>Tema · 3<span class="visually-hidden"> selecionados</span><i data-lucide="chevron-down" aria-hidden="true"></i></button>
+   </div>
+   Closed summary: nothing = the facet's name; one value = the value (ellipsis when long); several =
+   "name · N". .is-selected (≥ 1 value checked) = ink fill: the text changes too, never colour alone. */
+.ui-facets { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; padding: var(--space-1) var(--gutter) var(--space-3); }
+.ui-facet {
+  position: relative; display: inline-flex; align-items: center; gap: var(--space-1); min-width: 0; max-width: 100%;
+  min-height: 36px; padding: 0 var(--space-2) 0 var(--space-3); border-radius: var(--radius-pill);
+  border: var(--border-hairline) solid var(--color-rule-strong); background: transparent; color: var(--color-ink);
+  font: var(--type-small); font-weight: var(--weight-medium); font-variant-numeric: tabular-nums; white-space: nowrap; cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-standard), color var(--dur-fast) var(--ease-standard);
+}
+.ui-facet::after { content: ""; position: absolute; inset: -4px 0; }        /* 44px hit area */
+.ui-facet > svg, .ui-facet > [data-lucide] { width: var(--space-4); height: var(--space-4); }
+.ui-facet:hover, .ui-facet.is-hover { background: var(--color-surface); }
+.ui-facet:active, .ui-facet.is-active { background: var(--color-surface-2); }
+.ui-facet.is-selected { background: var(--color-ink); border-color: var(--color-ink); color: var(--color-on-ink); }
+.ui-facet.is-selected:hover, .ui-facet.is-selected.is-hover { background: color-mix(in oklab, var(--color-ink) 86%, var(--color-bg)); }
+.ui-facet.is-selected:active, .ui-facet.is-selected.is-active { background: color-mix(in oklab, var(--color-ink) 76%, var(--color-bg)); }
+.ui-facet__v { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+@container (max-width: 350px) {                                              /* 323px screens: three facets still fit one line */
+  .ui-facets { gap: 6px; }
+  .ui-facet { gap: 0; padding-inline: 10px var(--space-1); }
+  .ui-facet.is-selected { padding-inline-end: 10px; }
+  .ui-facet.is-selected > svg, .ui-facet.is-selected > [data-lucide] { display: none; }
+}
+
+/* ---- Checklist row (facet sheets) ----------------------------------------- */
+/* <label class="ui-check"><input class="visually-hidden" type="checkbox"><span class="ui-check__box" aria-hidden="true"><i data-lucide="check"></i></span>
+     <span class="ui-check__name">Nonna</span><span class="ui-check__n">9<span class="visually-hidden"> histórias</span></span></label>
+   State lives on the real checkbox (checked / disabled). Search match: <span class="ui-check__name"><b>Nonn</b>a</span>
+   (semibold + underline, not colour). Disabled (zero with the other filters) = ink-faint, count "0 de 6". */
+.ui-check {
+  position: relative; display: flex; align-items: center; gap: var(--space-3); min-height: var(--tap-min);
+  margin-inline: calc(-1 * var(--space-2)); padding: 0 var(--space-2); border-radius: var(--radius-field); cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-standard);
+}
+.ui-check:hover, .ui-check.is-hover { background: var(--color-surface); }
+.ui-check:active, .ui-check.is-active { background: var(--color-surface-2); }
+.ui-check:has(input:focus-visible), .ui-check.is-focus { outline: var(--border-focus) solid var(--color-focus); outline-offset: calc(var(--border-focus) * -1); }
+.ui-check__box {
+  display: grid; place-items: center; flex: none; width: var(--icon-size-sm); height: var(--icon-size-sm);
+  border: var(--border-strong) solid var(--color-ink-muted); border-radius: var(--radius-mark); color: var(--color-on-ink);
+  transition: background-color var(--dur-fast) var(--ease-standard), border-color var(--dur-fast) var(--ease-standard);
+}
+.ui-check__box svg, .ui-check__box [data-lucide] { width: 14px; height: 14px; stroke-width: 2.25px; visibility: hidden; }
+.ui-check:has(input:checked) .ui-check__box { background: var(--color-ink); border-color: var(--color-ink); }
+.ui-check:has(input:checked) .ui-check__box :is(svg, [data-lucide]) { visibility: visible; }
+.ui-check__name { flex: 1; min-width: 0; font: var(--type-body); color: var(--color-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ui-check__name b { font-weight: var(--weight-semibold); text-decoration: underline; text-decoration-thickness: var(--border-hairline); text-underline-offset: 0.18em; }
+.ui-check__n { font: var(--type-meta); color: var(--color-ink-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ui-check:has(input:disabled) { cursor: default; background: transparent; }
+.ui-check:has(input:disabled) .ui-check__box { border-color: var(--color-rule-strong); }
+.ui-check:has(input:disabled) :is(.ui-check__name, .ui-check__n) { color: var(--color-ink-faint); }
+
 /* ---- Hero card ("Continuar lendo", "Próxima história") -------------------- */
 .ui-hero {
   display: grid; gap: var(--space-2); padding: var(--space-5); border-radius: var(--radius-card);
@@ -377,7 +565,8 @@ a.ui-hero:hover, a.ui-hero:active, .ui-hero.is-hover, .ui-hero.is-active { backg
   transition: background-color var(--dur-fast) var(--ease-standard), width var(--dur-fast) var(--ease-standard);
 }
 /* bottom sheet: <div class="ui-overlay"><div class="ui-scrim"></div><div class="ui-sheet" role="dialog">…</div></div>
-   (overlay is a child of .phone__screen). Quick settings only — the dictionary never opens in a sheet. */
+   (overlay is a child of .phone__screen). Quick settings (Aa) and the Library facet sheets (--tall);
+   the dictionary never opens in a sheet. */
 .ui-overlay { position: absolute; inset: 0; z-index: 1; display: grid; grid-template: minmax(0, 1fr) / minmax(0, 1fr); }
 .ui-scrim { grid-area: 1 / 1; background: var(--color-scrim); }
 .ui-sheet {
@@ -389,6 +578,44 @@ a.ui-hero:hover, a.ui-hero:active, .ui-hero.is-hover, .ui-hero.is-active { backg
 .ui-sheet > .ui-grip { justify-self: center; }
 .ui-sheet__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-bottom: calc(var(--space-2) * -1); }
 .ui-sheet__title { margin: 0; font: var(--type-heading); letter-spacing: var(--tracking-tight); }
+/* tall sheet (Library facet sheets, BIB-05/14): flex column, the list scrolls, the footer stays.
+   <div class="ui-sheet ui-sheet--tall" role="dialog" aria-modal="true" aria-labelledby="…">
+     <span class="ui-grip" aria-hidden="true"></span>
+     <div class="ui-sheet__head"><h3 class="ui-sheet__title" id="…">Tema<span class="ui-sheet__count">92 temas</span></h3>[ghost sm "Limpar", disabled while nothing is checked]</div>
+     <p class="ui-sheet__note">Números contam o filtro de <b>Nível</b>.</p>            (optional context line)
+     <div class="ui-search">…</div>                                                     (only with more than 12 values)
+     <div class="ui-sheet__body">
+       <p class="ui-label ui-sheet__group"><span>Marcados</span><span>3</span></p><div role="group" aria-label="…">.ui-check × n</div>
+       <button class="ui-sheet__more" type="button" aria-expanded="false"><span>10 gêneros sem histórias com esses filtros</span><i data-lucide="chevron-down"></i></button>
+     </div>
+     <div class="ui-sheet__foot"><p class="visually-hidden" role="status">9 histórias</p><button class="ui-btn ui-btn--primary ui-btn--block" type="button">Ver 9 histórias</button></div>
+   </div>
+   No yellow anywhere in it. */
+.ui-sheet--tall { display: flex; flex-direction: column; gap: var(--space-3); height: calc(100% - var(--safe-top) - var(--space-5)); min-height: 0; }
+.ui-sheet--tall > .ui-grip { align-self: center; flex: none; }
+.ui-sheet--tall > .ui-search { flex: none; }
+.ui-sheet__count { margin-inline-start: var(--space-2); font: var(--type-meta); letter-spacing: var(--tracking-normal); color: var(--color-ink-muted); font-variant-numeric: tabular-nums; }
+.ui-sheet__note { margin: 0; font: var(--type-meta); color: var(--color-ink-muted); }
+.ui-sheet__note b { color: var(--color-ink); font-weight: var(--weight-semibold); }
+.ui-sheet__body {                                          /* padding gives the rows' hover box room to bleed */
+  flex: 1; min-height: 0; margin-inline: calc(-1 * var(--space-2)); padding-inline: var(--space-2);
+  overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none;
+}
+.ui-sheet__body::-webkit-scrollbar { display: none; }
+.ui-sheet__body > .ui-sheet__note { margin-top: var(--space-3); }
+.ui-sheet__group { display: flex; justify-content: space-between; gap: var(--space-2); margin: var(--space-3) 0 var(--space-1); font-variant-numeric: tabular-nums; }
+.ui-sheet__group:first-child { margin-top: 0; }
+.ui-sheet__more {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); width: calc(100% + var(--space-4));
+  min-height: var(--tap-min); margin: var(--space-2) calc(-1 * var(--space-2)) 0; padding: 0 var(--space-2);
+  border: 0; border-top: var(--border-hairline) solid var(--color-rule); background: transparent;
+  color: var(--color-ink-muted); font: var(--type-small); text-align: start; cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-standard);
+}
+.ui-sheet__more:hover, .ui-sheet__more.is-hover { background: var(--color-surface); }
+.ui-sheet__more:focus-visible, .ui-sheet__more.is-focus { outline-offset: calc(var(--border-focus) * -1); }
+.ui-sheet__more svg, .ui-sheet__more [data-lucide] { width: var(--space-4); height: var(--space-4); }
+.ui-sheet__foot { flex: none; display: grid; gap: var(--space-1); margin-inline: calc(-1 * var(--gutter)); padding: var(--space-3) var(--gutter) 0; border-top: var(--border-hairline) solid var(--color-rule); }
 /* split divider: <div class="ui-divider"><span>label</span><span class="ui-divider__handle" role="separator" tabindex="0"><span class="ui-grip"></span></span><span class="ui-divider__ratio">50 / 50</span></div>
    .is-hover = pointer over · .is-active = dragging · .ui-divider__handle.is-focus = keyboard (inset ring) */
 .ui-divider {

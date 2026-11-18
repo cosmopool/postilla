@@ -48,13 +48,14 @@ How to read:
 | Story without a native translation: "Sem tradução" note on the card, "Mostrar tradução" disabled (TRA-10). | 2026-11-13 |
 | The dictionary credits stay hard-coded; `meta.license` and `meta.attribution` are not shown (AJU-04). | 2026-11-13 |
 | About shows the story count and the stored cursor instead of a stories version (OFF-13). | 2026-11-13 |
-| Design direction from the mock round in `docs/design/mocks/` (free-2, reader-1, library-2): the Library's status line is the one place where syncing speaks, with no toast and no banner; new stories carry "Chegou agora" until opened; the seed's stories never count as new (OFF-24, OFF-26, BIB-13, §11 #34). | 2026-11-13 |
+| Design direction from the mock round (free-2, reader-1, library-2; the mocks were deleted once the books matched them): the Library's status line is the one place where syncing speaks, with no toast and no banner; new stories carry "Chegou agora" until opened; the seed's stories never count as new (OFF-24, OFF-26, BIB-13, §11 #34). | 2026-11-13 |
 | Library filter: facets Nível · Gênero · Tema under the search, each opening a sheet with a searchable checklist, story counts that apply the other facets, and zero values disabled, not hidden. Replaces the chip groups (BIB-05, BIB-08, BIB-14). | 2026-11-13 |
 | Reader: the story opens on a title page with a colophon (credit, reading and narration, coverage, missing translation) (LEI-13). | 2026-11-13 |
 | Narration transport in the dock: "Frase anterior" · Play/Pause · "Ouvir de novo"; the mark stays on pause; no "next sentence" (LEI-15). | 2026-11-13 |
 | Translation button: the `languages` icon and its label, no outline; disabled per TRA-10, which is unchanged (design system). | 2026-11-13 |
 | After a language switch, a story still downloading opens the Reader with a wait in place of the text; the "Baixando…" dialog is dropped (BIB-12). | 2026-11-13 |
 | Settings opens with Idiomas ("Aprendo", "Traduções em") and About ends with the app's colophon (AJU-04, AJU-08). | 2026-11-13 |
+| Book gaps closed: the filter sheet note names facets, not values; no group label with nothing checked; a sheet search miss is one line; the card kicker is genre + 2 tags + "+N"; the sync-only empty state and "Ver 0 histórias" stay as drawn; the wait without the target file talks about the story; the choice page stays lemma + part of speech, no gloss; a story that fails to open offers only "Voltar à biblioteca" (BIB-01, BIB-05, BIB-08, BIB-12, BIB-14, LEI-02, LEI-16). | 2026-11-18 |
 
 ## Versions
 
@@ -77,7 +78,7 @@ How to read:
 | Offline | OFF-01..05, OFF-10..13, OFF-20..27, OFF-30, OFF-31, OFF-33, OFF-34 |
 | Navigation | NAV-01..06 |
 | Library | BIB-01, BIB-04..14 |
-| Reader | LEI-01..06, LEI-08, LEI-10..15 |
+| Reader | LEI-01..06, LEI-08, LEI-10..16 |
 | Reader with translation | TRA-01..10 |
 | Dictionary | DIC-01..11 |
 | Settings | AJU-01..04, AJU-08 |

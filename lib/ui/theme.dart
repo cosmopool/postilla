@@ -32,7 +32,7 @@ class Tokens extends ThemeExtension<Tokens> {
   final Color accent, accentSoft, focus, onInk, scrim;
   final Color wordSelectedBg, wordSelectedLine, wordHoverBg;
   final Color sentenceBg, sentencePressBg, sentenceLine;
-  final List<Color> levelBg, levelInk; // A1…B2
+  final List<Color> levelBg, levelInk; // A1…C2
   final bool dark;
 
   static const light = Tokens(
@@ -55,8 +55,8 @@ class Tokens extends ThemeExtension<Tokens> {
     sentenceBg: Color(0xFFDDDCD8),
     sentencePressBg: Color(0xFFEDECE8),
     sentenceLine: Color(0xFFC8C7C2),
-    levelBg: [Color(0xFFDEF7EC), Color(0xFFC6EBDC), Color(0xFFA5D8C3), Color(0xFF7DBBA3)],
-    levelInk: [Color(0xFF0E3629), Color(0xFF0E3629), Color(0xFF0E3629), Color(0xFF0B2A20)],
+    levelBg: [Color(0xFFDEF7EC), Color(0xFFC6EBDC), Color(0xFFA5D8C3), Color(0xFF7DBBA3), Color(0xFF3C7661), Color(0xFF214C3D)],
+    levelInk: [Color(0xFF0E3629), Color(0xFF0E3629), Color(0xFF0E3629), Color(0xFF0B2A20), Color(0xFFF2FBF7), Color(0xFFF2FBF7)],
     dark: false,
   );
 
@@ -80,8 +80,8 @@ class Tokens extends ThemeExtension<Tokens> {
     sentenceBg: Color(0xFF31302C),
     sentencePressBg: Color(0xFF22221E),
     sentenceLine: Color(0xFF44423E),
-    levelBg: [Color(0xFF172B24), Color(0xFF1C3D31), Color(0xFF285847), Color(0xFF548E78)],
-    levelInk: [Color(0xFFD6EFE4), Color(0xFFD6EFE4), Color(0xFFD6EFE4), Color(0xFF071A13)],
+    levelBg: [Color(0xFF172B24), Color(0xFF1C3D31), Color(0xFF285847), Color(0xFF548E78), Color(0xFF82BDA5), Color(0xFFB5DFCE)],
+    levelInk: [Color(0xFFD6EFE4), Color(0xFFD6EFE4), Color(0xFFD6EFE4), Color(0xFF071A13), Color(0xFF071A13), Color(0xFF071A13)],
     dark: true,
   );
 

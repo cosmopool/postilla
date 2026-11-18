@@ -191,7 +191,8 @@ class _LibraryPageState extends State<LibraryPage> {
                     itemCount: list.length,
                     itemBuilder: (context, i) => StoryCard(
                       story: list[i],
-                      genre: gName(list[i].genre),
+                      lists: _lists,
+                      state: _state,
                       first: i == 0,
                       onTap: () => openReader(context, list[i], _stories, _lists, _state),
                     ),

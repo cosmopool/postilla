@@ -12,13 +12,16 @@ String _inflate(String name, Directory dir) {
   return target;
 }
 
-/// Abre o isolate do banco com o conteúdo de produção e um `user` novo.
+/// Opens the database isolate with the production content, a fresh `user` and
+/// a fresh story index filled from the debug fixture (assets/dev/).
 Future<void> openTestDbs() async {
   final cache = Directory('${Directory.systemTemp.path}/postilla-test-content')..createSync(recursive: true);
-  final user = Directory.systemTemp.createTempSync('postilla-user');
+  final run = Directory.systemTemp.createTempSync('postilla-run');
   await dbOpen(
-    userPath: '${user.path}/user.db',
+    userPath: '${run.path}/user.db',
     dictPath: _inflate('dict', cache),
     storiesPath: _inflate('stories', cache),
+    indexPath: '${run.path}/stories-index.db',
   );
+  await dbLoadIndexFixture(File('assets/dev/index_fixture.json').readAsStringSync());
 }
